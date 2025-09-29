@@ -1,20 +1,20 @@
 package MeshX.HypeLink.direct_strore.sales.month_sale.model.entity;
 
+import MeshX.HypeLink.direct_strore.sales.SaleCommon;
 import MeshX.HypeLink.head_office.store.model.entity.StoreMember;
 import jakarta.persistence.*;
+import lombok.*;
 import org.apache.catalina.StoreManager;
 
 import java.time.LocalDate;
 
-public class MonthSale {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idx;
-
-    private LocalDate salesDate;
+@Getter
+@Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Setter
+public class MonthSale extends SaleCommon {
     private Integer quantity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id")
-    private StoreMember storeMonthSale;
 }

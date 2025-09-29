@@ -1,5 +1,6 @@
 package MeshX.HypeLink.direct_strore.sales.category_sale.model.entity;
 
+import MeshX.HypeLink.direct_strore.sales.SaleCommon;
 import MeshX.HypeLink.head_office.store.model.entity.StoreMember;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,19 +13,10 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
-public class CategorySale {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idx;
-
-    private LocalDate salesDate;
-
+public class CategorySale extends SaleCommon {
     @Enumerated(EnumType.STRING)
     private CategoryType category;
 
     private Integer quantity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id")
-    private StoreMember storeCategorySale;
 }
