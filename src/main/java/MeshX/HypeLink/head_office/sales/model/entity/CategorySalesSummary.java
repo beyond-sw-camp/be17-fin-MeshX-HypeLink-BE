@@ -1,7 +1,7 @@
 package MeshX.HypeLink.head_office.sales.model.entity;
 
 import MeshX.HypeLink.common.BaseEntity;
-import MeshX.HypeLink.head_office.item.Category;
+import MeshX.HypeLink.head_office.promotion.model.entity.ItemCategory;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -18,7 +18,7 @@ public class CategorySalesSummary extends BaseEntity {
     private Integer id;
 
     @Enumerated(EnumType.STRING)
-    private Category category;
+    private ItemCategory category;
 
     @Column(nullable = false)
     private LocalDate summaryDate;

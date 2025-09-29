@@ -11,15 +11,13 @@ import java.util.List;
 
 @Entity
 @Getter
+@Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Item extends BaseEntity {
+@DiscriminatorColumn(name = "item_type")
+public abstract class Item extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private Category category;
 
     @OneToMany(mappedBy = "item")
     private List<OrderItem> orderItems;
@@ -28,4 +26,5 @@ public class Item extends BaseEntity {
     private String name;
     private String content;
     private String company;
+    private String itemCode;
 }

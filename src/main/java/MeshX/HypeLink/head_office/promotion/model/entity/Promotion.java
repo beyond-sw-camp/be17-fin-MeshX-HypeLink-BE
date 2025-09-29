@@ -1,6 +1,5 @@
 package MeshX.HypeLink.head_office.promotion.model.entity;
 
-import MeshX.HypeLink.head_office.item.Category;
 import MeshX.HypeLink.head_office.item.Item;
 import MeshX.HypeLink.head_office.store.model.entity.StoreMember;
 import jakarta.persistence.*;
@@ -34,7 +33,7 @@ public class Promotion {
     private StoreMember store;  // 특정 직영점 이벤트
 
     @Enumerated(EnumType.STRING)
-    private Category category;  // 특정 카테고리 이벤트
+    private ItemCategory category;  // 특정 카테고리 이벤트
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
