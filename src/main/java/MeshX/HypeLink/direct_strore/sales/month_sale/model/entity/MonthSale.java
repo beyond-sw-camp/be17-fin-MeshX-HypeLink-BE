@@ -1,5 +1,6 @@
 package MeshX.HypeLink.direct_strore.sales.month_sale.model.entity;
 
+import MeshX.HypeLink.head_office.store.model.entity.StoreMember;
 import jakarta.persistence.*;
 import org.apache.catalina.StoreManager;
 

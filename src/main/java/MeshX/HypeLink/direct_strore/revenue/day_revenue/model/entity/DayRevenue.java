@@ -1,5 +1,7 @@
 package MeshX.HypeLink.direct_strore.revenue.day_revenue.model.entity;
 
+import MeshX.HypeLink.common.BaseEntity;
+import MeshX.HypeLink.head_office.store.model.entity.StoreMember;
 import jakarta.persistence.*;
 import lombok.*;
 
