@@ -36,8 +36,10 @@ out/
 ### VS Code ###
 .vscode/
 
+### macOS ###
+.DS_Store
+
 ### env ###
 .env
+src/main/resources/.env
 
-### DS_Store ###
-.DS_Store

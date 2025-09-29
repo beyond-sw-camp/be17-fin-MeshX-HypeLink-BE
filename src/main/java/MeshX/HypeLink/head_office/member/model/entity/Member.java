@@ -1,0 +1,30 @@
+package MeshX.HypeLink.head_office.member.model.entity;
+
+import MeshX.HypeLink.common.BaseEntity;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Member extends BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    private String email;
+    private String password;
+    private String name;
+
+    @Column(nullable = false)
+    private LocalDate birthDate; // 생년월일, 연령대는 DB에서 SQL로 계산해서 들고 올 예정
+
+    @OneToMany(mappedBy = "member")
+    private List<Payment> payments; // 결제 내역들...
+
+}
