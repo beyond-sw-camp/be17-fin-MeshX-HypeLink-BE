@@ -1,6 +1,6 @@
 package MeshX.HypeLink.head_office.member.model.entity;
 
-import MeshX.HypeLink.head_office.item.Item;
+import MeshX.HypeLink.direct_strore.item.DirectItem;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -20,7 +20,7 @@ public class OrderItem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", nullable = false)
-    private Item item;
+    private DirectItem item;
 
     @Column(nullable = false)
     private Integer quantity;     // 구매 수량
