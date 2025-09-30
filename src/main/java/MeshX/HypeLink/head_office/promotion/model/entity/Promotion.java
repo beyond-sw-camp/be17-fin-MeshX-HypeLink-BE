@@ -1,6 +1,6 @@
 package MeshX.HypeLink.head_office.promotion.model.entity;
 
-import MeshX.HypeLink.head_office.item.Item;
+import MeshX.HypeLink.direct_strore.item.DirectItem;
 import MeshX.HypeLink.head_office.store.model.entity.StoreMember;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -37,5 +37,5 @@ public class Promotion {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
-    private Item item;           // 특정 상품 이벤트
+    private DirectItem item;           // 특정 상품 이벤트
 }

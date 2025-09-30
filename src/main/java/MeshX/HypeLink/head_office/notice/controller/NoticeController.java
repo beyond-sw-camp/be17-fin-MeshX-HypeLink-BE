@@ -8,7 +8,6 @@ import MeshX.HypeLink.head_office.notice.model.dto.response.NoticeInfoRes;
 import MeshX.HypeLink.head_office.notice.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -42,7 +41,7 @@ public class NoticeController {
         return ResponseEntity.status(200).body(BaseResponse.of(noticeInfoRes));
     }
 
-    @DeleteMapping("/read/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<BaseResponse<String>> deleteNotice(@PathVariable Integer id) {
         noticeService.delete(id);
         return ResponseEntity.status(200).body(BaseResponse.of("성공적으로 삭제 되었습니다."));

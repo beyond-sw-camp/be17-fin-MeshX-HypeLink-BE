@@ -1,7 +1,7 @@
 package MeshX.HypeLink.head_office.member.model.entity;
 
 import MeshX.HypeLink.common.BaseEntity;
-import MeshX.HypeLink.head_office.item.Item;
+import MeshX.HypeLink.head_office.store.model.entity.StoreMember;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -37,6 +37,10 @@ public class Payment extends BaseEntity {
     @OneToMany(mappedBy = "payment")
     private List<OrderItem> orderItems;
 
+    @ManyToOne
+    @JoinColumn(name = "purchase_store_id")
+    private StoreMember purchaseStore;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
@@ -47,4 +51,8 @@ public class Payment extends BaseEntity {
 
     private LocalDateTime paidAt;
     private LocalDateTime cancelledAt;
+
+    public void setPurchaseStore(StoreMember purchaseStore) {
+        this.purchaseStore = purchaseStore;
+    }
 }
