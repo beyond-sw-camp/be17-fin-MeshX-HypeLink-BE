@@ -10,3 +10,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
+logging:
+  level:
+    org.springframework.web.socket: DEBUG
+    org.springframework.messaging: DEBUG
