@@ -10,3 +10,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
+jwt:
+  secret-key: 123123123qweqweqwe123123123qwe123qwe12311111
+  access-token-expiration-ms: 3600000
+  refresh-token-expiration-ms: 604800000

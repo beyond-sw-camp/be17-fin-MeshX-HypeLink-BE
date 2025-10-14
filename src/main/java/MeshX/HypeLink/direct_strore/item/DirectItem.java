@@ -33,4 +33,43 @@ public abstract class DirectItem extends BaseEntity {
     private String company;
     private String itemCode;
     private Integer stock;
+
+
+    protected DirectItem(Integer amount, String name, String content, String company, String itemCode, Integer stock){
+        this.amount = amount;
+        this.name = name;
+        this.content = content;
+        this.company = company;
+        this.itemCode = itemCode;
+        this.stock = stock;
+    }
+
+    protected void setCommonFields(Integer amount, String name, String content, String company, String itemCode, Integer stock){
+        this.amount = amount;
+        this.name = name;
+        this.content = content;
+        this.company = company;
+        this.itemCode = itemCode;
+        this.stock = stock;
+    }
+
+    public void updateAmount(Integer amount){
+        this.amount = amount;
+    }
+    public void updateName(String name){
+        this.name = name;
+    }
+    public void updateContent(String content){
+        this.content = content;
+    }
+    public void updateCompany(String company){
+        this.company = company;
+    }
+    public void updateItemCode(String itemCode){
+        this.itemCode = itemCode;
+    }
+    public void updateStock(Integer stock){
+        this.stock = stock;
+    }
+
 }
