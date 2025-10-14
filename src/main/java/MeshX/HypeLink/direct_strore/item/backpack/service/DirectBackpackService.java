@@ -32,7 +32,7 @@ public class DirectBackpackService {
     }
 
     public PageRes<DirectBackpackInfoRes> readList(PageReq pageReq) {//페이징용
-        Page<DirectBackPack> entityPage = repository.findAll(pageReq.toPageRequest());
+        Page<DirectBackPack> entityPage = repository.findAll(pageReq);
         Page<DirectBackpackInfoRes> dtoPage = DirectBackpackInfoRes.toDtoPage(entityPage);
         return PageRes.toDto(dtoPage);
     }

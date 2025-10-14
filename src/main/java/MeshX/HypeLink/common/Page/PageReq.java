@@ -21,5 +21,9 @@ public class PageReq {
         return PageRequest.of(page, pageSize, sort);
     }
 
+    public boolean isValid() {
+        return (page != null && page >= 0)
+                && (pageSize != null && pageSize > 0);
+    }
 
 }

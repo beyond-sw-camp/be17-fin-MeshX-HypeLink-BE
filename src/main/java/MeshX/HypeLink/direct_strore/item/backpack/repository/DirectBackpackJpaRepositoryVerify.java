@@ -1,5 +1,6 @@
 package MeshX.HypeLink.direct_strore.item.backpack.repository;
 
+import MeshX.HypeLink.common.Page.PageReq;
 import MeshX.HypeLink.direct_strore.item.backpack.exception.DirectBackpackException;
 import MeshX.HypeLink.direct_strore.item.backpack.model.entity.DirectBackPack;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-import static MeshX.HypeLink.direct_strore.item.backpack.exception.DirectBackpackExceptionMessage.NOT_FOUND;
+import static MeshX.HypeLink.direct_strore.item.backpack.exception.DirectBackpackExceptionMessage.*;
 
 @Repository("directStoreBackpackJpaRepositoryVerify")
 @RequiredArgsConstructor
@@ -29,8 +30,16 @@ public class DirectBackpackJpaRepositoryVerify {
         throw new DirectBackpackException(NOT_FOUND);
     }
 
-    public Page<DirectBackPack> findAll(Pageable pageable) {
-        Page<DirectBackPack> page = repository.findAll(pageable);
+    public Page<DirectBackPack> findAll(PageReq pageReq) {
+        if (!pageReq.isValid()) {//null 값 체크 + O 이상
+            if (pageReq.getPage() == null || pageReq.getPage() < 0) {
+                throw new DirectBackpackException(INVALID_PAGE);
+            }
+            if (pageReq.getPageSize() == null || pageReq.getPageSize() <= 0) {
+                throw new DirectBackpackException(INVALID_PAGE_SIZE);
+            }
+        }
+        Page<DirectBackPack> page = repository.findAll(pageReq.toPageRequest());
         if (page.hasContent()) {
             return page;
         }
