@@ -3,11 +3,13 @@ package MeshX.HypeLink.auth.controller;
 import MeshX.HypeLink.auth.model.dto.AuthTokens;
 import MeshX.HypeLink.auth.model.dto.LoginReqDto;
 import MeshX.HypeLink.auth.model.dto.RegisterReqDto;
-import MeshX.HypeLink.auth.model.dto.TokenDto;
+import MeshX.HypeLink.auth.model.dto.TokenResDto;
 import MeshX.HypeLink.auth.service.AuthService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
+import MeshX.HypeLink.auth.utils.CookieUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,40 +19,46 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
-    private final long REFRESH_TOKEN_EXPIRE_TIME = 60 * 60 * 24 * 7;
+
+    @Value("${jwt.refresh-token-expiration-ms}")
+    private long refreshTokenExpirationMs;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterReqDto dto) {
-        authService.register(dto);
-        return ResponseEntity.ok("회원가입이 완료되었습니다.");
+    public ResponseEntity<TokenResDto> register(@RequestBody RegisterReqDto dto) {
+        AuthTokens authTokens = authService.register(dto);
+        return createTokenResponse(authTokens);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenDto> login(@RequestBody LoginReqDto dto, HttpServletResponse response) {
+    public ResponseEntity<TokenResDto> login(@RequestBody LoginReqDto dto) {
         AuthTokens authTokens = authService.login(dto);
-
-        // Refresh Token을 HttpOnly 쿠키에 설정
-        Cookie refreshTokenCookie = new Cookie("refresh_token", authTokens.getRefreshToken());
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge((int) REFRESH_TOKEN_EXPIRE_TIME);
-
-        response.addCookie(refreshTokenCookie);
-
-        return ResponseEntity.ok(new TokenDto(authTokens.getAccessToken()));
+        return createTokenResponse(authTokens);
     }
 
-    @PostMapping("/refresh")
-    public ResponseEntity<TokenDto> reissueTokens(@CookieValue("refresh_token") String refreshToken, HttpServletResponse response) {
+    @PostMapping("/reissue")
+    public ResponseEntity<TokenResDto> reissue(@CookieValue("refresh_token") String refreshToken) {
         AuthTokens authTokens = authService.reissueTokens(refreshToken);
+        return createTokenResponse(authTokens);
+    }
 
-        Cookie refreshTokenCookie = new Cookie("refresh_token", authTokens.getRefreshToken());
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge((int) REFRESH_TOKEN_EXPIRE_TIME);
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String authorizationHeader) {
+        String accessToken = authorizationHeader.substring("Bearer ".length());
+        authService.logout(accessToken);
 
-        response.addCookie(refreshTokenCookie);
+        // 로그아웃 시 쿠키 삭제
+        ResponseCookie emptyCookie = CookieUtils.createEmptyCookie();
 
-        return ResponseEntity.ok(new TokenDto(authTokens.getAccessToken()));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, emptyCookie.toString())
+                .body("정상적으로 로그아웃 처리되었습니다.");
+    }
+
+    private ResponseEntity<TokenResDto> createTokenResponse(AuthTokens authTokens) {
+        ResponseCookie cookie = CookieUtils.createRefreshTokenCookie(authTokens.getRefreshToken(), refreshTokenExpirationMs);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(new TokenResDto(authTokens.getAccessToken()));
     }
 }

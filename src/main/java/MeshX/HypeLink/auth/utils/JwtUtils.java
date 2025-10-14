@@ -2,6 +2,7 @@ package MeshX.HypeLink.auth.utils;
 
 import MeshX.HypeLink.auth.exception.TokenException;
 import MeshX.HypeLink.auth.exception.TokenExceptionMessage;
+import MeshX.HypeLink.auth.model.dto.AuthTokens;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -16,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -39,23 +41,27 @@ public class JwtUtils {
         this.refreshTokenExpirationMs = refreshTokenExpirationMs;
     }
 
-    // Access Token 생성
+    public AuthTokens generateTokens(String email, String role) {
+        String accessToken = createAccessToken(email, role);
+        String refreshToken = createRefreshToken(email, role);
+        return new AuthTokens(accessToken, refreshToken);
+    }
+
     public String createAccessToken(String email, String role) {
         return generateToken(email, role, accessTokenExpirationMs);
     }
 
-    // Refresh Token 생성 (권한 정보 없음)
-    public String createRefreshToken(String email) {
-        return generateToken(email, null, refreshTokenExpirationMs);
+    public String createRefreshToken(String email, String role) {
+        return generateToken(email, role, refreshTokenExpirationMs);
     }
 
     private String generateToken(String email, String role, long expirationMs) {
-        long now = (new Date()).getTime();
-        Date expiryDate = new Date(now + expirationMs);
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + expirationMs);
 
         JwtBuilder builder = Jwts.builder()
                 .setSubject(email)
-                .setIssuedAt(new Date())
+                .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(key, SignatureAlgorithm.HS256);
 
@@ -66,18 +72,17 @@ public class JwtUtils {
         return builder.compact();
     }
 
-    // 토큰에서 인증 정보 조회 (Spring Security 연동)
-    public Authentication getAuthentication(String accessToken) {
-        Claims claims = parseClaims(accessToken);
+    public Authentication getAuthentication(String token) {
+        Claims claims = parseClaims(token);
 
-        if (claims.get(AUTHORITIES_KEY) == null) {
-            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
+        Object authoritiesClaim = claims.get(AUTHORITIES_KEY);
+        if (authoritiesClaim == null) {
+            throw new TokenException(TokenExceptionMessage.INVALID_TOKEN);
         }
 
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
+        Collection<? extends GrantedAuthority> authorities = Arrays.stream(authoritiesClaim.toString().split(","))
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
 
         UserDetails principal = new User(claims.getSubject(), "", authorities);
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
@@ -85,7 +90,7 @@ public class JwtUtils {
 
     public void validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(key).parseClaimsJws(token);
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             throw new TokenException(TokenExceptionMessage.INVALID_SIGNATURE);
         } catch (ExpiredJwtException e) {
@@ -97,10 +102,25 @@ public class JwtUtils {
         }
     }
 
-    private Claims parseClaims(String accessToken) {
+    public String getEmailFromToken(String token) {
+        return parseClaims(token).getSubject();
+    }
+
+    public String getRoleFromToken(String token) {
+        return parseClaims(token).get(AUTHORITIES_KEY, String.class);
+    }
+
+    public Duration getRemainingTime(String token) {
+        Date expiration = parseClaims(token).getExpiration();
+        long remainingMillis = expiration.getTime() - System.currentTimeMillis();
+        return Duration.ofMillis(remainingMillis > 0 ? remainingMillis : 0);
+    }
+
+    private Claims parseClaims(String token) {
         try {
-            return Jwts.parser().setSigningKey(key).parseClaimsJws(accessToken).getBody();
+            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
         } catch (ExpiredJwtException e) {
+            // 만료된 토큰의 경우에도 클레임은 반환
             return e.getClaims();
         }
     }

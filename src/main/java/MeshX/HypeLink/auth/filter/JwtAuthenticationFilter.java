@@ -1,5 +1,8 @@
 package MeshX.HypeLink.auth.filter;
 
+import MeshX.HypeLink.auth.exception.TokenException;
+import MeshX.HypeLink.auth.exception.TokenExceptionMessage;
+import MeshX.HypeLink.auth.service.TokenStore;
 import MeshX.HypeLink.auth.utils.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,6 +22,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String BEARER_PREFIX = "Bearer ";
     private final JwtUtils jwtUtils;
+    private final TokenStore tokenStore; // TokenStore 주입
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -26,9 +30,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (StringUtils.hasText(jwt)) {
             jwtUtils.validateToken(jwt);
+
+            // 블랙리스트 확인 로직 추가
+            if (tokenStore.isBlacklisted(jwt)) {
+                throw new TokenException(TokenExceptionMessage.BLACKLISTED_TOKEN);
+            }
+
             Authentication authentication = jwtUtils.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            //인증된 사용자 정보를 저장
         }
 
         filterChain.doFilter(request, response);
