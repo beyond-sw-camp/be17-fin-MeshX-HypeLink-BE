@@ -7,13 +7,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TokenDto {
+public class TokenResDto {
     private String accessToken;
-
-//{
-//  "sub": "qwer@qwer.com",
-//  "role": "ROLE_ADMIN",
-//  "iat": 123,
-//  "exp": 123
-//}
 }

@@ -3,6 +3,7 @@ package MeshX.HypeLink.auth.config;
 import MeshX.HypeLink.auth.filter.JwtAuthenticationFilter;
 import MeshX.HypeLink.auth.handler.JwtAccessDeniedHandler;
 import MeshX.HypeLink.auth.handler.JwtAuthenticationEntryPoint;
+import MeshX.HypeLink.auth.service.TokenStore;
 import MeshX.HypeLink.auth.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -31,6 +32,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
 
     private final JwtUtils jwtUtils;
+    private final TokenStore tokenStore; // TokenStore 주입
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
@@ -85,7 +87,7 @@ public class SecurityConfig {
                 )
 
                 // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 추가
-                .addFilterBefore(new JwtAuthenticationFilter(jwtUtils), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthenticationFilter(jwtUtils, tokenStore), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

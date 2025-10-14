@@ -18,6 +18,11 @@ public class Member extends BaseEntity {
     private String email;
     private String name;
     private String password;
+    //전화 번호
+    private String number;
+    //가게 주소
+    private String address;
+
 
     @Enumerated(EnumType.STRING)
     private MemberRole role;
