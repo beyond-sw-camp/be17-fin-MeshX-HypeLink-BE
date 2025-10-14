@@ -3,6 +3,8 @@ package MeshX.HypeLink.direct_strore.item.backpack.repository;
 import MeshX.HypeLink.direct_strore.item.backpack.exception.DirectBackpackException;
 import MeshX.HypeLink.direct_strore.item.backpack.model.entity.DirectBackPack;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -23,6 +25,14 @@ public class DirectBackpackJpaRepositoryVerify {
         List<DirectBackPack> backpacks = repository.findAll();
         if(!backpacks.isEmpty()){
             return backpacks;
+        }
+        throw new DirectBackpackException(NOT_FOUND);
+    }
+
+    public Page<DirectBackPack> findAll(Pageable pageable) {
+        Page<DirectBackPack> page = repository.findAll(pageable);
+        if (page.hasContent()) {
+            return page;
         }
         throw new DirectBackpackException(NOT_FOUND);
     }

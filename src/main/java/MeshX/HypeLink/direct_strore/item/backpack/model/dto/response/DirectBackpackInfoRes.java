@@ -5,6 +5,7 @@ import MeshX.HypeLink.direct_strore.item.backpack.model.entity.BackPackCategory;
 import MeshX.HypeLink.direct_strore.item.backpack.model.entity.DirectBackPack;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.data.domain.Page;
 
 @Getter
 public class DirectBackpackInfoRes {
@@ -43,5 +44,9 @@ public class DirectBackpackInfoRes {
         this.stock = stock;
         this.waterproof = waterproof;
         this.capacity = capacity;
+    }
+
+    public static Page<DirectBackpackInfoRes> toDtoPage(Page<DirectBackPack>  page) {
+        return page.map(DirectBackpackInfoRes::toDto);
     }
 }

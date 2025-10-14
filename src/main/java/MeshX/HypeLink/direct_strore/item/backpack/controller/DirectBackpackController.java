@@ -2,6 +2,8 @@ package MeshX.HypeLink.direct_strore.item.backpack.controller;
 
 
 import MeshX.HypeLink.common.BaseResponse;
+import MeshX.HypeLink.common.Page.PageReq;
+import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.direct_strore.item.backpack.model.dto.request.DirectBackpackCreateReq;
 import MeshX.HypeLink.direct_strore.item.backpack.model.dto.request.DirectBackpackUpdateReq;
 import MeshX.HypeLink.direct_strore.item.backpack.model.dto.response.DirectBackpackInfoListRes;
@@ -33,6 +35,12 @@ public class DirectBackpackController {
     public ResponseEntity<BaseResponse<DirectBackpackInfoListRes>> readBackpacks(){
         DirectBackpackInfoListRes directBackpackInfoListRes = directBackpackService.readList();
         return ResponseEntity.status(200).body(BaseResponse.of(directBackpackInfoListRes));
+    }
+
+    @GetMapping("/read/page/all")
+    public ResponseEntity<BaseResponse<PageRes<DirectBackpackInfoRes>>> readBackpacks(PageReq pageReq) {
+        PageRes<DirectBackpackInfoRes> pageRes = directBackpackService.readList(pageReq);
+        return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
     }
 
     @DeleteMapping("/delete/{id}")
