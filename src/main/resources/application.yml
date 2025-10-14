@@ -17,6 +17,6 @@ logging:
     org.springframework.messaging: DEBUG
 
 jwt:
-  secret-key: 123123123qweqweqwe123123123qwe123qwe12311111
-  access-token-expiration-ms: 3600000
-  refresh-token-expiration-ms: 604800000
+  secret-key: ${JWT_KEY}
+  access-token-expiration-ms: ${JWT_KEY}
+  refresh-token-expiration-ms: ${JWT_KEY}

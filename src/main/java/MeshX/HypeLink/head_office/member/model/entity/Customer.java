@@ -12,7 +12,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member extends BaseEntity {
+public class Customer extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -24,7 +24,7 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private LocalDate birthDate; // 생년월일, 연령대는 DB에서 SQL로 계산해서 들고 올 예정
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "customer")
     private List<Payment> payments; // 결제 내역들...
 
 }
