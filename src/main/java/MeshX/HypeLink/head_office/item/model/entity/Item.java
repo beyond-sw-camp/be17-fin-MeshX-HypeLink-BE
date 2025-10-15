@@ -30,9 +30,6 @@ public class Item extends BaseEntity {
     @JoinColumn(name = "size_id")
     private Size size;
 
-    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
-    private List<OrderItem> orderItems;
-
     private Integer amount; // 가격
     private String name; // 이름
     private String content; // 아이템 설명

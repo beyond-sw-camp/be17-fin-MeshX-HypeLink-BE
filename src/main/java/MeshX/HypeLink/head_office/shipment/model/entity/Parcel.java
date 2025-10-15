@@ -1,16 +1,12 @@
 package MeshX.HypeLink.head_office.shipment.model.entity;
 
-import MeshX.HypeLink.auth.model.entity.Driver;
-import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.common.BaseEntity;
-import MeshX.HypeLink.head_office.item.Item;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -25,9 +21,9 @@ public class Parcel extends BaseEntity {
     private String trackingNumber;
     // 송장 번호
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
-    private List<Item> items = new ArrayList<>();
+    private List<ParcelItem> parcelItems;
     // 아이템들
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -36,10 +32,10 @@ public class Parcel extends BaseEntity {
 
 
     @Builder
-    public Parcel(Integer id, String trackingNumber, List<Item> items, Shipment shipment) {
+    public Parcel(Integer id, String trackingNumber, List<ParcelItem> parcelItems, Shipment shipment) {
         this.id = id;
         this.trackingNumber = trackingNumber;
-        this.items = items;
+        this.parcelItems = parcelItems;
         this.shipment = shipment;
     }
 }

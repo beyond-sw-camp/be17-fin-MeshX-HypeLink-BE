@@ -26,7 +26,7 @@ public class StoreItem extends BaseEntity {
     @JoinColumn(name = "store_id")
     private Store store;
 
-    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "storeItem", fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
 
     private Integer amount; // 가격

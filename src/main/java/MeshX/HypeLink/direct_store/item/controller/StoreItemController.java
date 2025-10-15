@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/item")
+@RequestMapping("/api/store/item")
 @RequiredArgsConstructor
 public class StoreItemController {
     @GetMapping("/{id}")
