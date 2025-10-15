@@ -1,0 +1,52 @@
+package MeshX.HypeLink.head_office.promotion.controller;
+
+import MeshX.HypeLink.common.BaseResponse;
+import MeshX.HypeLink.common.Page.PageReq;
+import MeshX.HypeLink.common.Page.PageRes;
+import MeshX.HypeLink.head_office.promotion.model.dto.request.PromotionCreateReq;
+import MeshX.HypeLink.head_office.promotion.model.dto.request.PromotionUpdateReq;
+import MeshX.HypeLink.head_office.promotion.model.dto.response.PromotionInfoListRes;
+import MeshX.HypeLink.head_office.promotion.model.dto.response.PromotionInfoRes;
+import MeshX.HypeLink.head_office.promotion.service.PromotionService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/promotion")
+@RequiredArgsConstructor
+public class PromotionController {
+    private final PromotionService promotionService;
+
+    @PostMapping("/create")
+    public ResponseEntity<BaseResponse<String>> createPromotion(@RequestBody PromotionCreateReq dto) {
+        promotionService.createPromotion(dto);
+        return ResponseEntity.status(200).body(BaseResponse.of("프로모션이 생성되었습니다."));
+    }
+
+    @GetMapping("/read/all")
+    public ResponseEntity<BaseResponse<PromotionInfoListRes>> readPromotions(){
+        PromotionInfoListRes promotionInfoListRes = promotionService.readList();
+        return ResponseEntity.status(200).body(BaseResponse.of(promotionInfoListRes));
+    }
+
+    @GetMapping("/read/page/all")
+    public ResponseEntity<BaseResponse<PageRes<PromotionInfoRes>>> readBackpacks(PageReq pageReq) {
+        PageRes<PromotionInfoRes> pageRes = promotionService.readList(pageReq);
+        return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<BaseResponse<String>> deletePromotion(@PathVariable Integer id){
+        promotionService.delete(id);
+        return ResponseEntity.status(200).body(BaseResponse.of("프로모션이 성공적으로 삭제 되었습니다."));
+    }
+
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<BaseResponse<PromotionInfoRes>>updateBackpack(@PathVariable Integer id,
+                                                                             @RequestBody PromotionUpdateReq dto){
+        PromotionInfoRes promotionInfoRes = promotionService.update(id, dto.getPromotionType(), dto.getCategory(), dto.getTitle(), dto.getContents(), dto.getDiscountRate(), dto.getStartDate(), dto.getEndDate());
+        return ResponseEntity.status(200).body(BaseResponse.of(promotionInfoRes));
+    }
+
+}
