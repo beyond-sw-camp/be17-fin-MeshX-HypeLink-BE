@@ -1,12 +1,12 @@
 package MeshX.HypeLink.common.Page;
 
-import MeshX.HypeLink.direct_strore.item.backpack.exception.DirectBackpackException;
+import MeshX.HypeLink.direct_store.item.backpack.exception.DirectBackpackException;
 import lombok.*;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
-import static MeshX.HypeLink.direct_strore.item.backpack.exception.DirectBackpackExceptionMessage.INVALID_PAGE;
-import static MeshX.HypeLink.direct_strore.item.backpack.exception.DirectBackpackExceptionMessage.INVALID_PAGE_SIZE;
+import static MeshX.HypeLink.direct_store.item.backpack.exception.DirectBackpackExceptionMessage.INVALID_PAGE;
+import static MeshX.HypeLink.direct_store.item.backpack.exception.DirectBackpackExceptionMessage.INVALID_PAGE_SIZE;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

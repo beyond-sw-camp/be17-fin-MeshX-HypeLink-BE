@@ -1,0 +1,9 @@
+package MeshX.HypeLink.direct_store.item.clothes.top.repsoitory;
+
+
+
+import MeshX.HypeLink.direct_store.item.clothes.top.model.entity.DirectTopClothes;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface DirectTopRepository extends JpaRepository<DirectTopClothes,Integer> {
+}

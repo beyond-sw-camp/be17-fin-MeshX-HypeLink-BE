@@ -1,6 +1,6 @@
 package MeshX.HypeLink.head_office.promotion.model.entity;
 
-import MeshX.HypeLink.direct_strore.item.DirectItem;
+import MeshX.HypeLink.direct_store.item.DirectItem;
 import MeshX.HypeLink.head_office.store.model.entity.StoreMember;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
