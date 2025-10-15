@@ -1,9 +1,6 @@
 package MeshX.HypeLink.auth.model.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,4 +12,17 @@ public class POS {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    private String posCode; // Store Code + 01, 02, 03, 04 ...
+
+    @ManyToOne
+    @JoinColumn(name = "store_id")
+    private Store store;
+
+    private Boolean healthCheck;
+
+    public void setStore(Store store) {
+        this.store = store;
+    }
+
 }

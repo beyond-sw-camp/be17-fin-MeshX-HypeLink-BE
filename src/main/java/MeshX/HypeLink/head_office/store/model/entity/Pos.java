@@ -15,7 +15,6 @@ public class Pos extends BaseEntity {
     private Integer id;
 
     private String posCode; // Store Code + 01, 02, 03, 04 ...
-    private String password;
 
     @ManyToOne
     @JoinColumn(name = "store_member_id")
