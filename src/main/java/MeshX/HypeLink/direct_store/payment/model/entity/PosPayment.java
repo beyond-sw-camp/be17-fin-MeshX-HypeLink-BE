@@ -1,7 +1,7 @@
 package MeshX.HypeLink.direct_store.payment.model.entity;
 
 import MeshX.HypeLink.common.BaseEntity;
-import MeshX.HypeLink.direct_store.pos.posOrder.model.entity.PosOrder;
+import MeshX.HypeLink.direct_store.posOrder.model.entity.PosOrder;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

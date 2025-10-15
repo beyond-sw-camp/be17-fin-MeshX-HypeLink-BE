@@ -20,3 +20,8 @@ jwt:
   secret-key: ${JWT_KEY}
   access-token-expiration-ms: ${JWT_ACCESS}
   refresh-token-expiration-ms: ${JWT_REFRESH}
+
+portone:
+  api:
+    secret: ${PORTONE_API_SECRET}
+  store-id: ${PORTONE_STORE_ID}

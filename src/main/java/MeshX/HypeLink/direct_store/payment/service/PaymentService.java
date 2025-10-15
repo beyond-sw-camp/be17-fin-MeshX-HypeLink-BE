@@ -1,23 +1,24 @@
 package MeshX.HypeLink.direct_store.payment.service;
 
-import MeshX.HypeLink.direct_store.pos.payment.config.PortOneConfig;
-import MeshX.HypeLink.direct_store.pos.payment.exception.PaymentException;
-import MeshX.HypeLink.direct_store.pos.payment.model.dto.request.PaymentValidationReq;
-import MeshX.HypeLink.direct_store.pos.payment.model.entity.PosPayment;
-import MeshX.HypeLink.direct_store.pos.payment.repository.PaymentJpaRepositoryVerify;
-import MeshX.HypeLink.direct_store.pos.posOrder.model.dto.request.PosOrderCreateReq;
-import MeshX.HypeLink.direct_store.pos.posOrder.model.dto.request.PosOrderItemDto;
-import MeshX.HypeLink.direct_store.pos.posOrder.model.dto.response.PosOrderDetailRes;
-import MeshX.HypeLink.direct_store.pos.posOrder.model.entity.PosOrder;
-import MeshX.HypeLink.direct_store.pos.posOrder.model.entity.PosOrderStatus;
-import MeshX.HypeLink.direct_store.pos.posOrder.repository.PosOrderJpaRepositoryVerify;
-import MeshX.HypeLink.direct_store.pos.posOrder.service.PosOrderService;
+import MeshX.HypeLink.direct_store.payment.config.PortOneConfig;
+import MeshX.HypeLink.direct_store.payment.exception.PaymentException;
+import MeshX.HypeLink.direct_store.payment.model.dto.request.PaymentValidationReq;
+import MeshX.HypeLink.direct_store.payment.model.entity.PosPayment;
+import MeshX.HypeLink.direct_store.payment.repository.PaymentJpaRepositoryVerify;
+import MeshX.HypeLink.direct_store.posOrder.model.dto.request.PosOrderCreateReq;
+import MeshX.HypeLink.direct_store.posOrder.model.dto.request.PosOrderItemDto;
+import MeshX.HypeLink.direct_store.posOrder.model.dto.response.PosOrderDetailRes;
+import MeshX.HypeLink.direct_store.posOrder.model.entity.PosOrder;
+import MeshX.HypeLink.direct_store.posOrder.model.entity.PosOrderStatus;
+import MeshX.HypeLink.direct_store.posOrder.repository.PosOrderJpaRepositoryVerify;
+import MeshX.HypeLink.direct_store.posOrder.service.PosOrderService;
+import io.portone.sdk.server.payment.Payment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static MeshX.HypeLink.direct_store.pos.payment.exception.PaymentExceptionMessage.*;
+import static MeshX.HypeLink.direct_store.payment.exception.PaymentExceptionMessage.*;
 
 @Slf4j
 @Service
@@ -35,7 +36,7 @@ public class PaymentService {
     @Transactional
     public PosOrderDetailRes validatePayment(PaymentValidationReq req) {
         try {
-            io.portone.sdk.server.payment.Payment.Recognized portOnePayment =
+            Payment.Recognized portOnePayment =
                     fetchAndValidatePortOnePayment(req.getPaymentId());
 
             Integer actualAmount = (int) portOnePayment.getAmount().getTotal();
@@ -88,7 +89,7 @@ public class PaymentService {
 
 
     private PosOrder createOrderAndPayment(PaymentValidationReq req,
-                                           io.portone.sdk.server.payment.Payment.Recognized portOnePayment,
+                                           Payment.Recognized portOnePayment,
                                            Integer actualAmount) {
         PosOrderDetailRes orderDetail = orderService.createOrder(req.getOrderData());
         PosOrder order = orderRepository.findById(orderDetail.getId());

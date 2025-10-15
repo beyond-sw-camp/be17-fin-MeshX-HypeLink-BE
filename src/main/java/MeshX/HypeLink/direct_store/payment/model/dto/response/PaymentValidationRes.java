@@ -1,6 +1,6 @@
 package MeshX.HypeLink.direct_store.payment.model.dto.response;
 
-import MeshX.HypeLink.direct_store.pos.posOrder.model.dto.response.PosOrderDetailRes;
+import MeshX.HypeLink.direct_store.posOrder.model.dto.response.PosOrderDetailRes;
 import lombok.Builder;
 import lombok.Getter;
 

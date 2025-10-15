@@ -1,13 +1,13 @@
 package MeshX.HypeLink.direct_store.payment.repository;
 
-import MeshX.HypeLink.direct_store.pos.payment.exception.PaymentException;
-import MeshX.HypeLink.direct_store.pos.payment.model.entity.PosPayment;
+import MeshX.HypeLink.direct_store.payment.exception.PaymentException;
+import MeshX.HypeLink.direct_store.payment.model.entity.PosPayment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-import static MeshX.HypeLink.direct_store.pos.payment.exception.PaymentExceptionMessage.*;
+import static MeshX.HypeLink.direct_store.payment.exception.PaymentExceptionMessage.*;
 
 @Repository
 @RequiredArgsConstructor
