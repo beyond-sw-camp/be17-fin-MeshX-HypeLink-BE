@@ -1,5 +1,7 @@
 package MeshX.HypeLink.direct_strore.item.backpack.service;
 
+import MeshX.HypeLink.common.Page.PageReq;
+import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.direct_strore.item.backpack.model.dto.request.DirectBackpackCreateReq;
 import MeshX.HypeLink.direct_strore.item.backpack.model.dto.response.DirectBackpackInfoListRes;
 import MeshX.HypeLink.direct_strore.item.backpack.model.dto.response.DirectBackpackInfoRes;
@@ -7,6 +9,7 @@ import MeshX.HypeLink.direct_strore.item.backpack.model.entity.BackPackCategory;
 import MeshX.HypeLink.direct_strore.item.backpack.model.entity.DirectBackPack;
 import MeshX.HypeLink.direct_strore.item.backpack.repository.DirectBackpackJpaRepositoryVerify;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,10 +26,18 @@ public class DirectBackpackService {
         repository.createBackpack(dto.toEntity());
     }
 
-    public DirectBackpackInfoListRes readList() {
+    public DirectBackpackInfoListRes readList() {//비페이징용
         List<DirectBackPack> backpacks = repository.findAll();
         return DirectBackpackInfoListRes.toDto(backpacks);
     }
+
+    public PageRes<DirectBackpackInfoRes> readList(PageReq pageReq) {//페이징용
+        pageReq.validate();
+        Page<DirectBackPack> entityPage = repository.findAll(pageReq);
+        Page<DirectBackpackInfoRes> dtoPage = DirectBackpackInfoRes.toDtoPage(entityPage);
+        return PageRes.toDto(dtoPage);
+    }
+
 
     public DirectBackpackInfoRes readDetails(Integer id) {
         DirectBackPack backpack = repository.findById(id);
