@@ -15,4 +15,11 @@ public class Store {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    private Double lat;
+    private Double lon;
+    private String address;
+    private Integer posCount;
+    private String storeNumber;
+
 }

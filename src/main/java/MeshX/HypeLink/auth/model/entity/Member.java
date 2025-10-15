@@ -16,24 +16,23 @@ public class Member extends BaseEntity {
     private Integer id;
 
     private String email;
-    private String name;
     private String password;
+    private String name;
     //전화 번호
-    private String number;
+    private String phone;
     //가게 주소
     private String address;
-
 
     @Enumerated(EnumType.STRING)
     private MemberRole role;
 
-    //@ManyToOne(fetch = FetchType.LAZY)
-    //@JoinColumn(name = "store_id")
-    //private Store store;
+    @Enumerated(EnumType.STRING)
+    private Region region;
 
 
     @Column
     private String refreshToken;
+
 
     @Builder
     public Member(String email, String password, String name, MemberRole role) {
