@@ -19,4 +19,9 @@ public class BaseEntity {
     private LocalDateTime createdAt;
     @LastModifiedDate
     private LocalDateTime updatedAt;
+    private Boolean isDeleted;
+
+    private void deleted() {
+        this.isDeleted = true;
+    }
 }
