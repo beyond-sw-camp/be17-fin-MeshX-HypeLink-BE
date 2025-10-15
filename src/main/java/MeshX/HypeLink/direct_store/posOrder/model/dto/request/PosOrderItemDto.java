@@ -1,6 +1,6 @@
 package MeshX.HypeLink.direct_store.posOrder.model.dto.request;
 
-import MeshX.HypeLink.direct_store.pos.posOrder.model.entity.PosOrderItem;
+import MeshX.HypeLink.direct_store.posOrder.model.entity.PosOrderItem;
 import lombok.Getter;
 
 @Getter

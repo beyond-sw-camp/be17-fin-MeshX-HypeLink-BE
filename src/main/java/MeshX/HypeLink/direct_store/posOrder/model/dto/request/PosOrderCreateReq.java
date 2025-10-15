@@ -1,7 +1,7 @@
 package MeshX.HypeLink.direct_store.posOrder.model.dto.request;
 
-import MeshX.HypeLink.direct_store.pos.posOrder.model.entity.PosOrder;
-import MeshX.HypeLink.direct_store.pos.posOrder.model.entity.PosOrderStatus;
+import MeshX.HypeLink.direct_store.posOrder.model.entity.PosOrder;
+import MeshX.HypeLink.direct_store.posOrder.model.entity.PosOrderStatus;
 import lombok.Getter;
 
 import java.util.List;

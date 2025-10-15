@@ -1,9 +1,9 @@
 package MeshX.HypeLink.direct_store.payment.controller;
 
 import MeshX.HypeLink.common.BaseResponse;
-import MeshX.HypeLink.direct_store.pos.payment.model.dto.request.PaymentValidationReq;
-import MeshX.HypeLink.direct_store.pos.payment.service.PaymentService;
-import MeshX.HypeLink.direct_store.pos.posOrder.model.dto.response.PosOrderDetailRes;
+import MeshX.HypeLink.direct_store.payment.model.dto.request.PaymentValidationReq;
+import MeshX.HypeLink.direct_store.payment.service.PaymentService;
+import MeshX.HypeLink.direct_store.posOrder.model.dto.response.PosOrderDetailRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -1,6 +1,6 @@
 package MeshX.HypeLink.direct_store.payment.repository;
 
-import MeshX.HypeLink.direct_store.pos.payment.model.entity.PosPayment;
+import MeshX.HypeLink.direct_store.payment.model.entity.PosPayment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
