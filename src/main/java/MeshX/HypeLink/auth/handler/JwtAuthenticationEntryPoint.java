@@ -31,7 +31,6 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         Map<String, String> errorDetails = new HashMap<>();
         errorDetails.put("title", exceptionMessage.title());
         errorDetails.put("message", exceptionMessage.message());
-
         objectMapper.writeValue(response.getWriter(), errorDetails);
     }
 }
