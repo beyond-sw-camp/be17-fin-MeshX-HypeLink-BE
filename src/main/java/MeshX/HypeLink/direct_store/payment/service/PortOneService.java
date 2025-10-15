@@ -1,12 +1,13 @@
 package MeshX.HypeLink.direct_store.payment.service;
 
-import MeshX.HypeLink.direct_store.pos.payment.exception.PaymentException;
+import MeshX.HypeLink.direct_store.payment.exception.PaymentException;
 import io.portone.sdk.server.PortOneClient;
+import io.portone.sdk.server.payment.Payment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import static MeshX.HypeLink.direct_store.pos.payment.exception.PaymentExceptionMessage.PORTONE_API_ERROR;
+import static MeshX.HypeLink.direct_store.payment.exception.PaymentExceptionMessage.PORTONE_API_ERROR;
 
 @Slf4j
 @Service
@@ -23,7 +24,7 @@ public class PortOneService {
     public io.portone.sdk.server.payment.Payment getPayment(String paymentId) {
         try {
             log.info("Requesting payment info from PortOne API. paymentId: {}", paymentId);
-            io.portone.sdk.server.payment.Payment response = portOneClient.getPayment().getPayment(paymentId).join();
+            Payment response = portOneClient.getPayment().getPayment(paymentId).join();
             log.info("Successfully retrieved payment info from PortOne API");
             return response;
         } catch (Exception e) {

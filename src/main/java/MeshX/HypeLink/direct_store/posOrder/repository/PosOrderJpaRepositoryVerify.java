@@ -1,7 +1,7 @@
 package MeshX.HypeLink.direct_store.posOrder.repository;
 
-import MeshX.HypeLink.direct_store.pos.posOrder.exception.PosOrderException;
-import MeshX.HypeLink.direct_store.pos.posOrder.model.entity.PosOrder;
+import MeshX.HypeLink.direct_store.posOrder.exception.PosOrderException;
+import MeshX.HypeLink.direct_store.posOrder.model.entity.PosOrder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static MeshX.HypeLink.direct_store.pos.posOrder.exception.PosOrderExceptionMessage.*;
+import static MeshX.HypeLink.direct_store.posOrder.exception.PosOrderExceptionMessage.*;
 
 @Repository
 @RequiredArgsConstructor

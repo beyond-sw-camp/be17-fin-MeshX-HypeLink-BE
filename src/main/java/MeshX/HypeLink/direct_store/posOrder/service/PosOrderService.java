@@ -1,14 +1,14 @@
 package MeshX.HypeLink.direct_store.posOrder.service;
 
-import MeshX.HypeLink.direct_store.pos.posOrder.exception.PosOrderException;
-import MeshX.HypeLink.direct_store.pos.posOrder.model.dto.request.PosOrderCreateReq;
-import MeshX.HypeLink.direct_store.pos.posOrder.model.dto.request.PosOrderItemDto;
-import MeshX.HypeLink.direct_store.pos.posOrder.model.dto.response.PosOrderDetailRes;
-import MeshX.HypeLink.direct_store.pos.posOrder.model.dto.response.PosOrderInfoRes;
-import MeshX.HypeLink.direct_store.pos.posOrder.model.entity.PosOrder;
-import MeshX.HypeLink.direct_store.pos.posOrder.model.entity.PosOrderItem;
-import MeshX.HypeLink.direct_store.pos.posOrder.model.entity.PosOrderStatus;
-import MeshX.HypeLink.direct_store.pos.posOrder.repository.PosOrderJpaRepositoryVerify;
+import MeshX.HypeLink.direct_store.posOrder.exception.PosOrderException;
+import MeshX.HypeLink.direct_store.posOrder.model.dto.request.PosOrderCreateReq;
+import MeshX.HypeLink.direct_store.posOrder.model.dto.request.PosOrderItemDto;
+import MeshX.HypeLink.direct_store.posOrder.model.dto.response.PosOrderDetailRes;
+import MeshX.HypeLink.direct_store.posOrder.model.dto.response.PosOrderInfoRes;
+import MeshX.HypeLink.direct_store.posOrder.model.entity.PosOrder;
+import MeshX.HypeLink.direct_store.posOrder.model.entity.PosOrderItem;
+import MeshX.HypeLink.direct_store.posOrder.model.entity.PosOrderStatus;
+import MeshX.HypeLink.direct_store.posOrder.repository.PosOrderJpaRepositoryVerify;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static MeshX.HypeLink.direct_store.pos.posOrder.exception.PosOrderExceptionMessage.ORDER_ITEMS_EMPTY;
+import static MeshX.HypeLink.direct_store.posOrder.exception.PosOrderExceptionMessage.ORDER_ITEMS_EMPTY;
 
 @Service
 @Transactional(readOnly = true)

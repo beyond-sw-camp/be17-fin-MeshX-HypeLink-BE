@@ -1,9 +1,9 @@
 package MeshX.HypeLink.direct_store.posOrder.controller;
 
 import MeshX.HypeLink.common.BaseResponse;
-import MeshX.HypeLink.direct_store.pos.posOrder.model.dto.response.PosOrderDetailRes;
-import MeshX.HypeLink.direct_store.pos.posOrder.model.dto.response.PosOrderInfoRes;
-import MeshX.HypeLink.direct_store.pos.posOrder.service.PosOrderService;
+import MeshX.HypeLink.direct_store.posOrder.model.dto.response.PosOrderDetailRes;
+import MeshX.HypeLink.direct_store.posOrder.model.dto.response.PosOrderInfoRes;
+import MeshX.HypeLink.direct_store.posOrder.service.PosOrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
