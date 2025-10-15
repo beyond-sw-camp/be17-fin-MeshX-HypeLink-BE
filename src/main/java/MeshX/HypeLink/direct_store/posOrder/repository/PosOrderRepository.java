@@ -1,6 +1,6 @@
 package MeshX.HypeLink.direct_store.posOrder.repository;
 
-import MeshX.HypeLink.direct_store.pos.posOrder.model.entity.PosOrder;
+import MeshX.HypeLink.direct_store.posOrder.model.entity.PosOrder;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
