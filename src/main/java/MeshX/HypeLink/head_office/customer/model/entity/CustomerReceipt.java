@@ -34,7 +34,7 @@ public class CustomerReceipt extends BaseEntity {
     @Column(nullable = false)
     private Integer amount;
 
-    @OneToMany(mappedBy = "payment")
+    @OneToMany(mappedBy = "customerReceipt")
     private List<OrderItem> orderItems;
 
     @ManyToOne

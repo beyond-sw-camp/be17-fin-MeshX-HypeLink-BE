@@ -1,9 +1,7 @@
 package MeshX.HypeLink.head_office.promotion.model.entity;
 
-import MeshX.HypeLink.auth.model.entity.Member;
 import MeshX.HypeLink.auth.model.entity.Store;
-import MeshX.HypeLink.direct_store.item.DirectItem;
-import MeshX.HypeLink.head_office.store.model.entity.StoreMember;
+import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -40,7 +38,7 @@ public class Promotion {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
-    private DirectItem item;           // (상품참조)
+    private StoreItem item;           // (상품참조)
 
     @Builder
     private Promotion(
@@ -52,7 +50,7 @@ public class Promotion {
             PromotionType promotionType,
             ItemCategory category,
             Store store,
-            DirectItem item
+            StoreItem item
     ) {
         this.title = title;
         this.contents = contents;

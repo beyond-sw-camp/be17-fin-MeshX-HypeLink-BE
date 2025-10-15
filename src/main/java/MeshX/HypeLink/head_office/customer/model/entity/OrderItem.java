@@ -1,5 +1,6 @@
 package MeshX.HypeLink.head_office.customer.model.entity;
 
+import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
 import MeshX.HypeLink.head_office.item.model.entity.Item;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -15,12 +16,12 @@ public class OrderItem {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_id", nullable = false)
+    @JoinColumn(name = "customer_receipt_id", nullable = false)
     private CustomerReceipt customerReceipt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id", nullable = false)
-    private Item item;
+    @JoinColumn(name = "store_item_id", nullable = false)
+    private StoreItem storeItem;
 
     @Column(nullable = false)
     private Integer quantity;     // 구매 수량

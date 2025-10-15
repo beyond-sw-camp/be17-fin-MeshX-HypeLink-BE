@@ -1,7 +1,7 @@
 package MeshX.HypeLink.head_office.shipment.model.entity;
 
-import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.common.BaseEntity;
+import MeshX.HypeLink.head_office.item.model.entity.Item;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -10,19 +10,16 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ShipmentLocation extends BaseEntity {
+public class ParcelItem extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "store_member_id")
-    private Store storeMember; // 출고 목적지
+    @JoinColumn(name = "item_id")
+    private Item item;
 
     @ManyToOne
-    @JoinColumn(name = "shipment_id")
-    private Shipment shipment;
-
-    @Enumerated(EnumType.STRING)
-    private ShipmentStatus shipmentStatus; // 출고 상태 (배송중, 배송완료, 취소, 지연)
+    @JoinColumn(name = "parcel_id")
+    private Parcel parcel;
 }

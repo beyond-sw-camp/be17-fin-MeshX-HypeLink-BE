@@ -1,7 +1,7 @@
 package MeshX.HypeLink.head_office.shipment.model.dto;
 
-import MeshX.HypeLink.head_office.item.Item;
 import MeshX.HypeLink.head_office.shipment.model.entity.Parcel;
+import MeshX.HypeLink.head_office.shipment.model.entity.ParcelItem;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 public class CreateParcelReqDto {
 
-    List<Item> items;
+    List<ParcelItem> items;
     String trackingNumber;
 
 
@@ -18,7 +18,7 @@ public class CreateParcelReqDto {
     public Parcel toEntity(String trackingNumber) {
         return Parcel.builder()
                 .trackingNumber(trackingNumber)
-                .items(this.items)
+                .parcelItems(this.items)
                 .build();
     }
 }
