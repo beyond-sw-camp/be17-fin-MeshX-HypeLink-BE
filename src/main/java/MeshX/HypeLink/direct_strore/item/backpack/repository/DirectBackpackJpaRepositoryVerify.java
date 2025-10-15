@@ -31,14 +31,6 @@ public class DirectBackpackJpaRepositoryVerify {
     }
 
     public Page<DirectBackPack> findAll(PageReq pageReq) {
-        if (!pageReq.isValid()) {//null 값 체크 + O 이상
-            if (pageReq.getPage() == null || pageReq.getPage() < 0) {
-                throw new DirectBackpackException(INVALID_PAGE);
-            }
-            if (pageReq.getPageSize() == null || pageReq.getPageSize() <= 0) {
-                throw new DirectBackpackException(INVALID_PAGE_SIZE);
-            }
-        }
         Page<DirectBackPack> page = repository.findAll(pageReq.toPageRequest());
         if (page.hasContent()) {
             return page;
