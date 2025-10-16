@@ -1,6 +1,6 @@
 <h1 align="center"> HypeLink (MeshX) </h1>
 <div align="center"> 
- <img src="https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-BE/doc/hypelink_logo.png" width="150"/>
+ <img src="https://github.com/user-attachments/assets/807a5735-e104-4bbe-adf5-b7a47830b0cf" width="150"/>
 </div>
 
 > 이름 ‘HypeLink’는 “트렌드를 연결하다 (Hype + Link)”라는 의미를 담고 있습니다.  
@@ -12,10 +12,10 @@
 <table align="center">
   <tbody>
     <tr>
-      <td align="center"><a href="https://github.com/kbw07"><img src="" width="100px;" alt=""/><br /><sub><b> 강병욱 </b></sub></a><br /></td>
-      <td align="center"><a href="https://github.com/flionme"><img src="" width="100px;" alt=""/><br /><sub><b> 김성인 </b></sub></a><br /></td>
-      <td align="center"><a href="https://github.com/David9733"><img src="" width="100px;" alt=""/><br /><sub><b> 이시욱 </b></sub></a><br /></td>
-      <td align="center"><a href="https://github.com/raccoon-coding"><img src="" width="100px;" alt=""/><br /><sub><b> 최민성 </b></sub></a><br /></td>
+      <td align="center"><a href="https://github.com/kbw07"><img src="https://github.com/user-attachments/assets/706e1875-8a3d-4d3e-9a19-d344d6866f23" width="100px;" alt=""/><br /><sub><b> 강병욱 </b></sub></a><br /></td>
+      <td align="center"><a href="https://github.com/flionme"><img src="https://github.com/user-attachments/assets/08e896f8-c18f-454a-a44a-2337f585e77f" width="100px;" alt=""/><br /><sub><b> 김성인 </b></sub></a><br /></td>
+      <td align="center"><a href="https://github.com/David9733"><img src="https://github.com/user-attachments/assets/4d6ad9a1-ac42-4f36-9259-2b988493cf85" width="100px;" alt=""/><br /><sub><b> 이시욱 </b></sub></a><br /></td>
+      <td align="center"><a href="https://github.com/raccoon-coding"><img src="https://github.com/user-attachments/assets/90a33761-0bd8-4b73-a12a-1e24f0c5a6a9" width="100px;" alt=""/><br /><sub><b> 최민성 </b></sub></a><br /></td>
     </tr>
   </tbody>
 </table>
