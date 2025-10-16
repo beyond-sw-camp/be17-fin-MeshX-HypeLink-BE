@@ -1,9 +1,10 @@
 package MeshX.HypeLink.head_office.promotion.model.entity;
 
-import MeshX.HypeLink.direct_strore.item.DirectItem;
-import MeshX.HypeLink.head_office.store.model.entity.StoreMember;
+import MeshX.HypeLink.auth.model.entity.Store;
+import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -26,16 +27,68 @@ public class Promotion {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private PromotionType promotionType;
+    private PromotionType promotionType; //이벤트 종류
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id")
-    private StoreMember store;  // 특정 직영점 이벤트
+    private Store store;  // (가맹점 참조)
 
     @Enumerated(EnumType.STRING)
-    private ItemCategory category;  // 특정 카테고리 이벤트
+    private ItemCategory category;  // 품목
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
-    private DirectItem item;           // 특정 상품 이벤트
+    private StoreItem item;           // (상품참조)
+
+    @Builder
+    private Promotion(
+            String title,
+            String contents,
+            Double discountRate,
+            LocalDate startDate,
+            LocalDate endDate,
+            PromotionType promotionType,
+            ItemCategory category,
+            Store store,
+            StoreItem item
+    ) {
+        this.title = title;
+        this.contents = contents;
+        this.discountRate = discountRate;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.promotionType = promotionType;
+        this.category = category;
+        this.store = store;
+        this.item = item;
+    }
+
+    public void updatePromotionType(PromotionType promotionType){
+        this.promotionType = promotionType;
+    }
+
+    public void updateCategory(ItemCategory category){
+        this.category = category;
+    }
+
+    public void updateTitle(String title){
+        this.title = title;
+    }
+    public void updateContents(String contents){
+        this.contents = contents;
+    }
+
+    public void updateDiscountRate(Double discountRate){
+        this.discountRate = discountRate;
+    }
+
+    public void updateStartDate(LocalDate startDate){
+        this.startDate = startDate;
+    }
+
+    public void updateEndDate(LocalDate endDate){
+        this.endDate = endDate;
+    }
+
+
 }

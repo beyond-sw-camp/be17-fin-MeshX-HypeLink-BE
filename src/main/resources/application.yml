@@ -11,7 +11,18 @@ spring:
     hibernate:
       ddl-auto: update
 
-logging:
-  level:
-    org.springframework.web.socket: DEBUG
-    org.springframework.messaging: DEBUG
+
+  data:
+    redis:
+      host: ${REDIS_URL}
+      port: ${REDIS_PORT}
+
+jwt:
+  secret-key: ${JWT_KEY}
+  access-token-expiration-ms: ${JWT_ACCESS}
+  refresh-token-expiration-ms: ${JWT_REFRESH}
+
+portone:
+  api:
+    secret: ${PORTONE_API_SECRET}
+  store-id: ${PORTONE_STORE_ID}
