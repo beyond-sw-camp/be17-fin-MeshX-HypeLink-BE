@@ -85,7 +85,7 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 ---
 
 ## 💚 Front-end
-- <a href="">프론트엔드 저장소 바로가기</a>
+- <a href="https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-FE">프론트엔드 깃허브 바로가기</a>
 
 ---
 
