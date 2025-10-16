@@ -3,6 +3,8 @@ package MeshX.HypeLink.head_office.shipment.controller;
 import MeshX.HypeLink.head_office.shipment.model.dto.DriverDeliveryCompleteDto;
 import MeshX.HypeLink.head_office.shipment.model.dto.DriverGpsDto;
 import MeshX.HypeLink.head_office.shipment.model.dto.DriverLocationDto;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Random;
 
+@Tag(name = "실시간 배송 현황 (WebSocket)", description = "WebSocket을 사용하여 배송 기사의 실시간 위치 정보 및 배송 상태를 중계하는 API")
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -21,6 +24,7 @@ public class ShipmentGPSController {
     // 목업용
     private final Random random = new Random();
 
+    @Operation(summary = "배송 기사 GPS 정보 수신 및 중계", description = "STOMP /pub/gps. 배송 기사 클라이언트로부터 위도, 경도 정보를 수신하여 /topic/dashboard를 구독하는 모든 클라이언트에게 중계합니다.")
     @MessageMapping("/gps")
     public void getGPSData (@Payload DriverGpsDto dto) {
         DriverLocationDto driver1 = createMockDriver(dto.getDriverId(), "김테스트 기사", dto.getLat(), dto.getLng());
@@ -28,6 +32,7 @@ public class ShipmentGPSController {
         messagingTemplate.convertAndSend("/topic/dashboard", driver1);
     }
 
+    @Operation(summary = "배송 완료 상태 수신", description = "STOMP /pub/delivery-complete. 배송 기사 클라이언트로부터 배송 완료 신호를 수신하여 관련 상태를 업데이트합니다.")
     @MessageMapping("/delivery-complete")
     public void completeDelivery (@Payload DriverDeliveryCompleteDto dto) {
         // StoreId를 이용해서 데이터를 확인한 후, 배송 완료 처리 및 DashBoard 처리
