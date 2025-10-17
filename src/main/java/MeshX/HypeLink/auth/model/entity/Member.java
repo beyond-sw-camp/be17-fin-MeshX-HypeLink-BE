@@ -35,11 +35,16 @@ public class Member extends BaseEntity {
 
 
     @Builder
-    public Member(String email, String password, String name, MemberRole role) {
+    private Member(String email, String password, String name, String phone,
+                   String address, MemberRole role, Region region, String refreshToken) {
         this.email = email;
         this.password = password;
         this.name = name;
+        this.phone = phone;
+        this.address = address;
         this.role = role;
+        this.region = region;
+        this.refreshToken = refreshToken;
     }
 
     public void updateRefreshToken(String refreshToken) {

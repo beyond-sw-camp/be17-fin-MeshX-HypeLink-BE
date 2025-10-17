@@ -3,6 +3,7 @@ package MeshX.HypeLink.auth.model.entity;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -28,4 +29,16 @@ public class Store {
     @OneToOne
     @JoinColumn(name = "member_id")
     private Member member;
+
+    @Builder
+    private Store(Double lat, Double lon, String address, Integer posCount,
+                  String storeNumber, List<StoreItem> storeItems, Member member) {
+        this.lat = lat;
+        this.lon = lon;
+        this.address = address;
+        this.posCount = posCount;
+        this.storeNumber = storeNumber;
+        this.storeItems = storeItems;
+        this.member = member;
+    }
 }
