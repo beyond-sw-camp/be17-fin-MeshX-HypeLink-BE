@@ -1,5 +1,8 @@
 package MeshX.HypeLink.common;
 
+import lombok.Getter;
+
+@Getter
 public class BaseResponse<T> {
     private final T data;
     private final String message;
