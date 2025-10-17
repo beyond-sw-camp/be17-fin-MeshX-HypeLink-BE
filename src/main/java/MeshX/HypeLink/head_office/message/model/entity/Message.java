@@ -1,9 +1,10 @@
 package MeshX.HypeLink.head_office.message.model.entity;
 
+import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.common.BaseEntity;
-import MeshX.HypeLink.head_office.store.model.entity.StoreMember;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,11 +22,17 @@ public class Message extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private MessageState messageState;
 
+    @Builder
+    private Message(String title, String contents){
+        this.title = title;
+        this.contents = contents;
+    }
+
     @ManyToOne
     @JoinColumn(name = "sender_id")
-    private StoreMember sender;
+    private Store sender;
 
     @ManyToOne
     @JoinColumn(name = "receiver_id")
-    private StoreMember receiver;
+    private Store receiver;
 }

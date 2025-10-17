@@ -1,7 +1,7 @@
 package MeshX.HypeLink.head_office.shipment.model.entity;
 
+import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.common.BaseEntity;
-import MeshX.HypeLink.head_office.store.model.entity.StoreMember;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -17,7 +17,7 @@ public class ShipmentLocation extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "store_member_id")
-    private StoreMember storeMember; // 출고 목적지
+    private Store storeMember; // 출고 목적지
 
     @ManyToOne
     @JoinColumn(name = "shipment_id")
