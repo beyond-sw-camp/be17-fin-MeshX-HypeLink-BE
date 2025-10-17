@@ -71,8 +71,8 @@ public class PortOneService {
             }
         } catch (Exception e) {
             log.error("Failed to cancel payment from PortOne API. paymentId: {}, error: {}", paymentId, e.getMessage(), e);
-            // 취소 실패해도 예외를 던지지 않음 (이미 검증 실패한 상태이므로)
-            // 관리자가 수동으로 환불 처리해야 함
+            // 취소 실패 원인 파악을 위해 RuntimeException으로 예외를 다시 던짐
+            throw new RuntimeException("결제 취소 실패: " + e.getMessage(), e);
         }
     }
 

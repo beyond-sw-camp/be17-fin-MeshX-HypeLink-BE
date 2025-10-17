@@ -20,22 +20,22 @@ public class ItemController {
         return ResponseEntity.status(200).body(BaseResponse.of(ItemDetailInfoRes.builder().build()));
     }
 
-    @GetMapping("/{code}")
+    @GetMapping("/code/{code}")
     public ResponseEntity<BaseResponse<ItemDetailInfoRes>> getItemInfoFromCode(@PathVariable String code) {
         return ResponseEntity.status(200).body(BaseResponse.of(ItemDetailInfoRes.builder().build()));
     }
 
-    @GetMapping("/{category}")
+    @GetMapping("/category/{category}")
     public ResponseEntity<BaseResponse<ItemInfoListRes>> getItemsfromCategory(@PathVariable String category) {
         return ResponseEntity.status(200).body(BaseResponse.of(ItemInfoListRes.builder().build()));
     }
 
-    @GetMapping("/{company}")
+    @GetMapping("/company/{company}")
     public ResponseEntity<BaseResponse<ItemInfoListRes>> getItemsfromCompany(@PathVariable String company) {
         return ResponseEntity.status(200).body(BaseResponse.of(ItemInfoListRes.builder().build()));
     }
 
-    @GetMapping("/{name}")
+    @GetMapping("/name/{name}")
     public ResponseEntity<BaseResponse<ItemInfoListRes>> getItemsfromName(@PathVariable String name) {
         return ResponseEntity.status(200).body(BaseResponse.of(ItemInfoListRes.builder().build()));
     }
