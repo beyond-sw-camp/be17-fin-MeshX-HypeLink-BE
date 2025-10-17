@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,4 +19,10 @@ public class Color extends BaseEntity {
     private Integer id;
     private String colorName;
     private String colorCode;
+
+    @Builder
+    private Color(String colorName, String colorCode) {
+        this.colorName = colorName;
+        this.colorCode = colorCode;
+    }
 }

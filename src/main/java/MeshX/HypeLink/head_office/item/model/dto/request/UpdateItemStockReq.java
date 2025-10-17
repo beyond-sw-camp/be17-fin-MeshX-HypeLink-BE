@@ -4,6 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class UpdateItemStockReq {
-    private String itemCode;
+    private String itemDetailCode;
     private Integer stock;
 }

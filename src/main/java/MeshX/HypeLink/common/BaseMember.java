@@ -80,7 +80,7 @@ public class BaseMember {
                 .name("가맹점주1_pos1")
                 .phone("010-3333-3334")
                 .address("부산광역시 중구 중앙동")
-                .role(MemberRole.BRANCH_MANAGER)
+                .role(MemberRole.POS_MEMBER)
                 .region(Region.SEOUL_GYEONGGI)
                 .refreshToken(null)
                 .build();
@@ -91,7 +91,7 @@ public class BaseMember {
                 .name("가맹점주2")
                 .phone("010-3333-4333")
                 .address("부산광역시 중구 중앙동")
-                .role(MemberRole.BRANCH_MANAGER)
+                .role(MemberRole.POS_MEMBER)
                 .region(Region.JEOLLA)
                 .refreshToken(null)
                 .build();
