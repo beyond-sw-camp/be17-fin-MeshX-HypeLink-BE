@@ -44,7 +44,7 @@ public class NoticeService {
     }
 
     @Transactional
-    public NoticeInfoRes update(Integer id, String title, String contents, Boolean isOpen) {
+    public NoticeInfoRes update(Integer id, String title, String contents, Boolean isOpen, String author) {
         Notice notice = repository.findById(id);
 
         if(!title.isEmpty()) {
@@ -52,6 +52,10 @@ public class NoticeService {
         }
         if(!contents.isEmpty()){
             notice.updateContents(contents);
+        }
+
+        if(!author.isEmpty()) {
+            notice.updateAuthor(author);
         }
         notice.changeOpen(isOpen);
 

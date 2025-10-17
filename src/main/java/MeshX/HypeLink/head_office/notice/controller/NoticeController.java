@@ -45,7 +45,7 @@ public class NoticeController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<BaseResponse<NoticeInfoRes>> updateNotice(@PathVariable Integer id,
                                                                     @RequestBody NoticeUpdateReq dto) {
-        NoticeInfoRes noticeInfoRes = noticeService.update(id, dto.getTitle(), dto.getContents(), dto.getIsOpen());
+        NoticeInfoRes noticeInfoRes = noticeService.update(id, dto.getTitle(), dto.getContents(), dto.getIsOpen(), dto.getAuthor());
         return ResponseEntity.status(200).body(BaseResponse.of(noticeInfoRes));
     }
 

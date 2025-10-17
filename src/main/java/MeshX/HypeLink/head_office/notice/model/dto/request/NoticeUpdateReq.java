@@ -7,4 +7,5 @@ public class NoticeUpdateReq {
     private String title;
     private String contents;
     private Boolean isOpen;
+    private String author;
 }

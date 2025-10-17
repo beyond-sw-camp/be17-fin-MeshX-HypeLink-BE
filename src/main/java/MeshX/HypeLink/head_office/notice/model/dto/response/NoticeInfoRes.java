@@ -9,20 +9,23 @@ import org.springframework.data.domain.Page;
 public class NoticeInfoRes {
     private String title;
     private String contents;
+    private String author;
     private Boolean isOpen;
 
     public static NoticeInfoRes toDto(Notice entity) {
         return NoticeInfoRes.builder()
                 .title(entity.getTitle())
                 .contents(entity.getContents())
+                .author(entity.getAuthor())
                 .isOpen(entity.getIsOpen())
                 .build();
     }
 
     @Builder
-    private NoticeInfoRes(String title, String contents, Boolean isOpen) {
+    private NoticeInfoRes(String title, String contents, Boolean isOpen, String author) {
         this.title = title;
         this.contents = contents;
+        this.author = author;
         this.isOpen = isOpen;
     }
     public static Page<NoticeInfoRes> toDtoPage(Page<Notice> page) { return page.map(NoticeInfoRes::toDto);}
