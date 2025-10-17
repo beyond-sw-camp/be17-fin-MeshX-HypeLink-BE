@@ -23,9 +23,9 @@ public class AuthController {
     private long refreshTokenExpirationMs;
 
     @PostMapping("/register")
-    public ResponseEntity<TokenResDto> register(@RequestBody RegisterReqDto dto) {
-        AuthTokens authTokens = authService.register(dto);
-        return createTokenResponse(authTokens);
+    public ResponseEntity<BaseResponse<String>> register(@RequestBody RegisterReqDto dto) {
+        authService.register(dto);
+        return ResponseEntity.ok(BaseResponse.of("회원가입이 성공하였습니다."));
     }
 
     @PostMapping("/login")
