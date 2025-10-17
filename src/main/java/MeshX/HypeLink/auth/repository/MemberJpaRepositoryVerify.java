@@ -5,6 +5,7 @@ import MeshX.HypeLink.auth.model.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import static MeshX.HypeLink.auth.exception.AuthExceptionMessage.EMAIL_ALREADY_EXISTS;
@@ -33,5 +34,9 @@ public class MemberJpaRepositoryVerify {
 
     public void save(Member member) {
         repository.save(member);
+    }
+
+    public List<Member> findAll() {
+        return repository.findAll();
     }
 }

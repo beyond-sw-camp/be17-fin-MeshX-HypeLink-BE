@@ -1,25 +1,70 @@
 package MeshX.HypeLink.auth.model.dto;
 
-import MeshX.HypeLink.auth.model.entity.Member;
-import MeshX.HypeLink.auth.model.entity.MemberRole;
-import lombok.Builder;
+import MeshX.HypeLink.auth.model.entity.*;
 import lombok.Getter;
 
 @Getter
 public class RegisterReqDto {
+    // Common Member fields
     private String email;
     private String password;
     private String name;
     private MemberRole role;
+    private String phone;
+    private Region region;
 
-    // 추후 지점 추가 예정
+    // Store specific (for BRANCH_MANAGER)
+    private Double lat;
+    private Double lon;
+    private String address;
+    private Integer posCount;
+    private String storeNumber;
 
-    public Member toEntity(String encodedPassword) {
+    // Driver specific
+    private String macAddress;
+    private String carNumber;
+
+    // POS specific
+    private String posCode;
+    private Integer storeId; // To link POS to a Store
+
+    public Member toMemberEntity(String encodedPassword) {
         return Member.builder()
                 .email(this.email)
                 .password(encodedPassword)
                 .name(this.name)
+                .phone(this.phone)
+                .address(this.address) // Note: address might be for the store
                 .role(this.role)
+                .region(this.region)
+                .build();
+    }
+
+    public Store toStoreEntity(Member member) {
+        return Store.builder()
+                .member(member)
+                .lat(this.lat)
+                .lon(this.lon)
+                .address(this.address)
+                .posCount(this.posCount)
+                .storeNumber(this.storeNumber)
+                .build();
+    }
+
+    public Driver toDriverEntity(Member member) {
+        return Driver.builder()
+                .member(member)
+                .macAddress(this.macAddress)
+                .carNumber(this.carNumber)
+                .build();
+    }
+
+    public POS toPosEntity(Member member, Store store) {
+        return POS.builder()
+                .member(member)
+                .store(store)
+                .posCode(this.posCode)
+                .healthCheck(true) // Defaulting healthCheck
                 .build();
     }
 }
