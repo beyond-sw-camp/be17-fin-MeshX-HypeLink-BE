@@ -6,6 +6,7 @@ import MeshX.HypeLink.auth.exception.TokenException;
 import MeshX.HypeLink.auth.exception.TokenExceptionMessage;
 import MeshX.HypeLink.auth.model.dto.AuthTokens;
 import MeshX.HypeLink.auth.model.dto.LoginReqDto;
+import MeshX.HypeLink.auth.model.dto.LoginResDto;
 import MeshX.HypeLink.auth.model.dto.RegisterReqDto;
 import MeshX.HypeLink.auth.model.entity.Member;
 import MeshX.HypeLink.auth.repository.MemberJpaRepositoryVerify;
@@ -34,18 +35,24 @@ public class AuthService {
         Member member = requestDto.toEntity(encodedPassword);
         memberJpaRepositoryVerify.save(member);
 
-        return issueTokens(member.getEmail(), member.getRole().name());
+        return issueTokens(member.getEmail(),member.getRole().name());
     }
 
     @Transactional
-    public AuthTokens login(LoginReqDto requestDto) {
+    public LoginResDto login(LoginReqDto requestDto) {
         Member member = memberJpaRepositoryVerify.findByEmail(requestDto.getEmail());
 
         if (!passwordEncoder.matches(requestDto.getPassword(), member.getPassword())) {
             throw new AuthException(AuthExceptionMessage.INVALID_CREDENTIALS);
         }
 
-        return issueTokens(member.getEmail(), member.getRole().name());
+        AuthTokens authTokens = issueTokens(member.getEmail(), member.getRole().name());
+
+        return LoginResDto.builder()
+                .authTokens(authTokens)
+                .name(member.getName())
+                .role(member.getRole().name())
+                .build();
     }
 
     @Transactional

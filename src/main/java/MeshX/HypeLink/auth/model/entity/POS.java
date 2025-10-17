@@ -2,6 +2,7 @@ package MeshX.HypeLink.auth.model.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,8 +22,15 @@ public class POS {
 
     private Boolean healthCheck;
 
-    public void setStore(Store store) {
-        this.store = store;
-    }
+    @OneToOne
+    @JoinColumn(name = "member_id")
+    private Member member;
 
+    @Builder
+    private POS(String posCode, Store store, Boolean healthCheck, Member member) {
+        this.posCode = posCode;
+        this.store = store;
+        this.healthCheck = healthCheck;
+        this.member = member;
+    }
 }
