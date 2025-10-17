@@ -23,7 +23,7 @@ public class ItemController {
         return ResponseEntity.status(200).body(BaseResponse.of(dto));
     }
 
-    @GetMapping("/{code}")
+    @GetMapping("/code/{code}")
     public ResponseEntity<BaseResponse<ItemDetailInfoRes>> getItemInfoByCode(@PathVariable String code) {
         ItemDetailInfoRes dto = itemService.findItemsByItemCode(code);
 
@@ -45,7 +45,7 @@ public class ItemController {
     }
 
     // paging 처리
-    @GetMapping("/{category}")
+    @GetMapping("/category/{category}")
     public ResponseEntity<BaseResponse<PageRes<ItemSearchRes>>> getItemsByCategory(@PathVariable String category, Pageable pageable) {
 //        ItemSearchListRes items = itemService.findItemsByCategory(category);
         PageRes<ItemSearchRes> items = itemService.findItemsByCategoryWithPaging(category, pageable);
@@ -53,7 +53,7 @@ public class ItemController {
     }
 
     // paging 처리
-    @GetMapping("/{name}")
+    @GetMapping("/name/{name}")
     public ResponseEntity<BaseResponse<PageRes<ItemSearchRes>>> getItemsByName(@PathVariable String name, Pageable pageable) {
 //        ItemSearchListRes dto = itemService.findItemsByName(name);
         PageRes<ItemSearchRes> items = itemService.findItemsByNameWithPaging(name, pageable);
