@@ -2,6 +2,8 @@ package MeshX.HypeLink.head_office.order.controller;
 
 
 import MeshX.HypeLink.common.BaseResponse;
+import MeshX.HypeLink.common.Page.PageReq;
+import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.head_office.order.model.dto.request.HeadOrderCreateReq;
 import MeshX.HypeLink.head_office.order.model.dto.request.HeadOrderUpdateReq;
 import MeshX.HypeLink.head_office.order.model.dto.response.HeadOrderInfoListRes;
@@ -36,9 +38,15 @@ public class HeadOrderController {
     }
 
     @GetMapping("/read/all")
-    public ResponseEntity<BaseResponse<HeadOrderInfoListRes>> readAllOrders() {
+    public ResponseEntity<BaseResponse<HeadOrderInfoListRes>> readOrders() {
         HeadOrderInfoListRes headOrderInfoListRes = headOrderService.readList();
         return ResponseEntity.status(200).body(BaseResponse.of(headOrderInfoListRes));
+    }
+
+    @GetMapping("/read/page/all")
+    public ResponseEntity<BaseResponse<PageRes<HeadOrderInfoRes>>> readOrders(PageReq pageReq) {
+        PageRes<HeadOrderInfoRes> pageRes = headOrderService.readList(pageReq);
+        return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
     }
 
     @PatchMapping("/update/{id}")

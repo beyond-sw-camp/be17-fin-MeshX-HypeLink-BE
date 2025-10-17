@@ -1,12 +1,15 @@
 package MeshX.HypeLink.direct_store.order.service;
 
 
+import MeshX.HypeLink.common.Page.PageReq;
+import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.direct_store.order.model.dto.request.DirectOrderCreateReq;
 import MeshX.HypeLink.direct_store.order.model.dto.response.DirectOrderInfoListRes;
 import MeshX.HypeLink.direct_store.order.model.dto.response.DirectOrderInfoRes;
 import MeshX.HypeLink.direct_store.order.model.entity.DirectOrder;
 import MeshX.HypeLink.direct_store.order.repository.DirectOrderJpaRepositoryVerify;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +41,12 @@ public class DirectOrderService {
     public DirectOrderInfoListRes readList() {
         List<DirectOrder> directOrders = repository.findAll();
         return DirectOrderInfoListRes.toDto(directOrders);
+    }
+
+    public PageRes<DirectOrderInfoRes> readList(PageReq pageReq) {
+        Page<DirectOrder> entityPage = repository.findAll(pageReq);
+        Page<DirectOrderInfoRes> dtoPage = DirectOrderInfoRes.toDtoPage(entityPage);
+        return PageRes.toDto(dtoPage);
     }
 
     public DirectOrderInfoRes update(Integer id, String itemName, Integer unitPrice, Integer quantity, Integer totalPrice, String deliveryAddress, String deliveryRequest, String orderRequest) {

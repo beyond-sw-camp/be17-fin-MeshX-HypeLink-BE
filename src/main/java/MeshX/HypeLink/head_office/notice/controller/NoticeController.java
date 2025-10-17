@@ -1,6 +1,8 @@
 package MeshX.HypeLink.head_office.notice.controller;
 
 import MeshX.HypeLink.common.BaseResponse;
+import MeshX.HypeLink.common.Page.PageReq;
+import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.head_office.notice.model.dto.request.NoticeCreateReq;
 import MeshX.HypeLink.head_office.notice.model.dto.request.NoticeUpdateReq;
 import MeshX.HypeLink.head_office.notice.model.dto.response.NoticeInfoListRes;
@@ -26,6 +28,12 @@ public class NoticeController {
     public ResponseEntity<BaseResponse<NoticeInfoListRes>> readNotices() {
         NoticeInfoListRes noticeInfoListRes = noticeService.readList();
         return ResponseEntity.status(200).body(BaseResponse.of(noticeInfoListRes));
+    }
+
+    @GetMapping("/read/page/all")
+    public ResponseEntity<BaseResponse<PageRes<NoticeInfoRes>>> readNotices(PageReq pageReq) {
+        PageRes<NoticeInfoRes> pageRes = noticeService.readList(pageReq);
+        return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
     }
 
     @GetMapping("/read/{id}")

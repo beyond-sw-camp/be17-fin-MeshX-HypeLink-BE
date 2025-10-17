@@ -3,6 +3,7 @@ package MeshX.HypeLink.head_office.notice.model.dto.response;
 import MeshX.HypeLink.head_office.notice.model.entity.Notice;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.data.domain.Page;
 
 @Getter
 public class NoticeInfoRes {
@@ -24,4 +25,5 @@ public class NoticeInfoRes {
         this.contents = contents;
         this.isOpen = isOpen;
     }
+    public static Page<NoticeInfoRes> toDtoPage(Page<Notice> page) { return page.map(NoticeInfoRes::toDto);}
 }

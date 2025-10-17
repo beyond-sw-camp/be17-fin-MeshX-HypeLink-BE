@@ -1,9 +1,10 @@
 package MeshX.HypeLink.head_office.order.repository;
 
-import MeshX.HypeLink.head_office.notice.model.entity.Notice;
+import MeshX.HypeLink.common.Page.PageReq;
 import MeshX.HypeLink.head_office.order.exception.HeadOrderException;
 import MeshX.HypeLink.head_office.order.model.entity.HeadOrder;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -39,6 +40,15 @@ public class HeadOrderJpaRepositoryVerify {
         }
         throw new HeadOrderException(NOT_FOUND);
     }
+
+    public Page<HeadOrder> findAll(PageReq pageReq) {
+        Page<HeadOrder> page = repository.findAll(pageReq.toPageRequest());
+        if (page.hasContent()) {
+            return page;
+        }
+        throw new HeadOrderException(NOT_FOUND);
+    }
+
 
     public HeadOrder update(HeadOrder entity) {
         return repository.save(entity);

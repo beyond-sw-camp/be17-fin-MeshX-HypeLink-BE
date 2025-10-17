@@ -1,11 +1,16 @@
 package MeshX.HypeLink.head_office.notice.service;
 
+import MeshX.HypeLink.common.Page.PageReq;
+import MeshX.HypeLink.common.Page.PageRes;
+import MeshX.HypeLink.direct_store.order.exception.DirectOrderException;
+import MeshX.HypeLink.direct_store.order.exception.DirectOrderExceptionMessage;
 import MeshX.HypeLink.head_office.notice.model.dto.request.NoticeCreateReq;
 import MeshX.HypeLink.head_office.notice.model.dto.response.NoticeInfoListRes;
 import MeshX.HypeLink.head_office.notice.model.dto.response.NoticeInfoRes;
 import MeshX.HypeLink.head_office.notice.model.entity.Notice;
 import MeshX.HypeLink.head_office.notice.repository.NoticeJpaRepositoryVerify;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +30,12 @@ public class NoticeService {
     public NoticeInfoListRes readList() {
         List<Notice> notices = repository.findAll();
         return NoticeInfoListRes.toDto(notices);
+    }
+
+    public PageRes<NoticeInfoRes> readList(PageReq pageReq){
+        Page<Notice>  entityPage = repository.findAll(pageReq);
+        Page<NoticeInfoRes> dtoPage = NoticeInfoRes.toDtoPage(entityPage);
+        return PageRes.toDto(dtoPage);
     }
 
     public NoticeInfoRes readDetails(Integer id) {
