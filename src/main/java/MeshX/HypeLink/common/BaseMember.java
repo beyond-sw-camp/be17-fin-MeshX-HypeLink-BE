@@ -9,6 +9,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -19,6 +20,7 @@ public class BaseMember {
     private final StoreJpaRepositoryVerify storeRepository;
     private final PosJpaRepositoryVerify posRepository;
     private final DriverJpaRepositoryVerify driverRepository;
+    private final PasswordEncoder encoder;
 
     @PostConstruct
     @Transactional
@@ -41,7 +43,7 @@ public class BaseMember {
 
         Member hq = Member.builder()
                 .email("hq@company.com")
-                .password("1234")
+                .password(encoder.encode("1234"))
                 .name("본사관리자")
                 .phone("010-1111-1111")
                 .address("서울특별시 강남구 테헤란로 1")
@@ -52,7 +54,7 @@ public class BaseMember {
 
         Member sq = Member.builder()
                 .email("sq@company.com")
-                .password("1234")
+                .password(encoder.encode("1234"))
                 .name("서브관리자")
                 .phone("010-1111-1112")
                 .address("서울특별시 강남구 테헤란로 1")
@@ -63,7 +65,7 @@ public class BaseMember {
 
         Member owner1 = Member.builder()
                 .email("owner1@store.com")
-                .password("1234")
+                .password(encoder.encode("1234"))
                 .name("가맹점주1")
                 .phone("010-2222-2222")
                 .address("서울특별시 중구 을지로 1가")
@@ -74,7 +76,7 @@ public class BaseMember {
 
         Member pos1 = Member.builder()
                 .email("pos1@store1.com")
-                .password("1234")
+                .password(encoder.encode("1234"))
                 .name("가맹점주1_pos1")
                 .phone("010-3333-3334")
                 .address("부산광역시 중구 중앙동")
@@ -85,7 +87,7 @@ public class BaseMember {
 
         Member owner2 = Member.builder()
                 .email("owner2@store.com")
-                .password("1234")
+                .password(encoder.encode("1234"))
                 .name("가맹점주2")
                 .phone("010-3333-4333")
                 .address("부산광역시 중구 중앙동")
@@ -96,7 +98,7 @@ public class BaseMember {
 
         Member pos2 = Member.builder()
                 .email("pos1@store2.com")
-                .password("1234")
+                .password(encoder.encode("1234"))
                 .name("가맹점주2_pos1")
                 .phone("010-3333-4334")
                 .address("부산광역시 중구 중앙동")
@@ -107,7 +109,7 @@ public class BaseMember {
 
         Member driver1 = Member.builder()
                 .email("driver1@delivery.com")
-                .password("1234")
+                .password(encoder.encode("1234"))
                 .name("기사1")
                 .phone("010-4444-4444")
                 .address("서울특별시 강북구 수유동")
@@ -118,7 +120,7 @@ public class BaseMember {
 
         Member driver2 = Member.builder()
                 .email("driver2@delivery.com")
-                .password("1234")
+                .password(encoder.encode("1234"))
                 .name("기사2")
                 .phone("010-5555-5555")
                 .address("부산광역시 해운대구 우동")
