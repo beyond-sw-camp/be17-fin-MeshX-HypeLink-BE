@@ -1,5 +1,6 @@
 package MeshX.HypeLink.utils.geocode.service;
 
+import MeshX.HypeLink.utils.AddressCleaner;
 import MeshX.HypeLink.utils.geocode.exception.GeocodingException;
 import MeshX.HypeLink.utils.geocode.exception.GeocodingExceptionMessage;
 import MeshX.HypeLink.utils.geocode.model.dto.GeocodeDto;
@@ -27,10 +28,13 @@ public class GeocodingService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public GeocodeDto getCoordinates(String address) {
+        // 사용자 정의 AddressCleaner를 사용하여 주소 정제
+        String cleanedAddress = AddressCleaner.clean(address);
+
         URI uri = UriComponentsBuilder
-                .fromUriString("https://naveropenapi.apigw.ntruss.com")
+                .fromUriString("https://maps.apigw.ntruss.com")
                 .path("/map-geocode/v2/geocode")
-                .queryParam("query", address)
+                .queryParam("query", cleanedAddress)
                 .encode()
                 .build()
                 .toUri();
@@ -38,6 +42,7 @@ public class GeocodingService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-NCP-APIGW-API-KEY-ID", clientId);
         headers.set("X-NCP-APIGW-API-KEY", clientSecret);
+        headers.setAccept(java.util.Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {
@@ -46,11 +51,11 @@ public class GeocodingService {
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null && response.getBody().getAddresses() != null && !response.getBody().getAddresses().isEmpty()) {
                 return response.getBody().getAddresses().get(0);
             } else {
-                log.warn("Geocoding returned no results for address: {}. Status: {}", address, response.getStatusCode());
+                log.warn("Geocoding returned no results for cleaned address: {}. Status: {}", cleanedAddress, response.getStatusCode());
                 throw new GeocodingException(GeocodingExceptionMessage.NO_RESULTS_FOUND);
             }
         } catch (RestClientException e) {
-            log.error("Error during geocoding REST call for address: {}", address, e);
+            log.error("Error during geocoding REST call for cleaned address: {}", cleanedAddress, e);
             throw new GeocodingException(GeocodingExceptionMessage.GEOCODING_FAILED);
         }
     }

@@ -1,4 +1,4 @@
-package MeshX.HypeLink.auth.model.dto;
+package MeshX.HypeLink.auth.model.dto.req;
 
 import MeshX.HypeLink.auth.model.entity.*;
 import MeshX.HypeLink.utils.geocode.model.dto.GeocodeDto;

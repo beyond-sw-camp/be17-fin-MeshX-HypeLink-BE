@@ -1,9 +1,12 @@
 package MeshX.HypeLink.auth.controller;
 
 import MeshX.HypeLink.auth.model.dto.*;
+import MeshX.HypeLink.auth.model.dto.req.LoginReqDto;
+import MeshX.HypeLink.auth.model.dto.req.RegisterReqDto;
+import MeshX.HypeLink.auth.model.dto.res.LoginResDto;
+import MeshX.HypeLink.auth.model.dto.res.TokenResDto;
 import MeshX.HypeLink.auth.service.AuthService;
 import MeshX.HypeLink.auth.utils.CookieUtils;
-import MeshX.HypeLink.common.BaseEntity;
 import MeshX.HypeLink.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

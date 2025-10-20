@@ -1,9 +1,8 @@
-package MeshX.HypeLink.auth.model.dto;
+package MeshX.HypeLink.auth.model.dto.req;
 
 import MeshX.HypeLink.auth.model.entity.Region;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 @Builder
