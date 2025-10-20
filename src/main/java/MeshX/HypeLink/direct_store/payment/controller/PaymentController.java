@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PaymentController {
 
     private final PaymentService paymentService;
-
+    // todo 주문생성은 따로 빼야됨. 리턴 값 수정하기
     @PostMapping("/validate")
     public ResponseEntity<BaseResponse<PosOrderDetailRes>> validatePayment(@RequestBody PaymentValidationReq req) {
         PosOrderDetailRes response = paymentService.validatePayment(req);
