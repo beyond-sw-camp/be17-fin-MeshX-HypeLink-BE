@@ -56,6 +56,8 @@ public class JwtUtils {
     }
 
     private String generateToken(String email, String role, long expirationMs) {
+        log.info("Generating token for email: {} with role: {}", email, role);
+
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationMs);
 
@@ -73,19 +75,23 @@ public class JwtUtils {
     }
 
     public Authentication getAuthentication(String token) {
-        Claims claims = parseClaims(token);
+        try {
+            Claims claims = parseClaims(token);
 
-        Object authoritiesClaim = claims.get(AUTHORITIES_KEY);
-        if (authoritiesClaim == null) {
-            throw new TokenException(TokenExceptionMessage.INVALID_TOKEN);
+            Object authoritiesClaim = claims.get(AUTHORITIES_KEY);
+            if (authoritiesClaim == null) {
+                throw new TokenException(TokenExceptionMessage.INVALID_TOKEN);
+            }
+
+            Collection<? extends GrantedAuthority> authorities = Arrays.stream(authoritiesClaim.toString().split(","))
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
+
+            UserDetails principal = new User(claims.getSubject(), "", authorities);
+            return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+        } catch (ExpiredJwtException e) {
+            throw new TokenException(TokenExceptionMessage.EXPIRED_TOKEN);
         }
-
-        Collection<? extends GrantedAuthority> authorities = Arrays.stream(authoritiesClaim.toString().split(","))
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
-
-        UserDetails principal = new User(claims.getSubject(), "", authorities);
-        return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 
     public void validateToken(String token) {
@@ -120,8 +126,8 @@ public class JwtUtils {
         try {
             return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
         } catch (ExpiredJwtException e) {
-            // 만료된 토큰의 경우에도 클레임은 반환
-            return e.getClaims();
+            // 만료된 토큰의 경우 예외를 다시 던져서 상위에서 처리하도록 함
+            throw e;
         }
     }
 }

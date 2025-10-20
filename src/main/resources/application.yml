@@ -39,5 +39,11 @@ portone:
     secret: ${PORTONE_API_SECRET}
   store-id: ${PORTONE_STORE_ID}
 
+naver:
+  api:
+    client-id: ${NAVER_MAP_CLIENT}
+    client-secret: ${NAVER_MAP_SECRET}
+
 websocket:
   allowed-origin: ${SERVER}
+

@@ -5,6 +5,7 @@ import MeshX.HypeLink.common.exception.BaseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -18,9 +19,13 @@ public class DriverJpaRepositoryVerify {
 
     public Driver findById(Integer id) {
         Optional<Driver> optional = repository.findById(id);
-        if(optional.isEmpty()) {
+        if (optional.isEmpty()) {
             throw new BaseException(null);
         }
         return optional.get();
+    }
+
+    public List<Driver> findAll() {
+        return repository.findAll();
     }
 }
