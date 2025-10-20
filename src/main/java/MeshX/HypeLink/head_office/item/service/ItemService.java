@@ -155,4 +155,34 @@ public class ItemService {
 
         itemRepository.merge(item);
     }
+
+    @Transactional
+    public void updateCompany(UpdateItemCompanyReq dto) {
+        Item item = itemRepository.findByItemDetailCode(dto.getItemDetailCode());
+
+        item.updateCompany(dto.getCompany());
+
+        itemRepository.merge(item);
+    }
+
+    @Transactional
+    public void updateCategory(UpdateItemCategoryReq dto) {
+        Item item = itemRepository.findByItemDetailCode(dto.getItemDetailCode());
+        Category category = categoryRepository.findByName(dto.getCategory());
+
+        item.updateCategory(category);
+
+        itemRepository.merge(item);
+    }
+
+    // Image 로직 수정
+    @Transactional
+    public void updateImages(UpdateItemImagesReq dto) {
+        Item item = itemRepository.findByItemDetailCode(dto.getItemDetailCode());
+//        Category category = categoryRepository.findByName(dto.getCategory());
+//
+//        item.updateCategory(category);
+
+        itemRepository.merge(item);
+    }
 }

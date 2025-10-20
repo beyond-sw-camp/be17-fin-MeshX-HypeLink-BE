@@ -71,10 +71,10 @@ public class ItemController {
     }
 
     @PatchMapping("/content")
-    public ResponseEntity<BaseResponse<ItemDetailInfoRes>> updateContents(@RequestBody UpdateItemContentReq dto) {
+    public ResponseEntity<BaseResponse<ItemInfoRes>> updateContents(@RequestBody UpdateItemContentReq dto) {
         itemService.updateContents(dto);
 
-        ItemDetailInfoRes result = itemService.findItemsByItemCode(dto.getItemDetailCode());
+        ItemInfoRes result = itemService.findItemByItemDetailCode(dto.getItemDetailCode());
 
         return ResponseEntity.status(200).body(BaseResponse.of(result));
     }
@@ -109,6 +109,33 @@ public class ItemController {
     @PatchMapping("/amount")
     public ResponseEntity<BaseResponse<ItemInfoRes>> updateAmount(@RequestBody UpdateItemAmountReq dto) {
         itemService.updateAmount(dto);
+
+        ItemInfoRes result = itemService.findItemByItemDetailCode(dto.getItemDetailCode());
+
+        return ResponseEntity.status(200).body(BaseResponse.of(result));
+    }
+
+    @PatchMapping("/company")
+    public ResponseEntity<BaseResponse<ItemInfoRes>> updateCompany(@RequestBody UpdateItemCompanyReq dto) {
+        itemService.updateCompany(dto);
+
+        ItemInfoRes result = itemService.findItemByItemDetailCode(dto.getItemDetailCode());
+
+        return ResponseEntity.status(200).body(BaseResponse.of(result));
+    }
+
+    @PatchMapping("/category")
+    public ResponseEntity<BaseResponse<ItemInfoRes>> updateCategory(@RequestBody UpdateItemCategoryReq dto) {
+        itemService.updateCategory(dto);
+
+        ItemInfoRes result = itemService.findItemByItemDetailCode(dto.getItemDetailCode());
+
+        return ResponseEntity.status(200).body(BaseResponse.of(result));
+    }
+
+    @PatchMapping("/images")
+    public ResponseEntity<BaseResponse<ItemInfoRes>> updateImages(@RequestBody UpdateItemImagesReq dto) {
+        itemService.updateImages(dto);
 
         ItemInfoRes result = itemService.findItemByItemDetailCode(dto.getItemDetailCode());
 
