@@ -3,9 +3,15 @@ package MeshX.HypeLink.image.service;
 import MeshX.HypeLink.common.s3.PresignedUrlRequestDto;
 import MeshX.HypeLink.common.s3.S3FileManager;
 import MeshX.HypeLink.common.s3.S3PresignedUrlInformationDto;
+import MeshX.HypeLink.image.model.dto.request.ImageCreateRequest;
 import MeshX.HypeLink.image.model.dto.response.PresignedUrlResponse;
+import MeshX.HypeLink.image.model.entity.Image;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +31,15 @@ public class ImageService {
         return createPresignedUrl(requestDto, ITEM_IMAGE_FILE_PATH);
     }
 
+    public List<Image> createImagesFromRequest(List<ImageCreateRequest> imageDtos) {
+        if (imageDtos == null || imageDtos.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return imageDtos.stream()
+                .map(ImageCreateRequest::toEntity)
+                .collect(Collectors.toList());
+    }
 
 
     private PresignedUrlResponse createPresignedUrl(PresignedUrlRequestDto requestDto, String directoryPath) {

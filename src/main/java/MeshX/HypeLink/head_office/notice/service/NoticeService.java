@@ -1,5 +1,7 @@
 package MeshX.HypeLink.head_office.notice.service;
 
+import MeshX.HypeLink.common.Page.PageReq;
+import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.common.s3.S3UrlBuilder;
 import MeshX.HypeLink.head_office.notice.model.dto.request.NoticeCreateReq;
 import MeshX.HypeLink.head_office.notice.model.dto.request.NoticeUpdateReq;
@@ -8,7 +10,9 @@ import MeshX.HypeLink.head_office.notice.model.dto.response.NoticeInfoRes;
 import MeshX.HypeLink.head_office.notice.model.entity.Notice;
 import MeshX.HypeLink.head_office.notice.repository.NoticeJpaRepositoryVerify;
 import MeshX.HypeLink.image.model.entity.Image;
+import MeshX.HypeLink.image.service.ImageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,15 +24,14 @@ import java.util.List;
 public class NoticeService {
     private final NoticeJpaRepositoryVerify repository;
     private final S3UrlBuilder s3UrlBuilder;
+    private final ImageService imageService;
 
     @Transactional
     public void createNotice(NoticeCreateReq dto) {
         Notice notice = dto.toEntity();
 
-        // 이미지 추가
-        if (dto.getImages() != null && !dto.getImages().isEmpty()) {
-            dto.getImages().forEach(imageReq -> notice.addImage(imageReq.toEntity()));
-        }
+        List<Image> images = imageService.createImagesFromRequest(dto.getImages());
+        images.forEach(notice::addImage);
 
         repository.createNotice(notice);
     }
@@ -36,6 +39,12 @@ public class NoticeService {
     public NoticeInfoListRes readList() {
         List<Notice> notices = repository.findAll();
         return NoticeInfoListRes.toDto(notices, s3UrlBuilder);
+    }
+
+    public PageRes<NoticeInfoRes> readList(PageReq pageReq){
+        Page<Notice> entityPage = repository.findAll(pageReq);
+        Page<NoticeInfoRes> dtoPage = NoticeInfoRes.toDtoPage(entityPage, s3UrlBuilder);
+        return PageRes.toDto(dtoPage);
     }
 
     public NoticeInfoRes readDetails(Integer id) {
@@ -56,11 +65,15 @@ public class NoticeService {
         if(dto.getIsOpen() != null) {
             notice.changeOpen(dto.getIsOpen());
         }
+        if(!dto.getAuthor().isEmpty()) {
+            notice.updateAuthor(dto.getAuthor());
+        }
 
         // 이미지 업데이트
         if (dto.getImages() != null) {
             notice.clearImages();
-            dto.getImages().forEach(imageReq -> notice.addImage(imageReq.toEntity()));
+            List<Image> images = imageService.createImagesFromRequest(dto.getImages());
+            images.forEach(notice::addImage);
         }
 
         Notice updated = repository.update(notice);
@@ -73,3 +86,4 @@ public class NoticeService {
         repository.delete(notice);
     }
 }
+

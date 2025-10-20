@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Read(//c/Users/user/Desktop/be17-fin-MeshX-HypeLink-BE/src/main/java/MeshX/HypeLink/head_office/notice/service/**)",
+      "Read(//c/Users/user/Desktop/be17-fin-MeshX-HypeLink-BE/src/main/java/MeshX/HypeLink/head_office/notice/model/dto/response/**)"
     ],
     "deny": [],
     "ask": []

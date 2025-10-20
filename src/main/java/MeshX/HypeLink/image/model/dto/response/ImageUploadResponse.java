@@ -11,7 +11,7 @@ import lombok.Getter;
 public class ImageUploadResponse {
 
     @Schema(description = "파일idx", example = "123")
-    private Integer idx;
+    private Integer id;
 
     @Schema(description = "원본 파일 이름", example = "example.jpg")
     private String originalName;
