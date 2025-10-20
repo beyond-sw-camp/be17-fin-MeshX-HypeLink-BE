@@ -3,7 +3,7 @@ package MeshX.HypeLink.head_office.item.model.dto.request;
 import lombok.Getter;
 
 @Getter
-public class UpdateItemContentReq {
+public class UpdateItemAmountReq {
     private String itemDetailCode;
-    private String content;
+    private Integer amount;
 }
