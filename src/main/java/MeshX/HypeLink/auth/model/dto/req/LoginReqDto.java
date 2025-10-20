@@ -1,4 +1,4 @@
-package MeshX.HypeLink.auth.model.dto;
+package MeshX.HypeLink.auth.model.dto.req;
 
 import lombok.Getter;
 import lombok.Setter;

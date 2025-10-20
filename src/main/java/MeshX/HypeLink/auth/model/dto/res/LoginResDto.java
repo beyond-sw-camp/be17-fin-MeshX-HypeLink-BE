@@ -1,5 +1,6 @@
-package MeshX.HypeLink.auth.model.dto;
+package MeshX.HypeLink.auth.model.dto.res;
 
+import MeshX.HypeLink.auth.model.dto.AuthTokens;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Getter;

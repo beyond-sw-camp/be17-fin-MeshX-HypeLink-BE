@@ -1,8 +1,8 @@
 package MeshX.HypeLink.auth.controller;
 
-import MeshX.HypeLink.auth.model.dto.DriverListReqDto;
-import MeshX.HypeLink.auth.model.dto.UserListResDto;
-import MeshX.HypeLink.auth.service.AuthService;
+import MeshX.HypeLink.auth.model.dto.req.DriverListReqDto;
+import MeshX.HypeLink.auth.model.dto.req.StoreWithPosListReqDto;
+import MeshX.HypeLink.auth.model.dto.res.UserListResDto;
 import MeshX.HypeLink.auth.service.MemberService;
 import MeshX.HypeLink.common.BaseResponse;
 import lombok.AllArgsConstructor;
@@ -29,6 +29,13 @@ public class UserController {
     @GetMapping("/driver/list")
     public ResponseEntity<BaseResponse<List<DriverListReqDto>>> driverList(){
         List<DriverListReqDto> result = memberService.dirverList();
+
+        return ResponseEntity.ok(BaseResponse.of(result));
+    }
+
+    @GetMapping("/store/list")
+    public ResponseEntity<BaseResponse<List<StoreWithPosListReqDto>>> storeList(){
+        List<StoreWithPosListReqDto> result = memberService.storeList();
 
         return ResponseEntity.ok(BaseResponse.of(result));
     }
