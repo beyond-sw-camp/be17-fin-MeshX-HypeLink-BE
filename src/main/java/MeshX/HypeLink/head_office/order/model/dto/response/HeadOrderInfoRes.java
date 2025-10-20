@@ -3,6 +3,7 @@ package MeshX.HypeLink.head_office.order.model.dto.response;
 import MeshX.HypeLink.head_office.order.model.entity.HeadOrder;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.data.domain.Page;
 
 @Getter
 public class HeadOrderInfoRes {
@@ -36,4 +37,5 @@ public class HeadOrderInfoRes {
         this.deliveryRequest = deliveryRequest;
         this.orderRequest = orderRequest;
     }
+    public static Page<HeadOrderInfoRes> toDtoPage(Page<HeadOrder> page){ return page.map(HeadOrderInfoRes::toDto); }
 }

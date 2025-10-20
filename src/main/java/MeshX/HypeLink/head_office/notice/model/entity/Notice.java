@@ -20,12 +20,15 @@ public class Notice extends BaseEntity {
 
     private String title;
     private String contents;
+    private String author;
     private Boolean isOpen;
 
+
     @Builder
-    private Notice(String title, String contents, Boolean isOpen) {
+    private Notice(String title, String contents, Boolean isOpen,  String author) {
         this.title = title;
         this.contents = contents;
+        this.author = author;
         this.isOpen = isOpen;
     }
 
@@ -39,5 +42,9 @@ public class Notice extends BaseEntity {
 
     public void changeOpen(Boolean isOpen) {
         this.isOpen = isOpen;
+    }
+
+    public void updateAuthor(String author) {
+        this.author = author;
     }
 }

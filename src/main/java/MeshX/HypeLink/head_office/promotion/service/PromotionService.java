@@ -36,7 +36,6 @@ public class PromotionService {
     }
 
     public PageRes<PromotionInfoRes> readList(PageReq pageReq) {//페이징용
-        pageReq.validate();
         Page<Promotion> entityPage = repository.findAll(pageReq);
         Page<PromotionInfoRes> dtoPage =PromotionInfoRes.toDtoPage(entityPage);
         return PageRes.toDto(dtoPage);

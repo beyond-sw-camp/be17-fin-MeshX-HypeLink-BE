@@ -1,6 +1,8 @@
 package MeshX.HypeLink.head_office.notice.controller;
 
 import MeshX.HypeLink.common.BaseResponse;
+import MeshX.HypeLink.common.Page.PageReq;
+import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.head_office.notice.model.dto.request.NoticeCreateReq;
 import MeshX.HypeLink.head_office.notice.model.dto.request.NoticeUpdateReq;
 import MeshX.HypeLink.head_office.notice.model.dto.response.NoticeInfoListRes;
@@ -28,6 +30,12 @@ public class NoticeController {
         return ResponseEntity.status(200).body(BaseResponse.of(noticeInfoListRes));
     }
 
+    @GetMapping("/read/page/all")
+    public ResponseEntity<BaseResponse<PageRes<NoticeInfoRes>>> readNotices(PageReq pageReq) {
+        PageRes<NoticeInfoRes> pageRes = noticeService.readList(pageReq);
+        return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
+    }
+
     @GetMapping("/read/{id}")
     public ResponseEntity<BaseResponse<NoticeInfoRes>> readNotice(@PathVariable Integer id) {
         NoticeInfoRes noticeInfoRes = noticeService.readDetails(id);
@@ -37,7 +45,7 @@ public class NoticeController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<BaseResponse<NoticeInfoRes>> updateNotice(@PathVariable Integer id,
                                                                     @RequestBody NoticeUpdateReq dto) {
-        NoticeInfoRes noticeInfoRes = noticeService.update(id, dto.getTitle(), dto.getContents(), dto.getIsOpen());
+        NoticeInfoRes noticeInfoRes = noticeService.update(id, dto.getTitle(), dto.getContents(), dto.getIsOpen(), dto.getAuthor());
         return ResponseEntity.status(200).body(BaseResponse.of(noticeInfoRes));
     }
 
