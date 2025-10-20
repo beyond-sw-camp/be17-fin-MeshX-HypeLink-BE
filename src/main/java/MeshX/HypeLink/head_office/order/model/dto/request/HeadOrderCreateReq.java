@@ -8,7 +8,7 @@ public class HeadOrderCreateReq {
     private String itemName;      // 상품명
     private Integer unitPrice;       // 단가
     private Integer quantity;        // 수량
-    private String deliveryAddress;  // 납품지 주소 (매장)
+    private String deliveryAddress;  // 납품지 주소 (매장들)
     private String deliveryRequest;  // 배송 요청사항
     private String orderRequest;     // 주문 요청사항
 

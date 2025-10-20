@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -18,9 +19,7 @@ public class Member extends BaseEntity {
     private String email;
     private String password;
     private String name;
-    //전화 번호
     private String phone;
-    //가게 주소
     private String address;
 
     @Enumerated(EnumType.STRING)
@@ -30,7 +29,7 @@ public class Member extends BaseEntity {
     private Region region;
 
 
-    @Column
+    @Column(nullable = true)
     private String refreshToken;
 
 

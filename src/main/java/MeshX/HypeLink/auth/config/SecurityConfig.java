@@ -1,6 +1,7 @@
 package MeshX.HypeLink.auth.config;
 
 import MeshX.HypeLink.auth.filter.JwtAuthenticationFilter;
+import MeshX.HypeLink.auth.filter.JwtExceptionFilter;
 import MeshX.HypeLink.auth.handler.JwtAccessDeniedHandler;
 import MeshX.HypeLink.auth.handler.JwtAuthenticationEntryPoint;
 import MeshX.HypeLink.auth.service.TokenStore;
@@ -88,7 +89,8 @@ public class SecurityConfig {
                 )
 
                 // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 추가
-                .addFilterBefore(new JwtAuthenticationFilter(jwtUtils, tokenStore), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthenticationFilter(jwtUtils, tokenStore), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtExceptionFilter(), JwtAuthenticationFilter.class);
 
         return http.build();
     }
