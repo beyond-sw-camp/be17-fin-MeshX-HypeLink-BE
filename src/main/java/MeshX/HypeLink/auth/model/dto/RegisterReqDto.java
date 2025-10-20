@@ -1,6 +1,7 @@
 package MeshX.HypeLink.auth.model.dto;
 
 import MeshX.HypeLink.auth.model.entity.*;
+import MeshX.HypeLink.utils.geocode.model.dto.GeocodeDto;
 import lombok.Getter;
 
 @Getter
@@ -34,17 +35,17 @@ public class RegisterReqDto {
                 .password(encodedPassword)
                 .name(this.name)
                 .phone(this.phone)
-                .address(this.address) // Note: address might be for the store
+                .address(this.address)
                 .role(this.role)
                 .region(this.region)
                 .build();
     }
 
-    public Store toStoreEntity(Member member) {
+    public Store toStoreEntity(Member member,GeocodeDto geocodeDto) {
         return Store.builder()
                 .member(member)
-                .lat(this.lat)
-                .lon(this.lon)
+                .lat(geocodeDto.getLatAsDouble())
+                .lon(geocodeDto.getLonAsDouble())
                 .address(this.address)
                 .posCount(this.posCount)
                 .storeNumber(this.storeNumber)
@@ -64,7 +65,7 @@ public class RegisterReqDto {
                 .member(member)
                 .store(store)
                 .posCode(this.posCode)
-                .healthCheck(true) // Defaulting healthCheck
+                .healthCheck(true)
                 .build();
     }
 }

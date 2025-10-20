@@ -4,10 +4,18 @@ import MeshX.HypeLink.auth.exception.AuthException;
 import MeshX.HypeLink.auth.exception.AuthExceptionMessage;
 import MeshX.HypeLink.auth.exception.TokenException;
 import MeshX.HypeLink.auth.exception.TokenExceptionMessage;
-import MeshX.HypeLink.auth.model.dto.*;
-import MeshX.HypeLink.auth.model.entity.*;
+import MeshX.HypeLink.auth.model.dto.AuthTokens;
+import MeshX.HypeLink.auth.model.dto.LoginReqDto;
+import MeshX.HypeLink.auth.model.dto.LoginResDto;
+import MeshX.HypeLink.auth.model.dto.RegisterReqDto;
+import MeshX.HypeLink.auth.model.entity.Driver;
+import MeshX.HypeLink.auth.model.entity.Member;
+import MeshX.HypeLink.auth.model.entity.POS;
+import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.auth.repository.*;
 import MeshX.HypeLink.auth.utils.JwtUtils;
+import MeshX.HypeLink.utils.geocode.model.dto.GeocodeDto;
+import MeshX.HypeLink.utils.geocode.service.GeocodingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,20 +36,21 @@ public class AuthService {
     private final JwtUtils jwtUtils;
     private final PasswordEncoder passwordEncoder;
     private final TokenStore tokenStore;
+    private final GeocodingService geocodingService;
 
     public void register(RegisterReqDto requestDto) {
         memberJpaRepositoryVerify.existsByEmail(requestDto.getEmail());
 
         String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
 
-        // 1. Create and save the base Member entity using the DTO method
         Member member = requestDto.toMemberEntity(encodedPassword);
         memberJpaRepositoryVerify.save(member);
 
-        // 2. Based on role, create and save the specific entity using DTO methods
         switch (requestDto.getRole()) {
             case BRANCH_MANAGER:
-                Store store = requestDto.toStoreEntity(member);
+                GeocodeDto geocodeDto = geocodingService.getCoordinates(requestDto.getAddress());
+
+                Store store = requestDto.toStoreEntity(member, geocodeDto);
                 storeJpaRepositoryVerify.save(store);
                 break;
 
@@ -60,7 +69,6 @@ public class AuthService {
 
             case ADMIN:
             case MANAGER:
-                // No additional entity needed, just the Member
                 break;
         }
     }
