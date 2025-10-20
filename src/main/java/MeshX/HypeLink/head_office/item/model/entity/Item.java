@@ -1,14 +1,11 @@
 package MeshX.HypeLink.head_office.item.model.entity;
 
 import MeshX.HypeLink.common.BaseEntity;
-import MeshX.HypeLink.head_office.customer.model.entity.OrderItem;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Entity
 @Getter
@@ -30,43 +27,50 @@ public class Item extends BaseEntity {
     @JoinColumn(name = "size_id")
     private Size size;
 
+    // Image Entity 연결해야함
+
     private Integer amount; // 가격
-    private String name; // 이름
+    private String enName; // 이름
+    private String koName; // 이름
     private String content; // 아이템 설명
     private String company; // 회사
     private String itemCode; // 아이템 코드
+    private String itemDetailCode; // 아이템 코드 + 색상 + 사이즈
     private Integer stock; // 재고
 
     @Builder
     private Item(Category category, Color color, Size size, Integer amount,
-                 String name, String content, String company, String itemCode,
-                 Integer stock) {
+                 String enName, String koName, String content, String company,
+                 String itemCode, String itemDetailCode, Integer stock) {
         this.category = category;
         this.color = color;
         this.size = size;
         this.amount = amount;
-        this.name = name;
+        this.enName = enName;
+        this.koName = koName;
         this.content = content;
         this.company = company;
         this.itemCode = itemCode;
+        this.itemDetailCode = itemDetailCode;
         this.stock = stock;
+    }
+
+    public void updateEnName(String enName) {
+        this.enName = enName;
+    }
+
+    public void updateKoName(String koName) {
+        this.koName = koName;
     }
 
     public void updateAmount(Integer amount){
         this.amount = amount;
     }
-    public void updateName(String name){
-        this.name = name;
-    }
+
     public void updateContent(String content){
         this.content = content;
     }
-    public void updateCompany(String company){
-        this.company = company;
-    }
-    public void updateItemCode(String itemCode){
-        this.itemCode = itemCode;
-    }
+
     public void updateStock(Integer stock){
         this.stock = stock;
     }
