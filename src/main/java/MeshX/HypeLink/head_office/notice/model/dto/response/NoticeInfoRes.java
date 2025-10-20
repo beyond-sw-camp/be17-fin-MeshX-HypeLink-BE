@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 
 @Getter
 public class NoticeInfoRes {
+    private Integer id;
     private String title;
     private String contents;
     private String author;
@@ -14,6 +15,7 @@ public class NoticeInfoRes {
 
     public static NoticeInfoRes toDto(Notice entity) {
         return NoticeInfoRes.builder()
+                .id(entity.getId())
                 .title(entity.getTitle())
                 .contents(entity.getContents())
                 .author(entity.getAuthor())
@@ -22,7 +24,8 @@ public class NoticeInfoRes {
     }
 
     @Builder
-    private NoticeInfoRes(String title, String contents, Boolean isOpen, String author) {
+    private NoticeInfoRes(String title, String contents, Boolean isOpen, String author, Integer id) {
+        this.id = id;
         this.title = title;
         this.contents = contents;
         this.author = author;

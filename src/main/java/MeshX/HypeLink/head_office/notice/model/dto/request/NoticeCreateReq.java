@@ -8,6 +8,7 @@ public class NoticeCreateReq {
     private String title;
     private String contents;
     private String author;
+    //date?
 
     public Notice toEntity() {
         return Notice.builder()
