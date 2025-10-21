@@ -39,6 +39,7 @@ public class NoticeInfoRes {
 
 
         return NoticeInfoRes.builder()
+                .id(entity.getId())
                 .title(entity.getTitle())
                 .contents(entity.getContents())
                 .isOpen(entity.getIsOpen())
@@ -64,3 +65,4 @@ public class NoticeInfoRes {
     }
 
 }
+

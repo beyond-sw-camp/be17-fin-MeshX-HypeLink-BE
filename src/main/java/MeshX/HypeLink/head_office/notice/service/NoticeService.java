@@ -30,8 +30,10 @@ public class NoticeService {
     public void createNotice(NoticeCreateReq dto) {
         Notice notice = dto.toEntity();
 
-        List<Image> images = imageService.createImagesFromRequest(dto.getImages());
-        images.forEach(notice::addImage);
+        if (dto.getImages() != null && !dto.getImages().isEmpty()) {
+            List<Image> images = imageService.createImagesFromRequest(dto.getImages());
+            images.forEach(notice::addImage);
+        }
 
         repository.createNotice(notice);
     }
@@ -65,10 +67,9 @@ public class NoticeService {
         if(dto.getIsOpen() != null) {
             notice.changeOpen(dto.getIsOpen());
         }
-        if(!dto.getAuthor().isEmpty()) {
+        if(dto.getAuthor() != null && !dto.getAuthor().isEmpty()) {
             notice.updateAuthor(dto.getAuthor());
         }
-
         // 이미지 업데이트
         if (dto.getImages() != null) {
             notice.clearImages();
