@@ -74,4 +74,12 @@ public class Item extends BaseEntity {
     public void updateStock(Integer stock){
         this.stock = stock;
     }
+
+    public void updateCompany(String company){
+        this.company = company;
+    }
+
+    public void updateCategory(Category category){
+        this.category = category;
+    }
 }

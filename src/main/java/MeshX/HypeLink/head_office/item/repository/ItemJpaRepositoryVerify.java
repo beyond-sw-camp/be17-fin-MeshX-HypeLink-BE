@@ -33,6 +33,10 @@ public class ItemJpaRepositoryVerify {
         repository.save(entity);
     }
 
+    public void mergeList(List<Item> items) {
+        repository.saveAll(items);
+    }
+
     public List<Item> isExist(String itemCode) {
         List<Item> items = repository.findByItemCode(itemCode);
 

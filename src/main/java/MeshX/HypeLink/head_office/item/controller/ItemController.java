@@ -71,47 +71,58 @@ public class ItemController {
     }
 
     @PatchMapping("/content")
-    public ResponseEntity<BaseResponse<ItemDetailInfoRes>> updateContents(@RequestBody UpdateItemContentReq dto) {
+    public ResponseEntity<BaseResponse<String>> updateContents(@RequestBody UpdateItemContentReq dto) {
         itemService.updateContents(dto);
 
-        ItemDetailInfoRes result = itemService.findItemsByItemCode(dto.getItemDetailCode());
-
-        return ResponseEntity.status(200).body(BaseResponse.of(result));
+        return ResponseEntity.status(200).body(BaseResponse.of("수정이 완료되었습니다."));
     }
 
     @PatchMapping("/stock")
-    public ResponseEntity<BaseResponse<ItemInfoRes>> updateStock(@RequestBody UpdateItemStockReq dto) {
+    public ResponseEntity<BaseResponse<String>> updateStock(@RequestBody UpdateItemStockReq dto) {
         itemService.updateStock(dto);
 
-        ItemInfoRes result = itemService.findItemByItemDetailCode(dto.getItemDetailCode());
-
-        return ResponseEntity.status(200).body(BaseResponse.of(result));
+        return ResponseEntity.status(200).body(BaseResponse.of("수정이 완료되었습니다."));
     }
 
     @PatchMapping("/en_name")
-    public ResponseEntity<BaseResponse<ItemInfoRes>> updateEnName(@RequestBody UpdateItemEnNameReq dto) {
+    public ResponseEntity<BaseResponse<String>> updateEnName(@RequestBody UpdateItemEnNameReq dto) {
         itemService.updateEnName(dto);
 
-        ItemInfoRes result = itemService.findItemByItemDetailCode(dto.getItemDetailCode());
-
-        return ResponseEntity.status(200).body(BaseResponse.of(result));
+        return ResponseEntity.status(200).body(BaseResponse.of("수정이 완료되었습니다."));
     }
 
     @PatchMapping("/ko_name")
-    public ResponseEntity<BaseResponse<ItemInfoRes>> updateKoName(@RequestBody UpdateItemKoNameReq dto) {
+    public ResponseEntity<BaseResponse<String>> updateKoName(@RequestBody UpdateItemKoNameReq dto) {
         itemService.updateKoName(dto);
 
-        ItemInfoRes result = itemService.findItemByItemDetailCode(dto.getItemDetailCode());
-
-        return ResponseEntity.status(200).body(BaseResponse.of(result));
+        return ResponseEntity.status(200).body(BaseResponse.of("수정이 완료되었습니다."));
     }
 
     @PatchMapping("/amount")
-    public ResponseEntity<BaseResponse<ItemInfoRes>> updateAmount(@RequestBody UpdateItemAmountReq dto) {
+    public ResponseEntity<BaseResponse<String>> updateAmount(@RequestBody UpdateItemAmountReq dto) {
         itemService.updateAmount(dto);
 
-        ItemInfoRes result = itemService.findItemByItemDetailCode(dto.getItemDetailCode());
+        return ResponseEntity.status(200).body(BaseResponse.of("수정이 완료되었습니다."));
+    }
 
-        return ResponseEntity.status(200).body(BaseResponse.of(result));
+    @PatchMapping("/company")
+    public ResponseEntity<BaseResponse<String>> updateCompany(@RequestBody UpdateItemCompanyReq dto) {
+        itemService.updateCompany(dto);
+
+        return ResponseEntity.status(200).body(BaseResponse.of("수정이 완료되었습니다."));
+    }
+
+    @PatchMapping("/category")
+    public ResponseEntity<BaseResponse<String>> updateCategory(@RequestBody UpdateItemCategoryReq dto) {
+        itemService.updateCategory(dto);
+
+        return ResponseEntity.status(200).body(BaseResponse.of("수정이 완료되었습니다."));
+    }
+
+    @PatchMapping("/images")
+    public ResponseEntity<BaseResponse<String>> updateImages(@RequestBody UpdateItemImagesReq dto) {
+        itemService.updateImages(dto);
+
+        return ResponseEntity.status(200).body(BaseResponse.of("수정이 완료되었습니다."));
     }
 }
