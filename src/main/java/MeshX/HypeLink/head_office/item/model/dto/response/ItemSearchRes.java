@@ -9,6 +9,7 @@ import lombok.Getter;
 public class ItemSearchRes {
     private Integer id;
     private Integer amount; // 가격
+    private Integer unitPrice; // 가격
     private String enName; // 이름
     private String koName; // 이름
     private String company; // 회사
@@ -25,6 +26,7 @@ public class ItemSearchRes {
         return ItemSearchRes.builder()
                 .id(item.getId())
                 .amount(item.getAmount())
+                .unitPrice(item.getUnitPrice())
                 .enName(item.getEnName())
                 .koName(item.getKoName())
                 .company(item.getCompany())

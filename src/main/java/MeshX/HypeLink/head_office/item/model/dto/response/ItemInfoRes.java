@@ -12,6 +12,7 @@ public class ItemInfoRes {
     private String color;
     private String size;
     private Integer amount; // 가격
+    private Integer unitPrice; // 원가
     private String enName; // 이름
     private String koName; // 이름
     private String content; // 아이템 설명
@@ -27,6 +28,7 @@ public class ItemInfoRes {
                 .color(item.getColor().getColorCode())
                 .size(item.getSize().getSize())
                 .amount(item.getAmount())
+                .unitPrice(item.getUnitPrice())
                 .enName(item.getEnName())
                 .koName(item.getKoName())
                 .content(item.getContent())

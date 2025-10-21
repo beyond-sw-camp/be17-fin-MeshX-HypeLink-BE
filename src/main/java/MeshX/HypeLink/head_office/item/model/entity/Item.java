@@ -29,6 +29,7 @@ public class Item extends BaseEntity {
 
     // Image Entity 연결해야함
 
+    private Integer unitPrice;       // 단가
     private Integer amount; // 가격
     private String enName; // 이름
     private String koName; // 이름
@@ -41,7 +42,7 @@ public class Item extends BaseEntity {
     @Builder
     private Item(Category category, Color color, Size size, Integer amount,
                  String enName, String koName, String content, String company,
-                 String itemCode, String itemDetailCode, Integer stock) {
+                 String itemCode, String itemDetailCode, Integer stock, Integer unitPrice) {
         this.category = category;
         this.color = color;
         this.size = size;
@@ -53,6 +54,7 @@ public class Item extends BaseEntity {
         this.itemCode = itemCode;
         this.itemDetailCode = itemDetailCode;
         this.stock = stock;
+        this.unitPrice = unitPrice;
     }
 
     public void updateEnName(String enName) {
@@ -72,7 +74,11 @@ public class Item extends BaseEntity {
     }
 
     public void updateStock(Integer stock){
-        this.stock = stock;
+        this.stock += stock;
+    }
+
+    public void updateUnitPrice(Integer unitPrice) {
+        this.unitPrice = unitPrice;
     }
 
     public void updateCompany(String company){

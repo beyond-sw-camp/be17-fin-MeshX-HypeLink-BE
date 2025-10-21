@@ -105,6 +105,13 @@ public class ItemController {
         return ResponseEntity.status(200).body(BaseResponse.of("수정이 완료되었습니다."));
     }
 
+    @PatchMapping("/unit_price")
+    public ResponseEntity<BaseResponse<String>> updateUnitPrice(@RequestBody UpdateItemUnitPriceReq dto) {
+        itemService.updateUnitPrice(dto);
+
+        return ResponseEntity.status(200).body(BaseResponse.of("수정이 완료되었습니다."));
+    }
+
     @PatchMapping("/company")
     public ResponseEntity<BaseResponse<String>> updateCompany(@RequestBody UpdateItemCompanyReq dto) {
         itemService.updateCompany(dto);

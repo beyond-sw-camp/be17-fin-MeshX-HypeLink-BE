@@ -43,7 +43,7 @@ public class ItemService {
             Size size = sizeRepository.findByName(item.getSize());
             return item.toEntity(dto.getAmount(), dto.getEnName(), dto.getKoName(), dto.getCompany(),
                     dto.getItemCode(), dto.getContent(), category, color,
-                    size);
+                    size, dto.getUnitPrice());
         }).toList();
 
         itemRepository.saveList(items);
@@ -152,6 +152,15 @@ public class ItemService {
         List<Item> items = itemRepository.findByItemCode(dto.getItemCode());
 
         items.forEach(one -> one.updateAmount(dto.getAmount()));
+
+        itemRepository.mergeList(items);
+    }
+
+    @Transactional
+    public void updateUnitPrice(UpdateItemUnitPriceReq dto) {
+        List<Item> items = itemRepository.findByItemCode(dto.getItemCode());
+
+        items.forEach(one -> one.updateUnitPrice(dto.getUnitPrice()));
 
         itemRepository.mergeList(items);
     }

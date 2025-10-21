@@ -15,7 +15,7 @@ public class CreateItemDetailReq {
 
     public Item toEntity(Integer amount, String enName, String koName, String company,
                          String itemCode, String content, Category findCategory, Color findColor,
-                         Size findSize) {
+                         Size findSize, Integer unitPrice) {
         return Item.builder()
                 .itemCode(itemCode)
                 .itemDetailCode(itemDetailCode)
@@ -28,6 +28,7 @@ public class CreateItemDetailReq {
                 .enName(enName)
                 .koName(koName)
                 .content(content)
+                .unitPrice(unitPrice)
                 .build();
     }
 }

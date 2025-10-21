@@ -3,6 +3,7 @@ package MeshX.HypeLink.head_office.item.repository;
 import MeshX.HypeLink.common.exception.BaseException;
 import MeshX.HypeLink.head_office.item.model.entity.Category;
 import MeshX.HypeLink.head_office.item.model.entity.Item;
+import MeshX.HypeLink.head_office.order.model.dto.response.PurchaseOrderInfoRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -57,8 +58,22 @@ public class ItemJpaRepositoryVerify {
         return optional.get();
     }
 
+    public Item findByIdWithLock(Integer id) {
+        Optional<Item> optional = repository.findByIdForUpdateWithLock(id);
+
+        if(optional.isEmpty()){
+            throw new BaseException(NOTFOUND_ID);
+        }
+
+        return optional.get();
+    }
+
     public List<Item> findItems() {
         return repository.findAll();
+    }
+
+    public Page<PurchaseOrderInfoRes> findItemsAndPurchaseOrdersWithPaging(Pageable pageable) {
+        return repository.findItemWithRequestedTotalQuantity(pageable);
     }
 
     public Page<Item> findItemsWithPaging(Pageable pageable) {
