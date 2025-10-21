@@ -31,10 +31,17 @@ public class PromotionController {
     }
 
     @GetMapping("/read/page/all")
-    public ResponseEntity<BaseResponse<PageRes<PromotionInfoRes>>> readBackpacks(PageReq pageReq) {
+    public ResponseEntity<BaseResponse<PageRes<PromotionInfoRes>>> readPromotions(PageReq pageReq) {
         PageRes<PromotionInfoRes> pageRes = promotionService.readList(pageReq);
         return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
     }
+
+    @GetMapping("/read/{id}")
+    public ResponseEntity<BaseResponse<PromotionInfoRes>> readPromotion(@PathVariable Integer id) {
+        PromotionInfoRes promotionInfoRes = promotionService.readDetails(id);
+        return ResponseEntity.status(200).body(BaseResponse.of(promotionInfoRes));
+    }
+
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<BaseResponse<String>> deletePromotion(@PathVariable Integer id){
@@ -43,7 +50,7 @@ public class PromotionController {
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<BaseResponse<PromotionInfoRes>>updateBackpack(@PathVariable Integer id,
+    public ResponseEntity<BaseResponse<PromotionInfoRes>>updatePromotion(@PathVariable Integer id,
                                                                              @RequestBody PromotionUpdateReq dto){
         PromotionInfoRes promotionInfoRes = promotionService.update(id, dto.getPromotionType(), dto.getCategory(), dto.getTitle(), dto.getContents(), dto.getDiscountRate(), dto.getStartDate(), dto.getEndDate());
         return ResponseEntity.status(200).body(BaseResponse.of(promotionInfoRes));

@@ -23,9 +23,9 @@ public class AuthController {
     private long refreshTokenExpirationMs;
 
     @PostMapping("/register")
-    public ResponseEntity<TokenResDto> register(@RequestBody RegisterReqDto dto) {
-        AuthTokens authTokens = authService.register(dto);
-        return createTokenResponse(authTokens);
+    public ResponseEntity<BaseResponse<String>> register(@RequestBody RegisterReqDto dto) {
+        authService.register(dto);
+        return ResponseEntity.ok(BaseResponse.of("회원가입이 성공하였습니다."));
     }
 
     @PostMapping("/login")
@@ -42,6 +42,8 @@ public class AuthController {
     @PostMapping("/reissue")
     public ResponseEntity<TokenResDto> reissue(@CookieValue("refresh_token") String refreshToken) {
         AuthTokens authTokens = authService.reissueTokens(refreshToken);
+        System.out.println("실행");
+        System.out.println(authTokens);
         return createTokenResponse(authTokens);
     }
 
@@ -60,6 +62,7 @@ public class AuthController {
 
     private ResponseEntity<TokenResDto> createTokenResponse(AuthTokens authTokens) {
         ResponseCookie cookie = CookieUtils.createRefreshTokenCookie(authTokens.getRefreshToken(), refreshTokenExpirationMs);
+
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())

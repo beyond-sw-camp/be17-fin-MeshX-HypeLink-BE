@@ -8,9 +8,14 @@ import MeshX.HypeLink.auth.model.dto.AuthTokens;
 import MeshX.HypeLink.auth.model.dto.LoginReqDto;
 import MeshX.HypeLink.auth.model.dto.LoginResDto;
 import MeshX.HypeLink.auth.model.dto.RegisterReqDto;
+import MeshX.HypeLink.auth.model.entity.Driver;
 import MeshX.HypeLink.auth.model.entity.Member;
-import MeshX.HypeLink.auth.repository.MemberJpaRepositoryVerify;
+import MeshX.HypeLink.auth.model.entity.POS;
+import MeshX.HypeLink.auth.model.entity.Store;
+import MeshX.HypeLink.auth.repository.*;
 import MeshX.HypeLink.auth.utils.JwtUtils;
+import MeshX.HypeLink.utils.geocode.model.dto.GeocodeDto;
+import MeshX.HypeLink.utils.geocode.service.GeocodingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,18 +29,48 @@ import java.time.Duration;
 public class AuthService {
 
     private final MemberJpaRepositoryVerify memberJpaRepositoryVerify;
+    private final DriverJpaRepositoryVerify driverJpaRepositoryVerify;
+    private final PosJpaRepositoryVerify posJpaRepositoryVerify;
+    private final StoreJpaRepositoryVerify storeJpaRepositoryVerify;
+    private final StoreRepository storeRepository; // for finding store for POS
     private final JwtUtils jwtUtils;
     private final PasswordEncoder passwordEncoder;
-    private final TokenStore tokenStore; // TokenStore 주입
+    private final TokenStore tokenStore;
+    private final GeocodingService geocodingService;
 
-    public AuthTokens register(RegisterReqDto requestDto) {
+    public void register(RegisterReqDto requestDto) {
         memberJpaRepositoryVerify.existsByEmail(requestDto.getEmail());
 
         String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
-        Member member = requestDto.toEntity(encodedPassword);
+
+        Member member = requestDto.toMemberEntity(encodedPassword);
         memberJpaRepositoryVerify.save(member);
 
-        return issueTokens(member.getEmail(),member.getRole().name());
+        switch (requestDto.getRole()) {
+            case BRANCH_MANAGER:
+                GeocodeDto geocodeDto = geocodingService.getCoordinates(requestDto.getAddress());
+
+                Store store = requestDto.toStoreEntity(member, geocodeDto);
+                storeJpaRepositoryVerify.save(store);
+                break;
+
+            case DRIVER:
+                Driver driver = requestDto.toDriverEntity(member);
+                driverJpaRepositoryVerify.save(driver);
+                break;
+
+            case POS_MEMBER:
+                Store associatedStore = storeRepository.findById(requestDto.getStoreId())
+                        .orElseThrow(() -> new AuthException(AuthExceptionMessage.STORE_NOT_FOUND));
+
+                POS pos = requestDto.toPosEntity(member, associatedStore);
+                posJpaRepositoryVerify.save(pos);
+                break;
+
+            case ADMIN:
+            case MANAGER:
+                break;
+        }
     }
 
     @Transactional
@@ -62,7 +97,6 @@ public class AuthService {
         String email = jwtUtils.getEmailFromToken(refreshToken);
         String role = jwtUtils.getRoleFromToken(refreshToken);
 
-        // 저장소의 토큰과 일치하는지 확인
         String storedToken = tokenStore.getRefreshToken(email)
                 .orElseThrow(() -> new TokenException(TokenExceptionMessage.TOKEN_NOT_FOUND));
 
@@ -83,9 +117,6 @@ public class AuthService {
         tokenStore.blacklistToken(accessToken, remainingTime);
     }
 
-    /**
-     * 토큰 발급 및 저장 공통 메서드
-     */
     private AuthTokens issueTokens(String email, String role) {
         AuthTokens tokens = jwtUtils.generateTokens(email, role);
         tokenStore.saveRefreshToken(email, tokens.getRefreshToken());

@@ -10,8 +10,11 @@ import java.util.List;
 public class NoticeCreateReq {
     private String title;
     private String contents;
+
     private List<ImageCreateRequest> images;
     private String author;
+    
+
 
     public Notice toEntity() {
         return Notice.builder()

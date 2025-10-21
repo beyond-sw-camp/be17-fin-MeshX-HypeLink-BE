@@ -1,6 +1,8 @@
 package MeshX.HypeLink.direct_store.order.controller;
 
 import MeshX.HypeLink.common.BaseResponse;
+import MeshX.HypeLink.common.Page.PageReq;
+import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.direct_store.order.model.dto.request.DirectOrderCreateReq;
 import MeshX.HypeLink.direct_store.order.model.dto.request.DirectOrderUpdateReq;
 import MeshX.HypeLink.direct_store.order.model.dto.response.DirectOrderInfoListRes;
@@ -35,10 +37,17 @@ public class DirectOrderController {
     }
 
     @GetMapping("/read/all")
-    public ResponseEntity<BaseResponse<DirectOrderInfoListRes>> readAllOrders() {
+    public ResponseEntity<BaseResponse<DirectOrderInfoListRes>> readOrders() {
         DirectOrderInfoListRes directOrderInfoListRes = directOrderService.readList();
         return ResponseEntity.status(200).body(BaseResponse.of(directOrderInfoListRes));
     }
+
+    @GetMapping("/read/page/all")
+    public ResponseEntity<BaseResponse<PageRes<DirectOrderInfoRes>>> readOrders(PageReq pageReq) {
+        PageRes<DirectOrderInfoRes> pageRes = directOrderService.readList(pageReq);
+        return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
+    }
+
 
     @PatchMapping("/update/{id}")
     public ResponseEntity<BaseResponse<DirectOrderInfoRes>> updateOrder(@PathVariable Integer id,

@@ -5,6 +5,7 @@ import MeshX.HypeLink.common.exception.BaseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -22,5 +23,9 @@ public class StoreJpaRepositoryVerify {
             throw new BaseException(null);
         }
         return optional.get();
+    }
+
+    public List<Store> findAll() {
+        return repository.findAll();
     }
 }

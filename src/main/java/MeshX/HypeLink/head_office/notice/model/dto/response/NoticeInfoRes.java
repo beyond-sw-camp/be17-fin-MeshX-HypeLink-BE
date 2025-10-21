@@ -8,8 +8,11 @@ import lombok.Getter;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
+
 import java.util.List;
 import java.util.stream.Collectors;
+
+
 
 @Getter
 public class NoticeInfoRes {
@@ -19,6 +22,7 @@ public class NoticeInfoRes {
     private String author;
     private Boolean isOpen;
     private LocalDateTime date;
+
     private List<ImageUploadResponse> images;
 
 
@@ -36,20 +40,20 @@ public class NoticeInfoRes {
                         .build())
                 .collect(Collectors.toList());
 
-
-
         return NoticeInfoRes.builder()
                 .id(entity.getId())
                 .title(entity.getTitle())
                 .contents(entity.getContents())
+                .author(entity.getAuthor())
                 .isOpen(entity.getIsOpen())
                 .images(imageDtos)
-                .author(entity.getAuthor())
+  
                 .date(displayDate)
                 .build();
     }
 
     @Builder
+
     private NoticeInfoRes(String title, String contents, Boolean isOpen, List<ImageUploadResponse> images
     ,String author, Integer id, LocalDateTime date) {
         this.id = id;
@@ -62,7 +66,7 @@ public class NoticeInfoRes {
     }
     public static Page<NoticeInfoRes> toDtoPage(Page<Notice> page, S3UrlBuilder urlBuilder) {
         return page.map(notice -> NoticeInfoRes.toDto(notice, urlBuilder));
-    }
-
+    }  
+   
 }
 

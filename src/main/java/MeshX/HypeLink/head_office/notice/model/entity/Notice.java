@@ -24,11 +24,13 @@ public class Notice extends BaseEntity {
     private String author;
     private Boolean isOpen;
 
+
     @OneToMany(mappedBy = "notice", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> imageList = new ArrayList<>();
 
     @Builder
     private Notice(String title, String contents, Boolean isOpen,String author) {
+
         this.title = title;
         this.contents = contents;
         this.author = author;
@@ -47,6 +49,7 @@ public class Notice extends BaseEntity {
         this.isOpen = isOpen;
     }
 
+
     public void addImage(Image image) {
         this.imageList.add(image);
         image.setNotice(this);
@@ -55,6 +58,7 @@ public class Notice extends BaseEntity {
     public void clearImages() {
         this.imageList.clear();
     }
+
 
     public void updateAuthor(String author) {
         this.author = author;

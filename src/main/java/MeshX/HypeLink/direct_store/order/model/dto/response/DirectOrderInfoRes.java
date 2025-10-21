@@ -3,6 +3,7 @@ package MeshX.HypeLink.direct_store.order.model.dto.response;
 import MeshX.HypeLink.direct_store.order.model.entity.DirectOrder;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.data.domain.Page;
 
 @Getter
 public class DirectOrderInfoRes {
@@ -35,5 +36,8 @@ public class DirectOrderInfoRes {
         this.deliveryAddress = deliveryAddress;
         this.deliveryRequest = deliveryRequest;
         this.orderRequest = orderRequest;
+    }
+    public static Page<DirectOrderInfoRes> toDtoPage(Page<DirectOrder> page) {
+        return page.map(DirectOrderInfoRes::toDto);
     }
 }
