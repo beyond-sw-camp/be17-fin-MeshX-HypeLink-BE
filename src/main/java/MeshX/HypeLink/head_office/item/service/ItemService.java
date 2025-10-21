@@ -122,67 +122,67 @@ public class ItemService {
 
     @Transactional
     public void updateContents(UpdateItemContentReq dto) {
-        Item item = itemRepository.findByItemDetailCode(dto.getItemDetailCode());
+        List<Item> items = itemRepository.findByItemCode(dto.getItemCode());
 
-        item.updateContent(dto.getContent());
+        items.forEach(one -> one.updateContent(dto.getContent()));
 
-        itemRepository.merge(item);
+        itemRepository.mergeList(items);
     }
 
     @Transactional
     public void updateEnName(UpdateItemEnNameReq dto) {
-        Item item = itemRepository.findByItemDetailCode(dto.getItemDetailCode());
+        List<Item> items = itemRepository.findByItemCode(dto.getItemCode());
 
-        item.updateEnName(dto.getEnName());
+        items.forEach(one -> one.updateEnName(dto.getEnName()));
 
-        itemRepository.merge(item);
+        itemRepository.mergeList(items);
     }
 
     @Transactional
     public void updateKoName(UpdateItemKoNameReq dto) {
-        Item item = itemRepository.findByItemDetailCode(dto.getItemDetailCode());
+        List<Item> items = itemRepository.findByItemCode(dto.getItemCode());
 
-        item.updateKoName(dto.getKoName());
+        items.forEach(one -> one.updateKoName(dto.getKoName()));
 
-        itemRepository.merge(item);
+        itemRepository.mergeList(items);
     }
 
     @Transactional
     public void updateAmount(UpdateItemAmountReq dto) {
-        Item item = itemRepository.findByItemDetailCode(dto.getItemDetailCode());
+        List<Item> items = itemRepository.findByItemCode(dto.getItemCode());
 
-        item.updateAmount(dto.getAmount());
+        items.forEach(one -> one.updateAmount(dto.getAmount()));
 
-        itemRepository.merge(item);
+        itemRepository.mergeList(items);
     }
 
     @Transactional
     public void updateCompany(UpdateItemCompanyReq dto) {
-        Item item = itemRepository.findByItemDetailCode(dto.getItemDetailCode());
+        List<Item> items = itemRepository.findByItemCode(dto.getItemCode());
 
-        item.updateCompany(dto.getCompany());
+        items.forEach(one -> one.updateCompany(dto.getCompany()));
 
-        itemRepository.merge(item);
+        itemRepository.mergeList(items);
     }
 
     @Transactional
     public void updateCategory(UpdateItemCategoryReq dto) {
-        Item item = itemRepository.findByItemDetailCode(dto.getItemDetailCode());
+        List<Item> items = itemRepository.findByItemCode(dto.getItemCode());
         Category category = categoryRepository.findByName(dto.getCategory());
 
-        item.updateCategory(category);
+        items.forEach(one -> one.updateCategory(category));
 
-        itemRepository.merge(item);
+        itemRepository.mergeList(items);
     }
 
     // Image 로직 수정
     @Transactional
     public void updateImages(UpdateItemImagesReq dto) {
-        Item item = itemRepository.findByItemDetailCode(dto.getItemDetailCode());
+        List<Item> items = itemRepository.findByItemCode(dto.getItemCode());
 //        Category category = categoryRepository.findByName(dto.getCategory());
 //
 //        item.updateCategory(category);
 
-        itemRepository.merge(item);
+        itemRepository.mergeList(items);
     }
 }
