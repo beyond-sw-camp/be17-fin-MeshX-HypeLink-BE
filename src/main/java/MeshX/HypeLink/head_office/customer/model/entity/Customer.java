@@ -1,6 +1,7 @@
 package MeshX.HypeLink.head_office.customer.model.entity;
 
 import MeshX.HypeLink.common.BaseEntity;
+import MeshX.HypeLink.head_office.coupon.model.entity.Coupon;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -28,4 +29,6 @@ public class Customer extends BaseEntity {
     @OneToMany(mappedBy = "customer")
     private List<CustomerReceipt> customerReceipts; // 결제 내역들...
 
+    @OneToMany(mappedBy = "customer")
+    private List<Coupon> couponList;
 }
