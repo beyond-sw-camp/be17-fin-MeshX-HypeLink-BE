@@ -6,13 +6,13 @@ import MeshX.HypeLink.auth.exception.TokenException;
 import MeshX.HypeLink.auth.exception.TokenExceptionMessage;
 import MeshX.HypeLink.auth.model.dto.AuthTokens;
 import MeshX.HypeLink.auth.model.dto.req.LoginReqDto;
-import MeshX.HypeLink.auth.model.dto.res.LoginResDto;
 import MeshX.HypeLink.auth.model.dto.req.RegisterReqDto;
-import MeshX.HypeLink.auth.model.entity.Driver;
-import MeshX.HypeLink.auth.model.entity.Member;
-import MeshX.HypeLink.auth.model.entity.POS;
-import MeshX.HypeLink.auth.model.entity.Store;
-import MeshX.HypeLink.auth.repository.*;
+import MeshX.HypeLink.auth.model.dto.res.LoginResDto;
+import MeshX.HypeLink.auth.model.entity.*;
+import MeshX.HypeLink.auth.repository.DriverJpaRepositoryVerify;
+import MeshX.HypeLink.auth.repository.MemberJpaRepositoryVerify;
+import MeshX.HypeLink.auth.repository.PosJpaRepositoryVerify;
+import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
 import MeshX.HypeLink.auth.utils.JwtUtils;
 import MeshX.HypeLink.utils.geocode.model.dto.GeocodeDto;
 import MeshX.HypeLink.utils.geocode.service.GeocodingService;
@@ -32,7 +32,6 @@ public class AuthService {
     private final DriverJpaRepositoryVerify driverJpaRepositoryVerify;
     private final PosJpaRepositoryVerify posJpaRepositoryVerify;
     private final StoreJpaRepositoryVerify storeJpaRepositoryVerify;
-    private final StoreRepository storeRepository; // for finding store for POS
     private final JwtUtils jwtUtils;
     private final PasswordEncoder passwordEncoder;
     private final TokenStore tokenStore;
@@ -42,6 +41,29 @@ public class AuthService {
         memberJpaRepositoryVerify.existsByEmail(requestDto.getEmail());
 
         String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
+
+        if (requestDto.getRole().equals(MemberRole.POS_MEMBER)) {
+            Store associatedStore = storeJpaRepositoryVerify.findById(requestDto.getStoreId());
+
+            associatedStore.increasePosCount();
+            storeJpaRepositoryVerify.save(associatedStore);
+
+            Member member = Member.builder()
+                    .email(requestDto.getEmail())
+                    .password(encodedPassword)
+                    .name(requestDto.getName())
+                    .phone(associatedStore.getMember().getPhone())
+                    .address(associatedStore.getMember().getAddress())
+                    .role(MemberRole.POS_MEMBER)
+                    .region(associatedStore.getMember().getRegion())
+                    .build();
+
+            POS pos = requestDto.toPosEntity(member,associatedStore);
+            memberJpaRepositoryVerify.save(member);
+            posJpaRepositoryVerify.save(pos);
+            return;
+        }
+
 
         Member member = requestDto.toMemberEntity(encodedPassword);
         memberJpaRepositoryVerify.save(member);
@@ -57,14 +79,6 @@ public class AuthService {
             case DRIVER:
                 Driver driver = requestDto.toDriverEntity(member);
                 driverJpaRepositoryVerify.save(driver);
-                break;
-
-            case POS_MEMBER:
-                Store associatedStore = storeRepository.findById(requestDto.getStoreId())
-                        .orElseThrow(() -> new AuthException(AuthExceptionMessage.STORE_NOT_FOUND));
-
-                POS pos = requestDto.toPosEntity(member, associatedStore);
-                posJpaRepositoryVerify.save(pos);
                 break;
 
             case ADMIN:

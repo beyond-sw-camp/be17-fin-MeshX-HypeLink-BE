@@ -2,7 +2,9 @@ package MeshX.HypeLink.auth.model.dto.req;
 
 import MeshX.HypeLink.auth.model.entity.*;
 import MeshX.HypeLink.utils.geocode.model.dto.GeocodeDto;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 public class RegisterReqDto {
@@ -14,20 +16,16 @@ public class RegisterReqDto {
     private String phone;
     private Region region;
 
-    // Store specific (for BRANCH_MANAGER)
     private Double lat;
     private Double lon;
     private String address;
-    private Integer posCount;
     private String storeNumber;
 
-    // Driver specific
     private String macAddress;
     private String carNumber;
 
-    // POS specific
     private String posCode;
-    private Integer storeId; // To link POS to a Store
+    private Integer storeId;
 
     public Member toMemberEntity(String encodedPassword) {
         return Member.builder()
@@ -47,7 +45,6 @@ public class RegisterReqDto {
                 .lat(geocodeDto.getLatAsDouble())
                 .lon(geocodeDto.getLonAsDouble())
                 .address(this.address)
-                .posCount(this.posCount)
                 .storeNumber(this.storeNumber)
                 .build();
     }
@@ -60,10 +57,10 @@ public class RegisterReqDto {
                 .build();
     }
 
-    public POS toPosEntity(Member member, Store store) {
+    public POS toPosEntity(Member member,Store store) {
         return POS.builder()
-                .member(member)
                 .store(store)
+                .member(member)
                 .posCode(this.posCode)
                 .healthCheck(true)
                 .build();

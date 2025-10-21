@@ -41,6 +41,7 @@ public class BaseMember {
             log.info("데이터 미 존재");
         }
 
+        // Admin and Manager
         Member hq = Member.builder()
                 .email("hq@company.com")
                 .password(encoder.encode("1234"))
@@ -52,8 +53,8 @@ public class BaseMember {
                 .refreshToken(null)
                 .build();
 
-        Member sq = Member.builder()
-                .email("sq@company.com")
+        Member manager = Member.builder()
+                .email("manager@company.com")
                 .password(encoder.encode("1234"))
                 .name("서브관리자")
                 .phone("010-1111-1112")
@@ -63,50 +64,26 @@ public class BaseMember {
                 .refreshToken(null)
                 .build();
 
-        Member owner1 = Member.builder()
-                .email("owner1@store.com")
-                .password(encoder.encode("1234"))
-                .name("가맹점주1")
-                .phone("010-2222-2222")
-                .address("서울특별시 중구 을지로 1가")
-                .role(MemberRole.BRANCH_MANAGER)
-                .region(Region.SEOUL_GYEONGGI)
-                .refreshToken(null)
-                .build();
+        // Branch Managers (5 stores)
+        Member owner1 = Member.builder().email("owner1@store.com").password(encoder.encode("1234")).name("가맹점주1").phone("010-2222-2221").address("서울특별시 중구 을지로 1가").role(MemberRole.BRANCH_MANAGER).region(Region.SEOUL_GYEONGGI).refreshToken(null).build();
+        Member owner2 = Member.builder().email("owner2@store.com").password(encoder.encode("1234")).name("가맹점주2").phone("010-2222-2222").address("부산광역시 중구 중앙동").role(MemberRole.BRANCH_MANAGER).region(Region.GYEONGSANG).refreshToken(null).build();
+        Member owner3 = Member.builder().email("owner3@store.com").password(encoder.encode("1234")).name("가맹점주3").phone("010-2222-2223").address("대전광역시 서구 둔산동").role(MemberRole.BRANCH_MANAGER).region(Region.CHUNGCHEONG).refreshToken(null).build();
+        Member owner4 = Member.builder().email("owner4@store.com").password(encoder.encode("1234")).name("가맹점주4").phone("010-2222-2224").address("광주광역시 서구 상무지구").role(MemberRole.BRANCH_MANAGER).region(Region.JEOLLA).refreshToken(null).build();
+        Member owner5 = Member.builder().email("owner5@store.com").password(encoder.encode("1234")).name("가맹점주5").phone("010-2222-2225").address("제주특별자치도 제주시").role(MemberRole.BRANCH_MANAGER).region(Region.JEOLLA).refreshToken(null).build();
 
-        Member pos1 = Member.builder()
-                .email("pos1@store1.com")
-                .password(encoder.encode("1234"))
-                .name("가맹점주1_pos1")
-                .phone("010-3333-3334")
-                .address("부산광역시 중구 중앙동")
-                .role(MemberRole.POS_MEMBER)
-                .region(Region.SEOUL_GYEONGGI)
-                .refreshToken(null)
-                .build();
+        // POS Members (2 per store = 10 total)
+        Member pos1_1 = Member.builder().email("pos1_1@store.com").password(encoder.encode("1234")).name("가맹점주1_POS1").phone("010-3333-3331").address("서울특별시 중구 을지로 1가").role(MemberRole.POS_MEMBER).region(Region.SEOUL_GYEONGGI).refreshToken(null).build();
+        Member pos1_2 = Member.builder().email("pos1_2@store.com").password(encoder.encode("1234")).name("가맹점주1_POS2").phone("010-3333-3332").address("서울특별시 중구 을지로 1가").role(MemberRole.POS_MEMBER).region(Region.SEOUL_GYEONGGI).refreshToken(null).build();
+        Member pos2_1 = Member.builder().email("pos2_1@store.com").password(encoder.encode("1234")).name("가맹점주2_POS1").phone("010-3333-3333").address("부산광역시 중구 중앙동").role(MemberRole.POS_MEMBER).region(Region.GYEONGSANG).refreshToken(null).build();
+        Member pos2_2 = Member.builder().email("pos2_2@store.com").password(encoder.encode("1234")).name("가맹점주2_POS2").phone("010-3333-3334").address("부산광역시 중구 중앙동").role(MemberRole.POS_MEMBER).region(Region.GYEONGSANG).refreshToken(null).build();
+        Member pos3_1 = Member.builder().email("pos3_1@store.com").password(encoder.encode("1234")).name("가맹점주3_POS1").phone("010-3333-3335").address("대전광역시 서구 둔산동").role(MemberRole.POS_MEMBER).region(Region.CHUNGCHEONG).refreshToken(null).build();
+        Member pos3_2 = Member.builder().email("pos3_2@store.com").password(encoder.encode("1234")).name("가맹점주3_POS2").phone("010-3333-3336").address("대전광역시 서구 둔산동").role(MemberRole.POS_MEMBER).region(Region.CHUNGCHEONG).refreshToken(null).build();
+        Member pos4_1 = Member.builder().email("pos4_1@store.com").password(encoder.encode("1234")).name("가맹점주4_POS1").phone("010-3333-3337").address("광주광역시 서구 상무지구").role(MemberRole.POS_MEMBER).region(Region.JEOLLA).refreshToken(null).build();
+        Member pos4_2 = Member.builder().email("pos4_2@store.com").password(encoder.encode("1234")).name("가맹점주4_POS2").phone("010-3333-3338").address("광주광역시 서구 상무지구").role(MemberRole.POS_MEMBER).region(Region.JEOLLA).refreshToken(null).build();
+        Member pos5_1 = Member.builder().email("pos5_1@store.com").password(encoder.encode("1234")).name("가맹점주5_POS1").phone("010-3333-3339").address("제주특별자치도 제주시").role(MemberRole.POS_MEMBER).region(Region.JEOLLA).refreshToken(null).build();
+        Member pos5_2 = Member.builder().email("pos5_2@store.com").password(encoder.encode("1234")).name("가맹점주5_POS2").phone("010-3333-3340").address("제주특별자치도 제주시").role(MemberRole.POS_MEMBER).region(Region.JEOLLA).refreshToken(null).build();
 
-        Member owner2 = Member.builder()
-                .email("owner2@store.com")
-                .password(encoder.encode("1234"))
-                .name("가맹점주2")
-                .phone("010-3333-4333")
-                .address("부산광역시 중구 중앙동")
-                .role(MemberRole.POS_MEMBER)
-                .region(Region.JEOLLA)
-                .refreshToken(null)
-                .build();
-
-        Member pos2 = Member.builder()
-                .email("pos1@store2.com")
-                .password(encoder.encode("1234"))
-                .name("가맹점주2_pos1")
-                .phone("010-3333-4334")
-                .address("부산광역시 중구 중앙동")
-                .role(MemberRole.BRANCH_MANAGER)
-                .region(Region.JEOLLA)
-                .refreshToken(null)
-                .build();
-
+        // Drivers (2) - Keep existing drivers
         Member driver1 = Member.builder()
                 .email("driver1@delivery.com")
                 .password(encoder.encode("1234"))
@@ -130,11 +107,22 @@ public class BaseMember {
                 .build();
 
         memberRepository.save(hq);
-        memberRepository.save(sq);
+        memberRepository.save(manager);
         memberRepository.save(owner1);
         memberRepository.save(owner2);
-        memberRepository.save(pos1);
-        memberRepository.save(pos2);
+        memberRepository.save(owner3);
+        memberRepository.save(owner4);
+        memberRepository.save(owner5);
+        memberRepository.save(pos1_1);
+        memberRepository.save(pos1_2);
+        memberRepository.save(pos2_1);
+        memberRepository.save(pos2_2);
+        memberRepository.save(pos3_1);
+        memberRepository.save(pos3_2);
+        memberRepository.save(pos4_1);
+        memberRepository.save(pos4_2);
+        memberRepository.save(pos5_1);
+        memberRepository.save(pos5_2);
         memberRepository.save(driver1);
         memberRepository.save(driver2);
 
@@ -145,47 +133,54 @@ public class BaseMember {
     private void initStoresAndPoses() {
         Member owner1 = memberRepository.findByEmail("owner1@store.com");
         Member owner2 = memberRepository.findByEmail("owner2@store.com");
+        Member owner3 = memberRepository.findByEmail("owner3@store.com");
+        Member owner4 = memberRepository.findByEmail("owner4@store.com");
+        Member owner5 = memberRepository.findByEmail("owner5@store.com");
 
-        Member pos_1 = memberRepository.findByEmail("pos1@store1.com");
-        Member pos_2 = memberRepository.findByEmail("pos1@store2.com");
+        Member pos1_1 = memberRepository.findByEmail("pos1_1@store.com");
+        Member pos1_2 = memberRepository.findByEmail("pos1_2@store.com");
+        Member pos2_1 = memberRepository.findByEmail("pos2_1@store.com");
+        Member pos2_2 = memberRepository.findByEmail("pos2_2@store.com");
+        Member pos3_1 = memberRepository.findByEmail("pos3_1@store.com");
+        Member pos3_2 = memberRepository.findByEmail("pos3_2@store.com");
+        Member pos4_1 = memberRepository.findByEmail("pos4_1@store.com");
+        Member pos4_2 = memberRepository.findByEmail("pos4_2@store.com");
+        Member pos5_1 = memberRepository.findByEmail("pos5_1@store.com");
+        Member pos5_2 = memberRepository.findByEmail("pos5_2@store.com");
 
-        Store store1 = Store.builder()
-                .lat(37.5665)
-                .lon(126.9780)
-                .address("서울특별시 중구 을지로 1가")
-                .posCount(2)
-                .storeNumber("STORE001")
-                .member(owner1)
-                .build();
-
-        Store store2 = Store.builder()
-                .lat(35.1796)
-                .lon(129.0756)
-                .address("부산광역시 중구 중앙동")
-                .posCount(2)
-                .storeNumber("STORE002")
-                .member(owner2)
-                .build();
+        Store store1 = Store.builder().lat(37.5665).lon(126.9780).address("서울특별시 중구 을지로 1가").posCount(2).storeNumber("STORE001").member(owner1).storeState(StoreState.OPEN).build();
+        Store store2 = Store.builder().lat(35.1796).lon(129.0756).address("부산광역시 중구 중앙동").posCount(2).storeNumber("STORE002").member(owner2).storeState(StoreState.OPEN).build();
+        Store store3 = Store.builder().lat(36.3504).lon(127.3845).address("대전광역시 서구 둔산동").posCount(2).storeNumber("STORE003").member(owner3).storeState(StoreState.OPEN).build();
+        Store store4 = Store.builder().lat(35.1595).lon(126.8526).address("광주광역시 서구 상무지구").posCount(2).storeNumber("STORE004").member(owner4).storeState(StoreState.OPEN).build();
+        Store store5 = Store.builder().lat(33.4996).lon(126.5312).address("제주특별자치도 제주시").posCount(2).storeNumber("STORE005").member(owner5).storeState(StoreState.OPEN).build();
 
         storeRepository.save(store1);
         storeRepository.save(store2);
+        storeRepository.save(store3);
+        storeRepository.save(store4);
+        storeRepository.save(store5);
 
-        POS pos1 = POS.builder()
-                .posCode("STORE001-01")
-                .healthCheck(true)
-                .store(store1)
-                .member(pos_1)
-                .build();
+        POS pos_s1_1 = POS.builder().posCode("STORE001-01").healthCheck(true).store(store1).member(pos1_1).build();
+        POS pos_s1_2 = POS.builder().posCode("STORE001-02").healthCheck(true).store(store1).member(pos1_2).build();
+        POS pos_s2_1 = POS.builder().posCode("STORE002-01").healthCheck(true).store(store2).member(pos2_1).build();
+        POS pos_s2_2 = POS.builder().posCode("STORE002-02").healthCheck(true).store(store2).member(pos2_2).build();
+        POS pos_s3_1 = POS.builder().posCode("STORE003-01").healthCheck(true).store(store3).member(pos3_1).build();
+        POS pos_s3_2 = POS.builder().posCode("STORE003-02").healthCheck(true).store(store3).member(pos3_2).build();
+        POS pos_s4_1 = POS.builder().posCode("STORE004-01").healthCheck(true).store(store4).member(pos4_1).build();
+        POS pos_s4_2 = POS.builder().posCode("STORE004-02").healthCheck(true).store(store4).member(pos4_2).build();
+        POS pos_s5_1 = POS.builder().posCode("STORE005-01").healthCheck(true).store(store5).member(pos5_1).build();
+        POS pos_s5_2 = POS.builder().posCode("STORE005-02").healthCheck(true).store(store5).member(pos5_2).build();
 
-        POS pos2 = POS.builder()
-                .posCode("STORE002-01")
-                .healthCheck(true)
-                .store(store2)
-                .member(pos_2)
-                .build();
-
-        posRepository.save(pos1);
-        posRepository.save(pos2);
+        posRepository.save(pos_s1_1);
+        posRepository.save(pos_s1_2);
+        posRepository.save(pos_s2_1);
+        posRepository.save(pos_s2_2);
+        posRepository.save(pos_s3_1);
+        posRepository.save(pos_s3_2);
+        posRepository.save(pos_s4_1);
+        posRepository.save(pos_s4_2);
+        posRepository.save(pos_s5_1);
+        posRepository.save(pos_s5_2);
 
         log.info("✅ Store, POS 기본 데이터 생성 완료");
     }
