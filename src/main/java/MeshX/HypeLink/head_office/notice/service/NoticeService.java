@@ -40,18 +40,18 @@ public class NoticeService {
 
     public NoticeInfoListRes readList() {
         List<Notice> notices = repository.findAll();
-        return NoticeInfoListRes.toDto(notices, s3UrlBuilder);
+        return NoticeInfoListRes.toDto(notices, this::exportS3Url);
     }
 
     public PageRes<NoticeInfoRes> readList(PageReq pageReq){
         Page<Notice> entityPage = repository.findAll(pageReq);
-        Page<NoticeInfoRes> dtoPage = NoticeInfoRes.toDtoPage(entityPage, s3UrlBuilder);
+        Page<NoticeInfoRes> dtoPage = NoticeInfoRes.toDtoPage(entityPage, this::exportS3Url);
         return PageRes.toDto(dtoPage);
     }
 
     public NoticeInfoRes readDetails(Integer id) {
         Notice notice = repository.findById(id);
-        return NoticeInfoRes.toDto(notice, s3UrlBuilder);
+        return NoticeInfoRes.toDto(notice, this::exportS3Url);
     }
 
     @Transactional
@@ -78,13 +78,17 @@ public class NoticeService {
         }
 
         Notice updated = repository.update(notice);
-        return NoticeInfoRes.toDto(updated, s3UrlBuilder);
+        return NoticeInfoRes.toDto(updated, this::exportS3Url);
     }
 
     @Transactional
     public void delete(Integer id) {
         Notice notice = repository.findById(id);
         repository.delete(notice);
+    }
+
+    public String exportS3Url(Image image) {
+        return s3UrlBuilder.buildPublicUrl(image.getSavedPath());
     }
 }
 

@@ -29,10 +29,10 @@ public class ImageUploadResponse {
     private Long imageSize;
 
 
-    public static ImageUploadResponse from(Image entity) {
+    public static ImageUploadResponse from(Image entity, String imageUrl) {
         return ImageUploadResponse.builder()
                 .originalName(entity.getOriginalFilename())
-                .imagePath(entity.getSavedPath())
+                .imagePath(imageUrl)
                 .imageSize(entity.getFileSize())
                 .build();
     }

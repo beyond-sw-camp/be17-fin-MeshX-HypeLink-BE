@@ -1,14 +1,15 @@
 package MeshX.HypeLink.head_office.notice.model.dto.response;
 
-import MeshX.HypeLink.common.s3.S3UrlBuilder;
 import MeshX.HypeLink.head_office.notice.model.entity.Notice;
 import MeshX.HypeLink.image.model.dto.response.ImageUploadResponse;
+import MeshX.HypeLink.image.model.entity.Image;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Getter
@@ -23,7 +24,7 @@ public class NoticeInfoRes {
 
 
 
-    public static NoticeInfoRes toDto(Notice entity, S3UrlBuilder urlBuilder) {
+    public static NoticeInfoRes toDto(Notice entity, Function<Image, String> urlGenerator) {
         LocalDateTime displayDate = entity.getUpdatedAt() != null
                 ? entity.getUpdatedAt()
                 : entity.getCreatedAt();
@@ -31,7 +32,7 @@ public class NoticeInfoRes {
                 .map(image -> ImageUploadResponse.builder()
                         .id(image.getId())
                         .originalName(image.getOriginalFilename())
-                        .imageUrl(urlBuilder.buildPublicUrl(image.getSavedPath()))
+                        .imageUrl(urlGenerator.apply(image))
                         .imageSize(image.getFileSize())
                         .build())
                 .collect(Collectors.toList());
@@ -60,8 +61,8 @@ public class NoticeInfoRes {
         this.images = images;
         this.date = date;
     }
-    public static Page<NoticeInfoRes> toDtoPage(Page<Notice> page, S3UrlBuilder urlBuilder) {
-        return page.map(notice -> NoticeInfoRes.toDto(notice, urlBuilder));
+    public static Page<NoticeInfoRes> toDtoPage(Page<Notice> page, Function<Image, String> urlGenerator) {
+        return page.map(notice -> NoticeInfoRes.toDto(notice, urlGenerator));
     }
 
 }
