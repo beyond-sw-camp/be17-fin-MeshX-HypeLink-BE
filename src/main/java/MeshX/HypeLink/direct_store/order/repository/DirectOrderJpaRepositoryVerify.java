@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-import static MeshX.HypeLink.head_office.order.exception.HeadOrderExceptionMessage.NOT_FOUND;
+import static MeshX.HypeLink.head_office.order.exception.PurchaseOrderExceptionMessage.NOT_FOUND;
 
 @Repository
 @RequiredArgsConstructor

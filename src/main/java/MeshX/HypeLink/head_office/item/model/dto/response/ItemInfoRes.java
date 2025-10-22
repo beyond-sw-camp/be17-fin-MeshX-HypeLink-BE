@@ -4,36 +4,35 @@ import MeshX.HypeLink.head_office.item.model.entity.Item;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 @Builder
 public class ItemInfoRes {
     private Integer id;
+    private String itemCode; // 아이템 코드
+    private String enName;
+    private String koName;
     private String category;
-    private String color;
-    private String size;
     private Integer amount; // 가격
-    private String enName; // 이름
-    private String koName; // 이름
+    private Integer unitPrice; // 원가
     private String content; // 아이템 설명
     private String company; // 회사
-    private String itemCode; // 아이템 코드
-    private String itemDetailCode; // 아이템 코드 + 색상 + 사이즈
-    private Integer stock; // 재고
+
+    private List<ItemDetailInfoRes> itemStockList; // 사이즈 및 색깔별로 재고 현황
 
     public static ItemInfoRes toDto(Item item) {
         return ItemInfoRes.builder()
                 .id(item.getId())
-                .category(item.getCategory().getCategory())
-                .color(item.getColor().getColorCode())
-                .size(item.getSize().getSize())
-                .amount(item.getAmount())
                 .enName(item.getEnName())
                 .koName(item.getKoName())
+                .category(item.getCategory().getCategory())
+                .itemStockList(item.getItemDetails().stream().map(ItemDetailInfoRes::toDto).toList())
+                .amount(item.getAmount())
+                .unitPrice(item.getUnitPrice())
                 .content(item.getContent())
                 .company(item.getCompany())
                 .itemCode(item.getItemCode())
-                .itemDetailCode(item.getItemDetailCode())
-                .stock(item.getStock())
                 .build();
     }
 }

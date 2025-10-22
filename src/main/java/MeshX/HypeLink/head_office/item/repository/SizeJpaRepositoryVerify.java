@@ -5,6 +5,7 @@ import MeshX.HypeLink.head_office.item.model.entity.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import static MeshX.HypeLink.head_office.item.exception.SizeExceptionMessage.NOTFOUND_ID;
@@ -47,5 +48,15 @@ public class SizeJpaRepositoryVerify {
         }
 
         return optional.get();
+    }
+
+    public List<Size> findAll() {
+        List<Size> all = repository.findAll();
+
+        if(all.isEmpty()) {
+            throw new BaseException(null);
+        }
+
+        return all;
     }
 }

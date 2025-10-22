@@ -2,18 +2,10 @@ package MeshX.HypeLink.head_office.item.service;
 
 import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.head_office.item.model.dto.request.*;
-import MeshX.HypeLink.head_office.item.model.dto.response.ItemDetailInfoRes;
+import MeshX.HypeLink.head_office.item.model.dto.response.ItemInfoListRes;
 import MeshX.HypeLink.head_office.item.model.dto.response.ItemInfoRes;
-import MeshX.HypeLink.head_office.item.model.dto.response.ItemSearchListRes;
-import MeshX.HypeLink.head_office.item.model.dto.response.ItemSearchRes;
-import MeshX.HypeLink.head_office.item.model.entity.Category;
-import MeshX.HypeLink.head_office.item.model.entity.Color;
-import MeshX.HypeLink.head_office.item.model.entity.Item;
-import MeshX.HypeLink.head_office.item.model.entity.Size;
-import MeshX.HypeLink.head_office.item.repository.CategoryJpaRepositoryVerify;
-import MeshX.HypeLink.head_office.item.repository.ColorJpaRepositoryVerify;
-import MeshX.HypeLink.head_office.item.repository.ItemJpaRepositoryVerify;
-import MeshX.HypeLink.head_office.item.repository.SizeJpaRepositoryVerify;
+import MeshX.HypeLink.head_office.item.model.entity.*;
+import MeshX.HypeLink.head_office.item.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,26 +19,34 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemService {
     private final ItemJpaRepositoryVerify itemRepository;
+    private final ItemImageJpaRepositoryVerify itemImageRepository;
+    private final ItemDetailJpaRepositoryVerify itemDetailRepository;
     private final ColorJpaRepositoryVerify colorRepository;
     private final SizeJpaRepositoryVerify sizeRepository;
     private final CategoryJpaRepositoryVerify categoryRepository;
 
     @Transactional
     public void saveItem(CreateItemReq dto) {
-        List<CreateItemDetailReq> itemDetails = dto.getItemDetailList();
         Category category = categoryRepository.findByName(dto.getCategory());
-
         itemRepository.isExist(dto.getItemCode());
 
-        List<Item> items = itemDetails.stream().map(item -> {
-            Color color = colorRepository.findByName(item.getColor());
-            Size size = sizeRepository.findByName(item.getSize());
-            return item.toEntity(dto.getAmount(), dto.getEnName(), dto.getKoName(), dto.getCompany(),
-                    dto.getItemCode(), dto.getContent(), category, color,
-                    size);
+        Item entity = dto.toEntity(category);
+        itemRepository.save(entity);
+
+        // Images 저장 로직 필요
+
+        saveItemDetails(dto, entity);
+    }
+
+    private void saveItemDetails(CreateItemReq dto, Item entity) {
+        List<ItemDetail> itemDetails = dto.getItemDetailList()
+                .stream().map(one -> {
+            Color findColor = colorRepository.findByName(one.getColor());
+            Size findSize = sizeRepository.findByName(one.getSize());
+            return one.toEntity(findSize, findColor, entity);
         }).toList();
 
-        itemRepository.saveList(items);
+        itemDetailRepository.saveAll(itemDetails);
     }
 
     public ItemInfoRes findItemById(Integer id) {
@@ -55,134 +55,138 @@ public class ItemService {
     }
 
     // QueryDSL로 업데이트 예정
-    public ItemSearchListRes findItemsByCategory(String category) {
+    public ItemInfoListRes findItemsByCategory(String category) {
         Category findCategory = categoryRepository.findByName(category);
 
         List<Item> items = itemRepository.findItemsByCategory(findCategory);
 
-        return ItemSearchListRes.toDto(items);
+        return ItemInfoListRes.toDto(items);
     }
 
     // Paging 처리 완료
-    public PageRes<ItemSearchRes> findItemsByCategoryWithPaging(String category, Pageable pageable) {
+    public PageRes<ItemInfoRes> findItemsByCategoryWithPaging(String category, Pageable pageable) {
         Category findCategory = categoryRepository.findByName(category);
         Page<Item> items = itemRepository.findItemsByCategoryWithPaging(findCategory, pageable);
 
-        Page<ItemSearchRes> mapped = items.map(ItemSearchRes::toDto);
+        Page<ItemInfoRes> mapped = items.map(ItemInfoRes::toDto);
 
         return PageRes.toDto(mapped);
     }
 
     // QueryDSL로 업데이트 예정
-    public ItemSearchListRes findItems() {
+    public ItemInfoListRes findItems() {
         List<Item> items = itemRepository.findItems();
-        return ItemSearchListRes.toDto(items);
+        return ItemInfoListRes.toDto(items);
     }
 
     // Paging 처리 완료
-    public PageRes<ItemSearchRes> findItemsWithPaging(Pageable pageable) {
+    public PageRes<ItemInfoRes> findItemsWithPaging(Pageable pageable) {
         Page<Item> items = itemRepository.findItemsWithPaging(pageable);
-        Page<ItemSearchRes> mapped = items.map(ItemSearchRes::toDto);
+        Page<ItemInfoRes> mapped = items.map(ItemInfoRes::toDto);
         return PageRes.toDto(mapped);
     }
 
     // QueryDSL로 업데이트 예정
-    public ItemSearchListRes findItemsByName(String name) {
+    public ItemInfoListRes findItemsByName(String name) {
         List<Item> items = itemRepository.findItemsByName(name);
-        return ItemSearchListRes.toDto(items);
+        return ItemInfoListRes.toDto(items);
     }
 
     // Paging 처리 완료
-    public PageRes<ItemSearchRes> findItemsByNameWithPaging(String name, Pageable pageable) {
+    public PageRes<ItemInfoRes> findItemsByNameWithPaging(String name, Pageable pageable) {
         Page<Item> items = itemRepository.findItemsByNameWithPaging(name, pageable);
-        Page<ItemSearchRes> mapped = items.map(ItemSearchRes::toDto);
+        Page<ItemInfoRes> mapped = items.map(ItemInfoRes::toDto);
         return PageRes.toDto(mapped);
     }
 
     // QueryDSL로 업데이트 예정
-    public ItemDetailInfoRes findItemsByItemCode(String itemCode) {
-        List<Item> items = itemRepository.findByItemCode(itemCode);
-        return ItemDetailInfoRes.toDto(items);
-    }
+    public ItemInfoRes findItemsByItemCode(String itemCode) {
+        Item item = itemRepository.findByItemCode(itemCode);
 
-    // QueryDSL로 업데이트 예정
-    public ItemInfoRes findItemByItemDetailCode(String itemDetailCode) {
-        Item item = itemRepository.findByItemDetailCode(itemDetailCode);
         return ItemInfoRes.toDto(item);
     }
 
     @Transactional
     public void updateStock(UpdateItemStockReq dto) {
-        Item item = itemRepository.findByItemDetailCode(dto.getItemDetailCode());
+        ItemDetail itemDetail = itemDetailRepository.findByItemDetailCode(dto.getItemDetailCode());
 
-        item.updateStock(dto.getStock());
+        itemDetail.updateStock(dto.getStock());
+
+        itemDetailRepository.merge(itemDetail);
+    }
+
+    @Transactional
+    public void updateContents(UpdateItemContentReq dto) {
+        Item item = itemRepository.findByItemCode(dto.getItemCode());
+
+        item.updateContent(dto.getContent());
 
         itemRepository.merge(item);
     }
 
     @Transactional
-    public void updateContents(UpdateItemContentReq dto) {
-        List<Item> items = itemRepository.findByItemCode(dto.getItemCode());
-
-        items.forEach(one -> one.updateContent(dto.getContent()));
-
-        itemRepository.mergeList(items);
-    }
-
-    @Transactional
     public void updateEnName(UpdateItemEnNameReq dto) {
-        List<Item> items = itemRepository.findByItemCode(dto.getItemCode());
+        Item item = itemRepository.findByItemCode(dto.getItemCode());
 
-        items.forEach(one -> one.updateEnName(dto.getEnName()));
+        item.updateEnName(dto.getEnName());
 
-        itemRepository.mergeList(items);
+        itemRepository.merge(item);
     }
 
     @Transactional
     public void updateKoName(UpdateItemKoNameReq dto) {
-        List<Item> items = itemRepository.findByItemCode(dto.getItemCode());
+        Item item = itemRepository.findByItemCode(dto.getItemCode());
 
-        items.forEach(one -> one.updateKoName(dto.getKoName()));
+        item.updateKoName(dto.getKoName());
 
-        itemRepository.mergeList(items);
+        itemRepository.merge(item);
     }
 
     @Transactional
     public void updateAmount(UpdateItemAmountReq dto) {
-        List<Item> items = itemRepository.findByItemCode(dto.getItemCode());
+        Item item = itemRepository.findByItemCode(dto.getItemCode());
 
-        items.forEach(one -> one.updateAmount(dto.getAmount()));
+        item.updateAmount(dto.getAmount());
 
-        itemRepository.mergeList(items);
+        itemRepository.merge(item);
+    }
+
+    @Transactional
+    public void updateUnitPrice(UpdateItemUnitPriceReq dto) {
+        Item item = itemRepository.findByItemCode(dto.getItemCode());
+
+        item.updateUnitPrice(dto.getUnitPrice());
+
+        itemRepository.merge(item);
     }
 
     @Transactional
     public void updateCompany(UpdateItemCompanyReq dto) {
-        List<Item> items = itemRepository.findByItemCode(dto.getItemCode());
+        Item item = itemRepository.findByItemCode(dto.getItemCode());
 
-        items.forEach(one -> one.updateCompany(dto.getCompany()));
+        item.updateCompany(dto.getCompany());
 
-        itemRepository.mergeList(items);
+        itemRepository.merge(item);
     }
 
     @Transactional
     public void updateCategory(UpdateItemCategoryReq dto) {
-        List<Item> items = itemRepository.findByItemCode(dto.getItemCode());
+        Item item = itemRepository.findByItemCode(dto.getItemCode());
         Category category = categoryRepository.findByName(dto.getCategory());
 
-        items.forEach(one -> one.updateCategory(category));
+        item.updateCategory(category);
 
-        itemRepository.mergeList(items);
+        itemRepository.merge(item);
     }
 
     // Image 로직 수정
     @Transactional
     public void updateImages(UpdateItemImagesReq dto) {
-        List<Item> items = itemRepository.findByItemCode(dto.getItemCode());
+        Item item = itemRepository.findByItemCode(dto.getItemCode());
 //        Category category = categoryRepository.findByName(dto.getCategory());
 //
 //        item.updateCategory(category);
 
-        itemRepository.mergeList(items);
+        itemRepository.merge(item);
     }
 }
