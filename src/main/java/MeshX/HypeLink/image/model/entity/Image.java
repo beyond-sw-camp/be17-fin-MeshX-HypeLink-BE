@@ -1,7 +1,6 @@
 package MeshX.HypeLink.image.model.entity;
 
 import MeshX.HypeLink.common.BaseEntity;
-import MeshX.HypeLink.head_office.notice.model.entity.Notice;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -24,10 +23,6 @@ public class Image extends BaseEntity {
 
     private long fileSize;
 
-    @ManyToOne
-    @JoinColumn(name = "notice_id")
-    private Notice notice;
-
     @Builder
     public Image(Integer id, String originalFilename, String savedPath, String contentType, long fileSize) {
         this.id = id;
@@ -35,8 +30,5 @@ public class Image extends BaseEntity {
         this.savedPath = savedPath;
         this.contentType = contentType;
         this.fileSize = fileSize;
-    }
-    public void setNotice(Notice notice) {
-        this.notice = notice;
     }
 }

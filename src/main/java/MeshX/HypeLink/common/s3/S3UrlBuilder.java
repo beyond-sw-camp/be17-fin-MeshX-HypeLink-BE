@@ -16,8 +16,8 @@ public class S3UrlBuilder {
     private String region;
 
     public String buildPublicUrl(String s3Key) {
-        return String.format("%s/%s", frontServerAddress, s3Key);
-//        return String.format(S3_BASE_URL, bucketName, region, s3Key);
+        // return String.format("%s/%s", frontServerAddress, s3Key);
+        return "/" + s3Key;
     }
 }
 

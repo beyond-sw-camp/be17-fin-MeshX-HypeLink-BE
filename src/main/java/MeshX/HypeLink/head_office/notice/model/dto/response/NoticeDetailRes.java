@@ -13,7 +13,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Getter
-public class NoticeInfoRes {
+public class NoticeDetailRes {
     private Integer id;
     private String title;
     private String contents;
@@ -22,13 +22,13 @@ public class NoticeInfoRes {
     private LocalDateTime date;
     private List<ImageUploadResponse> images;
 
-
-
-    public static NoticeInfoRes toDto(Notice entity, Function<Image, String> urlGenerator) {
+    public static NoticeDetailRes toDto(Notice entity, Function<Image, String> urlGenerator) {
         LocalDateTime displayDate = entity.getUpdatedAt() != null
                 ? entity.getUpdatedAt()
                 : entity.getCreatedAt();
-        List<ImageUploadResponse> imageDtos = entity.getImageList().stream()
+
+        // Use the new getImages() helper method
+        List<ImageUploadResponse> imageDtos = entity.getImages().stream()
                 .map(image -> ImageUploadResponse.builder()
                         .id(image.getId())
                         .originalName(image.getOriginalFilename())
@@ -37,9 +37,7 @@ public class NoticeInfoRes {
                         .build())
                 .collect(Collectors.toList());
 
-
-
-        return NoticeInfoRes.builder()
+        return NoticeDetailRes.builder()
                 .id(entity.getId())
                 .title(entity.getTitle())
                 .contents(entity.getContents())
@@ -51,8 +49,7 @@ public class NoticeInfoRes {
     }
 
     @Builder
-    private NoticeInfoRes(String title, String contents, Boolean isOpen, List<ImageUploadResponse> images
-    ,String author, Integer id, LocalDateTime date) {
+    private NoticeDetailRes(String title, String contents, Boolean isOpen, List<ImageUploadResponse> images, String author, Integer id, LocalDateTime date) {
         this.id = id;
         this.author = author;
         this.title = title;
@@ -61,9 +58,8 @@ public class NoticeInfoRes {
         this.images = images;
         this.date = date;
     }
-    public static Page<NoticeInfoRes> toDtoPage(Page<Notice> page, Function<Image, String> urlGenerator) {
-        return page.map(notice -> NoticeInfoRes.toDto(notice, urlGenerator));
+
+    public static Page<NoticeDetailRes> toDtoPage(Page<Notice> page, Function<Image, String> urlGenerator) {
+        return page.map(notice -> NoticeDetailRes.toDto(notice, urlGenerator));
     }
-
 }
-

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -24,17 +25,18 @@ public class Notice extends BaseEntity {
     private String author;
     private Boolean isOpen;
 
-    @OneToMany(mappedBy = "notice", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Image> imageList = new ArrayList<>();
+    @OneToMany(mappedBy = "notice", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<NoticeImages> noticeImages = new ArrayList<>();
 
     @Builder
-    private Notice(String title, String contents, Boolean isOpen,String author) {
+    private Notice(String title, String contents, Boolean isOpen, String author) {
         this.title = title;
         this.contents = contents;
         this.author = author;
         this.isOpen = isOpen;
     }
 
+    //== Update Methods ==//
     public void updateTitle(String title) {
         this.title = title;
     }
@@ -47,16 +49,23 @@ public class Notice extends BaseEntity {
         this.isOpen = isOpen;
     }
 
-    public void addImage(Image image) {
-        this.imageList.add(image);
-        image.setNotice(this);
-    }
-
-    public void clearImages() {
-        this.imageList.clear();
-    }
-
     public void updateAuthor(String author) {
         this.author = author;
+    }
+
+    //== Relationship Management Methods ==//
+    public void clearImages() {
+        this.noticeImages.clear();
+    }
+
+    public void addNoticeImage(NoticeImages noticeImage) {
+        this.noticeImages.add(noticeImage);
+    }
+
+    //== Helper Method for DTO ==//
+    public List<Image> getImages() {
+        return this.noticeImages.stream()
+                .map(NoticeImages::getImage)
+                .collect(Collectors.toList());
     }
 }

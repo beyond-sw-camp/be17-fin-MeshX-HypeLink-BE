@@ -1,29 +1,27 @@
 package MeshX.HypeLink.head_office.notice.model.dto.response;
 
 import MeshX.HypeLink.head_office.notice.model.entity.Notice;
-import MeshX.HypeLink.image.model.entity.Image;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Getter
 public class NoticeInfoListRes {
-    private final List<NoticeInfoRes> notices;
+    private final List<NoticeListResponse> notices;
 
-    public static NoticeInfoListRes toDto(List<Notice> entity, Function<Image, String> urlGenerator) {
+    public static NoticeInfoListRes toDto(List<Notice> entity) {
         return NoticeInfoListRes.builder()
                 .notices(entity.stream()
-                                .map(notice -> NoticeInfoRes.toDto(notice, urlGenerator))
+                                .map(NoticeListResponse::toDto)
                                 .collect(Collectors.toList())
                 )
                 .build();
     }
 
     @Builder
-    private NoticeInfoListRes(List<NoticeInfoRes> notices) {
+    private NoticeInfoListRes(List<NoticeListResponse> notices) {
         this.notices = notices;
     }
 }

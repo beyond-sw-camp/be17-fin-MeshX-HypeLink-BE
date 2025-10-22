@@ -3,7 +3,6 @@ package MeshX.HypeLink.head_office.coupon.service;
 import MeshX.HypeLink.common.Page.PageReq;
 import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.head_office.coupon.model.dto.request.CouponCreateReq;
-import MeshX.HypeLink.head_office.coupon.model.dto.response.CouponInfoListRes;
 import MeshX.HypeLink.head_office.coupon.model.dto.response.CouponInfoRes;
 import MeshX.HypeLink.head_office.coupon.model.entity.Coupon;
 import MeshX.HypeLink.head_office.coupon.repository.CouponJpaRepositoryVerify;
@@ -37,17 +36,14 @@ public class CouponService {
         return CouponInfoRes.toDto(coupon, period);
     }
 
-    public CouponInfoListRes readAll() {
+    public List<CouponInfoRes> readAll() {
         List<Coupon> coupons = couponRepository.findAll();
-        List<CouponInfoRes> couponInfoResList = coupons.stream()
+        return coupons.stream()
                 .map(coupon -> {
                     String period = toPeriod(coupon.getStartDate(), coupon.getEndDate());
                     return CouponInfoRes.toDto(coupon, period);
                 })
                 .collect(Collectors.toList());
-        return CouponInfoListRes.builder()
-                .coupons(couponInfoResList)
-                .build();
     }
 
     public PageRes<CouponInfoRes> readAll(PageReq pageReq) {

@@ -4,12 +4,13 @@ import MeshX.HypeLink.common.BaseResponse;
 import MeshX.HypeLink.common.Page.PageReq;
 import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.head_office.coupon.model.dto.request.CouponCreateReq;
-import MeshX.HypeLink.head_office.coupon.model.dto.response.CouponInfoListRes;
 import MeshX.HypeLink.head_office.coupon.model.dto.response.CouponInfoRes;
 import MeshX.HypeLink.head_office.coupon.service.CouponService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/coupon")
@@ -37,8 +38,8 @@ public class CouponController {
     }
 
     @GetMapping("/read/all")
-    public ResponseEntity<BaseResponse<CouponInfoListRes>> readAll() {
-        CouponInfoListRes result = couponService.readAll();
+    public ResponseEntity<BaseResponse<List<CouponInfoRes>>> readAll() {
+        List<CouponInfoRes> result = couponService.readAll();
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 
