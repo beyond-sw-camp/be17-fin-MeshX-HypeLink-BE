@@ -1,6 +1,7 @@
 package MeshX.HypeLink.head_office.promotion.service;
 
 
+import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.common.Page.PageReq;
 import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.head_office.promotion.model.dto.request.PromotionCreateReq;
@@ -27,7 +28,15 @@ public class PromotionService {
 
     @Transactional
     public void createPromotion(PromotionCreateReq dto) {
-        repository.createPromotion(dto.toEntity());
+        Promotion promotion = dto.toEntity();
+        if (dto.getPromotionType() == PromotionType.STORE && dto.getStoreIds() != null) {
+            for (Integer storeId : dto.getStoreIds()) {
+                Store store = Store.builder().id(storeId).build();
+                promotion.addStore(store);
+            }
+        }
+        promotion.autoUpdateStatus();
+        repository.createPromotion(promotion);
     }
 
     public PromotionInfoListRes readList() {//비페이징용
