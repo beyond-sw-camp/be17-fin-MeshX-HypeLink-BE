@@ -1,11 +1,13 @@
 package MeshX.HypeLink.auth.controller;
 
-import MeshX.HypeLink.auth.model.dto.AuthTokens;
-import MeshX.HypeLink.auth.model.dto.LoginReqDto;
-import MeshX.HypeLink.auth.model.dto.RegisterReqDto;
-import MeshX.HypeLink.auth.model.dto.TokenResDto;
+import MeshX.HypeLink.auth.model.dto.*;
+import MeshX.HypeLink.auth.model.dto.req.LoginReqDto;
+import MeshX.HypeLink.auth.model.dto.req.RegisterReqDto;
+import MeshX.HypeLink.auth.model.dto.res.LoginResDto;
+import MeshX.HypeLink.auth.model.dto.res.TokenResDto;
 import MeshX.HypeLink.auth.service.AuthService;
 import MeshX.HypeLink.auth.utils.CookieUtils;
+import MeshX.HypeLink.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -24,15 +26,20 @@ public class AuthController {
     private long refreshTokenExpirationMs;
 
     @PostMapping("/register")
-    public ResponseEntity<TokenResDto> register(@RequestBody RegisterReqDto dto) {
-        AuthTokens authTokens = authService.register(dto);
-        return createTokenResponse(authTokens);
+    public ResponseEntity<BaseResponse<String>> register(@RequestBody RegisterReqDto dto) {
+        authService.register(dto);
+        return ResponseEntity.ok(BaseResponse.of("회원가입이 성공하였습니다."));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResDto> login(@RequestBody LoginReqDto dto) {
-        AuthTokens authTokens = authService.login(dto);
-        return createTokenResponse(authTokens);
+    public ResponseEntity<BaseResponse<LoginResDto>> login(@RequestBody LoginReqDto dto) {
+        LoginResDto result = authService.login(dto);
+
+        ResponseCookie cookie = CookieUtils.createRefreshTokenCookie(result.getAuthTokens().getRefreshToken(), refreshTokenExpirationMs);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(BaseResponse.of(result, "로그인 성공"));
     }
 
     @PostMapping("/reissue")

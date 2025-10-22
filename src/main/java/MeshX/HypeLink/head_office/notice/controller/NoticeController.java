@@ -1,10 +1,13 @@
 package MeshX.HypeLink.head_office.notice.controller;
 
 import MeshX.HypeLink.common.BaseResponse;
+import MeshX.HypeLink.common.Page.PageReq;
+import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.head_office.notice.model.dto.request.NoticeCreateReq;
 import MeshX.HypeLink.head_office.notice.model.dto.request.NoticeUpdateReq;
 import MeshX.HypeLink.head_office.notice.model.dto.response.NoticeInfoListRes;
-import MeshX.HypeLink.head_office.notice.model.dto.response.NoticeInfoRes;
+import MeshX.HypeLink.head_office.notice.model.dto.response.NoticeDetailRes;
+import MeshX.HypeLink.head_office.notice.model.dto.response.NoticeListResponse;
 import MeshX.HypeLink.head_office.notice.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,17 +31,23 @@ public class NoticeController {
         return ResponseEntity.status(200).body(BaseResponse.of(noticeInfoListRes));
     }
 
+    @GetMapping("/read/page/all")
+    public ResponseEntity<BaseResponse<PageRes<NoticeListResponse>>> readNotices(PageReq pageReq) {
+        PageRes<NoticeListResponse> pageRes = noticeService.readList(pageReq);
+        return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
+    }
+
     @GetMapping("/read/{id}")
-    public ResponseEntity<BaseResponse<NoticeInfoRes>> readNotice(@PathVariable Integer id) {
-        NoticeInfoRes noticeInfoRes = noticeService.readDetails(id);
-        return ResponseEntity.status(200).body(BaseResponse.of(noticeInfoRes));
+    public ResponseEntity<BaseResponse<NoticeDetailRes>> readNotice(@PathVariable Integer id) {
+        NoticeDetailRes noticeDetailRes = noticeService.readDetails(id);
+        return ResponseEntity.status(200).body(BaseResponse.of(noticeDetailRes));
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<BaseResponse<NoticeInfoRes>> updateNotice(@PathVariable Integer id,
-                                                                    @RequestBody NoticeUpdateReq dto) {
-        NoticeInfoRes noticeInfoRes = noticeService.update(id, dto.getTitle(), dto.getContents(), dto.getIsOpen());
-        return ResponseEntity.status(200).body(BaseResponse.of(noticeInfoRes));
+    public ResponseEntity<BaseResponse<NoticeDetailRes>> updateNotice(@PathVariable Integer id,
+                                                                      @RequestBody NoticeUpdateReq dto) {
+        NoticeDetailRes noticeDetailRes = noticeService.update(id, dto);
+        return ResponseEntity.status(200).body(BaseResponse.of(noticeDetailRes));
     }
 
     @DeleteMapping("/delete/{id}")

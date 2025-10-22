@@ -54,9 +54,4 @@ public class StoreItemController {
     public ResponseEntity<BaseResponse<ItemUpdateInfoRes>> updateStock(@RequestBody UpdateItemStockReq dto) {
         return ResponseEntity.status(200).body(BaseResponse.of(ItemUpdateInfoRes.builder().build()));
     }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<BaseResponse<String>> deleteItem(@PathVariable Integer id) {
-        return ResponseEntity.status(200).body(BaseResponse.of(""));
-    }
 }

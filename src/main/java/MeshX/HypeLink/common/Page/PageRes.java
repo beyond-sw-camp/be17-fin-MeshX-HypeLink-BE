@@ -27,6 +27,5 @@ public class PageRes<T> {
                 .isFirst(page.isFirst())
                 .isLast(page.isLast())
                 .build();
-
     }
 }

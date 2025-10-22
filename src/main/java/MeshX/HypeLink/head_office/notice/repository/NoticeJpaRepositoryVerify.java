@@ -1,8 +1,10 @@
 package MeshX.HypeLink.head_office.notice.repository;
 
+import MeshX.HypeLink.common.Page.PageReq;
 import MeshX.HypeLink.head_office.notice.exception.NoticeException;
 import MeshX.HypeLink.head_office.notice.model.entity.Notice;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -33,6 +35,14 @@ public class NoticeJpaRepositoryVerify {
             return notices;
         }
         throw new NoticeException(NOT_FOUND);
+    }
+
+    public Page<Notice> findAll(PageReq pageReq){
+        Page<Notice> page = repository.findAll(pageReq.toPageRequest());
+        if (page.hasContent()) {
+            return page;
+        }
+        throw new  NoticeException(NOT_FOUND);
     }
 
     public void delete(Notice entity) {
