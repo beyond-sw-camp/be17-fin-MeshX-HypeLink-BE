@@ -2,7 +2,7 @@ package MeshX.HypeLink.head_office.order.model.entity;
 
 import MeshX.HypeLink.auth.model.entity.Member;
 import MeshX.HypeLink.common.BaseEntity;
-import MeshX.HypeLink.head_office.item.model.entity.Item;
+import MeshX.HypeLink.head_office.item.model.entity.ItemDetail;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -24,7 +24,7 @@ public class PurchaseOrder extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
-    private Item item;
+    private ItemDetail itemDetail;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "requester_id")
@@ -35,12 +35,12 @@ public class PurchaseOrder extends BaseEntity {
     private Member supplier;        // 발주를 수락하고 공급하는 쪽
 
     @Builder
-    private PurchaseOrder(Integer quantity, Integer totalPrice, PurchaseOrderState purchaseOrderState, Item item,
+    private PurchaseOrder(Integer quantity, Integer totalPrice, PurchaseOrderState purchaseOrderState, ItemDetail itemDetail,
                           Member requester, Member supplier) {
         this.quantity = quantity;
         this.totalPrice = totalPrice;
         this.purchaseOrderState = purchaseOrderState;
-        this.item = item;
+        this.itemDetail = itemDetail;
         this.requester = requester;
         this.supplier = supplier;
     }

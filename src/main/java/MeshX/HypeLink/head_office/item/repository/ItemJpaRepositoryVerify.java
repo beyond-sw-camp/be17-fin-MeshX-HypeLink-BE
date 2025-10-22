@@ -26,30 +26,22 @@ public class ItemJpaRepositoryVerify {
         repository.save(entity);
     }
 
-    public void saveList(List<Item> items) {
-        repository.saveAll(items);
-    }
-
     public void merge(Item entity) {
         repository.save(entity);
     }
 
-    public void mergeList(List<Item> items) {
-        repository.saveAll(items);
-    }
+    public Item isExist(String itemCode) {
+        Optional<Item> optional = repository.findByItemCode(itemCode);
 
-    public List<Item> isExist(String itemCode) {
-        List<Item> items = repository.findByItemCode(itemCode);
-
-        if(items.isEmpty()){
-            return items;
+        if(optional.isPresent()){
+            return optional.get();
         }
 
         throw new BaseException(NOTFOUND_ITEM_CODE);
     }
 
     public Item findById(Integer id) {
-        Optional<Item> optional = repository.findByIdAndIsDeletedIsFalse(id);
+        Optional<Item> optional = repository.findById(id);
 
         if(optional.isEmpty()){
             throw new BaseException(NOTFOUND_ID);
@@ -58,8 +50,8 @@ public class ItemJpaRepositoryVerify {
         return optional.get();
     }
 
-    public Item findByIdWithLock(Integer id) {
-        Optional<Item> optional = repository.findByIdForUpdateWithLock(id);
+    public Item findByItemCode(String itemCode) {
+        Optional<Item> optional = repository.findByItemCode(itemCode);
 
         if(optional.isEmpty()){
             throw new BaseException(NOTFOUND_ID);
@@ -72,27 +64,23 @@ public class ItemJpaRepositoryVerify {
         return repository.findAll();
     }
 
-    public Page<PurchaseOrderInfoRes> findItemsAndPurchaseOrdersWithPaging(Pageable pageable) {
-        return repository.findItemWithRequestedTotalQuantity(pageable);
-    }
-
     public Page<Item> findItemsWithPaging(Pageable pageable) {
-        return repository.findAllByIsDeletedIsFalse(pageable);
+        return repository.findAll(pageable);
     }
 
     public List<Item> findItemsByCategory(Category category) {
-        return repository.findByCategoryAndIsDeletedIsFalse(category);
+        return repository.findByCategory(category);
     }
 
     public Page<Item> findItemsByCategoryWithPaging(Category category, Pageable pageable) {
-        return repository.findByCategoryContainingAndIsDeletedIsFalse(category, pageable);
+        return repository.findByCategory(category, pageable);
     }
 
     public List<Item> findItemsByName(String name) {
         return Stream.of(
-                        repository.findByEnNameAndIsDeletedIsFalse(name),
-                        repository.findByKoNameAndIsDeletedIsFalse(name),
-                        repository.findByCompanyAndIsDeletedIsFalse(name)
+                        repository.findByEnName(name),
+                        repository.findByKoName(name),
+                        repository.findByCompany(name)
                 )
                 .flatMap(List::stream)
                 .distinct() // 중복 제거
@@ -101,9 +89,9 @@ public class ItemJpaRepositoryVerify {
 
     public Page<Item> findItemsByNameWithPaging(String name, Pageable pageable) {
         return Stream.of(
-                        repository.findByEnNameContainingAndIsDeletedIsFalse(name, pageable),
-                        repository.findByKoNameContainingAndIsDeletedIsFalse(name, pageable),
-                        repository.findByCompanyContainingAndIsDeletedIsFalse(name, pageable)
+                        repository.findByEnName(name, pageable),
+                        repository.findByKoName(name, pageable),
+                        repository.findByCompany(name, pageable)
                 )
                 .flatMap(page -> page.getContent().stream())
                 .distinct()
@@ -111,19 +99,5 @@ public class ItemJpaRepositoryVerify {
                         Collectors.toList(),
                         list -> new PageImpl<>(list, pageable, list.size())
                 ));
-    }
-
-    public List<Item> findByItemCode(String itemCode) {
-        return repository.findByItemCodeAndIsDeletedIsFalse(itemCode);
-    }
-
-    public Item findByItemDetailCode(String itemCode) {
-        Optional<Item> optional = repository.findByItemDetailCodeAndIsDeletedIsFalse(itemCode);
-
-        if(optional.isEmpty()){
-            throw new BaseException(NOTFOUND_NAME);
-        }
-
-        return optional.get();
     }
 }

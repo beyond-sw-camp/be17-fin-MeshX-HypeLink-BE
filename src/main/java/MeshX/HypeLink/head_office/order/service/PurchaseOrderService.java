@@ -2,10 +2,11 @@ package MeshX.HypeLink.head_office.order.service;
 
 import MeshX.HypeLink.auth.model.entity.Member;
 import MeshX.HypeLink.auth.repository.MemberJpaRepositoryVerify;
-import MeshX.HypeLink.common.Page.PageReq;
 import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.common.exception.BaseException;
 import MeshX.HypeLink.head_office.item.model.entity.Item;
+import MeshX.HypeLink.head_office.item.model.entity.ItemDetail;
+import MeshX.HypeLink.head_office.item.repository.ItemDetailJpaRepositoryVerify;
 import MeshX.HypeLink.head_office.item.repository.ItemJpaRepositoryVerify;
 import MeshX.HypeLink.head_office.order.model.dto.request.HeadPurchaseOrderCreateReq;
 import MeshX.HypeLink.head_office.order.model.dto.request.PurchaseOrderCreateReq;
@@ -34,24 +35,25 @@ public class PurchaseOrderService {
 
     private final PurchaseOrderJpaRepositoryVerify orderRepository;
     private final ItemJpaRepositoryVerify itemRepository;
+    private final ItemDetailJpaRepositoryVerify itemDetailRepository;
     private final MemberJpaRepositoryVerify memberRepository;
 
     @Transactional
     public void createHeadOrder(HeadPurchaseOrderCreateReq dto) {
-        Item item = itemRepository.findById(dto.getItemId());
+        ItemDetail itemDetail = itemDetailRepository.findById(dto.getItemDetailId());
         Member requester = memberRepository.findByEmail("hq@company.com");
         Member supplier = memberRepository.findByEmail("hq@company.com");
 
-        orderRepository.createOrder(dto.toEntity(item, requester, supplier));
+        orderRepository.createOrder(dto.toEntity(itemDetail, requester, supplier));
     }
 
     @Transactional
     public void createOrder(PurchaseOrderCreateReq dto) {
-        Item item = itemRepository.findById(dto.getItemId());
+        ItemDetail itemDetail = itemDetailRepository.findById(dto.getItemDetailId());
         Member requester = memberRepository.findByEmail(dto.getRequestEmail());
         Member supplier = memberRepository.findByEmail(dto.getSupplierEmail());
 
-        orderRepository.createOrder(dto.toEntity(item, requester, supplier));
+        orderRepository.createOrder(dto.toEntity(itemDetail, requester, supplier));
     }
 
     public PurchaseOrderInfoDetailRes readDetails(Integer id) {
@@ -71,7 +73,7 @@ public class PurchaseOrderService {
     }
 
     public PageRes<PurchaseOrderInfoRes> readPurchaseOrderList(Pageable pageReq) {
-        Page<PurchaseOrderInfoRes> page = itemRepository.findItemsAndPurchaseOrdersWithPaging(pageReq);
+        Page<PurchaseOrderInfoRes> page = itemDetailRepository.findItemsAndPurchaseOrdersWithPaging(pageReq);
         return PageRes.toDto(page);
     }
 
@@ -104,9 +106,9 @@ public class PurchaseOrderService {
         PurchaseOrderState state = PurchaseOrderState.valueOf(dto.getOrderState());
 
         if(state.equals(PurchaseOrderState.COMPLETED)) {
-            Item item = itemRepository.findByIdWithLock(purchaseOrder.getItem().getId());
-            item.updateStock(purchaseOrder.getQuantity());
-            itemRepository.merge(item);
+            ItemDetail itemDetail = itemDetailRepository.findByIdWithLock(purchaseOrder.getItemDetail().getId());
+            itemDetail.updateStock(purchaseOrder.getQuantity());
+            itemDetailRepository.merge(itemDetail);
         }
 
         purchaseOrder.updateOrderState(state);

@@ -6,6 +6,7 @@ import lombok.Getter;
 import org.springframework.data.domain.Page;
 
 @Getter
+@Builder
 public class PurchaseOrderInfoDetailRes {
     private Integer id;
     private String itemName;      // 상품명
@@ -18,25 +19,13 @@ public class PurchaseOrderInfoDetailRes {
     public static  PurchaseOrderInfoDetailRes toDto(PurchaseOrder entity){
         return PurchaseOrderInfoDetailRes.builder()
                 .id(entity.getId())
-                .itemName(entity.getItem().getKoName())
+                .itemName(entity.getItemDetail().getItem().getKoName())
                 .quantity(entity.getQuantity())
                 .requestDay(entity.getCreatedAt().toString())
                 .status(entity.getPurchaseOrderState().getDescription())
                 .deliveryAddress(entity.getSupplier().getName())
                 .deliveryRequest(entity.getRequester().getName())
                 .build();
-    }
-
-    @Builder
-    private PurchaseOrderInfoDetailRes(Integer id, String itemName, Integer quantity, String requestDay,
-                                       String status, String deliveryAddress, String deliveryRequest) {
-        this.id = id;
-        this.itemName = itemName;
-        this.quantity = quantity;
-        this.requestDay = requestDay;
-        this.status = status;
-        this.deliveryAddress = deliveryAddress;
-        this.deliveryRequest = deliveryRequest;
     }
 
     public static Page<PurchaseOrderInfoDetailRes> toDtoPage(Page<PurchaseOrder> page){

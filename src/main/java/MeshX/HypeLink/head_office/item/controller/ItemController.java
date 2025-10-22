@@ -24,62 +24,46 @@ public class ItemController {
     }
 
     @GetMapping("/code/{code}")
-    public ResponseEntity<BaseResponse<ItemDetailInfoRes>> getItemInfoByCode(@PathVariable String code) {
-        ItemDetailInfoRes dto = itemService.findItemsByItemCode(code);
+    public ResponseEntity<BaseResponse<ItemInfoRes>> getItemInfoByCode(@PathVariable String code) {
+        ItemInfoRes dto = itemService.findItemsByItemCode(code);
 
         return ResponseEntity.status(200).body(BaseResponse.of(dto));
     }
 
-    @GetMapping("/detail/{detailCode}")
-    public ResponseEntity<BaseResponse<ItemInfoRes>> getItemInfoByDetailCode(@PathVariable String detailCode) {
-        ItemInfoRes result = itemService.findItemByItemDetailCode(detailCode);
-
-        return ResponseEntity.status(200).body(BaseResponse.of(result));
-    }
-
     // paging 처리
     @GetMapping("/list")
-    public ResponseEntity<BaseResponse<PageRes<ItemSearchRes>>> getItems(Pageable pageable) {
-        PageRes<ItemSearchRes> items = itemService.findItemsWithPaging(pageable);
+    public ResponseEntity<BaseResponse<PageRes<ItemInfoRes>>> getItems(Pageable pageable) {
+        PageRes<ItemInfoRes> items = itemService.findItemsWithPaging(pageable);
         return ResponseEntity.ok(BaseResponse.of(items));
     }
 
     // paging 처리
     @GetMapping("/category/{category}")
-    public ResponseEntity<BaseResponse<PageRes<ItemSearchRes>>> getItemsByCategory(@PathVariable String category, Pageable pageable) {
+    public ResponseEntity<BaseResponse<PageRes<ItemInfoRes>>> getItemsByCategory(@PathVariable String category, Pageable pageable) {
 //        ItemSearchListRes items = itemService.findItemsByCategory(category);
-        PageRes<ItemSearchRes> items = itemService.findItemsByCategoryWithPaging(category, pageable);
+        PageRes<ItemInfoRes> items = itemService.findItemsByCategoryWithPaging(category, pageable);
         return ResponseEntity.status(200).body(BaseResponse.of(items));
     }
 
     // paging 처리
     @GetMapping("/name/{name}")
-    public ResponseEntity<BaseResponse<PageRes<ItemSearchRes>>> getItemsByName(@PathVariable String name, Pageable pageable) {
+    public ResponseEntity<BaseResponse<PageRes<ItemInfoRes>>> getItemsByName(@PathVariable String name, Pageable pageable) {
 //        ItemSearchListRes dto = itemService.findItemsByName(name);
-        PageRes<ItemSearchRes> items = itemService.findItemsByNameWithPaging(name, pageable);
+        PageRes<ItemInfoRes> items = itemService.findItemsByNameWithPaging(name, pageable);
 
         return ResponseEntity.status(200).body(BaseResponse.of(items));
     }
 
     @PostMapping("/create")
-    public ResponseEntity<BaseResponse<ItemDetailInfoRes>> createItem(@RequestBody CreateItemReq dto) {
+    public ResponseEntity<BaseResponse<String>> createItem(@RequestBody CreateItemReq dto) {
         itemService.saveItem(dto);
 
-        ItemDetailInfoRes result = itemService.findItemsByItemCode(dto.getItemCode());
-
-        return ResponseEntity.status(200).body(BaseResponse.of(result));
+        return ResponseEntity.status(200).body(BaseResponse.of("result"));
     }
 
     @PatchMapping("/content")
     public ResponseEntity<BaseResponse<String>> updateContents(@RequestBody UpdateItemContentReq dto) {
         itemService.updateContents(dto);
-
-        return ResponseEntity.status(200).body(BaseResponse.of("수정이 완료되었습니다."));
-    }
-
-    @PatchMapping("/stock")
-    public ResponseEntity<BaseResponse<String>> updateStock(@RequestBody UpdateItemStockReq dto) {
-        itemService.updateStock(dto);
 
         return ResponseEntity.status(200).body(BaseResponse.of("수정이 완료되었습니다."));
     }

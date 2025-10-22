@@ -5,6 +5,7 @@ import MeshX.HypeLink.head_office.item.model.entity.Category;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import static MeshX.HypeLink.head_office.item.exception.CategoryExceptionMessage.NOTFOUND_ID;
@@ -22,7 +23,7 @@ public class CategoryJpaRepositoryVerify {
     public Category isExist(String name) {
         Optional<Category> optional = repository.findByCategory(name);
 
-        if(optional.isEmpty()){
+        if (optional.isEmpty()) {
             throw new BaseException(NOTFOUND_NAME);
         }
 
@@ -32,7 +33,7 @@ public class CategoryJpaRepositoryVerify {
     public Category findById(Integer id) {
         Optional<Category> optional = repository.findByIdAndIsDeletedIsFalse(id);
 
-        if(optional.isEmpty()){
+        if (optional.isEmpty()) {
             throw new BaseException(NOTFOUND_ID);
         }
 
@@ -42,10 +43,18 @@ public class CategoryJpaRepositoryVerify {
     public Category findByName(String name) {
         Optional<Category> optional = repository.findByCategoryAndIsDeletedIsFalse(name);
 
-        if(optional.isEmpty()){
+        if (optional.isEmpty()) {
             throw new BaseException(NOTFOUND_NAME);
         }
 
         return optional.get();
+    }
+
+    public List<Category> findAll() {
+        List<Category> all = repository.findAll();
+        if(all.isEmpty()) {
+            throw new BaseException(null);
+        }
+        return all;
     }
 }
