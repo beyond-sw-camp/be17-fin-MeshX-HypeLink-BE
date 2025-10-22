@@ -11,6 +11,7 @@ public class PromotionUpdateReq {
     private PromotionType promotionType;
     private ItemCategory category;
 
+    private Integer id;
     private String title;
     private String contents;
     private Double discountRate;    // 할인율

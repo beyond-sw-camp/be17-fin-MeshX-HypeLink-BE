@@ -13,6 +13,7 @@ import java.time.LocalDate;
 public class PromotionInfoRes {
     private PromotionType promotionType;
     private ItemCategory category;
+    private Integer id;
     private String title;
     private String contents;
     private Double discountRate;    // 할인율
@@ -22,6 +23,7 @@ public class PromotionInfoRes {
 
     public static PromotionInfoRes toDto(Promotion entity){
         return PromotionInfoRes.builder()
+                .id(entity.getId())
                 .promotionType(entity.getPromotionType())
                 .category(entity.getCategory())
                 .title(entity.getTitle())
@@ -32,7 +34,7 @@ public class PromotionInfoRes {
                 .build();
     }
     @Builder
-    private PromotionInfoRes(PromotionType promotionType, ItemCategory category,  String title, String contents, Double discountRate, LocalDate startDate, LocalDate endDate){
+    private PromotionInfoRes(PromotionType promotionType, ItemCategory category,  String title, String contents, Double discountRate, LocalDate startDate, LocalDate endDate, Integer id){
         this.promotionType = promotionType;
         this.category = category;
         this.title = title;
@@ -40,6 +42,7 @@ public class PromotionInfoRes {
         this.discountRate = discountRate;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.id = id;
     }
     public static Page<PromotionInfoRes> toDtoPage(Page<Promotion>  page) {
         return page.map(PromotionInfoRes::toDto);

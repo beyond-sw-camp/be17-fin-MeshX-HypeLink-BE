@@ -2,8 +2,6 @@ package MeshX.HypeLink.head_office.notice.service;
 
 import MeshX.HypeLink.common.Page.PageReq;
 import MeshX.HypeLink.common.Page.PageRes;
-import MeshX.HypeLink.direct_store.order.exception.DirectOrderException;
-import MeshX.HypeLink.direct_store.order.exception.DirectOrderExceptionMessage;
 import MeshX.HypeLink.head_office.notice.model.dto.request.NoticeCreateReq;
 import MeshX.HypeLink.head_office.notice.model.dto.response.NoticeInfoListRes;
 import MeshX.HypeLink.head_office.notice.model.dto.response.NoticeInfoRes;

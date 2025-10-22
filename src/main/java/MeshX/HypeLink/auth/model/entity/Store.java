@@ -1,17 +1,19 @@
 package MeshX.HypeLink.auth.model.entity;
 
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
+import MeshX.HypeLink.head_office.promotion.model.entity.Promotion;
+import MeshX.HypeLink.head_office.promotion.model.entity.PromotionStore;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
+@AllArgsConstructor
 public class Store {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +32,10 @@ public class Store {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PromotionStore> promotionStores = new ArrayList<>();
+
+
     @Builder
     private Store(Double lat, Double lon, String address, Integer posCount,
                   String storeNumber, List<StoreItem> storeItems, Member member) {
@@ -40,5 +46,9 @@ public class Store {
         this.storeNumber = storeNumber;
         this.storeItems = storeItems;
         this.member = member;
+    }
+
+    public void addPromotion(Promotion promotion) {
+        PromotionStore.link(promotion, this);
     }
 }

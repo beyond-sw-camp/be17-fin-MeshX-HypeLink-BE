@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -29,9 +31,8 @@ public class Promotion {
     @Column(nullable = false, length = 20)
     private PromotionType promotionType; //이벤트 종류
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id")
-    private Store store;  // (가맹점 참조)
+    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true) //변경, 삭제 시 전파
+    private List<PromotionStore> promotionStores = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private ItemCategory category;  // 품목
@@ -39,6 +40,9 @@ public class Promotion {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private StoreItem item;           // (상품참조)
+
+    @Enumerated(EnumType.STRING)
+    private PromotionStatus status;
 
     @Builder
     private Promotion(
@@ -49,7 +53,7 @@ public class Promotion {
             LocalDate endDate,
             PromotionType promotionType,
             ItemCategory category,
-            Store store,
+            PromotionStatus status,
             StoreItem item
     ) {
         this.title = title;
@@ -59,7 +63,7 @@ public class Promotion {
         this.endDate = endDate;
         this.promotionType = promotionType;
         this.category = category;
-        this.store = store;
+        this.status = status;
         this.item = item;
     }
 
@@ -88,6 +92,22 @@ public class Promotion {
 
     public void updateEndDate(LocalDate endDate){
         this.endDate = endDate;
+    }
+
+    public  void updateStatus(PromotionStatus status){
+        this.status = status;
+    }
+
+
+    public void autoUpdateStatus() {//상태 자동 갱신
+        LocalDate now = LocalDate.now();
+        if (now.isBefore(startDate)) this.status = PromotionStatus.UPCOMING;
+        else if (now.isAfter(endDate)) this.status = PromotionStatus.ENDED;
+        else this.status = PromotionStatus.ONGOING;
+    }
+
+    public void addStore(Store store) {
+        PromotionStore.link(this, store);
     }
 
 
