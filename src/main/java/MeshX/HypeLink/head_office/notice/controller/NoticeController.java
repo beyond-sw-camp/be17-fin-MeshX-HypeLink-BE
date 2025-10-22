@@ -11,7 +11,7 @@ import MeshX.HypeLink.head_office.notice.model.dto.response.NoticeListResponse;
 import MeshX.HypeLink.head_office.notice.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/notice")

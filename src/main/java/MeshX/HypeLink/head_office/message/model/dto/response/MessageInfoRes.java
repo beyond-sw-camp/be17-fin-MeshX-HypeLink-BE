@@ -1,8 +1,6 @@
 package MeshX.HypeLink.head_office.message.model.dto.response;
 
 import MeshX.HypeLink.head_office.message.model.entity.Message;
-import MeshX.HypeLink.head_office.notice.model.dto.response.NoticeInfoRes;
-import MeshX.HypeLink.head_office.notice.model.entity.Notice;
 import lombok.Builder;
 import lombok.Getter;
 @Getter
