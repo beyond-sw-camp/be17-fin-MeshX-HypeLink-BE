@@ -10,5 +10,6 @@ import lombok.Getter;
 public class PosInfoDto {
     private Integer id;
     private String name;
+    private String email;
     private String posCode;
 }

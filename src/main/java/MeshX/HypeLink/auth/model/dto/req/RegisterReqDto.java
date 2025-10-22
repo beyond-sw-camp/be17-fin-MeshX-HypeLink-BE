@@ -44,7 +44,6 @@ public class RegisterReqDto {
                 .member(member)
                 .lat(geocodeDto.getLatAsDouble())
                 .lon(geocodeDto.getLonAsDouble())
-                .address(this.address)
                 .storeNumber(this.storeNumber)
                 .build();
     }

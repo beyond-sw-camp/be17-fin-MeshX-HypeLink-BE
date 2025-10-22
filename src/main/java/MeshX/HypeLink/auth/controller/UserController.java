@@ -1,21 +1,19 @@
 package MeshX.HypeLink.auth.controller;
 
 import MeshX.HypeLink.auth.model.dto.req.DriverListReqDto;
-import MeshX.HypeLink.auth.model.dto.res.MessageUserListResDto;
-import MeshX.HypeLink.auth.model.dto.res.StoreListResDto;
-import MeshX.HypeLink.auth.model.dto.res.StoreWithPosResDto;
-import MeshX.HypeLink.auth.model.dto.res.UserListResDto;
+import MeshX.HypeLink.auth.model.dto.res.*;
+import MeshX.HypeLink.auth.model.entity.Member;
 import MeshX.HypeLink.auth.service.MemberService;
 import MeshX.HypeLink.common.BaseResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/member")
@@ -59,9 +57,27 @@ public class UserController {
 
 
     @GetMapping("/mystore/read")
-    public ResponseEntity<BaseResponse<Integer>> readStoreList(@AuthenticationPrincipal Integer id) {
-        log.warn(id.toString());
-        return ResponseEntity.ok(BaseResponse.of(123));
+    public ResponseEntity<BaseResponse<StoreWithPosResDto>> readMyStore(@AuthenticationPrincipal UserDetails userDetails) {
+        Member member = memberService.findMember( userDetails.getUsername());
+        StoreWithPosResDto result = memberService.readMyStore(member);
+        return ResponseEntity.ok(BaseResponse.of(result));
     }
 
+    @GetMapping("/otherstore/read/{id}")
+    public ResponseEntity<BaseResponse<StoreWithPosResDto>> readOtherStore(@PathVariable Integer id) {
+        StoreWithPosResDto result = memberService.readOtherStroe(id);
+        return ResponseEntity.ok(BaseResponse.of(result));
+    }
+
+    @GetMapping("/storeinfo/read/{id}")
+    public ResponseEntity<BaseResponse<StoreInfoResDto>> readStoreInfo(@PathVariable Integer id) {
+        StoreInfoResDto result = memberService.readStoreInfo(id);
+        return ResponseEntity.ok(BaseResponse.of(result));
+    }
+
+    @PatchMapping("/store/{id}")
+    public ResponseEntity<BaseResponse<String>> updateStore(@PathVariable Integer id, @RequestBody StoreInfoResDto dto) {
+        memberService.updateStoreInfo(id, dto);
+        return ResponseEntity.ok(BaseResponse.of("매장 정보가 성공적으로 수정되었습니다."));
+    }
 }

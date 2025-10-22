@@ -3,15 +3,14 @@ package MeshX.HypeLink.auth.service;
 import MeshX.HypeLink.auth.model.PosInfoDto;
 import MeshX.HypeLink.auth.model.dto.UserListItemDto;
 import MeshX.HypeLink.auth.model.dto.req.DriverListReqDto;
-import MeshX.HypeLink.auth.model.dto.res.MessageUserListResDto;
-import MeshX.HypeLink.auth.model.dto.res.StoreListResDto;
-import MeshX.HypeLink.auth.model.dto.res.StoreWithPosResDto;
-import MeshX.HypeLink.auth.model.dto.res.UserListResDto;
+import MeshX.HypeLink.auth.model.dto.res.*;
 import MeshX.HypeLink.auth.model.entity.*;
 import MeshX.HypeLink.auth.repository.DriverJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.MemberJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.PosJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
+import MeshX.HypeLink.utils.geocode.model.dto.GeocodeDto;
+import MeshX.HypeLink.utils.geocode.service.GeocodingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +27,8 @@ public class MemberService {
     private final DriverJpaRepositoryVerify driverJpaRepositoryVerify;
     private final StoreJpaRepositoryVerify storeJpaRepositoryVerify;
     private final PosJpaRepositoryVerify posJpaRepositoryVerify;
+    private final GeocodingService geocodingService;
+
 
     public UserListResDto list() {
         List<Member> memberResult = memberJpaRepositoryVerify.findAll();
@@ -74,22 +75,7 @@ public class MemberService {
                 .collect(Collectors.groupingBy(pos -> pos.getStore().getId()));
 
         return stores.stream()
-                .map(store -> StoreWithPosResDto.builder()
-                        .id(store.getId())
-                        .name(store.getMember().getName())
-                        .address(store.getAddress())
-                        .region(store.getMember().getRegion())
-                        .posDevices(
-                                posGroupByStore.getOrDefault(store.getId(), Collections.emptyList())
-                                        .stream()
-                                        .map(pos -> PosInfoDto.builder()
-                                                .id(pos.getId())
-                                                .name(pos.getMember().getName())
-                                                .posCode(pos.getPosCode())
-                                                .build())
-                                        .collect(Collectors.toList())
-                        )
-                        .build())
+                .map(store -> getStoreWithPosResDto(store, posGroupByStore))
                 .collect(Collectors.toList());
     }
 
@@ -100,7 +86,7 @@ public class MemberService {
                 .map(store -> StoreListResDto.builder()
                         .storeId(store.getId())
                         .storeName(store.getMember().getName())
-                        .storeAddress(store.getAddress())
+                        .storeAddress(store.getMember().getAddress())
                         .storePhone(store.getMember().getPhone())
                         .storeState(store.getStoreState())
                         .build()).toList();
@@ -123,4 +109,76 @@ public class MemberService {
             MemberRole.MANAGER,
             MemberRole.BRANCH_MANAGER
     );
+
+    public StoreWithPosResDto readMyStore(Member member) {
+        Store store = storeJpaRepositoryVerify.findByMember(member);
+        List<POS> pos = posJpaRepositoryVerify.findByStoreIdIn(List.of(store.getId()));
+
+        return getStoreWithPosResDto(store, pos);
+    }
+
+
+    public StoreWithPosResDto readOtherStroe(Integer id) {
+        Store store = storeJpaRepositoryVerify.findById(id);
+        List<POS> pos = posJpaRepositoryVerify.findByStoreIdIn(List.of(id));
+
+        return getStoreWithPosResDto(store, pos);
+
+    }
+
+    private StoreWithPosResDto getStoreWithPosResDto(Store store, List<POS> pos) {
+        return StoreWithPosResDto.builder()
+                .id(store.getId())
+                .name(store.getMember().getName())
+                .address(store.getMember().getAddress())
+                .region(store.getMember().getRegion())
+                .posDevices(
+                        pos.stream()
+                                .map(p -> PosInfoDto.builder()
+                                        .id(p.getId())
+                                        .name(p.getMember().getName())
+                                        .email(p.getMember().getEmail())
+                                        .posCode(p.getPosCode())
+                                        .build())
+                                .collect(Collectors.toList())
+                )
+                .build();
+    }
+
+    private StoreWithPosResDto getStoreWithPosResDto(Store store, Map<Integer, List<POS>> posGroupByStore) {
+        List<POS> pos = posGroupByStore.getOrDefault(store.getId(), Collections.emptyList());
+        return getStoreWithPosResDto(store, pos);
+    }
+
+    public Member findMember(String username) {
+        return memberJpaRepositoryVerify.findByEmail(username);
+    }
+
+    public StoreInfoResDto readStoreInfo(Integer id) {
+        Store store = storeJpaRepositoryVerify.findById(id);
+        return StoreInfoResDto.builder()
+                .name(store.getMember().getName())
+                .phone(store.getMember().getPhone())
+                .address(store.getMember().getAddress())
+                .region(store.getMember().getRegion())
+                .storeNumber(store.getStoreNumber())
+                .build();
+    }
+
+    public void updateStoreInfo(Integer id, StoreInfoResDto dto) {
+        Store store = storeJpaRepositoryVerify.findById(id);
+        Member member = store.getMember();
+
+        member.updateName(dto.getName());
+        member.updatePhone(dto.getPhone());
+        member.updateAddress(dto.getAddress());
+        member.updateRegion(dto.getRegion());
+
+        GeocodeDto geocodeDto = geocodingService.getCoordinates(dto.getAddress());
+        store.updateLat(geocodeDto.getLatAsDouble());
+        store.updateLon(geocodeDto.getLonAsDouble());
+        store.updateStoreNumber(dto.getStoreNumber());
+        memberJpaRepositoryVerify.save(member);
+        storeJpaRepositoryVerify.save(store);
+    }
 }

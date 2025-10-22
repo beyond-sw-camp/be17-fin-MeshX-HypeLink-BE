@@ -19,7 +19,6 @@ public class Store {
 
     private Double lat;
     private Double lon;
-    private String address;
     private Integer posCount;
     private String storeNumber;
     private StoreState storeState;
@@ -36,7 +35,6 @@ public class Store {
                   String storeNumber, List<StoreItem> storeItems, Member member, StoreState storeState) {
         this.lat = lat;
         this.lon = lon;
-        this.address = address;
         this.posCount = posCount;
         this.storeNumber = storeNumber;
         this.storeItems = storeItems;
@@ -47,5 +45,16 @@ public class Store {
     public void increasePosCount()
     {
         this.posCount++;
+    }
+
+    public void updateStoreNumber(String storeNumber) {
+        this.storeNumber = storeNumber;
+    }
+
+    public void updateLat(Double lat) {
+        this.lat = lat;
+    }
+    public void updateLon(Double lon) {
+        this.lon = lon;
     }
 }

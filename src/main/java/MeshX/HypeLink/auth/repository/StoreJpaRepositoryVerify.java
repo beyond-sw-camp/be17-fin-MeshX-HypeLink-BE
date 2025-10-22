@@ -1,5 +1,6 @@
 package MeshX.HypeLink.auth.repository;
 
+import MeshX.HypeLink.auth.model.entity.Member;
 import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.common.exception.BaseException;
 import lombok.RequiredArgsConstructor;
@@ -27,5 +28,13 @@ public class StoreJpaRepositoryVerify {
 
     public List<Store> findAll() {
         return repository.findAll();
+    }
+
+    public Store findByMember(Member member) {
+        Optional<Store> optional = repository.findByMember(member);
+        if(optional.isEmpty()) {
+            throw new BaseException(null);
+        }
+        return optional.get();
     }
 }
