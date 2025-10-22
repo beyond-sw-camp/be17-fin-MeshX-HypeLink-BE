@@ -22,10 +22,8 @@ public class ConnectingReqDto {
 
     public Shipment toEntity(List<Parcel> parcels){
         return Shipment.builder()
-                .driver(this.driver)
-                .fromStore(this.fromStore)
-                .toStore(this.toStore)
-                .parcels(parcels)
+                .parcel(parcels.get(0))
+                .driver(driver)
                 .shipmentStatus(IN_PROGRESS)
                 .build();
     }

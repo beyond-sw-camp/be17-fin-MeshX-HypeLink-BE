@@ -10,19 +10,17 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item, Integer> {
-    List<Item> findByItemCode(String itemCode);
-    List<Item> findByItemCodeAndIsDeletedIsFalse(String itemCode);
-    Optional<Item> findByIdAndIsDeletedIsFalse(Integer id);
-    Optional<Item> findByItemDetailCodeAndIsDeletedIsFalse(String itemDetailCode);
+    Optional<Item> findByItemCode(String itemCode);
+    Optional<Item> findById(Integer id);
 
-    List<Item> findByCategoryAndIsDeletedIsFalse(Category category);
-    List<Item> findByEnNameAndIsDeletedIsFalse(String enName);
-    List<Item> findByKoNameAndIsDeletedIsFalse(String koName);
-    List<Item> findByCompanyAndIsDeletedIsFalse(String company);
+    List<Item> findByCategory(Category category);
+    List<Item> findByEnName(String enName);
+    List<Item> findByKoName(String koName);
+    List<Item> findByCompany(String company);
 
-    Page<Item> findAllByIsDeletedIsFalse(Pageable pageable);
-    Page<Item> findByCategoryContainingAndIsDeletedIsFalse(Category category, Pageable pageable);
-    Page<Item> findByEnNameContainingAndIsDeletedIsFalse(String enName, Pageable pageable);
-    Page<Item> findByKoNameContainingAndIsDeletedIsFalse(String koName, Pageable pageable);
-    Page<Item> findByCompanyContainingAndIsDeletedIsFalse(String company, Pageable pageable);
+    Page<Item> findAll(Pageable pageable);
+    Page<Item> findByCategory(Category category, Pageable pageable);
+    Page<Item> findByEnName(String enName, Pageable pageable);
+    Page<Item> findByKoName(String koName, Pageable pageable);
+    Page<Item> findByCompany(String company, Pageable pageable);
 }

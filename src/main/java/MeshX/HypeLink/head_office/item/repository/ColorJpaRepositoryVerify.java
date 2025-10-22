@@ -5,6 +5,7 @@ import MeshX.HypeLink.head_office.item.model.entity.Color;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import static MeshX.HypeLink.head_office.item.exception.ColorExceptionMessage.NOTFOUND_ID;
@@ -47,5 +48,13 @@ public class ColorJpaRepositoryVerify {
         }
 
         return optional.get();
+    }
+
+    public List<Color> findAll() {
+        List<Color> all = repository.findAll();
+        if(all.isEmpty()) {
+            throw new BaseException(null);
+        }
+        return all;
     }
 }

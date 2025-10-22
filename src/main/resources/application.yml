@@ -9,7 +9,7 @@ spring:
     password: ${DB_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
 
 
   data:
@@ -22,7 +22,6 @@ spring:
       s3:
         bucket: ${S3_BUCKET_NAME}
         presigned-url-duration: ${S3_PRESIGNED_URL_DURATION}
-#        presigned-url-duration-img: ${S3_PRESIGNED_URL_IMG_DURATION}
       credentials:
         access-key: ${S3_ACCESS_KEY}
         secret-key: ${S3_SECRET_KEY}
@@ -39,5 +38,11 @@ portone:
     secret: ${PORTONE_API_SECRET}
   store-id: ${PORTONE_STORE_ID}
 
+naver:
+  api:
+    client-id: ${NAVER_MAP_CLIENT}
+    client-secret: ${NAVER_MAP_SECRET}
+
 websocket:
   allowed-origin: ${SERVER}
+

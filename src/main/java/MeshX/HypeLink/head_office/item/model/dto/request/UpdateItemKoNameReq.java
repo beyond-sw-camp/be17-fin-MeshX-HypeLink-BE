@@ -4,6 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class UpdateItemKoNameReq {
-    private String itemDetailCode;
+    private String itemCode;
     private String koName;
 }

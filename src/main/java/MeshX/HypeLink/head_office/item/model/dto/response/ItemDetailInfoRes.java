@@ -1,34 +1,27 @@
 package MeshX.HypeLink.head_office.item.model.dto.response;
 
-import MeshX.HypeLink.head_office.item.model.entity.Item;
+import MeshX.HypeLink.head_office.item.model.entity.ItemDetail;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.util.List;
 
 @Getter
 @Builder
 public class ItemDetailInfoRes {
-    private String enName;
-    private String koName;
-    private String category;
+    private Integer id;
+    private String itemDetailCode;
+    private String color;
+    private String colorCode;
+    private String size;
+    private Integer stock;
 
-    private List<ItemStockRes> itemStockList; // 사이즈 및 색깔별로 재고 현황
-    private Integer amount; // 가격
-    private String content; // 아이템 설명
-    private String company; // 회사
-    private String itemCode; // 아이템 코드
-
-    public static ItemDetailInfoRes toDto(List<Item> items) {
+    public static ItemDetailInfoRes toDto(ItemDetail itemDetail) {
         return ItemDetailInfoRes.builder()
-                .enName(items.get(0).getEnName())
-                .koName(items.get(0).getKoName())
-                .category(items.get(0).getCategory().getCategory())
-                .itemStockList(items.stream().map(ItemStockRes::toDto).toList())
-                .amount(items.get(0).getAmount())
-                .content(items.get(0).getContent())
-                .company(items.get(0).getCompany())
-                .itemCode(items.get(0).getItemCode())
+                .id(itemDetail.getId())
+                .itemDetailCode(itemDetail.getItemDetailCode())
+                .color(itemDetail.getColor().getColorName())
+                .colorCode(itemDetail.getColor().getColorCode())
+                .size(itemDetail.getSize().getSize())
+                .stock(itemDetail.getStock())
                 .build();
     }
 }
