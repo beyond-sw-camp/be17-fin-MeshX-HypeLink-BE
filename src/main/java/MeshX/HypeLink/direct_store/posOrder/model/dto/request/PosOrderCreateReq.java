@@ -12,8 +12,9 @@ public class PosOrderCreateReq {
     private Integer memberId;
     private String memberName;
     private String memberPhone;
-    private Integer pointsUsed;
-    private Integer couponDiscount;
+    private Integer pointsUsed;        // TODO: DB 검증 필요 - 사용자의 실제 보유 포인트 확인
+    private Integer couponDiscount;    // TODO: 삭제 필요 - couponId로 받아서 DB에서 할인 금액 조회해야 함
+    // TODO: 실제 배포 시 추가 필요: private Integer couponId;
     private List<PosOrderItemDto> items;
 
     public PosOrder toEntity(String orderNumber, int totalAmount, int discountAmount, int finalAmount) {

@@ -1,11 +1,14 @@
 package MeshX.HypeLink.auth.model.entity;
 
 import MeshX.HypeLink.common.BaseEntity;
+import MeshX.HypeLink.head_office.coupon.model.entity.Coupon;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Getter

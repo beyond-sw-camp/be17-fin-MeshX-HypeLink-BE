@@ -5,22 +5,23 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class NoticeInfoListRes {
-    private final List<NoticeInfoRes> notices;
+    private final List<NoticeListResponse> notices;
 
     public static NoticeInfoListRes toDto(List<Notice> entity) {
         return NoticeInfoListRes.builder()
                 .notices(entity.stream()
-                                .map(NoticeInfoRes::toDto)
-                                .toList()
+                                .map(NoticeListResponse::toDto)
+                                .collect(Collectors.toList())
                 )
                 .build();
     }
 
     @Builder
-    private NoticeInfoListRes(List<NoticeInfoRes> notices) {
+    private NoticeInfoListRes(List<NoticeListResponse> notices) {
         this.notices = notices;
     }
 }

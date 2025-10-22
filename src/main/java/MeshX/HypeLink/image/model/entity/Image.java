@@ -23,16 +23,12 @@ public class Image extends BaseEntity {
 
     private long fileSize;
 
-    @Enumerated(EnumType.STRING)
-    private ImageType imageType;
-
     @Builder
-    public Image(Integer id, String originalFilename, String savedPath, String contentType, long fileSize, ImageType imageType) {
+    public Image(Integer id, String originalFilename, String savedPath, String contentType, long fileSize) {
         this.id = id;
         this.originalFilename = originalFilename;
         this.savedPath = savedPath;
         this.contentType = contentType;
         this.fileSize = fileSize;
-        this.imageType = imageType;
     }
 }

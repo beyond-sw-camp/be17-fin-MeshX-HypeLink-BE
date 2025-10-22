@@ -1,4 +1,4 @@
-package MeshX.HypeLink.image.model.dto;
+package MeshX.HypeLink.image.model.dto.response;
 
 import MeshX.HypeLink.image.model.entity.Image;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -8,10 +8,10 @@ import lombok.Getter;
 @Getter
 @Builder
 @Schema(description = "이미지 업로드 응답 DTO")
-public class ImageUploadResponseDto {
+public class ImageUploadResponse {
 
     @Schema(description = "파일idx", example = "123")
-    private Integer idx;
+    private Integer id;
 
     @Schema(description = "원본 파일 이름", example = "example.jpg")
     private String originalName;
@@ -29,10 +29,10 @@ public class ImageUploadResponseDto {
     private Long imageSize;
 
 
-    public static ImageUploadResponseDto from(Image entity) {
-        return ImageUploadResponseDto.builder()
+    public static ImageUploadResponse from(Image entity, String imageUrl) {
+        return ImageUploadResponse.builder()
                 .originalName(entity.getOriginalFilename())
-                .imagePath(entity.getSavedPath())
+                .imagePath(imageUrl)
                 .imageSize(entity.getFileSize())
                 .build();
     }

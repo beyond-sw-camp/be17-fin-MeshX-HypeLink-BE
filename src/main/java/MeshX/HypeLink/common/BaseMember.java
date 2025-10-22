@@ -42,7 +42,7 @@ public class BaseMember {
         }
 
         Member hq = Member.builder()
-                .email("hq@company.com")
+                    .email("hq@company.com")
                 .password(encoder.encode("1234"))
                 .name("본사관리자")
                 .phone("010-1111-1111")
