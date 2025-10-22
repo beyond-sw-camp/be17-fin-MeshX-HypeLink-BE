@@ -19,9 +19,9 @@ public class Store {
 
     private Double lat;
     private Double lon;
-    private String address;
     private Integer posCount;
     private String storeNumber;
+    private StoreState storeState;
 
     @OneToMany(mappedBy = "store", fetch = FetchType.LAZY)
     private List<StoreItem> storeItems;
@@ -32,13 +32,29 @@ public class Store {
 
     @Builder
     private Store(Double lat, Double lon, String address, Integer posCount,
-                  String storeNumber, List<StoreItem> storeItems, Member member) {
+                  String storeNumber, List<StoreItem> storeItems, Member member, StoreState storeState) {
         this.lat = lat;
         this.lon = lon;
-        this.address = address;
         this.posCount = posCount;
         this.storeNumber = storeNumber;
         this.storeItems = storeItems;
         this.member = member;
+        this.storeState = storeState != null ? storeState : StoreState.TEMP_CLOSED;
+    }
+
+    public void increasePosCount()
+    {
+        this.posCount++;
+    }
+
+    public void updateStoreNumber(String storeNumber) {
+        this.storeNumber = storeNumber;
+    }
+
+    public void updateLat(Double lat) {
+        this.lat = lat;
+    }
+    public void updateLon(Double lon) {
+        this.lon = lon;
     }
 }

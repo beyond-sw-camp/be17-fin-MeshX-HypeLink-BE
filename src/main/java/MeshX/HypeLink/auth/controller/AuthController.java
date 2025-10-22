@@ -1,9 +1,12 @@
 package MeshX.HypeLink.auth.controller;
 
 import MeshX.HypeLink.auth.model.dto.*;
+import MeshX.HypeLink.auth.model.dto.req.LoginReqDto;
+import MeshX.HypeLink.auth.model.dto.req.RegisterReqDto;
+import MeshX.HypeLink.auth.model.dto.res.LoginResDto;
+import MeshX.HypeLink.auth.model.dto.res.TokenResDto;
 import MeshX.HypeLink.auth.service.AuthService;
 import MeshX.HypeLink.auth.utils.CookieUtils;
-import MeshX.HypeLink.common.BaseEntity;
 import MeshX.HypeLink.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,8 +45,6 @@ public class AuthController {
     @PostMapping("/reissue")
     public ResponseEntity<TokenResDto> reissue(@CookieValue("refresh_token") String refreshToken) {
         AuthTokens authTokens = authService.reissueTokens(refreshToken);
-        System.out.println("실행");
-        System.out.println(authTokens);
         return createTokenResponse(authTokens);
     }
 
@@ -62,7 +63,6 @@ public class AuthController {
 
     private ResponseEntity<TokenResDto> createTokenResponse(AuthTokens authTokens) {
         ResponseCookie cookie = CookieUtils.createRefreshTokenCookie(authTokens.getRefreshToken(), refreshTokenExpirationMs);
-
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
