@@ -5,6 +5,9 @@ import MeshX.HypeLink.auth.repository.DriverJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.MemberJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.PosJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
+//import MeshX.HypeLink.head_office.customer.repository.CustomerJpaRepositoryVerify; // Import CustomerJpaRepositoryVerify
+import MeshX.HypeLink.head_office.customer.model.entity.Customer; // Import Customer entity
+import java.time.LocalDate; // Import LocalDate
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +23,7 @@ public class BaseMember {
     private final StoreJpaRepositoryVerify storeRepository;
     private final PosJpaRepositoryVerify posRepository;
     private final DriverJpaRepositoryVerify driverRepository;
+//    private final CustomerJpaRepositoryVerify customerRepository; // Add CustomerJpaRepositoryVerify
     private final PasswordEncoder encoder;
 
     @PostConstruct
@@ -30,7 +34,10 @@ public class BaseMember {
             initStoresAndPoses();
             initDrivers();
         }
+//        initCustomers(); // Call initCustomers outside the if block
     }
+
+
 
     private boolean initMembers() {
         try {
@@ -43,7 +50,7 @@ public class BaseMember {
 
         // Admin and Manager
         Member hq = Member.builder()
-                    .email("hq@company.com")
+                .email("hq@company.com")
                 .password(encoder.encode("1234"))
                 .name("본사관리자")
                 .phone("010-1111-1111")
@@ -148,11 +155,11 @@ public class BaseMember {
         Member pos5_1 = memberRepository.findByEmail("pos5_1@store.com");
         Member pos5_2 = memberRepository.findByEmail("pos5_2@store.com");
 
-        Store store1 = Store.builder().lat(37.5665).lon(126.9780).address("서울특별시 중구 을지로 1가").posCount(2).storeNumber("STORE001").member(owner1).storeState(StoreState.OPEN).build();
-        Store store2 = Store.builder().lat(35.1796).lon(129.0756).address("부산광역시 중구 중앙동").posCount(2).storeNumber("STORE002").member(owner2).storeState(StoreState.OPEN).build();
-        Store store3 = Store.builder().lat(36.3504).lon(127.3845).address("대전광역시 서구 둔산동").posCount(2).storeNumber("STORE003").member(owner3).storeState(StoreState.OPEN).build();
-        Store store4 = Store.builder().lat(35.1595).lon(126.8526).address("광주광역시 서구 상무지구").posCount(2).storeNumber("STORE004").member(owner4).storeState(StoreState.OPEN).build();
-        Store store5 = Store.builder().lat(33.4996).lon(126.5312).address("제주특별자치도 제주시").posCount(2).storeNumber("STORE005").member(owner5).storeState(StoreState.OPEN).build();
+        Store store1 = Store.builder().lat(37.5665).lon(126.9780).posCount(2).storeNumber("STORE001").member(owner1).storeState(StoreState.OPEN).build();
+        Store store2 = Store.builder().lat(35.1796).lon(129.0756).posCount(2).storeNumber("STORE002").member(owner2).storeState(StoreState.OPEN).build();
+        Store store3 = Store.builder().lat(36.3504).lon(127.3845).posCount(2).storeNumber("STORE003").member(owner3).storeState(StoreState.OPEN).build();
+        Store store4 = Store.builder().lat(35.1595).lon(126.8526).posCount(2).storeNumber("STORE004").member(owner4).storeState(StoreState.OPEN).build();
+        Store store5 = Store.builder().lat(33.4996).lon(126.5312).posCount(2).storeNumber("STORE005").member(owner5).storeState(StoreState.OPEN).build();
 
         storeRepository.save(store1);
         storeRepository.save(store2);
@@ -206,4 +213,70 @@ public class BaseMember {
 
         log.info("✅ Driver 기본 데이터 생성 완료");
     }
+
+//    private void initCustomers() {
+//        // Customer dummy data
+//        Customer customer1 = Customer.builder()
+//                .membershipNumber("CUST001")
+//                .name("김철수")
+//                .email("kim.cs@example.com")
+//                .password(encoder.encode("1234"))
+//                .phone("010-1234-5678")
+//                .birthDate(LocalDate.of(1990, 5, 15))
+//                .customerReceipts(null)
+//                .customerCoupons(null)
+//                .build();
+//
+//        Customer customer2 = Customer.builder()
+//                .membershipNumber("CUST002")
+//                .name("이영희")
+//                .email("lee.yh@example.com")
+//                .password(encoder.encode("1234"))
+//                .phone("010-2345-6789")
+//                .birthDate(LocalDate.of(1985, 11, 22))
+//                .customerReceipts(null)
+//                .customerCoupons(null)
+//                .build();
+//
+//        Customer customer3 = Customer.builder()
+//                .membershipNumber("CUST003")
+//                .name("박민수")
+//                .email("park.ms@example.com")
+//                .password(encoder.encode("1234"))
+//                .phone("010-3456-7890")
+//                .birthDate(LocalDate.of(1992, 8, 10))
+//                .customerReceipts(null)
+//                .customerCoupons(null)
+//                .build();
+//
+//        Customer customer4 = Customer.builder()
+//                .membershipNumber("CUST004")
+//                .name("최지영")
+//                .email("choi.jy@example.com")
+//                .password(encoder.encode("1234"))
+//                .phone("010-4567-8901")
+//                .birthDate(LocalDate.of(1988, 3, 30))
+//                .customerReceipts(null)
+//                .customerCoupons(null)
+//                .build();
+//
+//        Customer customer5 = Customer.builder()
+//                .membershipNumber("CUST005")
+//                .name("정현우")
+//                .email("jung.hw@example.com")
+//                .password(encoder.encode("1234"))
+//                .phone("010-5678-9012")
+//                .birthDate(LocalDate.of(1995, 1, 5))
+//                .customerReceipts(null)
+//                .customerCoupons(null)
+//                .build();
+//
+//        customerRepository.save(customer1);
+//        customerRepository.save(customer2);
+//        customerRepository.save(customer3);
+//        customerRepository.save(customer4);
+//        customerRepository.save(customer5);
+//
+//        log.info("✅ Customer 기본 데이터 생성 완료");
+//    }
 }
