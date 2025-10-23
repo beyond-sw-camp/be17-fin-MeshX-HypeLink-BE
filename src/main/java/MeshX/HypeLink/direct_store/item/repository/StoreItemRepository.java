@@ -10,9 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface StoreItemRepository extends JpaRepository<StoreItem, Integer> {
-    Optional<StoreItem> findByItemDetailCode(String itemDetailCode);
-
-    List<StoreItem> findByItemCode(String itemCode);
+    Optional<StoreItem> findByItemCode(String itemCode);
 
     Page<StoreItem> findByEnName(String enName, Pageable pageable);
     Page<StoreItem> findByKoName(String KoName, Pageable pageable);

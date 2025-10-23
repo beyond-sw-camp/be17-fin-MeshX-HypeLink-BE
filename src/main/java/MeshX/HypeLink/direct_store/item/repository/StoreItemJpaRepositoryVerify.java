@@ -1,82 +1,57 @@
 package MeshX.HypeLink.direct_store.item.repository;
 
-import MeshX.HypeLink.common.Page.PageRes;
-import MeshX.HypeLink.direct_store.item.exception.StoreItemException;
-import MeshX.HypeLink.direct_store.item.model.entity.StoreCategory;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static MeshX.HypeLink.direct_store.item.exception.StoreItemExceptionMessage.NOT_FOUND;
+import java.util.function.Consumer;
 
 @Repository
 @RequiredArgsConstructor
 public class StoreItemJpaRepositoryVerify {
     private final StoreItemRepository repository;
 
-    public void save(StoreItem entity) {
-        repository.save(entity);
-    }
+    public StoreItem save(StoreItem entity) {
+        Optional<StoreItem> optional = repository.findByItemCode(entity.getItemCode());
 
-    public StoreItem findById(Integer id) {
-        Optional<StoreItem> optional = repository.findById(id);
+        if (optional.isPresent()) {
+            StoreItem existing = optional.get();
+            boolean isModified = filtering(entity, existing);
 
-        if(optional.isPresent()) {
-            return optional.get();
+            if (isModified) {
+                return repository.save(existing);
+            }
+            return existing;
         }
 
-        throw new StoreItemException(NOT_FOUND);
+        return repository.save(entity);
     }
 
-    public List<StoreItem> findByItemCode(String itemCode) {
-        List<StoreItem> list = repository.findByItemCode(itemCode);
+    private boolean filtering(StoreItem entity, StoreItem existing) {
+        boolean isModified = false;
 
-        if(list.isEmpty()) {
-            throw new StoreItemException(NOT_FOUND);
+        // 공통 헬퍼로 간결하게 정리
+        isModified |= verifyField(existing.getCategory(), entity.getCategory(), existing::updateCategory);
+        isModified |= verifyField(existing.getEnName(), entity.getEnName(), existing::updateEnName);
+        isModified |= verifyField(existing.getKoName(), entity.getKoName(), existing::updateKoName);
+        isModified |= verifyField(existing.getUnitPrice(), entity.getUnitPrice(), existing::updateUnitPrice);
+        isModified |= verifyField(existing.getAmount(), entity.getAmount(), existing::updateAmount);
+        isModified |= verifyField(existing.getContent(), entity.getContent(), existing::updateContent);
+        isModified |= verifyField(existing.getCompany(), entity.getCompany(), existing::updateCompany);
+
+        return isModified;
+    }
+
+    /**
+     * 공통 필드 검증 및 수정 헬퍼
+     */
+    private <T> boolean verifyField(T oldVal, T newVal, Consumer<T> updater) {
+        if (!Objects.equals(oldVal, newVal)) {
+            updater.accept(newVal);
+            return true;
         }
-
-        return list;
-    }
-
-    public StoreItem findByItemDetailCode(String itemDetailCode) {
-        Optional<StoreItem> optional = repository.findByItemDetailCode(itemDetailCode);
-
-        if(optional.isPresent()) {
-            return optional.get();
-        }
-
-        throw new StoreItemException(NOT_FOUND);
-    }
-
-    public PageRes<StoreItem> findByItemName(String name, Pageable pageable) {
-        PageImpl<StoreItem> itemPage = Stream.of(
-                        repository.findByEnName(name, pageable),
-                        repository.findByKoName(name, pageable)
-                ).flatMap(page -> page.getContent().stream())
-                .distinct()
-                .collect(Collectors.collectingAndThen(
-                        Collectors.toList(),
-                        list -> new PageImpl<>(list, pageable, list.size())
-                ));
-
-        return PageRes.toDto(itemPage);
-    }
-
-    public PageRes<StoreItem> findByItemCategory(StoreCategory category, Pageable pageable) {
-        Page<StoreItem> itemPage = repository.findByCategory(category, pageable);
-
-        return PageRes.toDto(itemPage);
-    }
-
-    public void merge(StoreItem entity) {
-        repository.save(entity);
+        return false;
     }
 }

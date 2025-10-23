@@ -1,15 +1,13 @@
 package MeshX.HypeLink.direct_store.item.controller;
 
 import MeshX.HypeLink.common.BaseResponse;
+import MeshX.HypeLink.direct_store.item.model.dto.request.SaveStoreCategoriesReq;
+import MeshX.HypeLink.direct_store.item.model.dto.request.SaveStoreCategoryReq;
 import MeshX.HypeLink.direct_store.item.model.dto.response.StoreCategoryInfoListRes;
-import MeshX.HypeLink.direct_store.item.model.dto.response.StoreCategoryInfoRes;
 import MeshX.HypeLink.direct_store.item.service.StoreCategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/direct/category")
@@ -17,23 +15,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class StoreCategoryController {
     private final StoreCategoryService storeCategoryService;
 
-//    @PostMapping("/save")
-//    public ResponseEntity<BaseResponse<String>> saveCategory() {
-//
-//    }
-//
-//    @PostMapping("/save/all")
-//    public ResponseEntity<BaseResponse<String>> saveCategoryList() {
-//
-//    }
-//
-//    @GetMapping("/list")
-//    public ResponseEntity<BaseResponse<StoreCategoryInfoListRes>> getCategoryList() {
-//
-//    }
-//
-//    @GetMapping("/detail/{id}")
-//    public ResponseEntity<BaseResponse<StoreCategoryInfoRes>> getCategory() {
-//
-//    }
+    @PostMapping("/save/all")
+    public ResponseEntity<BaseResponse<String>> saveCategoryList(@RequestBody SaveStoreCategoriesReq dto) {
+        storeCategoryService.saveAll(dto);
+        return ResponseEntity.status(200).body(BaseResponse.of("카테고리를 저장하였습니다."));
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<BaseResponse<StoreCategoryInfoListRes>> getCategoryList() {
+        StoreCategoryInfoListRes result = storeCategoryService.getList();
+        return ResponseEntity.status(200).body(BaseResponse.of(result));
+    }
 }

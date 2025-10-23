@@ -1,17 +1,24 @@
 package MeshX.HypeLink.head_office.item.service;
 
 import MeshX.HypeLink.common.Page.PageRes;
+import MeshX.HypeLink.direct_store.item.model.dto.request.SaveStoreItemListReq;
 import MeshX.HypeLink.head_office.item.model.dto.request.*;
 import MeshX.HypeLink.head_office.item.model.dto.response.ItemInfoListRes;
 import MeshX.HypeLink.head_office.item.model.dto.response.ItemInfoRes;
 import MeshX.HypeLink.head_office.item.model.entity.*;
 import MeshX.HypeLink.head_office.item.repository.*;
+import MeshX.HypeLink.head_office.item.service.dto.StoreInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
