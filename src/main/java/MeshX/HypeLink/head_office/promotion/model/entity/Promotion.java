@@ -31,7 +31,8 @@ public class Promotion {
     @Column(nullable = false, length = 20)
     private PromotionType promotionType; //이벤트 종류
 
-    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true) //변경, 삭제 시 전파
+    @OneToMany(mappedBy = "promotion")
+    // @Builder.Default-추가하니깐 오류?
     private List<PromotionStore> promotionStores = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
@@ -99,7 +100,10 @@ public class Promotion {
     }
 
 
-    public void autoUpdateStatus() {//상태 자동 갱신
+    public void autoUpdateStatus() {
+        // ✅ 관리자가 수동 변경한 경우, 자동 갱신 안 함
+        if (this.status == PromotionStatus.ENDED) return;
+
         LocalDate now = LocalDate.now();
         if (now.isBefore(startDate)) this.status = PromotionStatus.UPCOMING;
         else if (now.isAfter(endDate)) this.status = PromotionStatus.ENDED;
