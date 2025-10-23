@@ -29,14 +29,13 @@ public class Notice extends BaseEntity {
     private List<NoticeImages> noticeImages = new ArrayList<>();
 
     @Builder
-    private Notice(String title, String contents, Boolean isOpen, String author) {
+    private Notice(String title, String contents, String author) {
         this.title = title;
         this.contents = contents;
         this.author = author;
-        this.isOpen = isOpen;
+        this.isOpen = false;
     }
 
-    //== Update Methods ==//
     public void updateTitle(String title) {
         this.title = title;
     }
@@ -45,8 +44,8 @@ public class Notice extends BaseEntity {
         this.contents = contents;
     }
 
-    public void changeOpen(Boolean isOpen) {
-        this.isOpen = isOpen;
+    public void changeOpen() {
+        this.isOpen = true;
     }
 
     public void updateAuthor(String author) {

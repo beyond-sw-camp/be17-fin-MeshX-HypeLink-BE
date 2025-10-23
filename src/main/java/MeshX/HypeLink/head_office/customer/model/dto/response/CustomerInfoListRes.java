@@ -1,4 +1,4 @@
-package MeshX.HypeLink.head_office.customer.model.dto;
+package MeshX.HypeLink.head_office.customer.model.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;

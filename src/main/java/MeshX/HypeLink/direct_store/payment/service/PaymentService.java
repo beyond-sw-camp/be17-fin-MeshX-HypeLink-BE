@@ -3,7 +3,7 @@ package MeshX.HypeLink.direct_store.payment.service;
 import MeshX.HypeLink.direct_store.payment.config.PortOneConfig;
 import MeshX.HypeLink.direct_store.payment.exception.PaymentException;
 import MeshX.HypeLink.direct_store.payment.model.dto.request.PaymentValidationReq;
-import MeshX.HypeLink.direct_store.payment.model.entity.PosPayment;
+import MeshX.HypeLink.direct_store.payment.model.entity.Payment;
 import MeshX.HypeLink.direct_store.payment.repository.PaymentJpaRepositoryVerify;
 import MeshX.HypeLink.direct_store.posOrder.model.dto.request.PosOrderCreateReq;
 import MeshX.HypeLink.direct_store.posOrder.model.dto.request.PosOrderItemDto;
@@ -12,7 +12,6 @@ import MeshX.HypeLink.direct_store.posOrder.model.entity.PosOrder;
 import MeshX.HypeLink.direct_store.posOrder.model.entity.PosOrderStatus;
 import MeshX.HypeLink.direct_store.posOrder.repository.PosOrderJpaRepositoryVerify;
 import MeshX.HypeLink.direct_store.posOrder.service.PosOrderService;
-import io.portone.sdk.server.payment.Payment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -59,7 +58,7 @@ public class PaymentService {
         try {
             // 포트원 서버에서 결제정보를 가져와서 진짜 결제가 완료 됐는지 검증로지ㄱ
                 // 프론트가 준 결제id로 포트원한테 직접 검증함.
-            Payment.Recognized portOnePayment =
+            io.portone.sdk.server.payment.Payment.Recognized portOnePayment =
                     fetchAndValidatePortOnePayment(req.getPaymentId());
 
             Integer actualAmount = (int) portOnePayment.getAmount().getTotal();
@@ -86,14 +85,14 @@ public class PaymentService {
     }
 
     // 프론트에서 받은 paymentId(각종 예외처리 거치고) 형 변환해서 리턴시키는 메서드
-    private Payment.Recognized fetchAndValidatePortOnePayment(String paymentId) {
-        Payment payment = portOneService.getPayment(paymentId);
+    private io.portone.sdk.server.payment.Payment.Recognized fetchAndValidatePortOnePayment(String paymentId) {
+        io.portone.sdk.server.payment.Payment payment = portOneService.getPayment(paymentId);
 
-        if (!(payment instanceof Payment.Recognized)) {
+        if (!(payment instanceof io.portone.sdk.server.payment.Payment.Recognized)) {
             throw new PaymentException(PAYMENT_VALIDATION_FAILED);
         }
 
-        Payment.Recognized portOnePayment = (Payment.Recognized) payment;
+        io.portone.sdk.server.payment.Payment.Recognized portOnePayment = (io.portone.sdk.server.payment.Payment.Recognized) payment;
 
         String paymentType = payment.getClass().getSimpleName();
 
@@ -123,7 +122,7 @@ public class PaymentService {
     //  - 주문 생성은 OrderService에서만
     //  - PaymentService는 savePaymentInfo(paymentId, orderId) 형태로 분리
     private PosOrder createOrderAndPayment(PaymentValidationReq req,
-                                           Payment.Recognized portOnePayment,
+                                           io.portone.sdk.server.payment.Payment.Recognized portOnePayment,
                                            Integer actualAmount) {
         // ❌ Order 도메인 작업 (PaymentService가 할 일이 아님!)
         PosOrderDetailRes orderDetail = orderService.createOrder(req.getOrderData());
@@ -132,7 +131,7 @@ public class PaymentService {
         String channelKey = portOnePayment.getChannel() != null ?
                 portOnePayment.getChannel().getId() : null;
 
-        PosPayment posPaymentEntity = req.toPaymentEntity(
+        Payment paymentEntity = req.toPaymentEntity(
                 order,
                 portOnePayment.getTransactionId(),
                 portOneConfig.getStoreId(),
@@ -140,13 +139,13 @@ public class PaymentService {
                 actualAmount
         );
 
-        paymentRepository.save(posPaymentEntity);
+        paymentRepository.save(paymentEntity);
 
         return order;
     }
 
 
-    private boolean isPaymentSuccess(Payment payment) {
+    private boolean isPaymentSuccess(io.portone.sdk.server.payment.Payment payment) {
         String className = payment.getClass().getSimpleName();
         return "PaidPayment".equals(className) || "VirtualAccountIssuedPayment".equals(className);
     }

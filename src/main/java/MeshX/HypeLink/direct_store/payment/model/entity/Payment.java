@@ -2,6 +2,7 @@ package MeshX.HypeLink.direct_store.payment.model.entity;
 
 import MeshX.HypeLink.common.BaseEntity;
 import MeshX.HypeLink.direct_store.posOrder.model.entity.PosOrder;
+import MeshX.HypeLink.head_office.customer.model.entity.CustomerReceipt;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PosPayment extends BaseEntity {
+public class Payment extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,11 +48,14 @@ public class PosPayment extends BaseEntity {
     @Column(length = 500)
     private String failureReason;    // 실패 사유
 
+    @OneToOne
+    private CustomerReceipt customerReceipt;
+
     @Builder
-    private PosPayment(PosOrder order, String paymentId, String transactionId,
-                       String storeId, String channelKey, PaymentMethod paymentMethod,
-                       Integer amount, PaymentStatus status, LocalDateTime paidAt,
-                       Integer cashReceived, Integer cashChange, String failureReason) {
+    private Payment(PosOrder order, String paymentId, String transactionId,
+                    String storeId, String channelKey, PaymentMethod paymentMethod,
+                    Integer amount, PaymentStatus status, LocalDateTime paidAt,
+                    Integer cashReceived, Integer cashChange, String failureReason) {
         this.order = order;
         this.paymentId = paymentId;
         this.transactionId = transactionId;

@@ -1,11 +1,11 @@
 package MeshX.HypeLink.direct_store.payment.repository;
 
-import MeshX.HypeLink.direct_store.payment.model.entity.PosPayment;
+import MeshX.HypeLink.direct_store.payment.model.entity.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface PaymentRepository extends JpaRepository<PosPayment, Integer> {
-    Optional<PosPayment> findByPaymentId(String paymentId);
-    Optional<PosPayment> findByOrderId(Integer orderId);
+public interface PaymentRepository extends JpaRepository<Payment, Integer> {
+    Optional<Payment> findByPaymentId(String paymentId);
+    Optional<Payment> findByOrderId(Integer orderId);
 }

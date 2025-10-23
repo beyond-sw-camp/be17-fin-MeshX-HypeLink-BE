@@ -1,9 +1,11 @@
 package MeshX.HypeLink.head_office.customer.controller;
 
 import MeshX.HypeLink.common.BaseResponse;
-import MeshX.HypeLink.head_office.customer.model.dto.CustomerInfoListRes;
-import MeshX.HypeLink.head_office.customer.model.dto.CustomerInfoRes;
-import MeshX.HypeLink.head_office.customer.model.dto.CustomerSignupReq;
+import MeshX.HypeLink.head_office.customer.model.dto.request.CustomerUpdateReq;
+import MeshX.HypeLink.head_office.customer.model.dto.response.CustomerInfoListRes;
+import MeshX.HypeLink.head_office.customer.model.dto.response.CustomerInfoRes;
+import MeshX.HypeLink.head_office.customer.model.dto.request.CustomerSignupReq;
+import MeshX.HypeLink.head_office.customer.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,33 +14,43 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/customer")
 @RequiredArgsConstructor
 public class CustomerController {
+
+    private final CustomerService customerService;
+
     @GetMapping("/{id}")
     public ResponseEntity<BaseResponse<CustomerInfoRes>> getCustomerInfo(@PathVariable Integer id) {
-        return ResponseEntity.status(200).body(BaseResponse.of(CustomerInfoRes.builder().build()));
+        CustomerInfoRes result = customerService.findById(id);
+        return ResponseEntity.status(200).body(BaseResponse.of(result));
     }
 
     @GetMapping("/list")
     public ResponseEntity<BaseResponse<CustomerInfoListRes>> getCustomerInfos() {
-        return ResponseEntity.status(200).body(BaseResponse.of(CustomerInfoListRes.builder().build()));
+        CustomerInfoListRes result = customerService.readAll();
+        return ResponseEntity.status(200).body(BaseResponse.of(result));
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<BaseResponse<CustomerInfoRes>> signupCustomer(@RequestBody CustomerSignupReq dto) {
-        return ResponseEntity.status(200).body(BaseResponse.of(CustomerInfoRes.builder().build()));
+    public ResponseEntity<BaseResponse<String>> signupCustomer(@RequestBody CustomerSignupReq dto) {
+        customerService.signup(dto);
+        return ResponseEntity.status(200).body(BaseResponse.of("가입이 완료되었습니다."));
     }
 
-    @PatchMapping("/phone")
-    public ResponseEntity<BaseResponse<CustomerInfoRes>> updatePhoneNumber(@RequestBody String phoneNumber) {
-        return ResponseEntity.status(200).body(BaseResponse.of(CustomerInfoRes.builder().build()));
-    }
-
-    @PatchMapping("/password")
-    public ResponseEntity<BaseResponse<CustomerInfoRes>> updatePassword(@RequestBody String password) {
-        return ResponseEntity.status(200).body(BaseResponse.of(CustomerInfoRes.builder().build()));
+    @PatchMapping("/update")
+    public ResponseEntity<BaseResponse<CustomerInfoRes>> updatePhoneNumber(@RequestBody CustomerUpdateReq dto) {
+        CustomerInfoRes result = customerService.update(dto);
+        return ResponseEntity.status(200).body(BaseResponse.of(result));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<BaseResponse<String>> deleteCustomer(@PathVariable Integer id) {
         return ResponseEntity.status(200).body(BaseResponse.of(""));
+    }
+
+    @PostMapping("/{customerId}/coupons")
+    public ResponseEntity<BaseResponse<String>> issueCoupon(
+       @PathVariable Integer customerId,
+       @RequestParam Integer couponId) {
+        customerService.issueCoupon(customerId, couponId);
+        return ResponseEntity.status(200).body(BaseResponse.of("쿠폰이 발급되었습니다."));
     }
 }

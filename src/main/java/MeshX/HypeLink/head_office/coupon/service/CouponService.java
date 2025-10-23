@@ -6,6 +6,7 @@ import MeshX.HypeLink.head_office.coupon.model.dto.request.CouponCreateReq;
 import MeshX.HypeLink.head_office.coupon.model.dto.response.CouponInfoRes;
 import MeshX.HypeLink.head_office.coupon.model.entity.Coupon;
 import MeshX.HypeLink.head_office.coupon.repository.CouponJpaRepositoryVerify;
+import MeshX.HypeLink.utils.datechanger.DateChanger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,8 @@ public class CouponService {
     private final CouponJpaRepositoryVerify couponRepository;
 
     public void save(CouponCreateReq dto) {
-        couponRepository.save(dto, toDate(dto.getPeriod()));
+        Coupon coupon = dto.toEntity(DateChanger.toDate(dto.getPeriod()));
+        couponRepository.save(coupon);
     }
 
     public void delete(Integer id) {
@@ -31,7 +33,7 @@ public class CouponService {
     }
 
     public CouponInfoRes read(Integer id) {
-        Coupon coupon = couponRepository.read(id);
+        Coupon coupon = couponRepository.findById(id);
         String period = toPeriod(coupon.getStartDate(), coupon.getEndDate());
         return CouponInfoRes.toDto(coupon, period);
     }
