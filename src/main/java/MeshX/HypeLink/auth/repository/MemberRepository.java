@@ -1,11 +1,14 @@
 package MeshX.HypeLink.auth.repository;
 
 import MeshX.HypeLink.auth.model.entity.Member;
+import MeshX.HypeLink.auth.model.entity.MemberRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Integer> {
     Optional<Member> findByEmail(String email);
     boolean existsByEmail(String email);
+
+    long countByRole(MemberRole role);
 
 }

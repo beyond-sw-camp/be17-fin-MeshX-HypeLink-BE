@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Builder
 public class ItemDetailsInfoListRes {
-    List<ItemDetailInfoRes> itemInfoResList;
+    private List<ItemDetailInfoRes> itemInfoResList;
 
     public static ItemDetailsInfoListRes toDto(List<ItemDetail> itemDetails) {
         return ItemDetailsInfoListRes.builder()

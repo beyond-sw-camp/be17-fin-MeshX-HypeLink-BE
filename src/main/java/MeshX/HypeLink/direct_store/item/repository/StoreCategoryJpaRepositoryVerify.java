@@ -12,7 +12,7 @@ import static MeshX.HypeLink.direct_store.item.exception.StoreCategoryExceptionM
 
 @Repository
 @RequiredArgsConstructor
-public class StoreCategoryJpaRepositoryVerify {
+public class StoreCategoryJpaRepositoryVerify extends AbstractBatchSaveRepository<StoreCategory, String> {
     private final StoreCategoryRepository repository;
 
     public void save(StoreCategory entity) {
@@ -43,7 +43,21 @@ public class StoreCategoryJpaRepositoryVerify {
         return all;
     }
 
-    public void saveAll(List<StoreCategory> entities) {
+    @Override
+    protected String extractKey(StoreCategory entity) {
+        return entity.getCategory(); // 중복 판별 기준 필드
+    }
+
+    @Override
+    protected List<String> findExistingKeys(List<String> keys) {
+        return repository.findAllByCategoryIn(keys)
+                .stream()
+                .map(StoreCategory::getCategory)
+                .toList();
+    }
+
+    @Override
+    protected void saveAllToDb(List<StoreCategory> entities) {
         repository.saveAll(entities);
     }
 }

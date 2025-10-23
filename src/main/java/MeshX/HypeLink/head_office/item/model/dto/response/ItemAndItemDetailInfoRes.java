@@ -10,6 +10,7 @@ public class ItemAndItemDetailInfoRes {
     private Integer id;
     private String category;
     private String color;
+    private String colorCode;
     private String size;
     private Integer amount; // 가격
     private Integer unitPrice; // 원가
@@ -25,7 +26,8 @@ public class ItemAndItemDetailInfoRes {
         return ItemAndItemDetailInfoRes.builder()
                 .id(itemDetail.getId())
                 .category(itemDetail.getItem().getCategory().getCategory())
-                .color(itemDetail.getColor().getColorCode())
+                .color(itemDetail.getColor().getColorName())
+                .colorCode(itemDetail.getColor().getColorCode())
                 .size(itemDetail.getSize().getSize())
                 .amount(itemDetail.getItem().getAmount())
                 .unitPrice(itemDetail.getItem().getUnitPrice())

@@ -30,7 +30,7 @@ public class ItemDetailJpaRepositoryVerify {
     public ItemDetail findById(Integer id) {
         Optional<ItemDetail> optional = repository.findById(id);
         if(optional.isPresent()) {
-            optional.get();
+            return optional.get();
         }
         throw new BaseException(null);
     }
@@ -38,7 +38,7 @@ public class ItemDetailJpaRepositoryVerify {
     public ItemDetail findByItemDetailCode(String itemDetailCode) {
         Optional<ItemDetail> optional = repository.findByItemDetailCode(itemDetailCode);
         if(optional.isPresent()) {
-            optional.get();
+            return optional.get();
         }
         throw new BaseException(null);
     }

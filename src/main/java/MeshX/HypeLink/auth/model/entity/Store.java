@@ -1,5 +1,6 @@
 package MeshX.HypeLink.auth.model.entity;
 
+import MeshX.HypeLink.common.BaseEntity;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
 import MeshX.HypeLink.head_office.promotion.model.entity.Promotion;
 import MeshX.HypeLink.head_office.promotion.model.entity.PromotionStore;
@@ -33,6 +34,7 @@ public class Store {
     private Member member;
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<PromotionStore> promotionStores = new ArrayList<>();
 
 
@@ -53,6 +55,11 @@ public class Store {
         this.posCount++;
     }
 
+    public void decreasePosCount()
+    {
+        this.posCount--;
+    }
+
     public void updateStoreNumber(String storeNumber) {
         this.storeNumber = storeNumber;
     }
@@ -62,6 +69,9 @@ public class Store {
     }
     public void updateLon(Double lon) {
         this.lon = lon;
+    }
+    public void updateStoreState(StoreState storeState) {
+        this.storeState = storeState;
     }
 
     public void addPromotion(Promotion promotion) {

@@ -8,9 +8,9 @@ import MeshX.HypeLink.head_office.shipment.model.entity.Shipment;
 import MeshX.HypeLink.head_office.shipment.service.ShipmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -24,15 +24,21 @@ public class ShipmentController {
     @PostMapping("/create")
     public ResponseEntity<BaseResponse<Parcel>> create(CreateParcelReqDto dto) {
         Parcel result = shipmentService.create(dto);
-        return  ResponseEntity.ok(BaseResponse.of(result));
+        return ResponseEntity.ok(BaseResponse.of(result));
     }
-
 
     // 기사 -> Parcel(여러개)
     @PostMapping("/connecting")
     public ResponseEntity<BaseResponse<Shipment>> connecting(ConnectingReqDto dto) {
         Shipment result = shipmentService.connetcting(dto);
         return ResponseEntity.ok(BaseResponse.of(result));
+    }
+
+    @GetMapping("/parcels/unassigned")
+    public ResponseEntity<BaseResponse<List<Shipment>>> getUnassignedParcels() {
+        List<Shipment> result = shipmentService.getUnassignedParcels();
+
+        return  ResponseEntity.ok(BaseResponse.of(result));
     }
 
 }

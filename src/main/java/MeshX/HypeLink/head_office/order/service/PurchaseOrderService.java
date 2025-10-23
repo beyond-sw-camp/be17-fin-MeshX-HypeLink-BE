@@ -4,16 +4,13 @@ import MeshX.HypeLink.auth.model.entity.Member;
 import MeshX.HypeLink.auth.repository.MemberJpaRepositoryVerify;
 import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.common.exception.BaseException;
-import MeshX.HypeLink.head_office.item.model.entity.Item;
 import MeshX.HypeLink.head_office.item.model.entity.ItemDetail;
 import MeshX.HypeLink.head_office.item.repository.ItemDetailJpaRepositoryVerify;
-import MeshX.HypeLink.head_office.item.repository.ItemJpaRepositoryVerify;
 import MeshX.HypeLink.head_office.order.model.dto.request.HeadPurchaseOrderCreateReq;
 import MeshX.HypeLink.head_office.order.model.dto.request.PurchaseOrderCreateReq;
 import MeshX.HypeLink.head_office.order.model.dto.request.PurchaseOrderUpdateReq;
-import MeshX.HypeLink.head_office.order.model.dto.response.PurchaseOrderInfoDetailListRes;
-import MeshX.HypeLink.head_office.order.model.dto.response.PurchaseOrderInfoDetailRes;
-import MeshX.HypeLink.head_office.order.model.dto.response.PurchaseOrderInfoRes;
+import MeshX.HypeLink.head_office.order.model.dto.response.*;
+import MeshX.HypeLink.head_office.order.model.entity.PurchaseDetailStatus;
 import MeshX.HypeLink.head_office.order.model.entity.PurchaseOrder;
 import MeshX.HypeLink.head_office.order.model.entity.PurchaseOrderState;
 import MeshX.HypeLink.head_office.order.repository.PurchaseOrderJpaRepositoryVerify;
@@ -25,7 +22,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -34,7 +33,6 @@ public class PurchaseOrderService {
     private static final int MAX_RETRY = 3;
 
     private final PurchaseOrderJpaRepositoryVerify orderRepository;
-    private final ItemJpaRepositoryVerify itemRepository;
     private final ItemDetailJpaRepositoryVerify itemDetailRepository;
     private final MemberJpaRepositoryVerify memberRepository;
 
@@ -56,25 +54,49 @@ public class PurchaseOrderService {
         orderRepository.createOrder(dto.toEntity(itemDetail, requester, supplier));
     }
 
-    public PurchaseOrderInfoDetailRes readDetails(Integer id) {
+    public PurchaseOrderInfoDetailRes getDetails(Integer id) {
         PurchaseOrder PurchaseOrder = orderRepository.findById(id);
         return PurchaseOrderInfoDetailRes.toDto(PurchaseOrder);
     }
 
-    public PurchaseOrderInfoDetailListRes readList() {
+    public PurchaseOrderInfoDetailListRes getList() {
         List<PurchaseOrder> purchaseOrders = orderRepository.findAll();
         return PurchaseOrderInfoDetailListRes.toDto(purchaseOrders);
     }
 
-    public PageRes<PurchaseOrderInfoDetailRes> readList(Pageable pageReq) {
+    public PageRes<PurchaseOrderInfoDetailRes> getList(Pageable pageReq) {
         Page<PurchaseOrder> orders = orderRepository.findAll(pageReq);
         Page<PurchaseOrderInfoDetailRes> dtoPage = PurchaseOrderInfoDetailRes.toDtoPage(orders);
         return PageRes.toDto(dtoPage);
     }
 
-    public PageRes<PurchaseOrderInfoRes> readPurchaseOrderList(Pageable pageReq) {
+    public PageRes<PurchaseOrderInfoRes> getPurchaseOrderList(Pageable pageReq) {
         Page<PurchaseOrderInfoRes> page = itemDetailRepository.findItemsAndPurchaseOrdersWithPaging(pageReq);
         return PageRes.toDto(page);
+    }
+
+    public PurchaseOrderStateInfoListRes getPurchaseStateList() {
+        List<PurchaseOrderStateInfoRes> states = Arrays.stream(PurchaseOrderState.values())
+                .map(state -> PurchaseOrderStateInfoRes.builder()
+                        .description(state.getDescription())
+                        .build())
+                .collect(Collectors.toList());
+
+        return PurchaseOrderStateInfoListRes.builder()
+                .purchaseOrderStates(states)
+                .build();
+    }
+
+    public PurchaseDetailsStatusInfoListRes getPurchaseDetailStatuses() {
+        List<PurchaseDetailsStatusInfoRes> states = Arrays.stream(PurchaseDetailStatus.values())
+                .map(state -> PurchaseDetailsStatusInfoRes.builder()
+                        .description(state.getDescription())
+                        .build())
+                .collect(Collectors.toList());
+
+        return PurchaseDetailsStatusInfoListRes.builder()
+                .purchaseDetailsStatusInfos(states)
+                .build();
     }
 
     // 비관적 락을 못 얻었을 때 재시도 로직

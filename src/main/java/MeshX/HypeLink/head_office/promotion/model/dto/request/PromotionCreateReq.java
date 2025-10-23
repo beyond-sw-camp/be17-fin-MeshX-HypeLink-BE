@@ -32,7 +32,7 @@ public class PromotionCreateReq {
                 .category(category)
                 .status(status)
                 .item(promotionType == PromotionType.PRODUCT && itemId != null
-                                ? StoreItem.builder().id(itemId).build()
+                                ? StoreItem.builder().build()
                                 : null)
                 .title(title)
                 .contents(contents)

@@ -22,6 +22,9 @@ public class PurchaseOrder extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PurchaseOrderState purchaseOrderState;
 
+    @Enumerated(EnumType.STRING)
+    private PurchaseDetailStatus purchaseDetailStatus;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
     private ItemDetail itemDetail;
@@ -36,10 +39,11 @@ public class PurchaseOrder extends BaseEntity {
 
     @Builder
     private PurchaseOrder(Integer quantity, Integer totalPrice, PurchaseOrderState purchaseOrderState, ItemDetail itemDetail,
-                          Member requester, Member supplier) {
+                          Member requester, Member supplier, PurchaseDetailStatus purchaseDetailStatus) {
         this.quantity = quantity;
         this.totalPrice = totalPrice;
         this.purchaseOrderState = purchaseOrderState;
+        this.purchaseDetailStatus = purchaseDetailStatus;
         this.itemDetail = itemDetail;
         this.requester = requester;
         this.supplier = supplier;

@@ -23,6 +23,7 @@ public class ItemDetail extends BaseEntity {
     @JoinColumn(name = "size_id")
     private Size size;
 
+    @Column(unique = true, nullable = false)
     private String itemDetailCode; // 아이템 코드 + 색상 + 사이즈
     private Integer stock; // 재고
 

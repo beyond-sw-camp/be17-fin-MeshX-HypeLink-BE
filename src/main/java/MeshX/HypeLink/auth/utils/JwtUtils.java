@@ -84,7 +84,7 @@ public class JwtUtils {
             }
 
             Collection<? extends GrantedAuthority> authorities = Arrays.stream(authoritiesClaim.toString().split(","))
-                    .map(SimpleGrantedAuthority::new)
+                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                     .collect(Collectors.toList());
 
             UserDetails principal = new User(claims.getSubject(), "", authorities);

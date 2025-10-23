@@ -2,7 +2,7 @@ package MeshX.HypeLink.head_office.item.controller;
 
 import MeshX.HypeLink.common.BaseResponse;
 import MeshX.HypeLink.common.Page.PageRes;
-import MeshX.HypeLink.head_office.item.model.dto.request.UpdateItemStockReq;
+import MeshX.HypeLink.head_office.item.model.dto.request.CreateItemDetailsReq;
 import MeshX.HypeLink.head_office.item.model.dto.response.ItemDetailsInfoListRes;
 import MeshX.HypeLink.head_office.item.model.dto.response.ItemAndItemDetailInfoRes;
 import MeshX.HypeLink.head_office.item.service.ItemDetailService;
@@ -45,10 +45,9 @@ public class ItemDetailController {
         return ResponseEntity.status(200).body(BaseResponse.of(result));
     }
 
-    @PatchMapping("/stock")
-    public ResponseEntity<BaseResponse<String>> updateStock(@RequestBody UpdateItemStockReq dto) {
-        itemDetailService.updateStock(dto);
-
+    @PostMapping("/creates")
+    public ResponseEntity<BaseResponse<String>> saveDetails(@RequestBody CreateItemDetailsReq dto) {
+        itemDetailService.saveItemDetails(dto);
         return ResponseEntity.status(200).body(BaseResponse.of("수정이 완료되었습니다."));
     }
 }

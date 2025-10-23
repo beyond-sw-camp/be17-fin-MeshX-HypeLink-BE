@@ -11,8 +11,6 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
-@AllArgsConstructor
 public class StoreItem extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,10 +18,7 @@ public class StoreItem extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
-    private StoreCategory category;
-
-    private String color;
-    private String size;
+    private StoreCategory category;;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id")
@@ -32,34 +27,29 @@ public class StoreItem extends BaseEntity {
     @OneToMany(mappedBy = "storeItem", fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
 
+    @Column(unique = true, nullable = false)
+    private String itemCode; // 아이템 코드
     private Integer unitPrice;       // 단가
     private Integer amount; // 가격
     private String enName; // 이름
     private String koName; // 이름
     private String content; // 아이템 설명
     private String company; // 회사
-    private String itemCode; // 아이템 코드
-    private String itemDetailCode; // 아이템 코드 + 색상 + 사이즈
-    private Integer stock; // 재고
 
     @Builder
-    private StoreItem(StoreCategory category, String color, String size, Store store,
+    private StoreItem(StoreCategory category, Store store, List<OrderItem> orderItems, String itemCode,
                       Integer unitPrice, Integer amount, String enName, String koName,
-                      String content, String company, String itemCode, String itemDetailCode,
-                      Integer stock) {
+                      String content, String company) {
         this.category = category;
-        this.color = color;
-        this.size = size;
         this.store = store;
+        this.orderItems = orderItems;
+        this.itemCode = itemCode;
         this.unitPrice = unitPrice;
         this.amount = amount;
         this.enName = enName;
         this.koName = koName;
         this.content = content;
         this.company = company;
-        this.itemCode = itemCode;
-        this.itemDetailCode = itemDetailCode;
-        this.stock = stock;
     }
 
     public void updateEnName(String enName) {
@@ -77,6 +67,7 @@ public class StoreItem extends BaseEntity {
     public void updateCategory(StoreCategory category) {
         this.category = category;
     }
+
     public void updateAmount(Integer amount){
         this.amount = amount;
     }
@@ -87,9 +78,5 @@ public class StoreItem extends BaseEntity {
 
     public void updateCompany(String company){
         this.company = company;
-    }
-
-    public void updateStock(Integer stock){
-        this.stock = stock;
     }
 }

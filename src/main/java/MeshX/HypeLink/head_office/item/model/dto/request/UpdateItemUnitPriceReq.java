@@ -4,6 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class UpdateItemUnitPriceReq {
-    private String itemCode;
+    private Integer itemId;
     private Integer unitPrice;
 }

@@ -1,12 +1,8 @@
 package MeshX.HypeLink.direct_store.item.controller;
 
 import MeshX.HypeLink.common.BaseResponse;
-import MeshX.HypeLink.direct_store.item.model.dto.request.CreateItemReq;
-import MeshX.HypeLink.direct_store.item.model.dto.request.UpdateItemContentReq;
-import MeshX.HypeLink.direct_store.item.model.dto.request.UpdateItemStockReq;
-import MeshX.HypeLink.direct_store.item.model.dto.response.ItemDetailInfoRes;
-import MeshX.HypeLink.direct_store.item.model.dto.response.ItemInfoListRes;
-import MeshX.HypeLink.direct_store.item.model.dto.response.ItemUpdateInfoRes;
+import MeshX.HypeLink.direct_store.item.model.dto.request.SaveStoreItemListReq;
+import MeshX.HypeLink.direct_store.item.service.StoreItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,43 +11,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/store/item")
 @RequiredArgsConstructor
 public class StoreItemController {
-    @GetMapping("/{id}")
-    public ResponseEntity<BaseResponse<ItemDetailInfoRes>> getItemInfo(@PathVariable Integer id) {
-        return ResponseEntity.status(200).body(BaseResponse.of(ItemDetailInfoRes.builder().build()));
-    }
+    private final StoreItemService storeItemService;
 
-    @GetMapping("/{code}")
-    public ResponseEntity<BaseResponse<ItemDetailInfoRes>> getItemInfoFromCode(@PathVariable String code) {
-        return ResponseEntity.status(200).body(BaseResponse.of(ItemDetailInfoRes.builder().build()));
-    }
-
-    @GetMapping("/{category}")
-    public ResponseEntity<BaseResponse<ItemInfoListRes>> getItemsfromCategory(@PathVariable String category) {
-        return ResponseEntity.status(200).body(BaseResponse.of(ItemInfoListRes.builder().build()));
-    }
-
-    @GetMapping("/{company}")
-    public ResponseEntity<BaseResponse<ItemInfoListRes>> getItemsfromCompany(@PathVariable String company) {
-        return ResponseEntity.status(200).body(BaseResponse.of(ItemInfoListRes.builder().build()));
-    }
-
-    @GetMapping("/{name}")
-    public ResponseEntity<BaseResponse<ItemInfoListRes>> getItemsfromName(@PathVariable String name) {
-        return ResponseEntity.status(200).body(BaseResponse.of(ItemInfoListRes.builder().build()));
-    }
-
-    @PostMapping("/create")
-    public ResponseEntity<BaseResponse<ItemDetailInfoRes>> createItem(@RequestBody CreateItemReq dto) {
-        return ResponseEntity.status(200).body(BaseResponse.of(ItemDetailInfoRes.builder().build()));
-    }
-
-    @PatchMapping("/content")
-    public ResponseEntity<BaseResponse<ItemUpdateInfoRes>> updateContents(@RequestBody UpdateItemContentReq dto) {
-        return ResponseEntity.status(200).body(BaseResponse.of(ItemUpdateInfoRes.builder().build()));
-    }
-
-    @PatchMapping("/stock")
-    public ResponseEntity<BaseResponse<ItemUpdateInfoRes>> updateStock(@RequestBody UpdateItemStockReq dto) {
-        return ResponseEntity.status(200).body(BaseResponse.of(ItemUpdateInfoRes.builder().build()));
+    @PostMapping("/create/all")
+    public ResponseEntity<BaseResponse<String>> saveStoreItem(@RequestBody SaveStoreItemListReq dto) {
+        storeItemService.saveAll(dto);
+        return ResponseEntity.status(200).body(BaseResponse.of("본사 아이템 리스트와 동기화가 완료되었습니다."));
     }
 }
