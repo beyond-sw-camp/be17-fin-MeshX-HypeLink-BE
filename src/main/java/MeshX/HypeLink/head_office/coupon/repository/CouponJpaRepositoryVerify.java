@@ -19,8 +19,8 @@ public class CouponJpaRepositoryVerify {
 
     private final CouponRepository repository;
 
-    public void save(CouponCreateReq dto, LocalDate[] dates) {
-        repository.save(dto.toEntity(dates));
+    public void save(Coupon coupon) {
+        repository.save(coupon);
     }
 
     public void delete(Integer id) {
@@ -29,7 +29,7 @@ public class CouponJpaRepositoryVerify {
         repository.delete(coupon);
     }
 
-    public Coupon read(Integer id) {
+    public Coupon findById(Integer id) {
         Coupon coupon = repository.findById(id)
                 .orElseThrow(()-> new CouponException(COUPON_NOT_FOUNT));
         return coupon;

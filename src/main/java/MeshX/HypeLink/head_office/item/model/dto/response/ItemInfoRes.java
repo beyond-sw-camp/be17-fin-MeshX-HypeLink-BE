@@ -19,15 +19,12 @@ public class ItemInfoRes {
     private String content; // 아이템 설명
     private String company; // 회사
 
-    private List<ItemDetailInfoRes> itemStockList; // 사이즈 및 색깔별로 재고 현황
-
     public static ItemInfoRes toDto(Item item) {
         return ItemInfoRes.builder()
                 .id(item.getId())
                 .enName(item.getEnName())
                 .koName(item.getKoName())
                 .category(item.getCategory().getCategory())
-                .itemStockList(item.getItemDetails().stream().map(ItemDetailInfoRes::toDto).toList())
                 .amount(item.getAmount())
                 .unitPrice(item.getUnitPrice())
                 .content(item.getContent())

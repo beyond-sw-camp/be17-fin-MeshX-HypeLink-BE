@@ -55,8 +55,8 @@ public interface ItemDetailRepository extends JpaRepository<ItemDetail, Integer>
                  i.itemCode, d.itemDetailCode, d.stock
         """,
             countQuery = """
-        SELECT COUNT(i)
-        FROM Item i
+        SELECT COUNT(d)
+        FROM ItemDetail d
     """
     )
     Page<PurchaseOrderInfoRes> findItemDetailWithRequestedTotalQuantity(Pageable pageable);

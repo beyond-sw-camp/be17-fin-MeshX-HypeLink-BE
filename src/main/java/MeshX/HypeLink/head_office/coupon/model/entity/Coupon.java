@@ -1,7 +1,7 @@
 package MeshX.HypeLink.head_office.coupon.model.entity;
 
 import MeshX.HypeLink.auth.model.entity.Member;
-import MeshX.HypeLink.head_office.customer.model.entity.Customer;
+import MeshX.HypeLink.head_office.customer.model.entity.CustomerCoupon; // Import CustomerCoupon
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList; // Import ArrayList
+import java.util.List; // Import List
 
 @Entity
 @Getter
@@ -34,9 +36,8 @@ public class Coupon {
     @Column(nullable = false)
     private LocalDate endDate;
 
-    @ManyToOne
-    @JoinColumn(name = "customer")
-    private Customer customer;
+    @OneToMany(mappedBy = "coupon", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CustomerCoupon> customerCoupons = new ArrayList<>(); // Add OneToMany to CustomerCoupon
 
     @Builder
     public Coupon(String name, CouponType couponType, Integer value, LocalDate startDate, LocalDate endDate) {

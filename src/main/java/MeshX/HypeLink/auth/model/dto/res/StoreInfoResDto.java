@@ -9,6 +9,7 @@ import lombok.Getter;
 @Builder
 public class StoreInfoResDto {
     private String name;
+    private String email;
     private String phone;
     private String address; // 매장주소
     private Region region;

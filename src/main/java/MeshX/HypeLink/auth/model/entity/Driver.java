@@ -29,4 +29,11 @@ public class Driver {
         this.carNumber = carNumber;
         this.member = member;
     }
+
+    public void updateMacAddress(String macAddress) {
+        this.macAddress = macAddress;
+    }
+    public void updateCarNumber(String carNumber) {
+        this.carNumber = carNumber;
+    }
 }

@@ -1,6 +1,7 @@
 package MeshX.HypeLink.auth.controller;
 
 import MeshX.HypeLink.auth.model.dto.req.DriverListReqDto;
+import MeshX.HypeLink.auth.model.dto.req.StoreStateReqDto;
 import MeshX.HypeLink.auth.model.dto.res.*;
 import MeshX.HypeLink.auth.model.entity.Member;
 import MeshX.HypeLink.auth.service.MemberService;
@@ -8,6 +9,7 @@ import MeshX.HypeLink.common.BaseResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -80,4 +82,55 @@ public class UserController {
         memberService.updateStoreInfo(id, dto);
         return ResponseEntity.ok(BaseResponse.of("매장 정보가 성공적으로 수정되었습니다."));
     }
+
+    @PatchMapping("/store/state/{id}")
+    public ResponseEntity<BaseResponse<String>> readStoreState(@PathVariable Integer id, @RequestBody StoreStateReqDto dto) {
+        memberService.storeStateUpdate(id,dto);
+
+        return ResponseEntity.ok(BaseResponse.of("성공적으로 변경하였습니다."));
+    }
+
+    @GetMapping("/user/read/{id}")
+    public ResponseEntity<BaseResponse<UserReadResDto>> readUser(@PathVariable Integer id) {
+        UserReadResDto result = memberService.userRead(id);
+
+        return ResponseEntity.ok(BaseResponse.of(result));
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PatchMapping("/user/update/{id}")
+    public ResponseEntity<BaseResponse<String>> updateUser(@PathVariable Integer id,@RequestBody UserReadResDto dto) {
+        memberService.updateUser(id,dto);
+
+        return ResponseEntity.ok(BaseResponse.of("성공적으로 변경하였습니다."));
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    @DeleteMapping("/user/delete/{id}")
+    public ResponseEntity<BaseResponse<String>> deleteMember(@PathVariable Integer id) {
+        memberService.deleteUser(id);
+
+        return ResponseEntity.ok(BaseResponse.of("사용자가 성공적으로 삭제되었습니다."));
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @DeleteMapping("/store/delete/{id}")
+    public ResponseEntity<BaseResponse<String>> deleteStore(@PathVariable Integer id) {
+        memberService.deleteStore(id);
+
+        return ResponseEntity.ok(BaseResponse.of("사용자가 성공적으로 삭제되었습니다."));
+    }
+
+    @DeleteMapping("/pos/delete/{id}")
+    public ResponseEntity<BaseResponse<String>> deletePos(@PathVariable Integer id) {
+        memberService.deletePos(id);
+        return ResponseEntity.ok(BaseResponse.of("사용자가 성공적으로 삭제되었습니다."));
+    }
+
+    @DeleteMapping("/driver/delete/{id}")
+    public ResponseEntity<BaseResponse<String>> deleteDriver(@PathVariable Integer id) {
+        memberService.deleteDriver(id);
+        return ResponseEntity.ok(BaseResponse.of("사용자가 성공적으로 삭제되었습니다."));
+    }
+
 }

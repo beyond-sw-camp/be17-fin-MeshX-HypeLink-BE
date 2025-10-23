@@ -1,9 +1,10 @@
 package MeshX.HypeLink.head_office.item.service;
 
 import MeshX.HypeLink.common.Page.PageRes;
-import MeshX.HypeLink.head_office.item.model.dto.request.UpdateItemStockReq;
+import MeshX.HypeLink.head_office.item.model.dto.request.CreateItemDetailsReq;
 import MeshX.HypeLink.head_office.item.model.dto.response.ItemDetailsInfoListRes;
 import MeshX.HypeLink.head_office.item.model.dto.response.ItemAndItemDetailInfoRes;
+import MeshX.HypeLink.head_office.item.model.entity.Item;
 import MeshX.HypeLink.head_office.item.model.entity.ItemDetail;
 import MeshX.HypeLink.head_office.item.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,10 @@ import java.util.List;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ItemDetailService {
+    private final ItemJpaRepositoryVerify itemRepository;
     private final ItemDetailJpaRepositoryVerify itemDetailRepository;
+    private final ColorJpaRepositoryVerify colorRepository;
+    private final SizeJpaRepositoryVerify sizeRepository;
 
     public ItemAndItemDetailInfoRes findItemDetailById(Integer id) {
         ItemDetail itemDetail = itemDetailRepository.findById(id);
@@ -43,11 +47,21 @@ public class ItemDetailService {
     }
 
     @Transactional
-    public void updateStock(UpdateItemStockReq dto) {
-        ItemDetail itemDetail = itemDetailRepository.findByItemDetailCode(dto.getItemDetailCode());
+    public void saveItemDetails(CreateItemDetailsReq dto) {
+        Item item = itemRepository.findById(dto.getItemId());
+        List<ItemDetail> itemDetails = toEntitiesByItemDetails(dto, item);
+        itemDetailRepository.saveAll(itemDetails);
+    }
 
-        itemDetail.updateStock(dto.getStock());
-
-        itemDetailRepository.merge(itemDetail);
+    private List<ItemDetail> toEntitiesByItemDetails(CreateItemDetailsReq dto, Item item) {
+        return dto.getDetails().stream().map(one -> ItemDetail.builder()
+                        .item(item)
+                        .stock(one.getStock())
+                        .color(colorRepository.findByName(one.getColor()))
+                        .size(sizeRepository.findByName(one.getSize()))
+                        .itemDetailCode(one.getItemDetailCode())
+                        .build()
+                )
+                .toList();
     }
 }

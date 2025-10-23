@@ -1,6 +1,8 @@
 package MeshX.HypeLink.auth.repository;
 
 import MeshX.HypeLink.auth.model.entity.Driver;
+import MeshX.HypeLink.auth.model.entity.Member;
+import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.common.exception.BaseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -25,7 +27,20 @@ public class DriverJpaRepositoryVerify {
         return optional.get();
     }
 
+    public Driver findByMember(Member member) {
+        Optional<Driver> optional = repository.findByMember(member);
+        if(optional.isEmpty()) {
+            throw new BaseException(null);
+        }
+        return optional.get();
+    }
+
+
     public List<Driver> findAll() {
         return repository.findAll();
+    }
+
+    public void deleteById(Integer id) {
+        repository.deleteById(id);
     }
 }

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-import static MeshX.HypeLink.head_office.notice.exception.NoticeExceptionMessage.NOT_FOUND;
+import static MeshX.HypeLink.head_office.promotion.exception.PromotionExceptionMessage.NOT_FOUND;
 
 @Repository
 @RequiredArgsConstructor

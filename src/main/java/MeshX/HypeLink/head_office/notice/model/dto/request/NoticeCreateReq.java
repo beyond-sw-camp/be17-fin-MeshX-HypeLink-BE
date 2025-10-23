@@ -18,7 +18,6 @@ public class NoticeCreateReq {
                 .title(title)
                 .contents(contents)
                 .author(author)
-                .isOpen(true)
                 .build();
     }
 }

@@ -37,4 +37,8 @@ public class StoreJpaRepositoryVerify {
         }
         return optional.get();
     }
+
+    public void deleteById(Integer id) {
+        repository.deleteById(id);
+    }
 }

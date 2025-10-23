@@ -27,13 +27,14 @@ public class Item extends BaseEntity {
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
     private List<ItemImage> itemImages;
 
+    @Column(unique = true, nullable = false)
+    private String itemCode; // 아이템 코드
     private Integer unitPrice;       // 단가
     private Integer amount; // 가격
     private String enName; // 이름
     private String koName; // 이름
     private String content; // 아이템 설명
     private String company; // 회사
-    private String itemCode; // 아이템 코드
 
     @Builder
     private Item(Category category, List<ItemDetail> itemDetails, List<ItemImage> itemImages, Integer unitPrice,

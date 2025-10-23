@@ -1,17 +1,24 @@
 package MeshX.HypeLink.head_office.item.service;
 
 import MeshX.HypeLink.common.Page.PageRes;
+import MeshX.HypeLink.direct_store.item.model.dto.request.SaveStoreItemListReq;
 import MeshX.HypeLink.head_office.item.model.dto.request.*;
 import MeshX.HypeLink.head_office.item.model.dto.response.ItemInfoListRes;
 import MeshX.HypeLink.head_office.item.model.dto.response.ItemInfoRes;
 import MeshX.HypeLink.head_office.item.model.entity.*;
 import MeshX.HypeLink.head_office.item.repository.*;
+import MeshX.HypeLink.head_office.item.service.dto.StoreInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -28,14 +35,15 @@ public class ItemService {
     @Transactional
     public void saveItem(CreateItemReq dto) {
         Category category = categoryRepository.findByName(dto.getCategory());
-        itemRepository.isExist(dto.getItemCode());
 
-        Item entity = dto.toEntity(category);
-        itemRepository.save(entity);
+        if(!itemRepository.isExist(dto.getItemCode())) {
+            Item entity = dto.toEntity(category);
+            itemRepository.save(entity);
 
-        // Images 저장 로직 필요
+            // Images 저장 로직 필요
 
-        saveItemDetails(dto, entity);
+            saveItemDetails(dto, entity);
+        }
     }
 
     private void saveItemDetails(CreateItemReq dto, Item entity) {
@@ -107,17 +115,8 @@ public class ItemService {
     }
 
     @Transactional
-    public void updateStock(UpdateItemStockReq dto) {
-        ItemDetail itemDetail = itemDetailRepository.findByItemDetailCode(dto.getItemDetailCode());
-
-        itemDetail.updateStock(dto.getStock());
-
-        itemDetailRepository.merge(itemDetail);
-    }
-
-    @Transactional
     public void updateContents(UpdateItemContentReq dto) {
-        Item item = itemRepository.findByItemCode(dto.getItemCode());
+        Item item = itemRepository.findById(dto.getItemId());
 
         item.updateContent(dto.getContent());
 
@@ -126,7 +125,7 @@ public class ItemService {
 
     @Transactional
     public void updateEnName(UpdateItemEnNameReq dto) {
-        Item item = itemRepository.findByItemCode(dto.getItemCode());
+        Item item = itemRepository.findById(dto.getItemId());
 
         item.updateEnName(dto.getEnName());
 
@@ -135,7 +134,7 @@ public class ItemService {
 
     @Transactional
     public void updateKoName(UpdateItemKoNameReq dto) {
-        Item item = itemRepository.findByItemCode(dto.getItemCode());
+        Item item = itemRepository.findById(dto.getItemId());
 
         item.updateKoName(dto.getKoName());
 
@@ -144,7 +143,7 @@ public class ItemService {
 
     @Transactional
     public void updateAmount(UpdateItemAmountReq dto) {
-        Item item = itemRepository.findByItemCode(dto.getItemCode());
+        Item item = itemRepository.findById(dto.getItemId());
 
         item.updateAmount(dto.getAmount());
 
@@ -153,7 +152,7 @@ public class ItemService {
 
     @Transactional
     public void updateUnitPrice(UpdateItemUnitPriceReq dto) {
-        Item item = itemRepository.findByItemCode(dto.getItemCode());
+        Item item = itemRepository.findById(dto.getItemId());
 
         item.updateUnitPrice(dto.getUnitPrice());
 
@@ -162,7 +161,7 @@ public class ItemService {
 
     @Transactional
     public void updateCompany(UpdateItemCompanyReq dto) {
-        Item item = itemRepository.findByItemCode(dto.getItemCode());
+        Item item = itemRepository.findById(dto.getItemId());
 
         item.updateCompany(dto.getCompany());
 
@@ -171,7 +170,7 @@ public class ItemService {
 
     @Transactional
     public void updateCategory(UpdateItemCategoryReq dto) {
-        Item item = itemRepository.findByItemCode(dto.getItemCode());
+        Item item = itemRepository.findById(dto.getItemId());
         Category category = categoryRepository.findByName(dto.getCategory());
 
         item.updateCategory(category);
@@ -182,7 +181,7 @@ public class ItemService {
     // Image 로직 수정
     @Transactional
     public void updateImages(UpdateItemImagesReq dto) {
-        Item item = itemRepository.findByItemCode(dto.getItemCode());
+        Item item = itemRepository.findById(dto.getItemId());
 //        Category category = categoryRepository.findByName(dto.getCategory());
 //
 //        item.updateCategory(category);
