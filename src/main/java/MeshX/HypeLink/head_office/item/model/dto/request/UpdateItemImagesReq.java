@@ -4,6 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class UpdateItemImagesReq {
-    private String itemCode;
+    private Integer itemId;
     private String images;
 }

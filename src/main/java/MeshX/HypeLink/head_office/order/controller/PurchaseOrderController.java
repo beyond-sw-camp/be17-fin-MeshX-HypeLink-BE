@@ -1,15 +1,11 @@
 package MeshX.HypeLink.head_office.order.controller;
 
 import MeshX.HypeLink.common.BaseResponse;
-import MeshX.HypeLink.common.Page.PageReq;
 import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.head_office.order.model.dto.request.HeadPurchaseOrderCreateReq;
 import MeshX.HypeLink.head_office.order.model.dto.request.PurchaseOrderCreateReq;
 import MeshX.HypeLink.head_office.order.model.dto.request.PurchaseOrderUpdateReq;
-import MeshX.HypeLink.head_office.order.model.dto.response.PurchaseOrderInfoDetailListRes;
-import MeshX.HypeLink.head_office.order.model.dto.response.PurchaseOrderInfoDetailRes;
-import MeshX.HypeLink.head_office.order.model.dto.response.PurchaseOrderInfoRes;
-import MeshX.HypeLink.head_office.order.model.entity.PurchaseOrder;
+import MeshX.HypeLink.head_office.order.model.dto.response.*;
 import MeshX.HypeLink.head_office.order.service.PurchaseOrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -35,27 +31,39 @@ public class PurchaseOrderController {
     }
 
     @GetMapping("/read/{id}")
-    public ResponseEntity<BaseResponse<PurchaseOrderInfoDetailRes>> readOrder(@PathVariable Integer id) {
-        PurchaseOrderInfoDetailRes headPurchaseOrderInfoRes = headPurchaseOrderService.readDetails(id);
+    public ResponseEntity<BaseResponse<PurchaseOrderInfoDetailRes>> getOrder(@PathVariable Integer id) {
+        PurchaseOrderInfoDetailRes headPurchaseOrderInfoRes = headPurchaseOrderService.getDetails(id);
         return ResponseEntity.status(200).body(BaseResponse.of(headPurchaseOrderInfoRes));
     }
 
     @GetMapping("/read/all")
-    public ResponseEntity<BaseResponse<PurchaseOrderInfoDetailListRes>> readOrders() {
-        PurchaseOrderInfoDetailListRes headOrderInfoListRes = headPurchaseOrderService.readList();
+    public ResponseEntity<BaseResponse<PurchaseOrderInfoDetailListRes>> getOrders() {
+        PurchaseOrderInfoDetailListRes headOrderInfoListRes = headPurchaseOrderService.getList();
         return ResponseEntity.status(200).body(BaseResponse.of(headOrderInfoListRes));
     }
 
     @GetMapping("/page/all")
-    public ResponseEntity<BaseResponse<PageRes<PurchaseOrderInfoDetailRes>>> readPurchaseOrders(Pageable pageReq) {
-        PageRes<PurchaseOrderInfoDetailRes> pageRes = headPurchaseOrderService.readList(pageReq);
+    public ResponseEntity<BaseResponse<PageRes<PurchaseOrderInfoDetailRes>>> getPurchaseOrders(Pageable pageReq) {
+        PageRes<PurchaseOrderInfoDetailRes> pageRes = headPurchaseOrderService.getList(pageReq);
         return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
     }
 
     @GetMapping("/read/page/all")
-    public ResponseEntity<BaseResponse<PageRes<PurchaseOrderInfoRes>>> readOrders(Pageable pageReq) {
-        PageRes<PurchaseOrderInfoRes> pageRes = headPurchaseOrderService.readPurchaseOrderList(pageReq);
+    public ResponseEntity<BaseResponse<PageRes<PurchaseOrderInfoRes>>> getOrders(Pageable pageReq) {
+        PageRes<PurchaseOrderInfoRes> pageRes = headPurchaseOrderService.getPurchaseOrderList(pageReq);
         return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
+    }
+
+    @GetMapping("/read/order/state")
+    public ResponseEntity<BaseResponse<PurchaseOrderStateInfoListRes>> getPurchaseOrderState() {
+        PurchaseOrderStateInfoListRes purchaseStateList = headPurchaseOrderService.getPurchaseStateList();
+        return ResponseEntity.status(200).body(BaseResponse.of(purchaseStateList));
+    }
+
+    @GetMapping("/read/order/detail")
+    public ResponseEntity<BaseResponse<PurchaseDetailsStatusInfoListRes>> getPurchaseDetailStatus() {
+        PurchaseDetailsStatusInfoListRes statuses = headPurchaseOrderService.getPurchaseDetailStatuses();
+        return ResponseEntity.status(200).body(BaseResponse.of(statuses));
     }
 
     @PatchMapping("/update")
