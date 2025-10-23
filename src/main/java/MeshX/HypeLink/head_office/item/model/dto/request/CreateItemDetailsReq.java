@@ -2,8 +2,10 @@ package MeshX.HypeLink.head_office.item.model.dto.request;
 
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
-public class UpdateItemAmountReq {
+public class CreateItemDetailsReq {
     private Integer itemId;
-    private Integer amount;
+    private List<CreateItemDetailReq> details;
 }

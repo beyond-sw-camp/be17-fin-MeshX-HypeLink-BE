@@ -30,14 +30,14 @@ public class ItemJpaRepositoryVerify {
         repository.save(entity);
     }
 
-    public Item isExist(String itemCode) {
+    public Boolean isExist(String itemCode) {
         Optional<Item> optional = repository.findByItemCode(itemCode);
 
         if(optional.isPresent()){
-            return optional.get();
+            return Boolean.TRUE;
         }
 
-        throw new BaseException(NOTFOUND_ITEM_CODE);
+        return Boolean.FALSE;
     }
 
     public Item findById(Integer id) {
