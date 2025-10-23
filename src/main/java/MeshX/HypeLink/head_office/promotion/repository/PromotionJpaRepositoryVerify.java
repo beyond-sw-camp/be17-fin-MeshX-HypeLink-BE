@@ -7,6 +7,7 @@ import MeshX.HypeLink.head_office.promotion.model.entity.Promotion;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -32,8 +33,8 @@ public class PromotionJpaRepositoryVerify {
         throw new PromotionException(NOT_FOUND);
     }
 
-    public Page<Promotion> findAll(PageReq pageReq) {
-        Page<Promotion> page = repository.findAll(pageReq.toPageRequest());
+    public Page<Promotion> findAll(Pageable pageReq) {
+        Page<Promotion> page = repository.findAll(pageReq);
         if (page.hasContent()) {
             return page;
         }
@@ -46,6 +47,14 @@ public class PromotionJpaRepositoryVerify {
             return optional.get();
         }
         throw new PromotionException(NOT_FOUND);
+    }
+
+    public List<String> findBranchNamesByPromotionId(Integer promotionId) {
+        List<String> branchNames = repository.findBranchNamesByPromotionId(promotionId);
+        if (branchNames.isEmpty()) {
+            return List.of("지점 없음");
+        }
+        return branchNames;
     }
 
     public void delete(Promotion entity) {

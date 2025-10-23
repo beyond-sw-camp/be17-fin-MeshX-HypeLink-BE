@@ -9,6 +9,7 @@ import MeshX.HypeLink.head_office.promotion.model.dto.response.PromotionInfoList
 import MeshX.HypeLink.head_office.promotion.model.dto.response.PromotionInfoRes;
 import MeshX.HypeLink.head_office.promotion.service.PromotionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +32,7 @@ public class PromotionController {
     }
 
     @GetMapping("/read/page/all")
-    public ResponseEntity<BaseResponse<PageRes<PromotionInfoRes>>> readPromotions(PageReq pageReq) {
+    public ResponseEntity<BaseResponse<PageRes<PromotionInfoRes>>> readPromotions(Pageable pageReq) {
         PageRes<PromotionInfoRes> pageRes = promotionService.readList(pageReq);
         return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
     }
@@ -52,7 +53,7 @@ public class PromotionController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<BaseResponse<PromotionInfoRes>>updatePromotion(@PathVariable Integer id,
                                                                              @RequestBody PromotionUpdateReq dto){
-        PromotionInfoRes promotionInfoRes = promotionService.update(id, dto.getPromotionType(), dto.getCategory(), dto.getTitle(), dto.getContents(), dto.getDiscountRate(), dto.getStartDate(), dto.getEndDate());
+        PromotionInfoRes promotionInfoRes = promotionService.update(id, dto.getPromotionType(), dto.getCategory(), dto.getTitle(), dto.getContents(), dto.getDiscountRate(), dto.getStartDate(), dto.getEndDate(), dto.getStatus(), dto.getStoreIds());
         return ResponseEntity.status(200).body(BaseResponse.of(promotionInfoRes));
     }
 

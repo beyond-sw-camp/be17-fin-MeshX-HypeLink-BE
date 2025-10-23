@@ -33,7 +33,7 @@ public class PromotionCreateReq {
                 .status(status)
                 .item(promotionType == PromotionType.PRODUCT && itemId != null
                                 ? StoreItem.builder().id(itemId).build()
-                                : null)
+                                : null) //이부분 수정 필요
                 .title(title)
                 .contents(contents)
                 .discountRate(discountRate)
