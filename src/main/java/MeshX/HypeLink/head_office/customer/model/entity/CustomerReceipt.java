@@ -2,6 +2,7 @@ package MeshX.HypeLink.head_office.customer.model.entity;
 
 import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.common.BaseEntity;
+import MeshX.HypeLink.direct_store.payment.model.entity.Payment;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -25,7 +26,7 @@ public class CustomerReceipt extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String pgProvider;   // ex) portone, toss
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 33100)
     private String pgTid;        // imp_uid (포트원) or tid (토스)
 
     @Column(nullable = false, unique = true, length = 100)
@@ -44,6 +45,9 @@ public class CustomerReceipt extends BaseEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
+
+    @OneToOne(mappedBy = "customerReceipt")
+    private Payment payment;
 
     private String payMethod;
     private String cardName;

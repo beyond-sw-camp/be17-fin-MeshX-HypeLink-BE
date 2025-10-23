@@ -1,13 +1,14 @@
 package MeshX.HypeLink.head_office.customer.model.entity;
 
 import MeshX.HypeLink.common.BaseEntity;
-import MeshX.HypeLink.head_office.coupon.model.entity.Coupon;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList; // Import ArrayList
 import java.util.List;
 
 @Entity
@@ -26,9 +27,36 @@ public class Customer extends BaseEntity {
     @Column(nullable = false)
     private LocalDate birthDate; // 생년월일, 연령대는 DB에서 SQL로 계산해서 들고 올 예정
 
-    @OneToMany(mappedBy = "customer")
-    private List<CustomerReceipt> customerReceipts; // 결제 내역들...
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CustomerReceipt> customerReceipts = new ArrayList<>(); // 결제 내역들...
 
-    @OneToMany(mappedBy = "customer")
-    private List<Coupon> couponList;
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CustomerCoupon> customerCoupons = new ArrayList<>();
+
+    @Builder
+    public Customer(String membershipNumber, String name, String email, String password, String phone, LocalDate birthDate, List<CustomerReceipt> customerReceipts, List<CustomerCoupon> customerCoupons) {
+        this.membershipNumber = membershipNumber;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.phone = phone;
+        this.birthDate = birthDate;
+        this.customerReceipts = customerReceipts;
+        this.customerCoupons = customerCoupons;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
+    public void updatePhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void addCustomerCoupon(CustomerCoupon customerCoupon) {
+        this.customerCoupons.add(customerCoupon);
+        customerCoupon.setCustomer(this);
+    }
+
 }
+

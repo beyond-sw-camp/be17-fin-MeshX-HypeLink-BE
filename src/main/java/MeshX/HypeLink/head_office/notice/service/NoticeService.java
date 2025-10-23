@@ -69,7 +69,7 @@ public class NoticeService {
             notice.updateContents(dto.getContents());
         }
         if(dto.getIsOpen() != null) {
-            notice.changeOpen(dto.getIsOpen());
+            notice.changeOpen();
         }
         if(dto.getAuthor() != null && !dto.getAuthor().isEmpty()) {
             notice.updateAuthor(dto.getAuthor());
