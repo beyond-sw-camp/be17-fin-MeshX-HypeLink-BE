@@ -27,8 +27,11 @@ import java.util.List;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true) // 메소드 수준 보안 활성화
 @RequiredArgsConstructor
 public class SecurityConfig {
 

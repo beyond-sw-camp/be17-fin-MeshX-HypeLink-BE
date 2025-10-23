@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class DriverListReqDto {
-
+    private Integer id;
     private String name;
     private String phone;
     private Region region;

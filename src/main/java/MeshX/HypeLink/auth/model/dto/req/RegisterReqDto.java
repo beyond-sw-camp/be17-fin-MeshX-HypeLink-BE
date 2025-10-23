@@ -44,6 +44,8 @@ public class RegisterReqDto {
                 .member(member)
                 .lat(geocodeDto.getLatAsDouble())
                 .lon(geocodeDto.getLonAsDouble())
+                .posCount(0)
+                .storeState(StoreState.TEMP_CLOSED)
                 .storeNumber(this.storeNumber)
                 .build();
     }

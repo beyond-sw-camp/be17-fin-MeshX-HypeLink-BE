@@ -8,6 +8,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class UserListItemDto {
+    private Integer id;
     private String name;
     private String email;
     private MemberRole role;
