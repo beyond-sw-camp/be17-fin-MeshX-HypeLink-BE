@@ -42,7 +42,7 @@ public class PromotionStore {
                 .promotion(promotion)
                 .store(store)
                 .build();
-        promotion.getPromotionStores().add(link);
+        promotion.getPromotionStore().add(link);
         store.getPromotionStores().add(link);
         return link;
     }

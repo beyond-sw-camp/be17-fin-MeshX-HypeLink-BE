@@ -1,9 +1,11 @@
 package MeshX.HypeLink.direct_store.item.repository;
 
+import MeshX.HypeLink.common.exception.BaseException;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -27,6 +29,14 @@ public class StoreItemJpaRepositoryVerify {
         }
 
         return repository.save(entity);
+    }
+
+    public StoreItem findById(Integer id) {
+        Optional<StoreItem> optional = repository.findById(id);
+        if(optional.isPresent()) {
+            return optional.get();
+        }
+        throw new BaseException(null);
     }
 
     private boolean filtering(StoreItem entity, StoreItem existing) {
