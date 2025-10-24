@@ -86,8 +86,7 @@ public class SecurityConfig {
                 // 요청 경로별 권한 설정
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("*").permitAll() // 개발용
-                        .requestMatchers("/**").permitAll() // 개발용
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 )
 
