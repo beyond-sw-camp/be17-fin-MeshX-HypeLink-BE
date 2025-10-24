@@ -30,7 +30,7 @@ public class ItemImageJpaRepositoryVerify {
     }
 
     public ItemImage findByItemAndImage(Item item, Image image) {
-        Optional<ItemImage> optional = repository.findByItemAndImageAndIsDeletedIsFalse(item, image);
+        Optional<ItemImage> optional = repository.findByItemAndImage(item, image);
         if(optional.isPresent()) {
             return optional.get();
         }
@@ -38,7 +38,7 @@ public class ItemImageJpaRepositoryVerify {
     }
 
     public List<ItemImage> findByItem(Item item) {
-        return repository.findByItemAndIsDeletedIsFalse(item);
+        return repository.findByItem(item);
     }
 
     public void merge(ItemImage entities) {
