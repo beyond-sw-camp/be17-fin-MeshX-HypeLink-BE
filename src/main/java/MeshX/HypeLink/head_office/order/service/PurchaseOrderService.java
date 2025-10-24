@@ -6,6 +6,7 @@ import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.common.exception.BaseException;
 import MeshX.HypeLink.head_office.item.model.entity.ItemDetail;
 import MeshX.HypeLink.head_office.item.repository.ItemDetailJpaRepositoryVerify;
+import MeshX.HypeLink.head_office.order.exception.PurchaseOrderException;
 import MeshX.HypeLink.head_office.order.model.dto.request.HeadPurchaseOrderCreateReq;
 import MeshX.HypeLink.head_office.order.model.dto.request.PurchaseOrderCreateReq;
 import MeshX.HypeLink.head_office.order.model.dto.request.PurchaseOrderUpdateReq;
@@ -25,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static MeshX.HypeLink.head_office.order.exception.PurchaseOrderExceptionMessage.UNDER_ZERO;
 
 @Service
 @Transactional(readOnly = true)
@@ -50,6 +53,10 @@ public class PurchaseOrderService {
         ItemDetail itemDetail = itemDetailRepository.findById(dto.getItemDetailId());
         Member requester = memberRepository.findByEmail(dto.getRequestEmail());
         Member supplier = memberRepository.findByEmail(dto.getSupplierEmail());
+
+        if(itemDetail.getStock() < dto.getQuantity()) {
+            throw new PurchaseOrderException(UNDER_ZERO);
+        }
 
         orderRepository.createOrder(dto.toEntity(itemDetail, requester, supplier));
     }
@@ -130,6 +137,9 @@ public class PurchaseOrderService {
         if(state.equals(PurchaseOrderState.COMPLETED)) {
             ItemDetail itemDetail = itemDetailRepository.findByIdWithLock(purchaseOrder.getItemDetail().getId());
             itemDetail.updateStock(purchaseOrder.getQuantity());
+            if(itemDetail.getStock() < 0) {
+                throw new PurchaseOrderException(UNDER_ZERO);
+            }
             itemDetailRepository.merge(itemDetail);
         }
 

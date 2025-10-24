@@ -18,4 +18,6 @@ public class StoreItemController {
         storeItemService.saveAll(dto);
         return ResponseEntity.status(200).body(BaseResponse.of("본사 아이템 리스트와 동기화가 완료되었습니다."));
     }
+
+
 }
