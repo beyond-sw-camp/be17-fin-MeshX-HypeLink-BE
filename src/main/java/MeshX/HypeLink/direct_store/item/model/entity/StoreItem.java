@@ -3,6 +3,7 @@ package MeshX.HypeLink.direct_store.item.model.entity;
 import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.common.BaseEntity;
 import MeshX.HypeLink.head_office.customer.model.entity.OrderItem;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,14 +17,17 @@ public class StoreItem extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
-    private StoreCategory category;;
+    private StoreCategory category;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id")
     private Store store;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "storeItem", fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
 

@@ -13,7 +13,6 @@ import java.util.stream.Collectors; // Import Collectors
 @Getter
 public class CustomerInfoRes {
     private Integer customerId;
-    private String email;
     private String name;
     private String phone;
     private LocalDate birthday;
@@ -23,7 +22,6 @@ public class CustomerInfoRes {
     public static CustomerInfoRes toDto (Customer entity) {
         return CustomerInfoRes.builder()
                 .customerId(entity.getId())
-                .email(entity.getEmail())
                 .name(entity.getName())
                 .phone(entity.getPhone())
                 .birthday(entity.getBirthDate())
@@ -44,7 +42,6 @@ public class CustomerInfoRes {
     private CustomerInfoRes(Integer customerId, String email, String name, String phone, LocalDate birthday,
                             List<CustomerCouponRes> customerCoupons, List<CustomerReceipt> customerReceiptList) { // Change to CustomerCouponRes
         this.customerId = customerId;
-        this.email = email;
         this.name = name;
         this.phone = phone;
         this.birthday = birthday;

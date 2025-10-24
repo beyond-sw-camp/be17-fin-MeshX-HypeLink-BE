@@ -5,6 +5,7 @@ import MeshX.HypeLink.head_office.customer.model.dto.request.CustomerUpdateReq;
 import MeshX.HypeLink.head_office.customer.model.dto.response.CustomerInfoListRes;
 import MeshX.HypeLink.head_office.customer.model.dto.response.CustomerInfoRes;
 import MeshX.HypeLink.head_office.customer.model.dto.request.CustomerSignupReq;
+import MeshX.HypeLink.head_office.customer.model.dto.response.ReceiptListRes;
 import MeshX.HypeLink.head_office.customer.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,12 @@ public class CustomerController {
     public ResponseEntity<BaseResponse<CustomerInfoRes>> getCustomerInfo(@PathVariable Integer id) {
         CustomerInfoRes result = customerService.findById(id);
         return ResponseEntity.status(200).body(BaseResponse.of(result));
+    }
+
+    @GetMapping("/phone/{phone}")
+    public ResponseEntity<BaseResponse<CustomerInfoRes>> getCustomerByPhone(@PathVariable String phone) {
+        CustomerInfoRes result = customerService.findByPhone(phone);
+        return ResponseEntity.ok(BaseResponse.of(result));
     }
 
     @GetMapping("/list")
@@ -52,5 +59,12 @@ public class CustomerController {
        @RequestParam Integer couponId) {
         customerService.issueCoupon(customerId, couponId);
         return ResponseEntity.status(200).body(BaseResponse.of("쿠폰이 발급되었습니다."));
+    }
+
+    // 매장별 주문 내역 조회
+    @GetMapping("/receipts")
+    public ResponseEntity<BaseResponse<ReceiptListRes>> getReceipts(@RequestParam Integer storeId) {
+        ReceiptListRes result = customerService.getReceiptsByStoreId(storeId);
+        return ResponseEntity.ok(BaseResponse.of(result));
     }
 }

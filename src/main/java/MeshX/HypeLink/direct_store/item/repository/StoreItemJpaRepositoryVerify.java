@@ -13,6 +13,10 @@ import java.util.function.Consumer;
 public class StoreItemJpaRepositoryVerify {
     private final StoreItemRepository repository;
 
+    public Optional<StoreItem> findById(Integer id) {
+        return repository.findById(id);
+    }
+
     public StoreItem save(StoreItem entity) {
         Optional<StoreItem> optional = repository.findByItemCode(entity.getItemCode());
 

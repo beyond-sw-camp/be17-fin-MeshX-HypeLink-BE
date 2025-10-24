@@ -1,8 +1,9 @@
 package MeshX.HypeLink.auth.repository;
 
+import MeshX.HypeLink.auth.exception.AuthException;
+import MeshX.HypeLink.auth.exception.AuthExceptionMessage;
 import MeshX.HypeLink.auth.model.entity.Member;
 import MeshX.HypeLink.auth.model.entity.Store;
-import MeshX.HypeLink.common.exception.BaseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -21,7 +22,7 @@ public class StoreJpaRepositoryVerify {
     public Store findById(Integer id) {
         Optional<Store> optional = repository.findById(id);
         if(optional.isEmpty()) {
-            throw new BaseException(null);
+            throw new AuthException(AuthExceptionMessage.STORE_NOT_FOUND);
         }
         return optional.get();
     }
@@ -33,7 +34,7 @@ public class StoreJpaRepositoryVerify {
     public Store findByMember(Member member) {
         Optional<Store> optional = repository.findByMember(member);
         if(optional.isEmpty()) {
-            throw new BaseException(null);
+            throw new AuthException(AuthExceptionMessage.STORE_NOT_FOUND);
         }
         return optional.get();
     }

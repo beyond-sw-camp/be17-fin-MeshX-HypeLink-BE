@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CustomerExceptionType implements ExceptionType {
     NOT_FOUNT("찾을 수 없음", "찾을 수 없습니다"),
+    DUPLICATE_PHONE("중복된 전화번호", "이미 등록된 전화번호입니다"),
     ;
 
     private final String title;
