@@ -1,6 +1,7 @@
 package MeshX.HypeLink.direct_store.item.repository;
 
 import MeshX.HypeLink.common.exception.BaseException;
+import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -15,8 +16,8 @@ import java.util.function.Consumer;
 public class StoreItemJpaRepositoryVerify {
     private final StoreItemRepository repository;
 
-    public StoreItem save(StoreItem entity) {
-        Optional<StoreItem> optional = repository.findByItemCode(entity.getItemCode());
+    public StoreItem save(StoreItem entity, Store store) {
+        Optional<StoreItem> optional = repository.findByItemCodeAndStore(entity.getItemCode(), store);
 
         if (optional.isPresent()) {
             StoreItem existing = optional.get();

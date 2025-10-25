@@ -36,6 +36,12 @@ public class StoreItemImage extends BaseEntity {
         this.item = item;
     }
 
+    @Transient
+    public String getCompositeKey() {
+        if (item == null || item.getStore() == null) return null;
+        return item.getStore().getId() + "-" + originalFilename;
+    }
+
     public void updateIndex(Integer index) {
         this.sortIndex = index;
     }

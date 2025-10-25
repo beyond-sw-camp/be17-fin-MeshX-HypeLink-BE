@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class Item extends BaseEntity {
     private List<ItemDetail> itemDetails;
 
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
+    @BatchSize(size = 40)
     private List<ItemImage> itemImages;
 
     @Column(unique = true, nullable = false)
