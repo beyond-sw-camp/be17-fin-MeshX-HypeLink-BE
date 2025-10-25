@@ -2,6 +2,7 @@ package MeshX.HypeLink.head_office.promotion.model.entity;
 
 import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.common.BaseEntity;
+import MeshX.HypeLink.head_office.coupon.model.entity.Coupon;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -22,7 +23,8 @@ public class Promotion extends BaseEntity {
 
     private String title;
     private String contents;
-    private Double discountRate;    // 할인율
+    private Coupon coupon;
+
 
     private LocalDate startDate;    // 할인 시작 시정
     private LocalDate endDate;      // 할인 종료 시점
@@ -33,16 +35,6 @@ public class Promotion extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private PromotionStatus status;
-
-    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PromotionStore> promotionStore  = new ArrayList<>();
-
-    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PromotionItem> promotionItems = new ArrayList<>();
-
-    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PromotionCategory> promotionCategories = new ArrayList<>();
-
 
     @Builder
     private Promotion(
