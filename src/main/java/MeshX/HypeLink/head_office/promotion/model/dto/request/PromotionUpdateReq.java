@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 public class PromotionUpdateReq {
     private PromotionType promotionType;
-    private ItemCategory category;
+    private PromotionStatus status;
 
     private Integer id;
     private String title;
@@ -19,7 +19,9 @@ public class PromotionUpdateReq {
     private Double discountRate;    // 할인율
     private LocalDate startDate;    // 할인 시작 시정
     private LocalDate endDate;
-    private PromotionStatus status;
-    private List<Integer> storeIds;
+
+    private List<Integer> storeIds; // STORE용
+    private Integer itemId;         // PRODUCT용
+    private ItemCategory category;  // CATEGORY용
 
 }

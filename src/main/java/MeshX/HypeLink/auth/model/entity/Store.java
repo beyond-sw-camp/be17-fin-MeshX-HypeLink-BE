@@ -33,7 +33,7 @@ public class Store {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true,  fetch = FetchType.LAZY)
     @Builder.Default
     private List<PromotionStore> promotionStores = new ArrayList<>();
 

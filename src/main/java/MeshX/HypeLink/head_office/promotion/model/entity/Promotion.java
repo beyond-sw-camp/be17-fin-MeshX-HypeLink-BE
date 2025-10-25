@@ -1,7 +1,7 @@
 package MeshX.HypeLink.head_office.promotion.model.entity;
 
 import MeshX.HypeLink.auth.model.entity.Store;
-import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
+import MeshX.HypeLink.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -15,7 +15,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Promotion {
+public class Promotion extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -31,19 +31,18 @@ public class Promotion {
     @Column(nullable = false, length = 20)
     private PromotionType promotionType; //이벤트 종류
 
-    @OneToMany(mappedBy = "promotion")
-    // @Builder.Default-추가하니깐 오류?
-    private List<PromotionStore> promotionStores = new ArrayList<>();
-
-    @Enumerated(EnumType.STRING)
-    private ItemCategory category;  // 품목
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    private StoreItem item;           // (상품참조)
-
     @Enumerated(EnumType.STRING)
     private PromotionStatus status;
+
+    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PromotionStore> promotionStore  = new ArrayList<>();
+
+    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PromotionItem> promotionItems = new ArrayList<>();
+
+    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PromotionCategory> promotionCategories = new ArrayList<>();
+
 
     @Builder
     private Promotion(
@@ -53,9 +52,7 @@ public class Promotion {
             LocalDate startDate,
             LocalDate endDate,
             PromotionType promotionType,
-            ItemCategory category,
-            PromotionStatus status,
-            StoreItem item
+            PromotionStatus status
     ) {
         this.title = title;
         this.contents = contents;
@@ -63,18 +60,16 @@ public class Promotion {
         this.startDate = startDate;
         this.endDate = endDate;
         this.promotionType = promotionType;
-        this.category = category;
         this.status = status;
-        this.item = item;
     }
 
     public void updatePromotionType(PromotionType promotionType){
         this.promotionType = promotionType;
     }
 
-    public void updateCategory(ItemCategory category){
-        this.category = category;
-    }
+//    public void updateCategory(ItemCategory category){
+//        this.category = category;
+//    }
 
     public void updateTitle(String title){
         this.title = title;
