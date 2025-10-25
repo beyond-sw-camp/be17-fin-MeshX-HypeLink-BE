@@ -97,24 +97,6 @@ public class MemberService {
                         .build()).toList();
     }
 
-    public List<MessageUserListResDto> messageUserList() {
-        List<Member> memberResult = memberJpaRepositoryVerify.findAll();
-
-        return memberResult.stream()
-                .filter(member -> ALLOWED_ROLES.contains(member.getRole()))
-                .map(member -> MessageUserListResDto.builder()
-                        .id(member.getId())
-                        .name(member.getName())
-                        .role(member.getRole())
-                        .build()).toList();
-    }
-
-    private static final Set<MemberRole> ALLOWED_ROLES = Set.of(
-            MemberRole.ADMIN,
-            MemberRole.MANAGER,
-            MemberRole.BRANCH_MANAGER
-    );
-
     public StoreWithPosResDto readMyStore(Member member) {
         Store store = storeJpaRepositoryVerify.findByMember(member);
         List<POS> pos = posJpaRepositoryVerify.findByStoreIdIn(List.of(store.getId()));
