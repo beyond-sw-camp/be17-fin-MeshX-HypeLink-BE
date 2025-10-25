@@ -4,10 +4,11 @@ import MeshX.HypeLink.image.model.entity.Image;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@Builder
 @Schema(description = "이미지 업로드 응답 DTO")
+@SuperBuilder
 public class ImageUploadResponse {
 
     @Schema(description = "파일idx", example = "123")

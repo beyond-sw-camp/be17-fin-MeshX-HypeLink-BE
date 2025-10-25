@@ -3,12 +3,10 @@ package MeshX.HypeLink.head_office.item.service;
 import MeshX.HypeLink.auth.model.entity.Member;
 import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
+import MeshX.HypeLink.head_office.item.model.entity.Category;
 import MeshX.HypeLink.head_office.item.model.entity.Item;
 import MeshX.HypeLink.head_office.item.repository.*;
-import MeshX.HypeLink.head_office.item.service.dto.SaveStoreDetailReq;
-import MeshX.HypeLink.head_office.item.service.dto.SaveStoreItemImageReq;
-import MeshX.HypeLink.head_office.item.service.dto.SaveStoreItemListReq;
-import MeshX.HypeLink.head_office.item.service.dto.SaveStoreItemReq;
+import MeshX.HypeLink.head_office.item.service.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,6 +24,7 @@ import reactor.netty.http.client.HttpClient;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -38,6 +37,8 @@ public class ItemSyncService {
     private final ItemJpaRepositoryVerify itemRepository;
     private final ItemImageJpaRepositoryVerify itemImageRepository;
     private final ItemDetailJpaRepositoryVerify itemDetailRepository;
+    private final CategoryJpaRepositoryVerify categoryRepository;
+
     private final RetryTemplate retryTemplate;
     private final Executor storeSyncExecutor;
 
@@ -48,9 +49,10 @@ public class ItemSyncService {
             .build();
 
     /**
-     * ✅ 1️⃣ 매일 00시 실행 (오늘 수정된 상품만 직영점에 전송)
+     * 매일 00시 실행 (오늘 수정된 상품만 직영점에 전송)
      */
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 0 * * *") // 00시 00분에 실행
+//    @Scheduled(cron = "0 * * * * *")
     public void syncNewItemsToStores() {
         LocalDate today = LocalDate.now();
 
@@ -74,6 +76,8 @@ public class ItemSyncService {
                         .map(store -> CompletableFuture.runAsync(() ->
                                 retryTemplate.execute(ctx -> {
                                     String storeApiUrl = resolveStoreApiUrl(store);
+//                                    syncAllItemsForNewStore(store.getId()); // 실제 스토어들에게 동기화 되는지 확인용 메서드
+                                    sendCategoriesToStore(store.getId(), storeApiUrl);
                                     sendItemsToStore(store.getId(), storeApiUrl, modifiedItems);
                                     return null;
                                 }), storeSyncExecutor)
@@ -83,8 +87,49 @@ public class ItemSyncService {
         log.info("[BATCH] 상품 동기화 완료");
     }
 
+    private SaveStoreCategoriesReq convertToCategorySyncDto(Integer storeId) {
+        List<Category> all = categoryRepository.findAll();
+
+        List<SaveStoreCategoryReq> list = all.stream()
+                .map(one -> SaveStoreCategoryReq.builder()
+                        .category(one.getCategory())
+                        .build()
+                )
+                .toList();
+
+        return SaveStoreCategoriesReq.builder()
+                .categories(list)
+                .storeId(storeId)
+                .build();
+    }
+
     /**
-     * ✅ 2️⃣ 신규 직영점 생성 시 전체 상품 페이징 전송
+     * HQ → 직영점 서버로 카테고리 전송
+     */
+    private void sendCategoriesToStore(Integer storeId, String storeUrl) {
+        SaveStoreCategoriesReq payload = convertToCategorySyncDto(storeId);
+
+        try {
+            webClient.post()
+                    .uri(storeUrl + "/api/direct/category/save/all")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(payload)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::isError, res -> res.bodyToMono(String.class)
+                            .map(err -> new RuntimeException("카테고리 응답 오류: " + err)))
+                    .toBodilessEntity()
+                    .block();
+
+            log.info("직영점({}) [{}] 카테고리 {}개 전송 성공",
+                    storeId, storeUrl, payload.getCategories().size());
+        } catch (Exception e) {
+            log.error("직영점({}) [{}] 카테고리 전송 실패: {}", storeId, storeUrl, e.getMessage());
+            throw e;
+        }
+    }
+
+    /**
+     * 신규 직영점 생성 시 전체 상품 페이징 전송
      */
     public void syncAllItemsForNewStore(Integer storeId) {
         Store store = storeJpaRepository.findById(storeId);
@@ -95,6 +140,7 @@ public class ItemSyncService {
         int page = 0;
         int size = 100;
         Page<Item> pageResult;
+        sendCategoriesToStore(storeId, storeApiUrl);
 
         do {
             pageResult = itemRepository.findItemsWithPaging(PageRequest.of(page, size));
@@ -115,14 +161,14 @@ public class ItemSyncService {
     }
 
     /**
-     * ✅ HQ → 직영점 서버로 상품 전송
+     * HQ → 직영점 서버로 상품 전송
      */
     private void sendItemsToStore(Integer storeId, String storeUrl, List<Item> items) {
         SaveStoreItemListReq payload = convertToStoreSyncDto(storeId, items);
 
         try {
             webClient.post()
-                    .uri(storeUrl + "/api/store-item/create/all")
+                    .uri(storeUrl + "/api/store/item/create/all")
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(payload)
                     .retrieve()
@@ -139,7 +185,7 @@ public class ItemSyncService {
     }
 
     /**
-     * ✅ HQ → 직영점 DTO 변환 (빌더 기반)
+     * HQ → 직영점 DTO 변환 (빌더 기반)
      */
     private SaveStoreItemListReq convertToStoreSyncDto(Integer storeId, List<Item> items) {
         List<SaveStoreItemReq> itemReqList = items.stream().map(item -> {
@@ -148,7 +194,7 @@ public class ItemSyncService {
                             .size(d.getSize().getSize())
                             .color(d.getColor().getColorName())
                             .colorCode(d.getColor().getColorCode())
-                            .stock(d.getStock())
+                            .stock(0)
                             .itemDetailCode(d.getItemDetailCode())
                             .build())
                     .toList();
@@ -184,12 +230,12 @@ public class ItemSyncService {
     }
 
     /**
-     * ✅ 직영점의 실제 API URL 생성 로직
+     * 직영점의 실제 API URL 생성 로직
      * (직영점별 도메인 규칙에 따라 변경 가능)
      */
     private String resolveStoreApiUrl(Store store) {
         Member member = store.getMember();
 
-        return "http://127.0.0.1:8080";
+        return "http://localhost:8080";
     }
 }

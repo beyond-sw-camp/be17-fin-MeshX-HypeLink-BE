@@ -39,7 +39,7 @@ public abstract class AbstractBatchSaveRepository<T, K> {
     public void saveAllSkipDuplicate(List<T> entities) {
         if (entities == null || entities.isEmpty()) return;
 
-        // 1️⃣ 모든 엔티티에서 중복 비교 키 추출
+        // 모든 엔티티에서 중복 비교 키 추출
         List<K> allKeys = entities.stream()
                 .map(this::extractKey)
                 .filter(Objects::nonNull)
@@ -48,16 +48,16 @@ public abstract class AbstractBatchSaveRepository<T, K> {
 
         if (allKeys.isEmpty()) return;
 
-        // 2️⃣ DB에 이미 존재하는 키 조회 (IN 쿼리 1회)
+        // DB에 이미 존재하는 키 조회 (IN 쿼리 1회)
         List<K> existingKeys = findExistingKeys(allKeys);
         Set<K> existingKeySet = new HashSet<>(existingKeys);
 
-        // 3️⃣ 신규 항목만 필터링
+        // 신규 항목만 필터링
         List<T> newEntities = entities.stream()
                 .filter(e -> !existingKeySet.contains(extractKey(e)))
                 .toList();
 
-        // 4️⃣ 저장 및 로그
+        // 4️저장 및 로그
         if (newEntities.isEmpty()) {
             log.info("[{} 저장 패스] 신규 항목 없음", getEntityName());
             return;

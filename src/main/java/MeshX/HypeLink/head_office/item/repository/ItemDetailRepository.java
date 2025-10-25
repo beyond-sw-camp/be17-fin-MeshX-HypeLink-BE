@@ -18,6 +18,17 @@ import java.util.Optional;
 
 public interface ItemDetailRepository extends JpaRepository<ItemDetail, Integer> {
     Optional<ItemDetail> findByItemDetailCode(String itemDetailCode);
+    @Query("""
+    select distinct itemD
+    from ItemDetail itemD
+    left join fetch itemD.item i
+    left join fetch i.category ca
+    left join fetch i.itemImages img
+    left join fetch img.image im
+    left join fetch itemD.color c
+    left join fetch itemD.size s
+    where itemD.item = :item
+    """)
     List<ItemDetail> findByItem(Item item);
     @Query("SELECT d FROM ItemDetail d JOIN FETCH d.item i WHERE i.id = :id")
     List<ItemDetail> findByItemId(Integer id);
