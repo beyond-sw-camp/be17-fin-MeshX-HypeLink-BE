@@ -13,14 +13,14 @@ public class StoreItemDetailRepositoryVerify extends AbstractBatchSaveRepository
 
     @Override
     protected String extractKey(StoreItemDetail entity) {
-        return entity.getItemDetailCode();
+        return entity.getCompositeKey();
     }
 
     @Override
     protected List<String> findExistingKeys(List<String> keys) {
-        return repository.findAllByItemDetailCodeIn(keys)
+        return repository.findAllByCompositeKeyIn(keys)
                 .stream()
-                .map(StoreItemDetail::getItemDetailCode)
+                .map(StoreItemDetail::getCompositeKey)
                 .toList();
     }
 

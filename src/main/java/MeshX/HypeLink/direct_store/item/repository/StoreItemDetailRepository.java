@@ -36,4 +36,7 @@ public interface StoreItemDetailRepository extends JpaRepository<StoreItemDetail
 
     // 특정 StoreItem의 모든 Detail 조회
     List<StoreItemDetail> findByItem(StoreItem item);
+  
+    @Query("SELECT s FROM StoreItemDetail s WHERE CONCAT(s.item.store.id, '-', s.itemDetailCode) IN :keys")
+    List<StoreItemDetail> findAllByCompositeKeyIn(@Param("keys") List<String> keys);
 }

@@ -22,8 +22,8 @@ import static MeshX.HypeLink.head_office.item.exception.ItemExceptionMessage.*;
 public class ItemJpaRepositoryVerify {
     private final ItemRepository repository;
 
-    public void save(Item entity) {
-        repository.save(entity);
+    public Item save(Item entity) {
+        return repository.save(entity);
     }
 
     public void merge(Item entity) {
@@ -61,11 +61,11 @@ public class ItemJpaRepositoryVerify {
     }
 
     public List<Item> findItems() {
-        return repository.findAll();
+        return repository.findAllWithImage();
     }
 
     public Page<Item> findItemsWithPaging(Pageable pageable) {
-        return repository.findAll(pageable);
+        return repository.findAllWithImages(pageable);
     }
 
     public List<Item> findItemsByCategory(Category category) {

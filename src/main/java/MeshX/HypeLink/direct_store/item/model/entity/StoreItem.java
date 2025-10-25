@@ -31,7 +31,7 @@ public class StoreItem extends BaseEntity {
     @OneToMany(mappedBy = "storeItem", fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
 
-    @Column(unique = true, nullable = false)
+//    @Column(unique = true, nullable = false)
     private String itemCode; // 아이템 코드
     private Integer unitPrice;       // 단가
     private Integer amount; // 가격
