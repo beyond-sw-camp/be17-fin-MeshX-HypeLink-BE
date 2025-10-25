@@ -26,47 +26,48 @@ public class ChatController {
 
     @MessageMapping("/send")
     public void sendMessage(@Payload ChatMessageReqDto chatMessageReqDto, java.security.Principal principal) {
+
         String senderEmail = principal.getName();
         chatService.saveAndSendMessage(chatMessageReqDto, senderEmail);
     }
 
     @PostMapping("/send")
-    @ResponseBody
     public ResponseEntity<BaseResponse<ChatMessageResDto>> sendMessageHttp(
             @RequestBody ChatMessageReqDto chatMessageReqDto,
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        ChatMessageResDto resDto = chatService.saveMessage(chatMessageReqDto, userDetails.getUsername());
-        return ResponseEntity.ok(BaseResponse.of(resDto));
+        ChatMessageResDto result = chatService.saveMessage(chatMessageReqDto, userDetails.getUsername());
+
+        return ResponseEntity.ok(BaseResponse.of(result));
     }
 
     @GetMapping("/list/{otherid}")
-    @ResponseBody
     public ResponseEntity<BaseResponse<PageRes<ChatMessageResDto>>> getChatHistory(
             @PathVariable Integer otherid,
             @AuthenticationPrincipal UserDetails userDetails,
             PageReq pageReq) {
 
         PageRes<ChatMessageResDto> history = chatService.getChatHistory(userDetails.getUsername(), otherid, pageReq);
+
         return ResponseEntity.ok(BaseResponse.of(history));
     }
 
     @PostMapping("/read/{senderId}")
-    @ResponseBody
     public ResponseEntity<BaseResponse<Void>> markMessagesAsRead(
             @PathVariable Integer senderId,
             @AuthenticationPrincipal UserDetails userDetails) {
 
         chatService.markMessagesAsRead(userDetails.getUsername(), senderId);
+
         return ResponseEntity.ok(BaseResponse.of(null));
     }
 
     @GetMapping("/users")
-    @ResponseBody
     public ResponseEntity<BaseResponse<List<MessageUserListResDto>>> getChatUserList(
             @AuthenticationPrincipal UserDetails userDetails) {
 
         List<MessageUserListResDto> result = chatService.getChatUserList(userDetails.getUsername());
+
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 }
