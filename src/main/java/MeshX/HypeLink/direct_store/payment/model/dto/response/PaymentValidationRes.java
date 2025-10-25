@@ -1,26 +1,25 @@
 package MeshX.HypeLink.direct_store.payment.model.dto.response;
 
-import MeshX.HypeLink.direct_store.posOrder.model.dto.response.PosOrderDetailRes;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 public class PaymentValidationRes {
     private Boolean success;
-    private String orderId;
-    private String orderNumber;
+    private String receiptId;
+    private String merchantUid;
     private Integer finalAmount;
     private String message;
-    private PosOrderDetailRes orderDetail;
+    private ReceiptDetailRes receiptDetail;
 
     @Builder
-    public PaymentValidationRes(Boolean success, String orderId, String orderNumber,
-                                 Integer finalAmount, String message, PosOrderDetailRes orderDetail) {
+    public PaymentValidationRes(Boolean success, String receiptId, String merchantUid,
+                                 Integer finalAmount, String message, ReceiptDetailRes receiptDetail) {
         this.success = success;
-        this.orderId = orderId;
-        this.orderNumber = orderNumber;
+        this.receiptId = receiptId;
+        this.merchantUid = merchantUid;
         this.finalAmount = finalAmount;
         this.message = message;
-        this.orderDetail = orderDetail;
+        this.receiptDetail = receiptDetail;
     }
 }

@@ -16,7 +16,7 @@ public class CustomerCouponRes {
     private Integer couponValue;
     private LocalDate issuedDate;
     private LocalDate expirationDate;
-    private boolean isUsed;
+    private Boolean isUsed;
     private LocalDate usedDate;
 
     public static CustomerCouponRes toDto(CustomerCoupon entity) {
@@ -24,7 +24,7 @@ public class CustomerCouponRes {
                 .id(entity.getId())
                 .couponId(entity.getCoupon().getId())
                 .couponName(entity.getCoupon().getName())
-                .couponType(entity.getCoupon().getCouponType().name()) // Assuming CouponType is an Enum
+                .couponType(entity.getCoupon().getCouponType().name())
                 .couponValue(entity.getCoupon().getValue())
                 .issuedDate(entity.getIssuedDate())
                 .expirationDate(entity.getExpirationDate())

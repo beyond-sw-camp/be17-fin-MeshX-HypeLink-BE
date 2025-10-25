@@ -34,7 +34,7 @@ public class BaseMember {
             initStoresAndPoses();
             initDrivers();
         }
-        initCustomers();
+
     }
 
 
@@ -214,69 +214,4 @@ public class BaseMember {
         log.info("✅ Driver 기본 데이터 생성 완료");
     }
 
-    private void initCustomers() {
-        // Customer dummy data
-        Customer customer1 = Customer.builder()
-                .membershipNumber("CUST001")
-                .name("김철수")
-                .email("kim.cs@example.com")
-                .password(encoder.encode("1234"))
-                .phone("010-1234-5678")
-                .birthDate(LocalDate.of(1990, 5, 15))
-                .customerReceipts(null)
-                .customerCoupons(null)
-                .build();
-
-        Customer customer2 = Customer.builder()
-                .membershipNumber("CUST002")
-                .name("이영희")
-                .email("lee.yh@example.com")
-                .password(encoder.encode("1234"))
-                .phone("010-2345-6789")
-                .birthDate(LocalDate.of(1985, 11, 22))
-                .customerReceipts(null)
-                .customerCoupons(null)
-                .build();
-
-        Customer customer3 = Customer.builder()
-                .membershipNumber("CUST003")
-                .name("박민수")
-                .email("park.ms@example.com")
-                .password(encoder.encode("1234"))
-                .phone("010-3456-7890")
-                .birthDate(LocalDate.of(1992, 8, 10))
-                .customerReceipts(null)
-                .customerCoupons(null)
-                .build();
-
-        Customer customer4 = Customer.builder()
-                .membershipNumber("CUST004")
-                .name("최지영")
-                .email("choi.jy@example.com")
-                .password(encoder.encode("1234"))
-                .phone("010-4567-8901")
-                .birthDate(LocalDate.of(1988, 3, 30))
-                .customerReceipts(null)
-                .customerCoupons(null)
-                .build();
-
-        Customer customer5 = Customer.builder()
-                .membershipNumber("CUST005")
-                .name("정현우")
-                .email("jung.hw@example.com")
-                .password(encoder.encode("1234"))
-                .phone("010-5678-9012")
-                .birthDate(LocalDate.of(1995, 1, 5))
-                .customerReceipts(null)
-                .customerCoupons(null)
-                .build();
-
-        customerRepository.save(customer1);
-        customerRepository.save(customer2);
-        customerRepository.save(customer3);
-        customerRepository.save(customer4);
-        customerRepository.save(customer5);
-
-        log.info("✅ Customer 기본 데이터 생성 완료");
-    }
 }

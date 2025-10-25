@@ -5,6 +5,5 @@ import lombok.Getter;
 @Getter
 public class CustomerUpdateReq {
     private Integer id;
-    private String password;
     private String phone;
 }

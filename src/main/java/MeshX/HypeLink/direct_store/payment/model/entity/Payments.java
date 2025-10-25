@@ -1,7 +1,6 @@
 package MeshX.HypeLink.direct_store.payment.model.entity;
 
 import MeshX.HypeLink.common.BaseEntity;
-import MeshX.HypeLink.direct_store.posOrder.model.entity.PosOrder;
 import MeshX.HypeLink.head_office.customer.model.entity.CustomerReceipt;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -14,15 +13,15 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Payment extends BaseEntity {
+public class Payments extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", unique = true)
-    private PosOrder order;
+    @JoinColumn(name = "receipt_id", unique = true)
+    private CustomerReceipt customerReceipt;
 
     @Column(unique = true, length = 100)
     private String paymentId;        // PortOne 결제 ID
@@ -31,10 +30,6 @@ public class Payment extends BaseEntity {
 
     private String storeId;          // PortOne Store ID
     private String channelKey;       // PortOne Channel Key
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private PaymentMethod paymentMethod;  // 결제 수단
 
     @Column(nullable = false)
     private Integer amount;          // 결제 금액
@@ -48,20 +43,16 @@ public class Payment extends BaseEntity {
     @Column(length = 500)
     private String failureReason;    // 실패 사유
 
-    @OneToOne
-    private CustomerReceipt customerReceipt;
-
     @Builder
-    private Payment(PosOrder order, String paymentId, String transactionId,
-                    String storeId, String channelKey, PaymentMethod paymentMethod,
-                    Integer amount, PaymentStatus status, LocalDateTime paidAt,
-                    Integer cashReceived, Integer cashChange, String failureReason) {
-        this.order = order;
+    private Payments(CustomerReceipt customerReceipt, String paymentId, String transactionId,
+                     String storeId, String channelKey,
+                     Integer amount, PaymentStatus status, LocalDateTime paidAt,
+                     String failureReason) {
+        this.customerReceipt = customerReceipt;
         this.paymentId = paymentId;
         this.transactionId = transactionId;
         this.storeId = storeId;
         this.channelKey = channelKey;
-        this.paymentMethod = paymentMethod;
         this.amount = amount;
         this.status = status != null ? status : PaymentStatus.PENDING;
         this.paidAt = paidAt;

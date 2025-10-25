@@ -1,7 +1,7 @@
 package MeshX.HypeLink.direct_store.payment.repository;
 
 import MeshX.HypeLink.direct_store.payment.exception.PaymentException;
-import MeshX.HypeLink.direct_store.payment.model.entity.Payment;
+import MeshX.HypeLink.direct_store.payment.model.entity.Payments;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -14,28 +14,12 @@ import static MeshX.HypeLink.direct_store.payment.exception.PaymentExceptionMess
 public class PaymentJpaRepositoryVerify {
     private final PaymentRepository repository;
 
-    public Payment save(Payment entity) {
+    public Payments save(Payments entity) {
         return repository.save(entity);
     }
 
-    public Payment findById(Integer id) {
-        Optional<Payment> optional = repository.findById(id);
-        if (optional.isPresent()) {
-            return optional.get();
-        }
-        throw new PaymentException(PAYMENT_NOT_FOUND);
-    }
-
-    public Payment findByPaymentId(String paymentId) {
-        Optional<Payment> optional = repository.findByPaymentId(paymentId);
-        if (optional.isPresent()) {
-            return optional.get();
-        }
-        throw new PaymentException(PAYMENT_NOT_FOUND);
-    }
-
-    public Payment findByOrderId(Integer orderId) {
-        Optional<Payment> optional = repository.findByOrderId(orderId);
+    public Payments findById(Integer id) {
+        Optional<Payments> optional = repository.findById(id);
         if (optional.isPresent()) {
             return optional.get();
         }
