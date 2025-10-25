@@ -50,14 +50,6 @@ public class UserController {
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 
-    @GetMapping("/messageuser/list")
-    public ResponseEntity<BaseResponse<List<MessageUserListResDto>>> messageUserList() {
-        List<MessageUserListResDto> result = memberService.messageUserList();
-
-        return ResponseEntity.ok(BaseResponse.of(result));
-    }
-
-
     @GetMapping("/mystore/read")
     public ResponseEntity<BaseResponse<StoreWithPosResDto>> readMyStore(@AuthenticationPrincipal UserDetails userDetails) {
         Member member = memberService.findMember( userDetails.getUsername());

@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 @Getter
+@Setter
 public class PageReq {
     private  Integer page; //시작되는 번호 페이지
     private  Integer pageSize; //한 페이지에 포함될 데이터 개수

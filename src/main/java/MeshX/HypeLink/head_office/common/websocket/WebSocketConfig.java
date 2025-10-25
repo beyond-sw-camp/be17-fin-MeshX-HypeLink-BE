@@ -18,8 +18,8 @@ import org.springframework.web.socket.config.annotation.WebSocketTransportRegist
 @RequiredArgsConstructor
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-//    private final JwtHandShakeInterceptor jwtHandShakeInterceptor;
-//    private final AuthChannelInterceptor authChannelInterceptor;
+    private final JwtHandShakeInterceptor jwtHandShakeInterceptor;
+    private final AuthChannelInterceptor authChannelInterceptor;
 
     @Bean(name = "customMessageBrokerScheduler")
     public TaskScheduler messageBrokerTaskScheduler() {
@@ -45,13 +45,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws") // Http로 처음에 WebSocket HandShake할 때, EndPoint 주소를 의미함.
-//                .addInterceptors(jwtHandShakeInterceptor)
+                .addInterceptors(jwtHandShakeInterceptor)
                 .setAllowedOriginPatterns("*");
     }
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-//        registration.interceptors(authChannelInterceptor);
+        registration.interceptors(authChannelInterceptor);
     }
 
     @Override

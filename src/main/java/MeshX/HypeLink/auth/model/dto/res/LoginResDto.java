@@ -7,6 +7,7 @@ import lombok.Getter;
 
 @Getter
 public class LoginResDto {
+    private String email;
     private String name;
     private String role;
 
@@ -14,7 +15,8 @@ public class LoginResDto {
     private AuthTokens authTokens;
 
     @Builder
-    public LoginResDto(String name, String role, AuthTokens authTokens) {
+    public LoginResDto(String email, String name, String role, AuthTokens authTokens) {
+        this.email = email;
         this.name = name;
         this.role = role;
         this.authTokens = authTokens;
