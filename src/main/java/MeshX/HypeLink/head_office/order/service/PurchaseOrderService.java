@@ -77,8 +77,8 @@ public class PurchaseOrderService {
         return PageRes.toDto(dtoPage);
     }
 
-    public PageRes<PurchaseOrderInfoRes> getPurchaseOrderList(Pageable pageReq) {
-        Page<PurchaseOrderInfoRes> page = itemDetailRepository.findItemsAndPurchaseOrdersWithPaging(pageReq);
+    public PageRes<PurchaseOrderInfoRes> getPurchaseOrderList(Pageable pageReq, String keyWord, String category) {
+        Page<PurchaseOrderInfoRes> page = itemDetailRepository.findItemsAndPurchaseOrdersWithPaging(pageReq, keyWord, category);
         return PageRes.toDto(page);
     }
 

@@ -49,8 +49,10 @@ public class PurchaseOrderController {
     }
 
     @GetMapping("/read/page/all")
-    public ResponseEntity<BaseResponse<PageRes<PurchaseOrderInfoRes>>> getOrders(Pageable pageReq) {
-        PageRes<PurchaseOrderInfoRes> pageRes = headPurchaseOrderService.getPurchaseOrderList(pageReq);
+    public ResponseEntity<BaseResponse<PageRes<PurchaseOrderInfoRes>>> getOrders(Pageable pageReq,
+                                                                                 @RequestParam String keyWord,
+                                                                                 @RequestParam String category) {
+        PageRes<PurchaseOrderInfoRes> pageRes = headPurchaseOrderService.getPurchaseOrderList(pageReq, keyWord, category);
         return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
     }
 
