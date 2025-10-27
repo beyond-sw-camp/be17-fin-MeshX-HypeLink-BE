@@ -64,9 +64,20 @@ public class BaseDataGenerator {
     @PostConstruct
     @Transactional
     public void init() {
-        if (itemRepository.count() > 0) {
-            log.info("✅ Additional base data already exists (checked via Item).");
+        // Check if data already exists
+        long itemCount = itemRepository.count();
+        long receiptCount = customerReceiptRepository.count();
+
+        log.info("📊 Current data counts - Items: {}, CustomerReceipts: {}", itemCount, receiptCount);
+
+        if (itemCount > 0 && receiptCount >= 3000) {
+            log.info("✅ Additional base data already exists (Items: {}, Receipts: {}). Skipping generation.", itemCount, receiptCount);
             return;
+        }
+
+        if (itemCount > 0 && receiptCount < 3000) {
+            log.warn("⚠️ Data exists but CustomerReceipts count is low ({}). Consider regenerating data.", receiptCount);
+            log.warn("⚠️ To regenerate: Drop all tables and restart the application.");
         }
 
         log.info("✅ Generating additional base data...");
@@ -77,17 +88,38 @@ public class BaseDataGenerator {
             return;
         }
 
-        createCustomers();
-        createItemsAndInventory(stores);
-        createCustomerReceipts(stores); // B2C 고객 주문 데이터
-        createPurchaseOrders(stores);   // B2B 발주 데이터 (통계용)
+        // Check and create customers if needed
+        long customerCount = customerRepository.count();
+        if (customerCount < 300) {
+            log.info("✅ Creating customers... (current: {})", customerCount);
+            createCustomers();
+        } else {
+            log.info("✅ Customers already exist: {}", customerCount);
+        }
+
+        // Create items if needed
+        if (itemCount == 0) {
+            log.info("✅ Creating items and inventory...");
+            createItemsAndInventory(stores);
+        } else {
+            log.info("✅ Items already exist: {}", itemCount);
+        }
+
+        // Create receipts if needed
+        if (receiptCount < 3000) {
+            log.info("✅ Creating customer receipts and purchase orders...");
+            createCustomerReceipts(stores); // B2C 고객 주문 데이터
+            createPurchaseOrders(stores);   // B2B 발주 데이터 (통계용)
+        } else {
+            log.info("✅ Customer receipts already exist: {}", receiptCount);
+        }
 
         log.info("✅ Additional base data generation complete.");
     }
 
     private void createPurchaseOrders(List<Store> stores) {
         Member supplier = memberRepository.findByEmail("hq@company.com");
-        List<ItemDetail> allItemDetails = itemDetailRepository.findAll();
+        List<ItemDetail> allItemDetails = itemDetailRepository.findAllWithItem();
         Random random = new Random();
 
         if (allItemDetails.isEmpty()) {
@@ -138,7 +170,7 @@ public class BaseDataGenerator {
 
     private void createCustomers() {
         List<Customer> customers = new ArrayList<>();
-        for (int i = 1; i <= 100; i++) {
+        for (int i = 1; i <= 300; i++) {
             customers.add(Customer.builder()
                     .name("고객" + i)
                     .phone("010-1234-" + String.format("%04d", i))
@@ -146,7 +178,7 @@ public class BaseDataGenerator {
                     .build());
         }
         customerRepository.saveAll(customers);
-        log.info("✅ Created 100 customers.");
+        log.info("✅ Created 300 customers.");
     }
 
     private void createItemsAndInventory(List<Store> stores) {
@@ -208,14 +240,28 @@ public class BaseDataGenerator {
                     storeItemRepository.save(storeItem);
 
                     List<StoreItemDetail> storeItemDetails = new ArrayList<>();
+                    Random stockRandom = new Random();
                     for (Color color : colors) {
                         for (Size size : sizes) {
+                            // 20% of items will have low stock for testing low-stock analytics
+                            int stock;
+                            int stockRoll = stockRandom.nextInt(100);
+                            if (stockRoll < 5) {
+                                stock = 0; // 5% critical (out of stock)
+                            } else if (stockRoll < 10) {
+                                stock = stockRandom.nextInt(5) + 1; // 5% high alert (1-5)
+                            } else if (stockRoll < 20) {
+                                stock = stockRandom.nextInt(10) + 6; // 10% medium alert (6-15)
+                            } else {
+                                stock = stockRandom.nextInt(91) + 10; // 80% normal (10-100)
+                            }
+
                             storeItemDetails.add(StoreItemDetail.builder()
                                     .item(storeItem)
                                     .color(color.getColorName())
                                     .colorCode(color.getColorCode())
                                     .size(size.getSize())
-                                    .stock(100)
+                                    .stock(stock)
                                     .itemDetailCode(item.getItemCode() + "-" + color.getColorName() + "-" + size.getSize())
                                     .build());
                         }
@@ -236,65 +282,134 @@ public class BaseDataGenerator {
             return;
         }
 
-        for (int i = 0; i < 500; i++) {
-            Customer customer = customers.get(random.nextInt(customers.size()));
-            Store store = stores.get(random.nextInt(stores.size()));
-            LocalDateTime orderDate = LocalDateTime.now().minusDays(random.nextInt(365)).minusHours(random.nextInt(24));
+        int totalReceipts = 3000;
+        int receiptsPerStore = totalReceipts / stores.size();
+        int createdCount = 0;
 
-            List<StoreItemDetail> storeItemDetailsInStore = storeItemDetailRepository.findAll().stream()
-                .filter(sid -> sid.getItem().getStore().getId().equals(store.getId()))
-                .collect(Collectors.toList());
+        for (Store store : stores) {
+            // Fetch StoreItemDetails for this specific store using repository method
+            List<StoreItemDetail> storeItemDetailsInStore = storeItemDetailRepository.findAllByStoreId(store.getId());
 
             if (storeItemDetailsInStore.isEmpty()) {
+                log.warn("⚠️ No StoreItemDetails found for Store ID: {}. Skipping receipts for this store.", store.getId());
                 continue;
             }
 
-            List<OrderItem> orderItems = new ArrayList<>();
-            int totalAmount = 0;
-            int itemCount = 1 + random.nextInt(5);
+            for (int i = 0; i < receiptsPerStore; i++) {
+                Customer customer = customers.get(random.nextInt(customers.size()));
 
-            for (int j = 0; j < itemCount; j++) {
-                StoreItemDetail storeItemDetail = storeItemDetailsInStore.get(random.nextInt(storeItemDetailsInStore.size()));
-                int quantity = 1 + random.nextInt(3);
-                int unitPrice = storeItemDetail.getItem().getUnitPrice();
-                int price = unitPrice * quantity;
+                // Generate order date with realistic distribution
+                LocalDateTime orderDate = generateRealisticOrderDate(random);
 
-                orderItems.add(OrderItem.builder()
-                        .storeItemDetail(storeItemDetail)
-                        .quantity(quantity)
-                        .unitPrice(unitPrice)
-                        .totalPrice(price)
-                        .build());
-                totalAmount += price;
+                List<OrderItem> orderItems = new ArrayList<>();
+                int totalAmount = 0;
+                int itemCount = 1 + random.nextInt(5);
+
+                for (int j = 0; j < itemCount; j++) {
+                    StoreItemDetail storeItemDetail = storeItemDetailsInStore.get(random.nextInt(storeItemDetailsInStore.size()));
+                    int quantity = 1 + random.nextInt(3);
+                    int unitPrice = storeItemDetail.getItem().getUnitPrice();
+                    int price = unitPrice * quantity;
+
+                    orderItems.add(OrderItem.builder()
+                            .storeItemDetail(storeItemDetail)
+                            .quantity(quantity)
+                            .unitPrice(unitPrice)
+                            .totalPrice(price)
+                            .build());
+                    totalAmount += price;
+                }
+
+                // 95% PAID, 3% READY, 2% CANCELLED
+                PaymentStatus status;
+                int statusRoll = random.nextInt(100);
+                if (statusRoll < 95) {
+                    status = PaymentStatus.PAID;
+                } else if (statusRoll < 98) {
+                    status = PaymentStatus.READY;
+                } else {
+                    status = PaymentStatus.CANCELLED;
+                }
+
+                CustomerReceipt receipt = CustomerReceipt.builder()
+                        .pgProvider("portone")
+                        .pgTid("pg_" + UUID.randomUUID().toString().replace("-", ""))
+                        .merchantUid("order_" + UUID.randomUUID().toString().replace("-", ""))
+                        .totalAmount(totalAmount)
+                        .discountAmount(0)
+                        .couponDiscount(0)
+                        .finalAmount(totalAmount)
+                        .store(store)
+                        .customer(customer)
+                        .status(status)
+                        .paidAt(status == PaymentStatus.PAID ? orderDate : null)
+                        .build();
+
+                // Set createdAt to orderDate for historical data
+                try {
+                    java.lang.reflect.Field createdAtField = CustomerReceipt.class.getSuperclass().getDeclaredField("createdAt");
+                    createdAtField.setAccessible(true);
+                    createdAtField.set(receipt, orderDate);
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    log.error("Failed to set createdAt field via reflection", e);
+                }
+
+                for (OrderItem orderItem : orderItems) {
+                    receipt.addOrderItem(orderItem);
+                }
+                customerReceiptRepository.save(receipt);
+
+                if (status == PaymentStatus.PAID) {
+                    Payments payment = Payments.builder()
+                            .customerReceipt(receipt)
+                            .amount(totalAmount)
+                            .status(MeshX.HypeLink.direct_store.payment.model.entity.PaymentStatus.PAID)
+                            .paidAt(orderDate)
+                            .build();
+                    paymentRepository.save(payment);
+                }
+
+                createdCount++;
             }
-
-            CustomerReceipt receipt = CustomerReceipt.builder()
-                    .pgProvider("portone")
-                    .pgTid("pg_" + UUID.randomUUID().toString().replace("-", ""))
-                    .merchantUid("order_" + UUID.randomUUID().toString().replace("-", ""))
-                    .totalAmount(totalAmount)
-                    .discountAmount(0)
-                    .couponDiscount(0)
-                    .finalAmount(totalAmount)
-                    .store(store)
-                    .customer(customer)
-                    .status(PaymentStatus.PAID)
-                    .paidAt(orderDate)
-                    .build();
-
-            for (OrderItem orderItem : orderItems) {
-                receipt.addOrderItem(orderItem);
-            }
-            customerReceiptRepository.save(receipt);
-
-            Payments payment = Payments.builder()
-                    .customerReceipt(receipt)
-                    .amount(totalAmount)
-                    .status(MeshX.HypeLink.direct_store.payment.model.entity.PaymentStatus.PAID)
-                    .paidAt(orderDate)
-                    .build();
-            paymentRepository.save(payment);
         }
-        log.info("✅ Created 500 CustomerReceipts.");
+        log.info("✅ Created " + createdCount + " CustomerReceipts.");
+    }
+
+    /**
+     * Generate realistic order date with time-of-day and day-of-week distribution
+     */
+    private LocalDateTime generateRealisticOrderDate(Random random) {
+        // Random day within last 365 days
+        int daysAgo = random.nextInt(365);
+        LocalDateTime baseDate = LocalDateTime.now().minusDays(daysAgo);
+
+        // Reset to midnight
+        baseDate = baseDate.withHour(0).withMinute(0).withSecond(0).withNano(0);
+
+        // Generate hour with realistic distribution
+        // Peak hours: 11-14 (lunch), 18-21 (dinner)
+        // Normal hours: 9-11, 14-18, 21-22
+        // Low hours: 6-9, 22-24
+        int hourWeight = random.nextInt(100);
+        int hour;
+
+        if (hourWeight < 30) { // 30% - Lunch peak (11-14)
+            hour = 11 + random.nextInt(3);
+        } else if (hourWeight < 60) { // 30% - Dinner peak (18-21)
+            hour = 18 + random.nextInt(3);
+        } else if (hourWeight < 85) { // 25% - Normal hours
+            int slot = random.nextInt(3);
+            if (slot == 0) hour = 9 + random.nextInt(2);      // 9-11
+            else if (slot == 1) hour = 14 + random.nextInt(4); // 14-18
+            else hour = 21 + random.nextInt(2);                // 21-22
+        } else { // 15% - Low hours
+            if (random.nextBoolean()) hour = 6 + random.nextInt(3); // 6-9
+            else hour = 22 + random.nextInt(2);                     // 22-24
+        }
+
+        int minute = random.nextInt(60);
+        int second = random.nextInt(60);
+
+        return baseDate.withHour(hour).withMinute(minute).withSecond(second);
     }
 }

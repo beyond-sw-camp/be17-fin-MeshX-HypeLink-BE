@@ -532,4 +532,158 @@ public class AnalyticsRepository {
             default -> "등급 외 상품";
         };
     }
+
+    /**
+     * 일별 매출 데이터 조회 (Sales Management 페이지용)
+     */
+    public List<MeshX.HypeLink.head_office.analytics.dto.DailySalesDTO> getDailySales(
+            LocalDateTime startDate, LocalDateTime endDate, Integer storeId) {
+
+        var query = queryFactory
+            .select(Projections.constructor(MeshX.HypeLink.head_office.analytics.dto.DailySalesDTO.class,
+                customerReceipt.id,
+                store.id,
+                member.name,
+                store.storeNumber,
+                Expressions.stringTemplate("DATE({0})", customerReceipt.paidAt),
+                customerReceipt.finalAmount.sum().longValue()
+            ))
+            .from(customerReceipt)
+            .join(customerReceipt.store, store)
+            .join(store.member, member)
+            .where(
+                customerReceipt.paidAt.between(startDate, endDate),
+                customerReceipt.status.eq(PaymentStatus.PAID)
+            )
+            .groupBy(
+                Expressions.stringTemplate("DATE({0})", customerReceipt.paidAt),
+                store.id,
+                member.name,
+                store.storeNumber
+            )
+            .orderBy(Expressions.stringTemplate("DATE({0})", customerReceipt.paidAt).desc());
+
+        // storeId 필터링 (선택적)
+        if (storeId != null) {
+            query.where(store.id.eq(storeId));
+        }
+
+        return query.fetch();
+    }
+
+    /**
+     * 최근 7일간 매출 차트 데이터 (Sales Management 페이지용)
+     */
+    public List<MeshX.HypeLink.head_office.analytics.dto.SalesChartDataDTO> getSalesChartData(Integer storeId) {
+        LocalDateTime endDate = LocalDateTime.now();
+        LocalDateTime startDate = endDate.minusDays(7);
+
+        // 매장별로 그룹화된 일별 매출 조회
+        List<Tuple> results = queryFactory
+            .select(
+                store.id,
+                member.name,
+                Expressions.stringTemplate("DAYNAME({0})", customerReceipt.paidAt),
+                customerReceipt.finalAmount.sum()
+            )
+            .from(customerReceipt)
+            .join(customerReceipt.store, store)
+            .join(store.member, member)
+            .where(
+                customerReceipt.paidAt.between(startDate, endDate),
+                customerReceipt.status.eq(PaymentStatus.PAID),
+                storeId != null ? store.id.eq(storeId) : null
+            )
+            .groupBy(store.id, member.name, Expressions.stringTemplate("DAYOFWEEK({0})", customerReceipt.paidAt))
+            .orderBy(Expressions.stringTemplate("DAYOFWEEK({0})", customerReceipt.paidAt).asc())
+            .fetch();
+
+        // 결과를 SalesChartDataDTO로 변환 (간단한 구현)
+        // 실제로는 더 복잡한 로직이 필요할 수 있음
+        return List.of();  // TODO: 구현 필요
+    }
+
+    /**
+     * 고객 분석 데이터 조회 (Customer Analytics 페이지용)
+     */
+    public List<MeshX.HypeLink.head_office.analytics.dto.CustomerAnalyticsDTO> getCustomerAnalytics() {
+        // 기본 고객 정보 + 총 구매액 + 최근 구매일
+        List<Tuple> customerData = queryFactory
+            .select(
+                customer.id,
+                customer.name,
+                customer.phone,
+                customer.birthDate,
+                customerReceipt.finalAmount.sum(),
+                customerReceipt.paidAt.max()
+            )
+            .from(customer)
+            .leftJoin(customerReceipt).on(customerReceipt.customer.eq(customer))
+            .where(customerReceipt.status.eq(PaymentStatus.PAID).or(customerReceipt.id.isNull()))
+            .groupBy(customer.id, customer.name, customer.phone, customer.birthDate)
+            .fetch();
+
+        // TODO: purchaseHistory 추가 구현
+        return List.of();  // 간단한 구현
+    }
+
+    /**
+     * 연령대별 고객 분포
+     */
+    public List<MeshX.HypeLink.head_office.analytics.dto.AgeDistributionDTO> getAgeDistribution() {
+        // YEAR 함수를 사용하여 연령 계산
+        List<Tuple> results = queryFactory
+            .select(
+                Expressions.stringTemplate(
+                    "CASE " +
+                    "WHEN YEAR(CURDATE()) - YEAR({0}) < 20 THEN '10대' " +
+                    "WHEN YEAR(CURDATE()) - YEAR({0}) < 30 THEN '20대' " +
+                    "WHEN YEAR(CURDATE()) - YEAR({0}) < 40 THEN '30대' " +
+                    "WHEN YEAR(CURDATE()) - YEAR({0}) < 50 THEN '40대' " +
+                    "ELSE '50대 이상' END",
+                    customer.birthDate
+                ),
+                customer.count()
+            )
+            .from(customer)
+            .where(customer.birthDate.isNotNull())
+            .groupBy(Expressions.stringTemplate(
+                "CASE " +
+                "WHEN YEAR(CURDATE()) - YEAR({0}) < 20 THEN '10대' " +
+                "WHEN YEAR(CURDATE()) - YEAR({0}) < 30 THEN '20대' " +
+                "WHEN YEAR(CURDATE()) - YEAR({0}) < 40 THEN '30대' " +
+                "WHEN YEAR(CURDATE()) - YEAR({0}) < 50 THEN '40대' " +
+                "ELSE '50대 이상' END",
+                customer.birthDate
+            ))
+            .fetch();
+
+        List<MeshX.HypeLink.head_office.analytics.dto.AgeDistributionDTO> distribution = new ArrayList<>();
+        for (Tuple tuple : results) {
+            String ageGroup = tuple.get(0, String.class);
+            Long count = tuple.get(1, Long.class);
+            distribution.add(new MeshX.HypeLink.head_office.analytics.dto.AgeDistributionDTO(ageGroup, count));
+        }
+
+        return distribution;
+    }
+
+    /**
+     * 카테고리별 고객 매출 (Customer Analytics 페이지용)
+     */
+    public List<MeshX.HypeLink.head_office.analytics.dto.CategoryCustomerSalesDTO> getCategoryCustomerSales() {
+        return queryFactory
+            .select(Projections.constructor(MeshX.HypeLink.head_office.analytics.dto.CategoryCustomerSalesDTO.class,
+                storeItem.category.category,
+                orderItem.totalPrice.sum().longValue()
+            ))
+            .from(orderItem)
+            .join(orderItem.customerReceipt, customerReceipt)
+            .join(orderItem.storeItemDetail, storeItemDetail)
+            .join(storeItemDetail.item, storeItem)
+            .where(customerReceipt.status.eq(PaymentStatus.PAID))
+            .groupBy(storeItem.category.category)
+            .orderBy(orderItem.totalPrice.sum().desc())
+            .fetch();
+    }
 }

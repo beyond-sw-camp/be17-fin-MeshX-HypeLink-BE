@@ -181,4 +181,58 @@ public class AnalyticsController {
         List<ProductABCDTO> data = analyticsService.getProductABCAnalysis(period);
         return ResponseEntity.ok(BaseResponse.of(data, "상품 ABC 분석 조회 성공"));
     }
+
+    /**
+     * 일별 매출 데이터 조회 (Sales Management 페이지용)
+     * GET /api/analytics/sales/daily?startDate=2024-01-01&endDate=2024-12-31&storeId=1
+     */
+    @GetMapping("/sales/daily")
+    public ResponseEntity<BaseResponse<List<DailySalesDTO>>> getDailySales(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            @RequestParam(required = false) Integer storeId) {
+        List<DailySalesDTO> data = analyticsService.getDailySales(startDate, endDate, storeId);
+        return ResponseEntity.ok(BaseResponse.of(data, "일별 매출 데이터 조회 성공"));
+    }
+
+    /**
+     * 최근 7일간 매출 차트 데이터 (Sales Management 페이지용)
+     * GET /api/analytics/sales/chart?storeId=1
+     */
+    @GetMapping("/sales/chart")
+    public ResponseEntity<BaseResponse<List<SalesChartDataDTO>>> getSalesChartData(
+            @RequestParam(required = false) Integer storeId) {
+        List<SalesChartDataDTO> data = analyticsService.getSalesChartData(storeId);
+        return ResponseEntity.ok(BaseResponse.of(data, "매출 차트 데이터 조회 성공"));
+    }
+
+    /**
+     * 고객 분석 데이터 조회 (Customer Analytics 페이지용)
+     * GET /api/analytics/customers/analytics
+     */
+    @GetMapping("/customers/analytics")
+    public ResponseEntity<BaseResponse<List<CustomerAnalyticsDTO>>> getCustomerAnalytics() {
+        List<CustomerAnalyticsDTO> data = analyticsService.getCustomerAnalytics();
+        return ResponseEntity.ok(BaseResponse.of(data, "고객 분석 데이터 조회 성공"));
+    }
+
+    /**
+     * 연령대별 고객 분포
+     * GET /api/analytics/customers/age-distribution
+     */
+    @GetMapping("/customers/age-distribution")
+    public ResponseEntity<BaseResponse<List<AgeDistributionDTO>>> getAgeDistribution() {
+        List<AgeDistributionDTO> data = analyticsService.getAgeDistribution();
+        return ResponseEntity.ok(BaseResponse.of(data, "연령대별 고객 분포 조회 성공"));
+    }
+
+    /**
+     * 카테고리별 고객 매출 (Customer Analytics 페이지용)
+     * GET /api/analytics/customers/category-sales
+     */
+    @GetMapping("/customers/category-sales")
+    public ResponseEntity<BaseResponse<List<CategoryCustomerSalesDTO>>> getCategoryCustomerSales() {
+        List<CategoryCustomerSalesDTO> data = analyticsService.getCategoryCustomerSales();
+        return ResponseEntity.ok(BaseResponse.of(data, "카테고리별 고객 매출 조회 성공"));
+    }
 }
