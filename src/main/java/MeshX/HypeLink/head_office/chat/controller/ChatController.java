@@ -15,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -25,7 +26,7 @@ public class ChatController {
     private final ChatService chatService;
 
     @MessageMapping("/send")
-    public void sendMessage(@Payload ChatMessageReqDto chatMessageReqDto, java.security.Principal principal) {
+    public void sendMessage(@Payload ChatMessageReqDto chatMessageReqDto, Principal principal) {
 
         String senderEmail = principal.getName();
         chatService.saveAndSendMessage(chatMessageReqDto, senderEmail);

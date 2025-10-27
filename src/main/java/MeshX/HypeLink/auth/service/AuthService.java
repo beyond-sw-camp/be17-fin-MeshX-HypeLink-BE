@@ -22,6 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.util.regex.Pattern;
+
+import static MeshX.HypeLink.auth.exception.AuthExceptionMessage.POS_CODE_NOT_MATCH;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +39,9 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final TokenStore tokenStore;
     private final GeocodingService geocodingService;
+
+    private static final Pattern POS_CODE_PATTERN = Pattern.compile("^[A-Z]{3}[0-9]{3}_[0-9]{2}$");
+    // POSCODE를 위한 패턴 추가
 
     public void register(RegisterReqDto requestDto) {
         memberJpaRepositoryVerify.existsByEmail(requestDto.getEmail());
@@ -57,6 +63,9 @@ public class AuthService {
                     .role(MemberRole.POS_MEMBER)
                     .region(associatedStore.getMember().getRegion())
                     .build();
+
+            validatePosCode(requestDto.getPosCode());
+
 
             POS pos = requestDto.toPosEntity(member,associatedStore);
             memberJpaRepositoryVerify.save(member);
@@ -86,6 +95,13 @@ public class AuthService {
                 break;
         }
     }
+
+    private void validatePosCode(String posCode) {
+        if (posCode == null || !POS_CODE_PATTERN.matcher(posCode).matches()) {
+            throw new AuthException(POS_CODE_NOT_MATCH);
+        }
+    }
+
 
     @Transactional
     public LoginResDto login(LoginReqDto requestDto) {

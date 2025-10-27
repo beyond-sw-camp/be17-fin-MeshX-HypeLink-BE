@@ -5,9 +5,7 @@ import MeshX.HypeLink.auth.repository.DriverJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.MemberJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.PosJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
-import MeshX.HypeLink.head_office.customer.repository.CustomerJpaRepositoryVerify; // Import CustomerJpaRepositoryVerify
-import MeshX.HypeLink.head_office.customer.model.entity.Customer; // Import Customer entity
-import java.time.LocalDate; // Import LocalDate
+import MeshX.HypeLink.head_office.customer.repository.CustomerJpaRepositoryVerify;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
