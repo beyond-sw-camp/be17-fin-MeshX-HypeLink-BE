@@ -2,10 +2,14 @@ package MeshX.HypeLink.direct_store.item.repository;
 
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItemDetail;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.QueryHint;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
@@ -13,6 +17,14 @@ import java.util.Optional;
 
 public interface StoreItemDetailRepository extends JpaRepository<StoreItemDetail, Integer> {
     List<StoreItemDetail> findAllByItemDetailCodeIn(List<String> itemDetailCodes);
+    Optional<StoreItemDetail> findByItemAndItemDetailCode(StoreItem store,String itemDetailCode);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints({
+            @QueryHint(name = "javax.persistence.lock.timeout", value = "5000") // 5초 대기 후 예외 발생
+    })
+    @Query("SELECT d FROM StoreItemDetail d WHERE d.itemDetailCode = :itemDetailCode AND d.item = :store")
+    Optional<StoreItemDetail> findByItemAndItemDetailCodeForUpdateWithLock(StoreItem store, String itemDetailCode);
 
     // 디테일 꼬드로 조회하기
     Optional<StoreItemDetail> findByItemDetailCode(String itemDetailCode);

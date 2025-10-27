@@ -18,6 +18,13 @@ import java.util.Optional;
 
 public interface ItemDetailRepository extends JpaRepository<ItemDetail, Integer> {
     Optional<ItemDetail> findByItemDetailCode(String itemDetailCode);
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints({
+            @QueryHint(name = "javax.persistence.lock.timeout", value = "5000") // 5초 대기 후 예외 발생
+    })
+    @Query("SELECT i FROM ItemDetail i WHERE i.itemDetailCode = :itemDetailCode")
+    Optional<ItemDetail> findByItemDetailCodeForUpdateWithLock(@Param("itemDetailCode") String itemDetailCode);
+
     @Query("""
     select distinct itemD
     from ItemDetail itemD

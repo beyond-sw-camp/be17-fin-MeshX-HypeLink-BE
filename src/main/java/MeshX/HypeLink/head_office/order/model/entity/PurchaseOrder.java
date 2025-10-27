@@ -52,5 +52,8 @@ public class PurchaseOrder extends BaseEntity {
     public void updateOrderState(PurchaseOrderState purchaseOrderState) {
         this.purchaseOrderState = purchaseOrderState;
     }
-}
 
+    public void updateOrderDetailStatus(PurchaseDetailStatus detailStatus) {
+        this.purchaseDetailStatus = detailStatus;
+    }
+}

@@ -4,6 +4,7 @@ import MeshX.HypeLink.common.exception.BaseException;
 import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
@@ -29,6 +30,14 @@ public class StoreItemJpaRepositoryVerify {
         }
 
         return repository.save(entity);
+    }
+
+    public StoreItem findByStoreAndItemCode(Store store, String itemCode) {
+        Optional<StoreItem> optional = repository.findByItemCodeAndStore(itemCode, store);
+        if(optional.isPresent()) {
+            return optional.get();
+        }
+        throw new BaseException(null);
     }
 
     public StoreItem findById(Integer id) {

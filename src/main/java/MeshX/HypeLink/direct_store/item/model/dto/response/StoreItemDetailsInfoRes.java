@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ItemDetailsInfoRes {
+public class StoreItemDetailsInfoRes {
     private Integer id;
     private String itemKoName;      // 상품 한글 명
     private String itemEnName;      // 상품 영어 명
@@ -19,9 +19,9 @@ public class ItemDetailsInfoRes {
     private Integer totalQuantity;       // 수량
 
     @QueryProjection
-    public ItemDetailsInfoRes(Integer id, String itemKoName, String itemEnName, String category,
-                                String color, String colorCode, String itemCode, String itemDetailCode,
-                                Integer stock, int totalQuantity) {
+    public StoreItemDetailsInfoRes(Integer id, String itemKoName, String itemEnName, String category,
+                                   String color, String colorCode, String itemCode, String itemDetailCode,
+                                   Integer stock, int totalQuantity) {
         this.id = id;
         this.itemKoName = itemKoName;
         this.itemEnName = itemEnName;
