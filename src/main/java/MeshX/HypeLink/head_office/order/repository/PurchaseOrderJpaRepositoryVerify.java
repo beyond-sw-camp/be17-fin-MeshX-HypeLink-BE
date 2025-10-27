@@ -2,6 +2,7 @@ package MeshX.HypeLink.head_office.order.repository;
 
 import MeshX.HypeLink.head_office.order.exception.PurchaseOrderException;
 import MeshX.HypeLink.head_office.order.model.entity.PurchaseOrder;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,7 @@ import static MeshX.HypeLink.head_office.order.exception.PurchaseOrderExceptionM
 @RequiredArgsConstructor
 public class PurchaseOrderJpaRepositoryVerify {
     private final PurchaseOrderRepository repository;
+    private final JPAQueryFactory jpaQueryFactory;
 
     public void createOrder(PurchaseOrder entity) {
         repository.save(entity);

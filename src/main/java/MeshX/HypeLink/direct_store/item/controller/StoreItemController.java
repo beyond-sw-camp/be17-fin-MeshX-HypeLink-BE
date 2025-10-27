@@ -1,7 +1,6 @@
 package MeshX.HypeLink.direct_store.item.controller;
 
 import MeshX.HypeLink.common.BaseResponse;
-import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.direct_store.item.model.dto.request.SaveStoreItemListReq;
 import MeshX.HypeLink.direct_store.item.model.dto.response.StoreItemDetailRes;
 import MeshX.HypeLink.direct_store.item.service.StoreItemService;
