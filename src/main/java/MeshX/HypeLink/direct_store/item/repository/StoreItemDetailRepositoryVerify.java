@@ -1,15 +1,11 @@
 package MeshX.HypeLink.direct_store.item.repository;
 
+import MeshX.HypeLink.direct_store.item.model.dto.response.ItemDetailsInfoRes;
+import MeshX.HypeLink.direct_store.item.model.dto.response.QItemDetailsInfoRes;
 import MeshX.HypeLink.direct_store.item.model.entity.QStoreCategory;
 import MeshX.HypeLink.direct_store.item.model.entity.QStoreItem;
 import MeshX.HypeLink.direct_store.item.model.entity.QStoreItemDetail;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItemDetail;
-import MeshX.HypeLink.head_office.item.model.entity.QCategory;
-import MeshX.HypeLink.head_office.item.model.entity.QColor;
-import MeshX.HypeLink.head_office.item.model.entity.QItem;
-import MeshX.HypeLink.head_office.item.model.entity.QItemDetail;
-import MeshX.HypeLink.head_office.order.model.dto.response.PurchaseOrderInfoRes;
-import MeshX.HypeLink.head_office.order.model.dto.response.QPurchaseOrderInfoRes;
 import MeshX.HypeLink.head_office.order.model.entity.PurchaseOrderState;
 import MeshX.HypeLink.head_office.order.model.entity.QPurchaseOrder;
 import com.querydsl.core.BooleanBuilder;
@@ -48,7 +44,7 @@ public class StoreItemDetailRepositoryVerify extends AbstractBatchSaveRepository
         repository.saveAll(entities);
     }
 
-    public Page<PurchaseOrderInfoRes> findItemDetailWithRequestedTotalQuantity(
+    public Page<ItemDetailsInfoRes> findItemDetailWithRequestedTotalQuantity(
             Pageable pageable, String keyword, String category) {
         // 검색 조건 생성
         BooleanBuilder where = buildSearchCondition(keyword, category);
@@ -57,7 +53,7 @@ public class StoreItemDetailRepositoryVerify extends AbstractBatchSaveRepository
         NumberExpression<Integer> requestedQtySum = buildRequestedQuantitySum();
 
         // 메인 리스트 조회
-        List<PurchaseOrderInfoRes> content = fetchPurchaseOrderInfoList(pageable, where, requestedQtySum);
+        List<ItemDetailsInfoRes> content = fetchPurchaseOrderInfoList(pageable, where, requestedQtySum);
 
         // 총 개수 조회
         Long total = fetchTotalCount(where);
@@ -66,10 +62,9 @@ public class StoreItemDetailRepositoryVerify extends AbstractBatchSaveRepository
     }
 
     private BooleanBuilder buildSearchCondition(String keyword, String category) {
-        QItemDetail d = QItemDetail.itemDetail;
-        QItem i = QItem.item;
-        QCategory c = QCategory.category1;
-        QColor col = QColor.color;
+        QStoreItemDetail d = QStoreItemDetail.storeItemDetail;
+        QStoreItem i = QStoreItem.storeItem;
+        QStoreCategory c = QStoreCategory.storeCategory;
 
         BooleanBuilder where = new BooleanBuilder();
 
@@ -81,7 +76,7 @@ public class StoreItemDetailRepositoryVerify extends AbstractBatchSaveRepository
                     i.enName.containsIgnoreCase(keyword),
                     i.itemCode.containsIgnoreCase(keyword),
                     d.itemDetailCode.containsIgnoreCase(keyword),
-                    col.colorName.containsIgnoreCase(keyword)
+                    d.color.containsIgnoreCase(keyword)
             );
         }
 
@@ -104,7 +99,7 @@ public class StoreItemDetailRepositoryVerify extends AbstractBatchSaveRepository
                 .coalesce(0);
     }
 
-    private List<PurchaseOrderInfoRes> fetchPurchaseOrderInfoList(
+    private List<ItemDetailsInfoRes> fetchPurchaseOrderInfoList(
             Pageable pageable,
             BooleanBuilder where,
             NumberExpression<Integer> requestedQtySum
@@ -115,7 +110,7 @@ public class StoreItemDetailRepositoryVerify extends AbstractBatchSaveRepository
         QPurchaseOrder p = QPurchaseOrder.purchaseOrder;
 
         return jpaQueryFactory
-                .select(new QPurchaseOrderInfoRes(
+                .select(new QItemDetailsInfoRes(
                         d.id,
                         i.koName,
                         i.enName,
@@ -130,7 +125,7 @@ public class StoreItemDetailRepositoryVerify extends AbstractBatchSaveRepository
                 .from(d)
                 .leftJoin(d.item, i)
                 .leftJoin(i.category, c)
-//                .leftJoin(p).on(p.itemDetail.eq(d))
+                .leftJoin(p).on(p.itemDetail.itemDetailCode.eq(d.itemDetailCode))
                 .where(where)
                 .groupBy(
                         i.id, i.koName, i.enName, c.category,
@@ -143,17 +138,15 @@ public class StoreItemDetailRepositoryVerify extends AbstractBatchSaveRepository
     }
 
     private Long fetchTotalCount(BooleanBuilder where) {
-        QItemDetail d = QItemDetail.itemDetail;
-        QItem i = QItem.item;
-        QCategory c = QCategory.category1;
-        QColor col = QColor.color;
+        QStoreItemDetail d = QStoreItemDetail.storeItemDetail;
+        QStoreItem i = QStoreItem.storeItem;
+        QStoreCategory c = QStoreCategory.storeCategory;
 
         return jpaQueryFactory
                 .select(d.id.countDistinct())
                 .from(d)
                 .leftJoin(d.item, i)
                 .leftJoin(i.category, c)
-                .leftJoin(d.color, col)
                 .where(where)
                 .fetchOne();
     }
