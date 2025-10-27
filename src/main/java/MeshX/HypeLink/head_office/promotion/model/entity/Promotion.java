@@ -1,7 +1,7 @@
 package MeshX.HypeLink.head_office.promotion.model.entity;
 
-import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.common.BaseEntity;
+import MeshX.HypeLink.head_office.coupon.model.entity.Coupon;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -9,8 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -22,54 +20,34 @@ public class Promotion extends BaseEntity {
 
     private String title;
     private String contents;
-    private Double discountRate;    // 할인율
 
-    private LocalDate startDate;    // 할인 시작 시정
-    private LocalDate endDate;      // 할인 종료 시점
+    @ManyToOne(fetch = FetchType.LAZY)  // ✅ 하나의 쿠폰만 연결
+    @JoinColumn(name = "coupon_id", nullable = false)
+    private Coupon coupon;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private PromotionType promotionType; //이벤트 종류
+    private LocalDate startDate;    // 프로모션 하는날
+    private LocalDate endDate;      // 프로모션 종료일
 
     @Enumerated(EnumType.STRING)
     private PromotionStatus status;
-
-    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PromotionStore> promotionStore  = new ArrayList<>();
-
-    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PromotionItem> promotionItems = new ArrayList<>();
-
-    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PromotionCategory> promotionCategories = new ArrayList<>();
-
 
     @Builder
     private Promotion(
             String title,
             String contents,
-            Double discountRate,
             LocalDate startDate,
             LocalDate endDate,
-            PromotionType promotionType,
-            PromotionStatus status
-    ) {
+            PromotionStatus status,
+            Coupon coupon
+            ) {
         this.title = title;
         this.contents = contents;
-        this.discountRate = discountRate;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.promotionType = promotionType;
         this.status = status;
+        this.coupon = coupon;
     }
 
-    public void updatePromotionType(PromotionType promotionType){
-        this.promotionType = promotionType;
-    }
-
-//    public void updateCategory(ItemCategory category){
-//        this.category = category;
-//    }
 
     public void updateTitle(String title){
         this.title = title;
@@ -78,9 +56,6 @@ public class Promotion extends BaseEntity {
         this.contents = contents;
     }
 
-    public void updateDiscountRate(Double discountRate){
-        this.discountRate = discountRate;
-    }
 
     public void updateStartDate(LocalDate startDate){
         this.startDate = startDate;
@@ -94,6 +69,12 @@ public class Promotion extends BaseEntity {
         this.status = status;
     }
 
+    public void updateCoupon(Coupon coupon){
+        this.coupon = coupon;
+    }
+
+
+
 
     public void autoUpdateStatus() {
         // ✅ 관리자가 수동 변경한 경우, 자동 갱신 안 함
@@ -103,10 +84,6 @@ public class Promotion extends BaseEntity {
         if (now.isBefore(startDate)) this.status = PromotionStatus.UPCOMING;
         else if (now.isAfter(endDate)) this.status = PromotionStatus.ENDED;
         else this.status = PromotionStatus.ONGOING;
-    }
-
-    public void addStore(Store store) {
-        PromotionStore.link(this, store);
     }
 
 
