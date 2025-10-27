@@ -1,5 +1,6 @@
 package MeshX.HypeLink.direct_store.item.repository;
 
+import MeshX.HypeLink.common.exception.BaseException;
 import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
 import lombok.RequiredArgsConstructor;
@@ -13,24 +14,6 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor
 public class StoreItemJpaRepositoryVerify {
     private final StoreItemRepository repository;
-
-    public Optional<StoreItem> findById(Integer id) {
-        return repository.findById(id);
-    }
-
-    public StoreItem save(StoreItem entity) {
-        Optional<StoreItem> optional = repository.findByItemCode(entity.getItemCode());
-        if (optional.isPresent()) {
-            StoreItem existing = optional.get();
-            boolean isModified = filtering(entity, existing);
-            if (isModified) {
-                return repository.save(existing);
-            }
-            return existing;
-        }
-
-        return repository.save(entity);
-    }
   
     public StoreItem save(StoreItem entity, Store store) {
         Optional<StoreItem> optional = repository.findByItemCodeAndStore(entity.getItemCode(), store);
@@ -46,6 +29,14 @@ public class StoreItemJpaRepositoryVerify {
         }
 
         return repository.save(entity);
+    }
+
+    public StoreItem findById(Integer id) {
+        Optional<StoreItem> optional = repository.findById(id);
+        if(optional.isPresent()) {
+            return optional.get();
+        }
+        throw new BaseException(null);
     }
 
     private boolean filtering(StoreItem entity, StoreItem existing) {

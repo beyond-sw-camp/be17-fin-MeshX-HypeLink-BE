@@ -1,9 +1,7 @@
 package MeshX.HypeLink.auth.model.entity;
 
-import MeshX.HypeLink.common.BaseEntity;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
 import MeshX.HypeLink.head_office.promotion.model.entity.Promotion;
-import MeshX.HypeLink.head_office.promotion.model.entity.PromotionStore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,9 +31,6 @@ public class Store {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<PromotionStore> promotionStores = new ArrayList<>();
 
 
     @Builder
@@ -74,7 +69,5 @@ public class Store {
         this.storeState = storeState;
     }
 
-    public void addPromotion(Promotion promotion) {
-        PromotionStore.link(promotion, this);
-    }
+
 }

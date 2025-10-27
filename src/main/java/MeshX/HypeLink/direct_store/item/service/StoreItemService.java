@@ -4,10 +4,8 @@ import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
 import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.direct_store.item.model.dto.request.SaveStoreItemListReq;
-import MeshX.HypeLink.direct_store.item.model.dto.response.StoreItemDetailListRes;
 import MeshX.HypeLink.direct_store.item.model.dto.response.StoreItemDetailRes;
 import MeshX.HypeLink.direct_store.item.model.dto.request.SaveStoreItemImageReq;
-import MeshX.HypeLink.direct_store.item.model.dto.request.SaveStoreItemListReq;
 import MeshX.HypeLink.direct_store.item.model.dto.request.SaveStoreItemReq;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreCategory;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
@@ -89,6 +87,7 @@ public class StoreItemService {
         StoreItemDetail detail = storeItemDetailQueryRepository.findByItemDetailCode(itemDetailCode)
                 .orElseThrow(() -> new RuntimeException("Item not found with barcode: " + itemDetailCode));
         return StoreItemDetailRes.toDto(detail);
+    }
 
     private void updateImages(SaveStoreItemReq one, StoreItem storeItem) {
         // 기존 이미지 삭제 로직 추가 (본사와 동일)

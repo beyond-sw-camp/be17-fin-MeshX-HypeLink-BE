@@ -98,6 +98,7 @@ public class AuthService {
         AuthTokens authTokens = issueTokens(member.getEmail(), member.getRole().name());
 
         return LoginResDto.builder()
+                .email(member.getEmail())
                 .authTokens(authTokens)
                 .name(member.getName())
                 .role(member.getRole().name())
