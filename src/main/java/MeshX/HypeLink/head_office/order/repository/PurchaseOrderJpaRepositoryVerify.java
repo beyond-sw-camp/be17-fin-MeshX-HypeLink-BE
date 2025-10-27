@@ -53,6 +53,10 @@ public class PurchaseOrderJpaRepositoryVerify {
         throw new PurchaseOrderException(NOT_FOUND);
     }
 
+    public List<PurchaseOrder> findAllByPurchaseOrderState(PurchaseOrderState state) {
+        return repository.findAllByPurchaseOrderState(state);
+    }
+
     public Page<PurchaseOrder> findAllOrderWithPriority(Pageable pageable) {
         QPurchaseOrder p = QPurchaseOrder.purchaseOrder;
 
