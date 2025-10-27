@@ -172,8 +172,7 @@ public class PaymentService {
         log.info("OrderItem 생성 루프 시작. 총 {}개 아이템.", orderData.getItems().size());
         for (ReceiptItemDto itemDto : orderData.getItems()) {
             log.info("아이템 처리 시작. productId: {}, quantity: {}", itemDto.getProductId(), itemDto.getQuantity());
-            StoreItem storeItem = storeItemRepository.findById(itemDto.getProductId())
-                    .orElseThrow(() -> new PaymentException(ITEM_NOT_FOUND));
+            StoreItem storeItem = storeItemRepository.findById(itemDto.getProductId());
             log.info("StoreItem 조회 완료. storeItemId: {}", storeItem.getId());
 
             OrderItem orderItem = OrderItem.builder()
