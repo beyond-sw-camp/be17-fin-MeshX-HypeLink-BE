@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class PaymentValidationReq {
+    private String name;
     private String paymentId;        // PortOne 결제 ID
     private ReceiptCreateReq orderData;  // 영수증 데이터
 }

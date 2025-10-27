@@ -1,6 +1,10 @@
 package MeshX.HypeLink.direct_store.payment.service;
 
+import MeshX.HypeLink.auth.model.entity.Member;
+import MeshX.HypeLink.auth.model.entity.POS;
 import MeshX.HypeLink.auth.model.entity.Store;
+import MeshX.HypeLink.auth.repository.MemberJpaRepositoryVerify;
+import MeshX.HypeLink.auth.repository.PosJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItemDetail;
 import MeshX.HypeLink.direct_store.item.repository.StoreItemDetailJpaRepositoryVerify;
@@ -15,11 +19,12 @@ import MeshX.HypeLink.head_office.customer.model.entity.Customer;
 import MeshX.HypeLink.head_office.customer.model.entity.CustomerReceipt;
 import MeshX.HypeLink.head_office.customer.model.entity.OrderItem;
 import MeshX.HypeLink.head_office.customer.model.entity.PaymentStatus;
+import MeshX.HypeLink.head_office.customer.repository.CustomerJpaReceiptRepositoryVerify;
 import MeshX.HypeLink.head_office.customer.repository.CustomerJpaRepositoryVerify;
-import MeshX.HypeLink.head_office.customer.repository.CustomerReceiptRepository;
 import io.portone.sdk.server.payment.Payment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,12 +55,14 @@ import static MeshX.HypeLink.direct_store.payment.exception.PaymentExceptionMess
 public class PaymentService {
 
     private final PortOneService portOneService;
-    private final CustomerReceiptRepository receiptRepository;
+    private final CustomerJpaReceiptRepositoryVerify receiptRepository;
     private final CustomerJpaRepositoryVerify customerRepository;
     private final StoreItemDetailJpaRepositoryVerify storeItemDetailRepository;
     private final PaymentJpaRepositoryVerify paymentRepository;
     private final PortOneConfig portOneConfig;
     private final StoreJpaRepositoryVerify storeRepository;
+    private final PosJpaRepositoryVerify posRepository;
+    private final MemberJpaRepositoryVerify memberRepository;
 
 
     @Transactional
@@ -126,28 +133,25 @@ public class PaymentService {
     private void createReceiptAndPayment(PaymentValidationReq req,
                                          Payment.Recognized portOnePayment,
                                          Integer actualAmount) {
-        log.info("createReceiptAndPayment 메서드 시작. paymentId: {}", req.getPaymentId());
         ReceiptCreateReq orderData = req.getOrderData();
 
 
         Customer customer = null;
         if (orderData.getMemberId() != null) {
             customer = customerRepository.findById(orderData.getMemberId());
-            log.info("고객 정보 조회 완료. customerId: {}", customer != null ? customer.getId() : "null");
         } else {
-            log.info("비회원 결제. memberId: null");
         }
 
-        Store store = storeRepository.findById(orderData.getStoreId());
-        log.info("가게 정보 조회 완료. storeId: {}", store != null ? store.getId() : "null");
 
-        String merchantUid = "ORDER-" + UUID.randomUUID().toString();
-        log.info("merchantUid 생성: {}", merchantUid);
+        Store store = storeRepository.findById(orderData.getStoreId());
+
+        String merchantUid = req.getName() + "-" +
+                             UUID.randomUUID().toString().substring(0, 8);
+
 
         Integer totalAmount = orderData.getItems().stream()
                 .mapToInt(ReceiptItemDto::getSubtotal)
                 .sum();
-        log.info("주문 상품 총액 계산 완료. totalAmount: {}", totalAmount);
 
         CustomerReceipt receipt = CustomerReceipt.builder()
                 .pgProvider("portone")
@@ -164,23 +168,17 @@ public class PaymentService {
                 .status(PaymentStatus.PAID)
                 .paidAt(LocalDateTime.now())
                 .build();
+        log.warn(receipt.getMerchantUid());
         log.info("CustomerReceipt 객체 생성 완료. merchantUid: {}", receipt.getMerchantUid());
 
         log.info("OrderItem 생성 루프 시작. 총 {}개 아이템.", orderData.getItems().size());
         for (ReceiptItemDto itemDto : orderData.getItems()) {
             log.info("아이템 처리 시작. storeItemDetailId: {}, quantity: {}", itemDto.getStoreItemDetailId(), itemDto.getQuantity());
             StoreItemDetail storeItemDetail = storeItemDetailRepository.findById(itemDto.getStoreItemDetailId());
-            log.info("StoreItemDetail 조회 완료. storeItemDetailId: {}, color: {}, size: {}, 현재 재고: {}",
-                    storeItemDetail.getId(), storeItemDetail.getColor(), storeItemDetail.getSize(), storeItemDetail.getStock());
+
 
             // 재고 확인
             if (storeItemDetail.getStock() < itemDto.getQuantity()) {
-                log.warn("재고 부족: {} ({}/{}) - 현재 재고: {}, 주문 수량: {}",
-                        itemDto.getProductName(),
-                        storeItemDetail.getColor(),
-                        storeItemDetail.getSize(),
-                        storeItemDetail.getStock(),
-                        itemDto.getQuantity());
                 throw new PaymentException(INSUFFICIENT_STOCK);
             }
 
