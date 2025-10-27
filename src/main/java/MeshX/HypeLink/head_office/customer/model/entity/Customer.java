@@ -18,10 +18,9 @@ public class Customer extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String membershipNumber;
     private String name;
-    private String email;
-    private String password;
+
+    @Column(unique = true, nullable = false)
     private String phone;
 
     @Column(nullable = false)
@@ -34,19 +33,12 @@ public class Customer extends BaseEntity {
     private List<CustomerCoupon> customerCoupons = new ArrayList<>();
 
     @Builder
-    public Customer(String membershipNumber, String name, String email, String password, String phone, LocalDate birthDate, List<CustomerReceipt> customerReceipts, List<CustomerCoupon> customerCoupons) {
-        this.membershipNumber = membershipNumber;
+    public Customer(String name, String phone, LocalDate birthDate, List<CustomerReceipt> customerReceipts, List<CustomerCoupon> customerCoupons) {
         this.name = name;
-        this.email = email;
-        this.password = password;
         this.phone = phone;
         this.birthDate = birthDate;
         this.customerReceipts = customerReceipts;
         this.customerCoupons = customerCoupons;
-    }
-
-    public void updatePassword(String password) {
-        this.password = password;
     }
 
     public void updatePhone(String phone) {

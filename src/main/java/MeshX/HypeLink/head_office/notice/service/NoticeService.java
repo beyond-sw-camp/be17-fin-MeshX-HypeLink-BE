@@ -15,6 +15,7 @@ import MeshX.HypeLink.image.model.entity.Image;
 import MeshX.HypeLink.image.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,8 +48,8 @@ public class NoticeService {
         return NoticeInfoListRes.toDto(notices);
     }
 
-    public PageRes<NoticeListResponse> readList(PageReq pageReq){
-        Page<Notice> entityPage = repository.findAll(pageReq);
+    public PageRes<NoticeListResponse> readList(Pageable pageable){
+        Page<Notice> entityPage = repository.findAll(pageable);
         Page<NoticeListResponse> dtoPage = NoticeListResponse.toDtoPage(entityPage);
         return PageRes.toDto(dtoPage);
     }

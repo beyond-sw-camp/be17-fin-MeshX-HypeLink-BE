@@ -93,7 +93,6 @@ public class PortOneService {
         try {
             Payment payment = getPayment(paymentId);
 
-            // Payment.Recognized 타입 확인
             if (!(payment instanceof Payment.Recognized)) {
                 return false;
             }

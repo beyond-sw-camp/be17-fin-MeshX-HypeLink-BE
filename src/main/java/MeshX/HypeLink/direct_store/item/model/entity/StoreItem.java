@@ -2,11 +2,9 @@ package MeshX.HypeLink.direct_store.item.model.entity;
 
 import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.common.BaseEntity;
-import MeshX.HypeLink.head_office.customer.model.entity.OrderItem;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.List;
 
 @Entity
 @Getter
@@ -16,16 +14,17 @@ public class StoreItem extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
-    private StoreCategory category;;
+    private StoreCategory category;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id")
     private Store store;
 
-    @OneToMany(mappedBy = "storeItem", fetch = FetchType.LAZY)
-    private List<OrderItem> orderItems;
+    // OrderItem과의 관계 제거 - OrderItem은 이제 StoreItemDetail과 연결됨
 
 //    @Column(unique = true, nullable = false)
     private String itemCode; // 아이템 코드
@@ -37,12 +36,11 @@ public class StoreItem extends BaseEntity {
     private String company; // 회사
 
     @Builder
-    private StoreItem(StoreCategory category, Store store, List<OrderItem> orderItems, String itemCode,
+    private StoreItem(StoreCategory category, Store store, String itemCode,
                       Integer unitPrice, Integer amount, String enName, String koName,
                       String content, String company) {
         this.category = category;
         this.store = store;
-        this.orderItems = orderItems;
         this.itemCode = itemCode;
         this.unitPrice = unitPrice;
         this.amount = amount;

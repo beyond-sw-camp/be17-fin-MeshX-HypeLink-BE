@@ -34,4 +34,12 @@ public class Shipment extends BaseEntity {
         this.driver = driver;
         this.shipmentStatus = shipmentStatus;
     }
+
+    public void updateDriver(Driver driver) {
+        this.driver = driver;
+    }
+
+    public void updateShipmentStatus(ShipmentStatus shipmentStatus) {
+        this.shipmentStatus = shipmentStatus;
+    }
 }

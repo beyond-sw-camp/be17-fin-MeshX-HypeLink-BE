@@ -1,7 +1,6 @@
 package MeshX.HypeLink.head_office.promotion.repository;
 
 
-import MeshX.HypeLink.common.Page.PageReq;
 import MeshX.HypeLink.head_office.promotion.exception.PromotionException;
 import MeshX.HypeLink.head_office.promotion.model.entity.Promotion;
 
@@ -49,13 +48,6 @@ public class PromotionJpaRepositoryVerify {
         throw new PromotionException(NOT_FOUND);
     }
 
-    public List<String> findBranchNamesByPromotionId(Integer promotionId) {
-        List<String> branchNames = repository.findBranchNamesByPromotionId(promotionId);
-        if (branchNames.isEmpty()) {
-            return List.of("지점 없음");
-        }
-        return branchNames;
-    }
 
     public void delete(Promotion entity) {
         repository.delete(entity);

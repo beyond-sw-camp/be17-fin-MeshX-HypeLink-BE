@@ -6,14 +6,16 @@ import MeshX.HypeLink.head_office.customer.model.dto.request.CustomerSignupReq;
 import MeshX.HypeLink.head_office.customer.model.dto.request.CustomerUpdateReq;
 import MeshX.HypeLink.head_office.customer.model.dto.response.CustomerInfoListRes;
 import MeshX.HypeLink.head_office.customer.model.dto.response.CustomerInfoRes;
+import MeshX.HypeLink.head_office.customer.model.dto.response.ReceiptListRes;
 import MeshX.HypeLink.head_office.customer.model.entity.Customer;
-import MeshX.HypeLink.head_office.customer.model.entity.CustomerCoupon; // Import CustomerCoupon
+import MeshX.HypeLink.head_office.customer.model.entity.CustomerCoupon;
+import MeshX.HypeLink.head_office.customer.model.entity.CustomerReceipt;
 import MeshX.HypeLink.head_office.customer.repository.CustomerJpaRepositoryVerify;
+import MeshX.HypeLink.head_office.customer.repository.CustomerReceiptRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import jakarta.persistence.EntityNotFoundException; // Import EntityNotFoundException
 
-import java.time.LocalDate; // Import LocalDate
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -22,9 +24,10 @@ public class CustomerService {
 
     private final CustomerJpaRepositoryVerify customerRepository;
     private final CouponJpaRepositoryVerify couponRepository;
+    private final CustomerReceiptRepository receiptRepository;
 
     public void signup (CustomerSignupReq dto) {
-        customerRepository.save(dto.toEntity());
+        customerRepository.saveNewCustomer(dto.toEntity());
     }
 
     public CustomerInfoRes findById (Integer id) {
@@ -43,9 +46,6 @@ public class CustomerService {
     public CustomerInfoRes update(CustomerUpdateReq dto) {
         Customer customer = customerRepository.findById(dto.getId());
 
-        if(dto.getPassword() != null && !dto.getPassword().isEmpty() ) {
-            customer.updatePassword(dto.getPassword());
-        }
 
         if(dto.getPhone() != null && !dto.getPhone().isEmpty()) {
             customer.updatePhone(dto.getPhone());
@@ -70,5 +70,16 @@ public class CustomerService {
 
         customer.addCustomerCoupon(issuedCustomerCoupon);
         customerRepository.save(customer);
+    }
+
+    public CustomerInfoRes findByPhone(String phone) {
+        Customer customer = customerRepository.findByPhoneWithCoupons(phone);
+        return CustomerInfoRes.toDto(customer);
+    }
+
+    // 매장별 주문 내역 조회
+    public ReceiptListRes getReceiptsByStoreId(Integer storeId) {
+        List<CustomerReceipt> receipts = receiptRepository.findByStoreIdOrderByPaidAtDesc(storeId);
+        return ReceiptListRes.toDto(receipts);
     }
 }

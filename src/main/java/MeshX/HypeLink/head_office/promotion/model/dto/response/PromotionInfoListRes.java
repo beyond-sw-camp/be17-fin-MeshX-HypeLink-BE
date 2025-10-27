@@ -2,9 +2,11 @@ package MeshX.HypeLink.head_office.promotion.model.dto.response;
 
 import MeshX.HypeLink.head_office.promotion.model.entity.Promotion;
 import lombok.Builder;
+import lombok.Getter;
 
 import java.util.List;
 
+@Getter
 public class PromotionInfoListRes {
     private List<PromotionInfoRes> promotions;
 

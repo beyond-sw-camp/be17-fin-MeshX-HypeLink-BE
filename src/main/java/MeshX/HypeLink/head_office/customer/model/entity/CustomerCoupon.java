@@ -2,6 +2,7 @@ package MeshX.HypeLink.head_office.customer.model.entity;
 
 import MeshX.HypeLink.common.BaseEntity;
 import MeshX.HypeLink.head_office.coupon.model.entity.Coupon;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -33,6 +34,7 @@ public class CustomerCoupon extends BaseEntity {
     @Column(nullable = false)
     private LocalDate expirationDate;
 
+    @JsonProperty("isUsed")
     @Column(nullable = false)
     private boolean isUsed;
 
