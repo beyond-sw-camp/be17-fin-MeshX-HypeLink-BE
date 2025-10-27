@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 public class StoreItemService {
     private final StoreJpaRepositoryVerify storeRepository;
     private final StoreItemJpaRepositoryVerify storeItemRepository;
-    private final StoreItemDetailRepositoryVerify storeItemDetailRepository;
+    private final StoreItemDetailJpaRepositoryVerify storeItemDetailRepository;
     private final StoreItemDetailRepository storeItemDetailQueryRepository;  // 조회용
     private final StoreItemImageRepositoryVerify storeItemImageRepository;
     private final StoreCategoryJpaRepositoryVerify storeCategoryRepository;
