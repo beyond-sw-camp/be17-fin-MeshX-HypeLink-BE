@@ -1,7 +1,6 @@
 package MeshX.HypeLink.head_office.order.service;
 
 import MeshX.HypeLink.auth.model.entity.Member;
-import MeshX.HypeLink.auth.model.entity.MemberRole;
 import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.auth.repository.MemberJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
@@ -30,6 +29,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static MeshX.HypeLink.auth.model.entity.MemberRole.*;
 import static MeshX.HypeLink.head_office.order.exception.PurchaseOrderExceptionMessage.UNDER_ZERO;
 
 @Service
@@ -128,10 +129,19 @@ public class PurchaseOrderService {
         return PurchaseOrderInfoDetailListRes.toDto(purchaseOrders);
     }
 
-    public PageRes<PurchaseOrderInfoDetailRes> getList(Pageable pageReq) {
-        Page<PurchaseOrder> orders = orderRepository.findAll(pageReq);
-        Page<PurchaseOrderInfoDetailRes> dtoPage = PurchaseOrderInfoDetailRes.toDtoPage(orders);
-        return PageRes.toDto(dtoPage);
+    public PageRes<PurchaseOrderInfoDetailRes> getList(Pageable pageReq, UserDetails userDetails) {
+        String email = userDetails.getUsername();
+        Member member = memberRepository.findByEmail(email);
+        if(member.getRole().equals(BRANCH_MANAGER)) {
+            Page<PurchaseOrder> orderPage = orderRepository.findByRequester(member, pageReq);
+            Page<PurchaseOrderInfoDetailRes> dtoPage = PurchaseOrderInfoDetailRes.toDtoPage(orderPage);
+            return PageRes.toDto(dtoPage);
+        } else if (member.getRole().equals(ADMIN) || member.getRole().equals(MANAGER)) {
+            Page<PurchaseOrder> orders = orderRepository.findAllOrderWithPriority(pageReq);
+            Page<PurchaseOrderInfoDetailRes> dtoPage = PurchaseOrderInfoDetailRes.toDtoPage(orders);
+            return PageRes.toDto(dtoPage);
+        }
+        throw new BaseException(null);
     }
 
     public PageRes<PurchaseOrderInfoRes> getPurchaseOrderList(Pageable pageReq, String keyWord, String category) {
