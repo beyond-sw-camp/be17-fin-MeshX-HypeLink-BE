@@ -2,7 +2,6 @@ package MeshX.HypeLink.head_office.customer.model.dto.response;
 
 import MeshX.HypeLink.head_office.customer.model.entity.Customer;
 import MeshX.HypeLink.head_office.customer.model.entity.CustomerCoupon;
-import MeshX.HypeLink.head_office.customer.model.entity.CustomerReceipt;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -16,8 +15,8 @@ public class CustomerInfoRes {
     private String name;
     private String phone;
     private LocalDate birthday;
-    private List<CustomerCouponRes> customerCoupons; // Change to CustomerCouponRes
-    private List<CustomerReceipt> customerReceiptList;
+    private List<CustomerCouponRes> customerCoupons;
+    private List<ReceiptRes> customerReceiptList;
 
     public static CustomerInfoRes toDto (Customer entity) {
         return CustomerInfoRes.builder()
@@ -27,8 +26,10 @@ public class CustomerInfoRes {
                 .birthday(entity.getBirthDate())
                 .customerCoupons(entity.getCustomerCoupons().stream()
                                         .map(CustomerCouponRes::toDto)
-                                        .collect(Collectors.toList())) // Map to CustomerCouponRes
-                .customerReceiptList(entity.getCustomerReceipts())
+                                        .collect(Collectors.toList()))
+                .customerReceiptList(entity.getCustomerReceipts().stream()
+                                        .map(ReceiptRes::toDto)
+                                        .collect(Collectors.toList()))
                 .build();
     }
 
@@ -40,7 +41,7 @@ public class CustomerInfoRes {
 
     @Builder
     private CustomerInfoRes(Integer customerId, String email, String name, String phone, LocalDate birthday,
-                            List<CustomerCouponRes> customerCoupons, List<CustomerReceipt> customerReceiptList) { // Change to CustomerCouponRes
+                            List<CustomerCouponRes> customerCoupons, List<ReceiptRes> customerReceiptList) {
         this.customerId = customerId;
         this.name = name;
         this.phone = phone;
