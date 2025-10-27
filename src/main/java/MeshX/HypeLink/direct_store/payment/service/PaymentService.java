@@ -3,7 +3,7 @@ package MeshX.HypeLink.direct_store.payment.service;
 import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItemDetail;
-import MeshX.HypeLink.direct_store.item.repository.StoreItemDetailRepository;
+import MeshX.HypeLink.direct_store.item.repository.StoreItemDetailJpaRepositoryVerify;
 import MeshX.HypeLink.direct_store.payment.config.PortOneConfig;
 import MeshX.HypeLink.direct_store.payment.exception.PaymentException;
 import MeshX.HypeLink.direct_store.payment.model.dto.request.PaymentValidationReq;
@@ -52,7 +52,7 @@ public class PaymentService {
     private final PortOneService portOneService;
     private final CustomerReceiptRepository receiptRepository;
     private final CustomerJpaRepositoryVerify customerRepository;
-    private final StoreItemDetailRepository storeItemDetailRepository;
+    private final StoreItemDetailJpaRepositoryVerify storeItemDetailRepository;
     private final PaymentJpaRepositoryVerify paymentRepository;
     private final PortOneConfig portOneConfig;
     private final StoreJpaRepositoryVerify storeRepository;
