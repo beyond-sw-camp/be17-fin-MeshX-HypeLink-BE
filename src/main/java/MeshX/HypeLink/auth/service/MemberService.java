@@ -15,6 +15,8 @@ import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
 import MeshX.HypeLink.utils.geocode.model.dto.GeocodeDto;
 import MeshX.HypeLink.utils.geocode.service.GeocodingService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 
 import static MeshX.HypeLink.auth.exception.MemberExceptionMessage.ID_MISMATCH;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -326,5 +329,14 @@ public class MemberService {
             memberJpaRepositoryVerify.delete(driverMember);
         }
 
+    }
+
+    public Integer getMyStoreId(UserDetails userDetails) {
+
+        Member member = memberJpaRepositoryVerify.findByEmail(userDetails.getUsername());
+
+        Store store = storeJpaRepositoryVerify.findByMember(member);
+
+        return store.getId();
     }
 }

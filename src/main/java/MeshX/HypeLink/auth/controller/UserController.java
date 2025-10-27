@@ -63,6 +63,13 @@ public class UserController {
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 
+    @GetMapping("/mystoreid")
+    public ResponseEntity<BaseResponse<Integer>> getMyStoreId(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Integer result = memberService.getMyStoreId(userDetails);
+        return ResponseEntity.ok(BaseResponse.of(result));
+    }
+
     @GetMapping("/storeinfo/read/{id}")
     public ResponseEntity<BaseResponse<StoreInfoResDto>> readStoreInfo(@PathVariable Integer id) {
         StoreInfoResDto result = memberService.readStoreInfo(id);
