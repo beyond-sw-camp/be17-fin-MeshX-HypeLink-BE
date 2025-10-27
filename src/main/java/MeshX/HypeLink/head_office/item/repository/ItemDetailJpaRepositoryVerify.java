@@ -1,5 +1,9 @@
 package MeshX.HypeLink.head_office.item.repository;
 
+import MeshX.HypeLink.auth.model.entity.Member;
+import MeshX.HypeLink.auth.repository.MemberJpaRepositoryVerify;
+import MeshX.HypeLink.auth.repository.MemberRepository;
+import MeshX.HypeLink.auth.service.MemberService;
 import MeshX.HypeLink.common.exception.BaseException;
 import MeshX.HypeLink.head_office.item.model.entity.*;
 import MeshX.HypeLink.head_office.order.model.dto.response.PurchaseOrderInfoRes;
@@ -27,6 +31,7 @@ import static MeshX.HypeLink.head_office.item.exception.ItemExceptionMessage.NOT
 public class ItemDetailJpaRepositoryVerify {
     private final ItemDetailRepository repository;
     private final JPAQueryFactory jpaQueryFactory;
+    private final MemberJpaRepositoryVerify memberRepository;
 
     public void save(ItemDetail entity) {
         repository.save(entity);
@@ -46,6 +51,14 @@ public class ItemDetailJpaRepositoryVerify {
 
     public ItemDetail findByItemDetailCode(String itemDetailCode) {
         Optional<ItemDetail> optional = repository.findByItemDetailCode(itemDetailCode);
+        if(optional.isPresent()) {
+            return optional.get();
+        }
+        throw new BaseException(null);
+    }
+
+    public ItemDetail findByItemDetailCodeWithLock(String itemDetailCode) {
+        Optional<ItemDetail> optional = repository.findByItemDetailCodeForUpdateWithLock(itemDetailCode);
         if(optional.isPresent()) {
             return optional.get();
         }
@@ -83,12 +96,13 @@ public class ItemDetailJpaRepositoryVerify {
     }
 
     public Page<PurchaseOrderInfoRes> findItemsAndPurchaseOrdersWithPaging(Pageable pageable, String keyword, String category) {
+        Member head = memberRepository.findByEmail("hq@company.com");
 //        return repository.findItemDetailWithRequestedTotalQuantity(pageable);
-        return findItemDetailWithRequestedTotalQuantity(pageable, keyword, category);
+        return findItemDetailWithRequestedTotalQuantity(pageable, keyword, category, head);
     } // 변경
 
     public Page<PurchaseOrderInfoRes> findItemDetailWithRequestedTotalQuantity(
-            Pageable pageable, String keyword, String category) {
+            Pageable pageable, String keyword, String category, Member head) {
         // 검색 조건 생성
         BooleanBuilder where = buildSearchCondition(keyword, category);
 
@@ -96,7 +110,7 @@ public class ItemDetailJpaRepositoryVerify {
         NumberExpression<Integer> requestedQtySum = buildRequestedQuantitySum();
 
         // 메인 리스트 조회
-        List<PurchaseOrderInfoRes> content = fetchPurchaseOrderInfoList(pageable, where, requestedQtySum);
+        List<PurchaseOrderInfoRes> content = fetchPurchaseOrderInfoList(pageable, where, requestedQtySum, head);
 
         // 총 개수 조회
         Long total = fetchTotalCount(where);
@@ -146,7 +160,8 @@ public class ItemDetailJpaRepositoryVerify {
     private List<PurchaseOrderInfoRes> fetchPurchaseOrderInfoList(
             Pageable pageable,
             BooleanBuilder where,
-            NumberExpression<Integer> requestedQtySum
+            NumberExpression<Integer> requestedQtySum,
+            Member head
     ) {
         QItemDetail d = QItemDetail.itemDetail;
         QItem i = QItem.item;
@@ -171,7 +186,7 @@ public class ItemDetailJpaRepositoryVerify {
                 .leftJoin(d.item, i)
                 .leftJoin(i.category, c)
                 .leftJoin(d.color, col)
-                .leftJoin(p).on(p.itemDetail.eq(d))
+                .leftJoin(p).on(p.itemDetail.eq(d).and(p.requester.eq(head)))
                 .where(where)
                 .groupBy(
                         i.id, i.koName, i.enName, c.category,

@@ -3,7 +3,11 @@ package MeshX.HypeLink.direct_store.item.service;
 import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
 import MeshX.HypeLink.common.Page.PageRes;
+import MeshX.HypeLink.common.exception.BaseException;
 import MeshX.HypeLink.direct_store.item.model.dto.request.SaveStoreItemListReq;
+import MeshX.HypeLink.direct_store.item.model.dto.request.UpdateStoreItemDetailReq;
+import MeshX.HypeLink.direct_store.item.model.dto.response.StoreItemDetailInfoRes;
+import MeshX.HypeLink.direct_store.item.model.dto.response.StoreItemDetailsInfoRes;
 import MeshX.HypeLink.direct_store.item.model.dto.response.StoreItemDetailRes;
 import MeshX.HypeLink.direct_store.item.model.dto.request.SaveStoreItemImageReq;
 import MeshX.HypeLink.direct_store.item.model.dto.request.SaveStoreItemReq;
@@ -56,7 +60,7 @@ public class StoreItemService {
 
     // 특정 매장의 전체 상품 조회 (페이징)
     public PageRes<StoreItemDetailRes> findItemDetailsByStoreId(Integer storeId, Pageable pageable) {
-        Page<StoreItemDetail> page = storeItemDetailQueryRepository.findByStoreId(storeId, pageable);
+        Page<StoreItemDetail> page = storeItemDetailRepository.findByStoreIdWithPage(storeId, pageable);
         Page<StoreItemDetailRes> mapped = page.map(StoreItemDetailRes::toDto);
         return PageRes.toDto(mapped);
     }
@@ -84,8 +88,7 @@ public class StoreItemService {
 
     // 바코드로 상품 조회
     public StoreItemDetailRes findItemDetailByBarcode(String itemDetailCode) {
-        StoreItemDetail detail = storeItemDetailQueryRepository.findByItemDetailCode(itemDetailCode)
-                .orElseThrow(() -> new RuntimeException("Item not found with barcode: " + itemDetailCode));
+        StoreItemDetail detail = storeItemDetailRepository.findByItemDetailCode(itemDetailCode);
         return StoreItemDetailRes.toDto(detail);
     }
 
@@ -121,5 +124,33 @@ public class StoreItemService {
                 .map(image -> image.toEntity(storeItem))
                 .toList();
         storeItemImageRepository.saveAllSkipDuplicate(images);
+    }
+
+    public PageRes<StoreItemDetailsInfoRes> findPurchaseOrderList(Integer storeId, Pageable pageReq,
+                                                                  String keyWord, String category) {
+        Page<StoreItemDetailsInfoRes> pageList = storeItemDetailRepository.findItemDetailWithRequestedTotalQuantity(
+                storeId, pageReq, keyWord, category);
+        return PageRes.toDto(pageList);
+    }
+
+    public StoreItemDetailInfoRes findItemDetailByItemDetailCode(String itemCode, String itemDetailCode, Integer storeId) {
+        Store store = storeRepository.findById(storeId);
+        StoreItem storeItem = storeItemRepository.findByStoreAndItemCode(store, itemCode);
+
+        StoreItemDetail storeItemDetail = storeItemDetailRepository.findByStoreItemAndItemDetailCode(storeItem, itemDetailCode);
+
+        return StoreItemDetailInfoRes.toDto(storeItemDetail);
+    }
+
+    @Transactional
+    public void updateItemDetail(UpdateStoreItemDetailReq dto) {
+        Store store = storeRepository.findById(dto.getStoreId());
+        StoreItem storeItem = storeItemRepository.findByStoreAndItemCode(store, dto.getItemCode());
+
+        StoreItemDetail storeItemDetail = storeItemDetailRepository.findByStoreItemAndItemDetailCodeWithLock(storeItem, dto.getItemDetailCode());
+        if(storeItemDetail.getStock() + dto.getUpdateStock() < 0){
+            throw new BaseException(null);
+        }
+        storeItemDetail.updateStock(dto.getUpdateStock());
     }
 }

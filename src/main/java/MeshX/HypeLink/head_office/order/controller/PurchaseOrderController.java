@@ -10,6 +10,8 @@ import MeshX.HypeLink.head_office.order.service.PurchaseOrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -43,8 +45,9 @@ public class PurchaseOrderController {
     }
 
     @GetMapping("/page/all")
-    public ResponseEntity<BaseResponse<PageRes<PurchaseOrderInfoDetailRes>>> getPurchaseOrders(Pageable pageReq) {
-        PageRes<PurchaseOrderInfoDetailRes> pageRes = headPurchaseOrderService.getList(pageReq);
+    public ResponseEntity<BaseResponse<PageRes<PurchaseOrderInfoDetailRes>>> getPurchaseOrders(Pageable pageReq,
+                                                                                               @AuthenticationPrincipal UserDetails userDetails) {
+        PageRes<PurchaseOrderInfoDetailRes> pageRes = headPurchaseOrderService.getList(pageReq, userDetails);
         return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
     }
 
