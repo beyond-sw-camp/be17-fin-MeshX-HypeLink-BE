@@ -3,8 +3,6 @@ package MeshX.HypeLink.head_office.customer.model.entity;
 import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.common.BaseEntity;
 import MeshX.HypeLink.direct_store.payment.model.entity.Payments;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -33,9 +31,7 @@ public class CustomerReceipt extends BaseEntity {
     private String merchantUid;  // 우리 시스템 주문번호
 
     @Column(nullable = false)
-    private Integer totalAmount;     // 총액
-
-    private Integer amount;
+    private Integer totalAmount;     // 총액(할인전)
 
     private Integer discountAmount;  // 할인액
     private Integer couponDiscount;  // 쿠폰 할인액
@@ -43,16 +39,13 @@ public class CustomerReceipt extends BaseEntity {
     @Column(nullable = false)
     private Integer finalAmount;     // 최종 결제 금액
 
-    @JsonManagedReference
     @OneToMany(mappedBy = "customerReceipt", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "store_id")
     private Store store;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = true)
     private Customer customer;
@@ -65,7 +58,6 @@ public class CustomerReceipt extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
-    @JsonIgnore
     @OneToOne(mappedBy = "customerReceipt")
     private Payments payments;
 
@@ -74,7 +66,7 @@ public class CustomerReceipt extends BaseEntity {
 
     @Builder
     public CustomerReceipt(String pgProvider, String pgTid, String merchantUid,
-                           Integer amount, Integer totalAmount, Integer discountAmount,
+                           Integer totalAmount, Integer discountAmount,
                            Integer couponDiscount, Integer finalAmount,
                            Store store, Customer customer,
                            String memberName, String memberPhone,
@@ -83,7 +75,6 @@ public class CustomerReceipt extends BaseEntity {
         this.pgProvider = pgProvider;
         this.pgTid = pgTid;
         this.merchantUid = merchantUid;
-        this.amount = amount;
         this.totalAmount = totalAmount;
         this.discountAmount = discountAmount;
         this.couponDiscount = couponDiscount;

@@ -2,8 +2,8 @@ package MeshX.HypeLink.direct_store.payment.service;
 
 import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
-import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
-import MeshX.HypeLink.direct_store.item.repository.StoreItemJpaRepositoryVerify;
+import MeshX.HypeLink.direct_store.item.model.entity.StoreItemDetail;
+import MeshX.HypeLink.direct_store.item.repository.StoreItemDetailRepository;
 import MeshX.HypeLink.direct_store.payment.config.PortOneConfig;
 import MeshX.HypeLink.direct_store.payment.exception.PaymentException;
 import MeshX.HypeLink.direct_store.payment.model.dto.request.PaymentValidationReq;
@@ -52,14 +52,14 @@ public class PaymentService {
     private final PortOneService portOneService;
     private final CustomerReceiptRepository receiptRepository;
     private final CustomerJpaRepositoryVerify customerRepository;
-    private final StoreItemJpaRepositoryVerify storeItemRepository;
+    private final StoreItemDetailRepository storeItemDetailRepository;
     private final PaymentJpaRepositoryVerify paymentRepository;
     private final PortOneConfig portOneConfig;
     private final StoreJpaRepositoryVerify storeRepository;
 
 
     @Transactional
-    public CustomerReceipt validatePayment(PaymentValidationReq req) {
+    public void validatePayment(PaymentValidationReq req) {
         try {
             // 포트원 서버에서 결제정보를 가져와서 진짜 결제가 완료 됐는지 검증
             Payment.Recognized portOnePayment = fetchAndValidatePortOnePayment(req.getPaymentId());
@@ -71,9 +71,7 @@ public class PaymentService {
             validatePaymentAmount(req.getPaymentId(), expectedAmount, actualAmount);
 
             // CustomerReceipt 및 Payment 생성
-            CustomerReceipt receipt = createReceiptAndPayment(req, portOnePayment, actualAmount);
-
-            return receipt;
+            createReceiptAndPayment(req, portOnePayment, actualAmount);
 
         } catch (Exception e) { // 어떤 종류의 예외든 여기서 한 번에 잡습니다.
             // 1. 먼저 결제를 취소합니다.
@@ -125,9 +123,9 @@ public class PaymentService {
     }
 
 
-    private CustomerReceipt createReceiptAndPayment(PaymentValidationReq req,
-                                                    Payment.Recognized portOnePayment,
-                                                    Integer actualAmount) {
+    private void createReceiptAndPayment(PaymentValidationReq req,
+                                         Payment.Recognized portOnePayment,
+                                         Integer actualAmount) {
         log.info("createReceiptAndPayment 메서드 시작. paymentId: {}", req.getPaymentId());
         ReceiptCreateReq orderData = req.getOrderData();
 
@@ -155,7 +153,6 @@ public class PaymentService {
                 .pgProvider("portone")
                 .pgTid(portOnePayment.getTransactionId())
                 .merchantUid(merchantUid)
-                .amount(actualAmount)
                 .totalAmount(totalAmount)
                 .discountAmount(0)
                 .couponDiscount(orderData.getCouponDiscount() != null ? orderData.getCouponDiscount() : 0)
@@ -171,18 +168,34 @@ public class PaymentService {
 
         log.info("OrderItem 생성 루프 시작. 총 {}개 아이템.", orderData.getItems().size());
         for (ReceiptItemDto itemDto : orderData.getItems()) {
-            log.info("아이템 처리 시작. productId: {}, quantity: {}", itemDto.getProductId(), itemDto.getQuantity());
-            StoreItem storeItem = storeItemRepository.findById(itemDto.getProductId())
+            log.info("아이템 처리 시작. storeItemDetailId: {}, quantity: {}", itemDto.getStoreItemDetailId(), itemDto.getQuantity());
+            StoreItemDetail storeItemDetail = storeItemDetailRepository.findById(itemDto.getStoreItemDetailId())
                     .orElseThrow(() -> new PaymentException(ITEM_NOT_FOUND));
-            log.info("StoreItem 조회 완료. storeItemId: {}", storeItem.getId());
+            log.info("StoreItemDetail 조회 완료. storeItemDetailId: {}, color: {}, size: {}, 현재 재고: {}",
+                    storeItemDetail.getId(), storeItemDetail.getColor(), storeItemDetail.getSize(), storeItemDetail.getStock());
+
+            // 재고 확인
+            if (storeItemDetail.getStock() < itemDto.getQuantity()) {
+                log.warn("재고 부족: {} ({}/{}) - 현재 재고: {}, 주문 수량: {}",
+                        itemDto.getProductName(),
+                        storeItemDetail.getColor(),
+                        storeItemDetail.getSize(),
+                        storeItemDetail.getStock(),
+                        itemDto.getQuantity());
+                throw new PaymentException(INSUFFICIENT_STOCK);
+            }
+
+            // 재고 차감 (음수로 전달)
+            storeItemDetail.updateStock(-itemDto.getQuantity());
+            log.info("재고 차감 완료. 남은 재고: {}", storeItemDetail.getStock());
 
             OrderItem orderItem = OrderItem.builder()
-                    .storeItem(storeItem)
+                    .storeItemDetail(storeItemDetail)
                     .quantity(itemDto.getQuantity())
                     .unitPrice(itemDto.getUnitPrice())
                     .totalPrice(itemDto.getSubtotal())
                     .build();
-            log.info("OrderItem 객체 생성 완료. productId: {}", orderItem.getStoreItem().getId());
+            log.info("OrderItem 객체 생성 완료. storeItemDetailId: {}", orderItem.getStoreItemDetail().getId());
 
             receipt.addOrderItem(orderItem);
             log.info("OrderItem 영수증에 추가 완료.");
@@ -213,7 +226,6 @@ public class PaymentService {
         log.info("Payments 저장 완료. ID: {}", paymentsEntity.getId());
 
         log.info("createReceiptAndPayment 메서드 종료.");
-        return receipt;
     }
 
 

@@ -10,6 +10,7 @@ import MeshX.HypeLink.head_office.notice.model.dto.response.NoticeDetailRes;
 import MeshX.HypeLink.head_office.notice.model.dto.response.NoticeListResponse;
 import MeshX.HypeLink.head_office.notice.service.NoticeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,8 +33,8 @@ public class NoticeController {
     }
 
     @GetMapping("/read/page/all")
-    public ResponseEntity<BaseResponse<PageRes<NoticeListResponse>>> readNotices(PageReq pageReq) {
-        PageRes<NoticeListResponse> pageRes = noticeService.readList(pageReq);
+    public ResponseEntity<BaseResponse<PageRes<NoticeListResponse>>> readNotices(Pageable pageable) {
+        PageRes<NoticeListResponse> pageRes = noticeService.readList(pageable);
         return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
     }
 

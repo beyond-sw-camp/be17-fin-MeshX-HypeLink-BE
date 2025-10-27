@@ -116,10 +116,22 @@ public class MemberService {
     );
 
     public StoreWithPosResDto readMyStore(Member member) {
-        Store store = storeJpaRepositoryVerify.findByMember(member);
-        List<POS> pos = posJpaRepositoryVerify.findByStoreIdIn(List.of(store.getId()));
+        Store store;
 
-        return getStoreWithPosResDto(store, pos);
+        // POS_MEMBER인 경우: POS 테이블에서 member로 조회 → Store 찾기
+            // 기존 로직은 store 테이블에서 pos기를 찾았는데 pos기 테이블에서 찾아야됨.!!! ㅇ
+        if (member.getRole() == MemberRole.POS_MEMBER) {
+            POS pos = posJpaRepositoryVerify.findByMember(member);
+            store = pos.getStore();
+        } else {
+            // BRANCH_MANAGER 등 Store owner인 경우: 기존 로직
+                // 근데 어차피 pos 아이디로 로그인할거라 그냥 살려두긴했는데 필요없을듯?
+            store = storeJpaRepositoryVerify.findByMember(member);
+        }
+
+        List<POS> posList = posJpaRepositoryVerify.findByStoreIdIn(List.of(store.getId()));
+
+        return getStoreWithPosResDto(store, posList);
     }
 
 

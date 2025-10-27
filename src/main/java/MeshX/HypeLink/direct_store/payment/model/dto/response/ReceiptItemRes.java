@@ -8,8 +8,10 @@ import lombok.Getter;
 @Builder
 public class ReceiptItemRes {
     private Integer id;
-    private Integer productId;
+    private Integer storeItemDetailId;  // StoreItemDetail ID
     private String productName;
+    private String color;               // 색상 추가
+    private String size;                // 사이즈 추가
     private Integer quantity;
     private Integer unitPrice;
     private Integer totalPrice;
@@ -17,8 +19,10 @@ public class ReceiptItemRes {
     public static ReceiptItemRes toDto(OrderItem item) {
         return ReceiptItemRes.builder()
                 .id(item.getId())
-                .productId(item.getStoreItem().getId())
-                .productName(item.getStoreItem().getKoName())
+                .storeItemDetailId(item.getStoreItemDetail().getId())
+                .productName(item.getStoreItemDetail().getItem().getKoName())
+                .color(item.getStoreItemDetail().getColor())
+                .size(item.getStoreItemDetail().getSize())
                 .quantity(item.getQuantity())
                 .unitPrice(item.getUnitPrice())
                 .totalPrice(item.getTotalPrice())
