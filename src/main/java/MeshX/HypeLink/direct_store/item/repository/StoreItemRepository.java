@@ -1,5 +1,6 @@
 package MeshX.HypeLink.direct_store.item.repository;
 
+import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreCategory;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
 import org.springframework.data.domain.Page;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface StoreItemRepository extends JpaRepository<StoreItem, Integer> {
-    Optional<StoreItem> findByItemCode(String itemCode);
+    Optional<StoreItem> findByItemCodeAndStore(String itemCode, Store store);
 
     Page<StoreItem> findByEnName(String enName, Pageable pageable);
     Page<StoreItem> findByKoName(String KoName, Pageable pageable);

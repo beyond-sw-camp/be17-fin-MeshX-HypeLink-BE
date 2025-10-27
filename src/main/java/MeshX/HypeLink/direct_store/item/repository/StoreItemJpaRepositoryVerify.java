@@ -1,5 +1,6 @@
 package MeshX.HypeLink.direct_store.item.repository;
 
+import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -19,6 +20,20 @@ public class StoreItemJpaRepositoryVerify {
 
     public StoreItem save(StoreItem entity) {
         Optional<StoreItem> optional = repository.findByItemCode(entity.getItemCode());
+        if (optional.isPresent()) {
+            StoreItem existing = optional.get();
+            boolean isModified = filtering(entity, existing);
+            if (isModified) {
+                return repository.save(existing);
+            }
+            return existing;
+        }
+
+        return repository.save(entity);
+    }
+  
+    public StoreItem save(StoreItem entity, Store store) {
+        Optional<StoreItem> optional = repository.findByItemCodeAndStore(entity.getItemCode(), store);
 
         if (optional.isPresent()) {
             StoreItem existing = optional.get();

@@ -17,6 +17,7 @@ public class CreateItemReq {
     private String content;     // 아이템 설명
     private String company;     // 회사
     private List<CreateItemDetailReq> itemDetailList;
+    private List<CreateItemImageReq> itemImages;
 
     public Item toEntity(Category findCategory) {
         return Item.builder()

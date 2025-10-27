@@ -1,5 +1,6 @@
 package MeshX.HypeLink.direct_store.item.repository;
 
+import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.direct_store.item.exception.StoreCategoryException;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreCategory;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +28,8 @@ public class StoreCategoryJpaRepositoryVerify extends AbstractBatchSaveRepositor
         throw new StoreCategoryException(NOT_FOUND);
     }
 
-    public StoreCategory findByCategory(String category){
-        Optional<StoreCategory> optional = repository.findByCategory(category);
+    public StoreCategory findByCategory(String category, Store store){
+        Optional<StoreCategory> optional = repository.findByCategoryAndStore(category, store);
         if(optional.isPresent()) {
             return optional.get();
         }

@@ -20,8 +20,20 @@ public class ImageJpaRepositoryVerify {
         repository.save(entity);
     }
 
-    public Image findById(Image entity) {
-        Optional<Image> result = repository.findById(entity.getId());
+    public Image save(Image entity) {
+        return repository.save(entity);
+    }
+
+    public Image findById(Integer id) {
+        Optional<Image> result = repository.findById(id);
+        if (result.isPresent()) {
+            return result.get();
+        }
+        throw new ImageException(INVALID_IMAGE_IDX);
+    }
+
+    public Image findByOriginalFilename(String originalFilename) {
+        Optional<Image> result = repository.findByOriginalFilename(originalFilename);
         if (result.isPresent()) {
             return result.get();
         }
