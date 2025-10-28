@@ -339,4 +339,9 @@ public class MemberService {
 
         return store.getId();
     }
+
+    public StoreAddInfoListRes getStoreAddress() {
+        List<Store> storeList = storeJpaRepositoryVerify.findAllWithMember();
+        return StoreAddInfoListRes.toDto(storeList);
+    }
 }

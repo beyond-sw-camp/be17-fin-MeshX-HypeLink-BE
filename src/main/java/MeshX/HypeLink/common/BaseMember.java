@@ -5,6 +5,7 @@ import MeshX.HypeLink.auth.repository.DriverJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.MemberJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.PosJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
+import MeshX.HypeLink.common.exception.BaseException;
 import MeshX.HypeLink.head_office.customer.repository.CustomerJpaRepositoryVerify;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
@@ -42,7 +43,7 @@ public class BaseMember {
             memberRepository.findByEmail("hq@company.com");
             log.info("베이스 데이터 이미 존재");
             return true;
-        } catch (RuntimeException e) {
+        } catch (BaseException e) {
             log.info("데이터 미 존재");
         }
 
@@ -63,6 +64,28 @@ public class BaseMember {
                 .password(encoder.encode("1234"))
                 .name("서브관리자")
                 .phone("010-1111-1112")
+                .address("서울특별시 강남구 테헤란로 1")
+                .role(MemberRole.MANAGER)
+                .region(Region.SEOUL_GYEONGGI)
+                .refreshToken(null)
+                .build();
+
+        Member manager2 = Member.builder()
+                .email("manager2@company.com")
+                .password(encoder.encode("1234"))
+                .name("서브관리자2")
+                .phone("010-1111-1113")
+                .address("서울특별시 강남구 테헤란로 1")
+                .role(MemberRole.MANAGER)
+                .region(Region.SEOUL_GYEONGGI)
+                .refreshToken(null)
+                .build();
+
+        Member manager3 = Member.builder()
+                .email("manager3@company.com")
+                .password(encoder.encode("1234"))
+                .name("서브관리자3")
+                .phone("010-1111-1114")
                 .address("서울특별시 강남구 테헤란로 1")
                 .role(MemberRole.MANAGER)
                 .region(Region.SEOUL_GYEONGGI)
@@ -113,6 +136,8 @@ public class BaseMember {
 
         memberRepository.save(hq);
         memberRepository.save(manager);
+        memberRepository.save(manager2);
+        memberRepository.save(manager3);
         memberRepository.save(owner1);
         memberRepository.save(owner2);
         memberRepository.save(owner3);
