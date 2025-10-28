@@ -196,6 +196,20 @@ public class AnalyticsService {
     }
 
     /**
+     * 날짜별로 그룹화된 일별 매출 데이터 조회 (Sales Management 페이지용)
+     * @param startDate 시작일
+     * @param endDate 종료일
+     * @param storeId 매장 ID (optional)
+     */
+    public List<MeshX.HypeLink.head_office.analytics.dto.DailySalesGroupDTO> getDailySalesGrouped(
+            String startDate, String endDate, Integer storeId) {
+        LocalDateTime start = startDate != null ? LocalDateTime.parse(startDate + "T00:00:00") : LocalDateTime.now().minusMonths(1);
+        LocalDateTime end = endDate != null ? LocalDateTime.parse(endDate + "T23:59:59") : LocalDateTime.now();
+
+        return analyticsRepository.getDailySalesGrouped(start, end, storeId);
+    }
+
+    /**
      * 최근 7일간 매출 차트 데이터 (Sales Management 페이지용)
      * @param storeId 매장 ID (optional, null이면 전체)
      */
