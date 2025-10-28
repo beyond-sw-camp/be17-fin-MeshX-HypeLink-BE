@@ -95,4 +95,11 @@ public class PromotionService {
 
         Promotion update = repository.update(promotion);
         return PromotionInfoRes.toDto(update);
-    }}
+    }
+
+    public PageRes<PromotionInfoRes> search(String keyword, String status, Pageable pageReq) {
+        Page<Promotion> entityPage = repository.search(keyword, status, pageReq);
+        Page<PromotionInfoRes> dtoPage =PromotionInfoRes.toDtoPage(entityPage);
+        return PageRes.toDto(dtoPage);
+    }
+}
