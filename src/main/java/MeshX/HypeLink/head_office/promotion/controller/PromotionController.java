@@ -6,6 +6,7 @@ import MeshX.HypeLink.head_office.promotion.model.dto.request.PromotionCreateReq
 import MeshX.HypeLink.head_office.promotion.model.dto.request.PromotionUpdateReq;
 import MeshX.HypeLink.head_office.promotion.model.dto.response.PromotionInfoListRes;
 import MeshX.HypeLink.head_office.promotion.model.dto.response.PromotionInfoRes;
+import MeshX.HypeLink.head_office.promotion.model.dto.response.PromotionStatusListRes;
 import MeshX.HypeLink.head_office.promotion.service.PromotionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -54,6 +55,18 @@ public class PromotionController {
                                                                           @RequestBody PromotionUpdateReq dto) {
         PromotionInfoRes promotionInfoRes = promotionService.update(id, dto.getTitle(), dto.getContents(), dto.getStartDate(), dto.getEndDate(), dto.getStatus(), dto.getCouponId());
         return ResponseEntity.status(200).body(BaseResponse.of(promotionInfoRes));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<BaseResponse<PageRes<PromotionInfoRes>>> searchPromotion(String keyword, String status, Pageable pageReq) {
+        PageRes<PromotionInfoRes> pageRes = promotionService.search(keyword, status, pageReq);
+        return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<BaseResponse<PromotionStatusListRes>> readStatus(){
+        PromotionStatusListRes result = promotionService.readStatus();
+        return ResponseEntity.status(200).body(BaseResponse.of(result));
     }
 
 }
