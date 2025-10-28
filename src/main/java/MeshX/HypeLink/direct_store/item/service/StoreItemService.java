@@ -1,6 +1,10 @@
 package MeshX.HypeLink.direct_store.item.service;
 
+import MeshX.HypeLink.auth.model.entity.Member;
+import MeshX.HypeLink.auth.model.entity.POS;
 import MeshX.HypeLink.auth.model.entity.Store;
+import MeshX.HypeLink.auth.repository.MemberJpaRepositoryVerify;
+import MeshX.HypeLink.auth.repository.PosJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
 import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.common.exception.BaseException;
@@ -20,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +44,8 @@ public class StoreItemService {
     private final StoreItemDetailRepository storeItemDetailQueryRepository;  // 조회용
     private final StoreItemImageRepositoryVerify storeItemImageRepository;
     private final StoreCategoryJpaRepositoryVerify storeCategoryRepository;
+    private final MemberJpaRepositoryVerify memberRepository;
+    private final PosJpaRepositoryVerify posJpaRepositoryVerify;
 
     @Transactional
     public void saveAll(SaveStoreItemListReq dto) {
@@ -57,38 +64,43 @@ public class StoreItemService {
             updateImages(one, storeItem);
         });
     }
-
+    public Integer getStoreId (UserDetails userDetails){
+        Member member = memberRepository.findByEmail(userDetails.getUsername());
+        POS pos  = posJpaRepositoryVerify.findByMember(member);
+        return pos.getStore().getId();
+    }
     // 특정 매장의 전체 상품 조회 (페이징)
-    public PageRes<StoreItemDetailRes> findItemDetailsByStoreId(Integer storeId, Pageable pageable) {
-        Page<StoreItemDetail> page = storeItemDetailRepository.findByStoreIdWithPage(storeId, pageable);
+    public PageRes<StoreItemDetailRes> findItemDetailsByStoreId(UserDetails userDetails, Pageable pageable) {
+        Page<StoreItemDetail> page = storeItemDetailQueryRepository.findByStoreId(getStoreId(userDetails), pageable);
         Page<StoreItemDetailRes> mapped = page.map(StoreItemDetailRes::toDto);
         return PageRes.toDto(mapped);
     }
 
     // 특정 매장의 상품 검색 (페이징) - 한글명, 영문명, 바코드 검색
-    public PageRes<StoreItemDetailRes> findItemDetailsByStoreIdAndSearch(Integer storeId, String keyword, Pageable pageable) {
-        Page<StoreItemDetail> page = storeItemDetailQueryRepository.findByStoreIdAndName(storeId, keyword, pageable);
+    public PageRes<StoreItemDetailRes> findItemDetailsByStoreIdAndSearch(UserDetails userDetails, String keyword, Pageable pageable) {
+        Page<StoreItemDetail> page = storeItemDetailQueryRepository.findByStoreIdAndName(getStoreId(userDetails), keyword, pageable);
         Page<StoreItemDetailRes> mapped = page.map(StoreItemDetailRes::toDto);
         return PageRes.toDto(mapped);
     }
 
     // 특정 매장의 카테고리별 조회 (페이징)
-    public PageRes<StoreItemDetailRes> findItemDetailsByStoreIdAndCategory(Integer storeId, String category, Pageable pageable) {
-        Page<StoreItemDetail> page = storeItemDetailQueryRepository.findByStoreIdAndCategory(storeId, category, pageable);
+    public PageRes<StoreItemDetailRes> findItemDetailsByStoreIdAndCategory(UserDetails userDetails, String category, Pageable pageable) {
+        Page<StoreItemDetail> page = storeItemDetailQueryRepository.findByStoreIdAndCategory(getStoreId(userDetails), category, pageable);
         Page<StoreItemDetailRes> mapped = page.map(StoreItemDetailRes::toDto);
         return PageRes.toDto(mapped);
     }
 
     // 특정 매장의 재고 부족 상품 조회 (페이징)
-    public PageRes<StoreItemDetailRes> findItemDetailsByStoreIdAndLowStock(Integer storeId, Integer minStock, Pageable pageable) {
-        Page<StoreItemDetail> page = storeItemDetailQueryRepository.findByStoreIdAndLowStock(storeId, minStock, pageable);
+    public PageRes<StoreItemDetailRes> findItemDetailsByStoreIdAndLowStock(UserDetails userDetails, Integer minStock, Pageable pageable) {
+        Page<StoreItemDetail> page = storeItemDetailQueryRepository.findByStoreIdAndLowStock(getStoreId(userDetails), minStock, pageable);
         Page<StoreItemDetailRes> mapped = page.map(StoreItemDetailRes::toDto);
         return PageRes.toDto(mapped);
     }
 
     // 바코드로 상품 조회
     public StoreItemDetailRes findItemDetailByBarcode(String itemDetailCode) {
-        StoreItemDetail detail = storeItemDetailRepository.findByItemDetailCode(itemDetailCode);
+        StoreItemDetail detail = storeItemDetailQueryRepository.findByItemDetailCode(itemDetailCode)
+                .orElseThrow(() -> new RuntimeException("Item not found with barcode: " + itemDetailCode));
         return StoreItemDetailRes.toDto(detail);
     }
 

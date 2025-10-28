@@ -1,4 +1,4 @@
-package MeshX.HypeLink.head_office.customer.model.dto.response;
+package MeshX.HypeLink.head_office.coupon.model.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -6,16 +6,16 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class CustomerInfoListRes {
-    private List<CustomerInfoRes> customerInfoResList;
+public class CouponInfoListRes {
+    private List<CouponInfoRes> couponInfoResList;
     private Integer totalPages;
     private Long totalElements;
     private Integer currentPage;
     private Integer pageSize;
 
     @Builder
-    private CustomerInfoListRes(List<CustomerInfoRes> customerInfoResList, Integer totalPages, Long totalElements, Integer currentPage, Integer pageSize) {
-        this.customerInfoResList = customerInfoResList;
+    private CouponInfoListRes(List<CouponInfoRes> couponInfoResList, Integer totalPages, Long totalElements, Integer currentPage, Integer pageSize) {
+        this.couponInfoResList = couponInfoResList;
         this.totalPages = totalPages;
         this.totalElements = totalElements;
         this.currentPage = currentPage;
