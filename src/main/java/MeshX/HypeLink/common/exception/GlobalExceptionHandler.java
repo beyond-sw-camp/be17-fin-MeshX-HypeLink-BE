@@ -2,6 +2,7 @@ package MeshX.HypeLink.common.exception;
 
 import MeshX.HypeLink.auth.exception.TokenException;
 import MeshX.HypeLink.utils.geocode.exception.GeocodingException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -10,8 +11,18 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(BaseException.class)
+    public ResponseEntity<ErrorResponse> baseExceptionHandler(BaseException e) {
+        String errorClassName = e.getClass().getSimpleName();
+        String title = e.getExceptionType().title();
+        String errorMessage = e.getExceptionType().message();
+
+        log.error("[{}] >>{} : {}", errorClassName, title, errorMessage);
+        return ResponseEntity.ok(ErrorResponse.of(HttpStatus.BAD_REQUEST.value(), errorMessage));
+    }
 
     @ExceptionHandler(TokenException.class)
     public ResponseEntity<Map<String, Object>> handleTokenException(TokenException ex) {
