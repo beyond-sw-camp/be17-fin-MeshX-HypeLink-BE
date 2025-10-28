@@ -1,6 +1,6 @@
 package MeshX.HypeLink.head_office.shipment.model.entity;
 
-import MeshX.HypeLink.auth.model.entity.Store;
+import MeshX.HypeLink.auth.model.entity.Member;
 import MeshX.HypeLink.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-
 
 @Entity
 @Getter
@@ -30,15 +29,15 @@ public class Parcel extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "requester_id")
-    private Store requester;       // 발주를 요청한 본사 or 매장
+    private Member requester;       // 발주를 요청한 본사 or 매장
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "supplier_id")
-    private Store supplier;        // 발주를 수락하고 공급하는 쪽
+    private Member supplier;        // 발주를 수락하고 공급하는 쪽
 
     @Builder
-    private Parcel(String trackingNumber, List<ParcelItem> parcelItems, Shipment shipment, Store requester,
-                   Store supplier) {
+    private Parcel(String trackingNumber, List<ParcelItem> parcelItems, Shipment shipment, Member requester,
+                   Member supplier) {
         this.trackingNumber = trackingNumber;
         this.parcelItems = parcelItems;
         this.shipment = shipment;

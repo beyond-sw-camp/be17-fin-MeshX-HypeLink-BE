@@ -5,6 +5,7 @@ import MeshX.HypeLink.head_office.item.model.entity.Item;
 import MeshX.HypeLink.head_office.order.model.entity.PurchaseOrder;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,4 +24,10 @@ public class ParcelItem extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parcel_id")
     private Parcel parcel;
+
+    @Builder
+    private ParcelItem(PurchaseOrder purchaseOrder, Parcel parcel) {
+        this.purchaseOrder = purchaseOrder;
+        this.parcel = parcel;
+    }
 }

@@ -3,6 +3,9 @@ package MeshX.HypeLink.direct_store.item.controller;
 import MeshX.HypeLink.common.BaseResponse;
 import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.direct_store.item.model.dto.request.SaveStoreItemListReq;
+import MeshX.HypeLink.direct_store.item.model.dto.request.UpdateStoreItemDetailReq;
+import MeshX.HypeLink.direct_store.item.model.dto.response.StoreItemDetailInfoRes;
+import MeshX.HypeLink.direct_store.item.model.dto.response.StoreItemDetailsInfoRes;
 import MeshX.HypeLink.direct_store.item.model.dto.response.StoreItemDetailRes;
 import MeshX.HypeLink.direct_store.item.service.StoreItemService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,30 @@ public class StoreItemController {
     public ResponseEntity<BaseResponse<String>> saveStoreItem(@RequestBody SaveStoreItemListReq dto) {
         storeItemService.saveAll(dto);
         return ResponseEntity.status(200).body(BaseResponse.of("본사 아이템 리스트와 동기화가 완료되었습니다."));
+    }
+
+    @GetMapping("/purchase/list")
+    public ResponseEntity<BaseResponse<PageRes<StoreItemDetailsInfoRes>>> getItemDetailsList(@RequestParam Integer storeId,
+                                                                                             Pageable pageReq,
+                                                                                             @RequestParam String keyWord,
+                                                                                             @RequestParam String category) {
+        PageRes<StoreItemDetailsInfoRes> result = storeItemService.findPurchaseOrderList(storeId, pageReq, keyWord, category);
+        return ResponseEntity.status(200).body(BaseResponse.of(result));
+    }
+
+    @GetMapping("/detail/code")
+    public ResponseEntity<BaseResponse<StoreItemDetailInfoRes>> getItemDetail(@RequestParam String itemDetailCode,
+                                                                              @RequestParam Integer storeId,
+                                                                              @RequestParam String itemCode) {
+
+        StoreItemDetailInfoRes result = storeItemService.findItemDetailByItemDetailCode(itemCode, itemDetailCode, storeId);
+        return ResponseEntity.status(200).body(BaseResponse.of(result));
+    }
+
+    @PatchMapping("/detail/update")
+    public ResponseEntity<BaseResponse<String>> updateItemDetail(@RequestBody UpdateStoreItemDetailReq dto) {
+        storeItemService.updateItemDetail(dto);
+        return ResponseEntity.status(200).body(BaseResponse.of("재고 업데이트가 성공했습니다."));
     }
 
     // 특정 매장의 전체 상품 조회 (페이징)

@@ -1,12 +1,11 @@
 package MeshX.HypeLink.direct_store.item.repository;
 
+import MeshX.HypeLink.auth.model.entity.Store;
+import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
 import MeshX.HypeLink.common.exception.BaseException;
-import MeshX.HypeLink.direct_store.item.model.dto.response.ItemDetailsInfoRes;
-import MeshX.HypeLink.direct_store.item.model.dto.response.QItemDetailsInfoRes;
-import MeshX.HypeLink.direct_store.item.model.entity.QStoreCategory;
-import MeshX.HypeLink.direct_store.item.model.entity.QStoreItem;
-import MeshX.HypeLink.direct_store.item.model.entity.QStoreItemDetail;
-import MeshX.HypeLink.direct_store.item.model.entity.StoreItemDetail;
+import MeshX.HypeLink.direct_store.item.model.dto.response.StoreItemDetailsInfoRes;
+import MeshX.HypeLink.direct_store.item.model.dto.response.QStoreItemDetailsInfoRes;
+import MeshX.HypeLink.direct_store.item.model.entity.*;
 import MeshX.HypeLink.head_office.order.model.entity.PurchaseOrderState;
 import MeshX.HypeLink.head_office.order.model.entity.QPurchaseOrder;
 import com.querydsl.core.BooleanBuilder;
@@ -27,6 +26,7 @@ import java.util.Optional;
 public class StoreItemDetailJpaRepositoryVerify extends AbstractBatchSaveRepository<StoreItemDetail, String> {
     private final StoreItemDetailRepository repository;
     private final JPAQueryFactory jpaQueryFactory;
+    private final StoreJpaRepositoryVerify storeRepository;
 
     @Override
     protected String extractKey(StoreItemDetail entity) {
@@ -46,8 +46,49 @@ public class StoreItemDetailJpaRepositoryVerify extends AbstractBatchSaveReposit
         repository.saveAll(entities);
     }
 
-    public Page<ItemDetailsInfoRes> findItemDetailWithRequestedTotalQuantity(
-            Pageable pageable, String keyword, String category) {
+    public StoreItemDetail findByStoreItemAndItemDetailCode(StoreItem item, String itemDetailCode) {
+        Optional<StoreItemDetail> optional = repository.findByItemAndItemDetailCode(item, itemDetailCode);
+        if(optional.isPresent()) {
+            return optional.get();
+        }
+        throw new BaseException(null);
+    }
+
+    public StoreItemDetail findByStoreItemAndItemDetailCodeWithLock(StoreItem item, String itemDetailCode) {
+        Optional<StoreItemDetail> optional = repository.findByItemAndItemDetailCodeForUpdateWithLock(
+                item, itemDetailCode);
+        if(optional.isPresent()) {
+            return optional.get();
+        }
+        throw new BaseException(null);
+    }
+
+    public StoreItemDetail findById(Integer id) {
+        Optional<StoreItemDetail> optional = repository.findById(id);
+
+        if(optional.isPresent()) {
+            return optional.get();
+        }
+
+        throw new BaseException(null);
+    }
+
+    public Page<StoreItemDetail> findByStoreIdWithPage(Integer storeId, Pageable pageable) {
+        return repository.findByStoreId(storeId, pageable);
+    }
+
+    public StoreItemDetail findByItemDetailCode(String itemDetailCode) {
+        Optional<StoreItemDetail> optional = repository.findByItemDetailCode(itemDetailCode);
+        if(optional.isPresent()) {
+            return optional.get();
+        }
+        throw new BaseException(null);
+    }
+
+
+    public Page<StoreItemDetailsInfoRes> findItemDetailWithRequestedTotalQuantity(
+            Integer storeId, Pageable pageable, String keyword, String category) {
+        Store store = findStore(storeId);
         // 검색 조건 생성
         BooleanBuilder where = buildSearchCondition(keyword, category);
 
@@ -55,12 +96,16 @@ public class StoreItemDetailJpaRepositoryVerify extends AbstractBatchSaveReposit
         NumberExpression<Integer> requestedQtySum = buildRequestedQuantitySum();
 
         // 메인 리스트 조회
-        List<ItemDetailsInfoRes> content = fetchPurchaseOrderInfoList(pageable, where, requestedQtySum);
+        List<StoreItemDetailsInfoRes> content = fetchPurchaseOrderInfoList(pageable, where, requestedQtySum, store);
 
         // 총 개수 조회
         Long total = fetchTotalCount(where);
 
         return new PageImpl<>(content, pageable, total == null ? 0 : total);
+    }
+
+    private Store findStore(Integer storeId) {
+        return storeRepository.findById(storeId);
     }
 
     private BooleanBuilder buildSearchCondition(String keyword, String category) {
@@ -101,18 +146,20 @@ public class StoreItemDetailJpaRepositoryVerify extends AbstractBatchSaveReposit
                 .coalesce(0);
     }
 
-    private List<ItemDetailsInfoRes> fetchPurchaseOrderInfoList(
+    private List<StoreItemDetailsInfoRes> fetchPurchaseOrderInfoList(
             Pageable pageable,
             BooleanBuilder where,
-            NumberExpression<Integer> requestedQtySum
+            NumberExpression<Integer> requestedQtySum,
+            Store store
     ) {
         QStoreItemDetail d = QStoreItemDetail.storeItemDetail;
         QStoreItem i = QStoreItem.storeItem;
         QStoreCategory c = QStoreCategory.storeCategory;
         QPurchaseOrder p = QPurchaseOrder.purchaseOrder;
+        where.and(i.store.eq(store));
 
         return jpaQueryFactory
-                .select(new QItemDetailsInfoRes(
+                .select(new QStoreItemDetailsInfoRes(
                         d.id,
                         i.koName,
                         i.enName,
@@ -127,7 +174,7 @@ public class StoreItemDetailJpaRepositoryVerify extends AbstractBatchSaveReposit
                 .from(d)
                 .leftJoin(d.item, i)
                 .leftJoin(i.category, c)
-                .leftJoin(p).on(p.itemDetail.itemDetailCode.eq(d.itemDetailCode))
+                .leftJoin(p).on(p.itemDetail.itemDetailCode.eq(d.itemDetailCode).and(p.requester.eq(store.getMember())))
                 .where(where)
                 .groupBy(
                         i.id, i.koName, i.enName, c.category,
@@ -155,15 +202,5 @@ public class StoreItemDetailJpaRepositoryVerify extends AbstractBatchSaveReposit
 
     private boolean isValid(String s) {
         return s != null && !s.isBlank();
-    }
-
-    public StoreItemDetail findById(Integer id) {
-        Optional<StoreItemDetail> optional = repository.findById(id);
-
-        if(optional.isPresent()) {
-            return optional.get();
-        }
-
-        throw new BaseException(null);
     }
 }
