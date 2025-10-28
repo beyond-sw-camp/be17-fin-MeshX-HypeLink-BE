@@ -100,6 +100,7 @@ public class PaymentService {
         return posJpaRepositoryVerify.findByMember(member);
     }
 
+
     // 프론트에서 받은 paymentId(각종 예외처리 거치고) 형 변환해서 리턴시키는 메서드
     private Payment.Recognized fetchAndValidatePortOnePayment(String paymentId) {
         Payment payment = portOneService.getPayment(paymentId);
@@ -142,8 +143,7 @@ public class PaymentService {
         if (orderData.getMemberId() != null) {
             customer = customerRepository.findById(orderData.getMemberId());
         }
-        Member member = memberRepository.findByEmail(userDetails.getUsername());
-        Store store = getStore(member);
+
 
 
         Store store = storeRepository.findById(orderData.getStoreId());
@@ -262,22 +262,6 @@ public class PaymentService {
         return finalAmount;
     }
 
-    /**
-     * Member로부터 Store 조회
-     * BRANCH_MANAGER: Store.member로 직접 조회
-     * POS_MEMBER: POS -> Store로 조회
-     */
-    private Store getStore(Member member) {
-        switch (member.getRole()) {
-            case BRANCH_MANAGER:
-                return storeRepository.findByMember(member);
-            case POS_MEMBER:
-                POS pos = posRepository.findByMember(member);
-                return pos.getStore();
-            default:
-                throw new PaymentException(PAYMENT_VALIDATION_FAILED);
-        }
-    }
 
     /**
      * PortOne API cancelReason 길이 제한(255자)에 맞게 문자열 자르기
