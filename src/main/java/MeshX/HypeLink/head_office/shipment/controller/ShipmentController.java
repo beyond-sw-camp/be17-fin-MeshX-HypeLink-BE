@@ -14,18 +14,11 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/shipment")
+@RequestMapping("/api/shipment")
 @RequiredArgsConstructor
 public class ShipmentController {
 
     private final ShipmentService shipmentService;
-
-    // 테스트용 소포 생성
-    @PostMapping("/create")
-    public ResponseEntity<BaseResponse<Parcel>> create(@RequestBody CreateParcelReqDto dto) {
-        Parcel result = shipmentService.create(dto);
-        return ResponseEntity.ok(BaseResponse.of(result));
-    }
 
     // 기사 -> Parcel(여러개)
     @PostMapping("/connecting")

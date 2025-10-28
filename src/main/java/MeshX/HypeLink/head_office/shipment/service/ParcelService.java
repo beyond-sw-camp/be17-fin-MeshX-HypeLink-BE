@@ -8,8 +8,11 @@ import MeshX.HypeLink.head_office.order.model.entity.PurchaseOrderState;
 import MeshX.HypeLink.head_office.order.repository.PurchaseOrderJpaRepositoryVerify;
 import MeshX.HypeLink.head_office.shipment.model.entity.Parcel;
 import MeshX.HypeLink.head_office.shipment.model.entity.ParcelItem;
+import MeshX.HypeLink.head_office.shipment.model.entity.Shipment;
+import MeshX.HypeLink.head_office.shipment.model.entity.ShipmentStatus;
 import MeshX.HypeLink.head_office.shipment.repository.ParcelItemJpaRepositoryVerify;
 import MeshX.HypeLink.head_office.shipment.repository.ParcelJpaRepositoryVerify;
+import MeshX.HypeLink.head_office.shipment.repository.ShipmentJpaRepositoryVerify;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,6 +33,7 @@ public class ParcelService {
     private final PurchaseOrderJpaRepositoryVerify purchaseOrderRepository;
     private final ParcelJpaRepositoryVerify parcelRepository;
     private final ParcelItemJpaRepositoryVerify parcelItemRepository;
+    private final ShipmentJpaRepositoryVerify shipmentRepository;
 
     @Transactional
     @Scheduled(cron = "0 0 3 * * *")
@@ -68,7 +72,14 @@ public class ParcelService {
                     .supplier(supplier)
                     .build();
 
+            Shipment shipment = Shipment.builder()
+                    .parcel(parcel)
+                    .shipmentStatus(ShipmentStatus.PREPARING)
+                    .build();
+            parcel.setShipment(shipment);
+
             Parcel save = parcelRepository.save(parcel);
+            shipmentRepository.save(shipment);
 
             // ParcelItem 생성
             for (PurchaseOrder order : groupOrders) {

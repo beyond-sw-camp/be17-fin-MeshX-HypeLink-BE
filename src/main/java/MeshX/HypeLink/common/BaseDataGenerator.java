@@ -25,6 +25,15 @@ import MeshX.HypeLink.head_office.item.repository.*;
 import MeshX.HypeLink.head_office.order.model.entity.PurchaseOrder;
 import MeshX.HypeLink.head_office.order.model.entity.PurchaseOrderState;
 import MeshX.HypeLink.head_office.order.repository.PurchaseOrderRepository;
+import MeshX.HypeLink.head_office.shipment.model.entity.Parcel;
+import MeshX.HypeLink.head_office.shipment.model.entity.ParcelItem;
+import MeshX.HypeLink.head_office.shipment.model.entity.Shipment;
+import MeshX.HypeLink.head_office.shipment.model.entity.ShipmentStatus;
+import MeshX.HypeLink.head_office.shipment.repository.ParcelRepository;
+import MeshX.HypeLink.head_office.shipment.repository.ParcelItemRepository;
+import MeshX.HypeLink.head_office.shipment.repository.ShipmentRepository;
+import MeshX.HypeLink.auth.model.entity.Driver;
+import MeshX.HypeLink.auth.repository.DriverRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +44,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -60,6 +70,10 @@ public class BaseDataGenerator {
     private final PurchaseOrderRepository purchaseOrderRepository;
     private final ColorRepository colorRepository;
     private final SizeRepository sizeRepository;
+    private final ParcelRepository parcelRepository;
+    private final ParcelItemRepository parcelItemRepository;
+    private final ShipmentRepository shipmentRepository;
+    private final DriverRepository driverRepository;
 
     @PostConstruct
     @Transactional
@@ -112,6 +126,15 @@ public class BaseDataGenerator {
             createPurchaseOrders(stores);   // B2B 발주 데이터 (통계용)
         } else {
             log.info("✅ Customer receipts already exist: {}", receiptCount);
+        }
+
+        // Create Parcels and Shipments for testing
+        long parcelCount = parcelRepository.count();
+        if (parcelCount == 0) {
+            log.info("✅ Creating test parcels and shipments...");
+            createTestParcelsAndShipments(stores);
+        } else {
+            log.info("✅ Parcels already exist: {}", parcelCount);
         }
 
         log.info("✅ Additional base data generation complete.");
@@ -411,5 +434,101 @@ public class BaseDataGenerator {
         int second = random.nextInt(60);
 
         return baseDate.withHour(hour).withMinute(minute).withSecond(second);
+    }
+
+    /**
+     * Create test Parcels and Shipments for driver assignment testing
+     */
+    private void createTestParcelsAndShipments(List<Store> stores) {
+        Member supplier = memberRepository.findByEmail("hq@company.com");
+        List<Driver> drivers = driverRepository.findAll();
+        Random random = new Random();
+
+        if (stores.isEmpty() || supplier == null) {
+            log.warn("⚠️ Stores or Supplier not found. Skipping Parcel/Shipment generation.");
+            return;
+        }
+
+        // REQUESTED 상태인 발주 조회
+        List<PurchaseOrder> requestedOrders = purchaseOrderRepository.findAllByPurchaseOrderState(PurchaseOrderState.REQUESTED);
+
+        if (requestedOrders.isEmpty()) {
+            log.warn("⚠️ No REQUESTED PurchaseOrders found. Creating some for testing...");
+            // 테스트용 REQUESTED 발주 생성
+            List<ItemDetail> allItemDetails = itemDetailRepository.findAllWithItem();
+            if (allItemDetails.isEmpty()) return;
+
+            requestedOrders = new ArrayList<>();
+            for (int i = 0; i < 20; i++) {
+                Store requester = stores.get(random.nextInt(stores.size()));
+                ItemDetail itemDetail = allItemDetails.get(random.nextInt(allItemDetails.size()));
+
+                PurchaseOrder po = PurchaseOrder.builder()
+                        .requester(requester.getMember())
+                        .supplier(supplier)
+                        .itemDetail(itemDetail)
+                        .quantity(random.nextInt(50) + 10)
+                        .totalPrice(itemDetail.getItem().getUnitPrice() * (random.nextInt(50) + 10))
+                        .purchaseOrderState(PurchaseOrderState.REQUESTED)
+                        .build();
+                requestedOrders.add(po);
+            }
+            purchaseOrderRepository.saveAll(requestedOrders);
+            log.info("✅ Created {} REQUESTED PurchaseOrders for testing", requestedOrders.size());
+        }
+
+        // (requester, supplier) 기준으로 그룹화
+        Map<String, List<PurchaseOrder>> grouped = requestedOrders.stream()
+                .filter(po -> po.getRequester().getId() != 1) // 본사 제외
+                .collect(Collectors.groupingBy(po -> po.getRequester().getId() + "-" + po.getSupplier().getId()));
+
+        int unassignedCount = 0;
+        int assignedCount = 0;
+
+        // 각 그룹별로 Parcel + Shipment 생성
+        for (Map.Entry<String, List<PurchaseOrder>> entry : grouped.entrySet()) {
+            List<PurchaseOrder> groupOrders = entry.getValue();
+            if (groupOrders.isEmpty()) continue;
+
+            Member requester = groupOrders.get(0).getRequester();
+
+            // Parcel 생성
+            Parcel parcel = Parcel.builder()
+                    .trackingNumber("TRK-TEST-" + System.currentTimeMillis() + "-" + random.nextInt(1000))
+                    .requester(requester)
+                    .supplier(supplier)
+                    .build();
+            Parcel savedParcel = parcelRepository.save(parcel);
+
+            // ParcelItem 생성
+            for (PurchaseOrder order : groupOrders) {
+                ParcelItem item = ParcelItem.builder()
+                        .parcel(savedParcel)
+                        .purchaseOrder(order)
+                        .build();
+                parcelItemRepository.save(item);
+            }
+
+            // Shipment 생성 (70% 배정 안 됨, 30% 배정됨)
+            boolean shouldAssign = !drivers.isEmpty() && random.nextInt(100) < 30;
+            Driver assignedDriver = shouldAssign ? drivers.get(random.nextInt(drivers.size())) : null;
+            ShipmentStatus status = assignedDriver != null ? ShipmentStatus.DRIVER_ASSIGNED : ShipmentStatus.PREPARING;
+
+            Shipment shipment = Shipment.builder()
+                    .parcel(savedParcel)
+                    .driver(assignedDriver)
+                    .shipmentStatus(status)
+                    .build();
+            shipmentRepository.save(shipment);
+
+            if (assignedDriver != null) {
+                assignedCount++;
+            } else {
+                unassignedCount++;
+            }
+        }
+
+        log.info("✅ Created {} Parcels/Shipments (Unassigned: {}, Assigned: {})",
+                 grouped.size(), unassignedCount, assignedCount);
     }
 }
