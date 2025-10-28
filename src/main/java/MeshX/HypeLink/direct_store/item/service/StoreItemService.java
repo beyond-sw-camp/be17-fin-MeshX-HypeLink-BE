@@ -7,19 +7,23 @@ import MeshX.HypeLink.auth.repository.MemberJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.PosJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
 import MeshX.HypeLink.common.Page.PageRes;
-import MeshX.HypeLink.direct_store.item.model.dto.request.SaveStoreItemImageReq;
+import MeshX.HypeLink.common.exception.BaseException;
 import MeshX.HypeLink.direct_store.item.model.dto.request.SaveStoreItemListReq;
-import MeshX.HypeLink.direct_store.item.model.dto.request.SaveStoreItemReq;
+import MeshX.HypeLink.direct_store.item.model.dto.request.UpdateStoreItemDetailReq;
+import MeshX.HypeLink.direct_store.item.model.dto.response.StoreItemDetailInfoRes;
+import MeshX.HypeLink.direct_store.item.model.dto.response.StoreItemDetailsInfoRes;
 import MeshX.HypeLink.direct_store.item.model.dto.response.StoreItemDetailRes;
+import MeshX.HypeLink.direct_store.item.model.dto.request.SaveStoreItemImageReq;
+import MeshX.HypeLink.direct_store.item.model.dto.request.SaveStoreItemReq;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreCategory;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItemDetail;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItemImage;
 import MeshX.HypeLink.direct_store.item.repository.*;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -132,5 +136,33 @@ public class StoreItemService {
                 .map(image -> image.toEntity(storeItem))
                 .toList();
         storeItemImageRepository.saveAllSkipDuplicate(images);
+    }
+
+    public PageRes<StoreItemDetailsInfoRes> findPurchaseOrderList(Integer storeId, Pageable pageReq,
+                                                                  String keyWord, String category) {
+        Page<StoreItemDetailsInfoRes> pageList = storeItemDetailRepository.findItemDetailWithRequestedTotalQuantity(
+                storeId, pageReq, keyWord, category);
+        return PageRes.toDto(pageList);
+    }
+
+    public StoreItemDetailInfoRes findItemDetailByItemDetailCode(String itemCode, String itemDetailCode, Integer storeId) {
+        Store store = storeRepository.findById(storeId);
+        StoreItem storeItem = storeItemRepository.findByStoreAndItemCode(store, itemCode);
+
+        StoreItemDetail storeItemDetail = storeItemDetailRepository.findByStoreItemAndItemDetailCode(storeItem, itemDetailCode);
+
+        return StoreItemDetailInfoRes.toDto(storeItemDetail);
+    }
+
+    @Transactional
+    public void updateItemDetail(UpdateStoreItemDetailReq dto) {
+        Store store = storeRepository.findById(dto.getStoreId());
+        StoreItem storeItem = storeItemRepository.findByStoreAndItemCode(store, dto.getItemCode());
+
+        StoreItemDetail storeItemDetail = storeItemDetailRepository.findByStoreItemAndItemDetailCodeWithLock(storeItem, dto.getItemDetailCode());
+        if(storeItemDetail.getStock() + dto.getUpdateStock() < 0){
+            throw new BaseException(null);
+        }
+        storeItemDetail.updateStock(dto.getUpdateStock());
     }
 }

@@ -6,6 +6,7 @@ import MeshX.HypeLink.head_office.coupon.model.dto.request.CouponCreateReq;
 import MeshX.HypeLink.head_office.coupon.model.entity.Coupon;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -49,6 +50,14 @@ public class CouponJpaRepositoryVerify {
             return page;
         }
         throw new CouponException(COUPON_NOT_FOUNT);
+    }
+
+    public Page<Coupon> findAll(Pageable pageable) {
+        Page<Coupon> page = repository.findAll(pageable);
+        if (page.isEmpty()) {
+            throw new CouponException(COUPON_NOT_FOUNT);
+        }
+        return page;
     }
 
 }
