@@ -66,7 +66,7 @@ public class PaymentService {
 
 
     @Transactional
-    public void validatePayment(PaymentValidationReq req) {
+    public void validatePayment(PaymentValidationReq req, UserDetails userDetails) {
         try {
             // 포트원 서버에서 결제정보를 가져와서 진짜 결제가 완료 됐는지 검증
             Payment.Recognized portOnePayment = fetchAndValidatePortOnePayment(req.getPaymentId());
@@ -78,9 +78,9 @@ public class PaymentService {
             validatePaymentAmount(req.getPaymentId(), expectedAmount, actualAmount);
 
             // CustomerReceipt 및 Payment 생성
-            createReceiptAndPayment(req, portOnePayment, actualAmount);
+            createReceiptAndPayment(req, portOnePayment, actualAmount, userDetails);
 
-        } catch (Exception e) { // 어떤 종류의 예외든 여기서 한 번에 잡습니다.
+        } catch (Exception e) {
             // 1. 먼저 결제를 취소합니다.
             String cancelReason = truncateCancelReason("주문 처리 중 오류 발생: " + e.getMessage());
             portOneService.cancelPayment(req.getPaymentId(), cancelReason);
@@ -119,8 +119,6 @@ public class PaymentService {
     }
 
 
-    // TODO: [중요] 현재는 프론트가 보낸 금액(expectedAmount)과 PortOne 금액(actualAmount)만 비교
-    // TODO: 실제 배포 시 expectedAmount는 DB에서 조회한 값이어야 함 (calculateExpectedAmount 수정 필요)
     private void validatePaymentAmount(String paymentId, Integer expectedAmount, Integer actualAmount) {
         if (!actualAmount.equals(expectedAmount)) {
             String cancelReason = truncateCancelReason("결제 금액 불일치 (예상: " + expectedAmount + ", 실제: " + actualAmount + ")");
@@ -132,20 +130,19 @@ public class PaymentService {
 
     private void createReceiptAndPayment(PaymentValidationReq req,
                                          Payment.Recognized portOnePayment,
-                                         Integer actualAmount) {
+                                         Integer actualAmount,
+                                         UserDetails userDetails) {
         ReceiptCreateReq orderData = req.getOrderData();
 
 
         Customer customer = null;
         if (orderData.getMemberId() != null) {
             customer = customerRepository.findById(orderData.getMemberId());
-        } else {
         }
+        Member member = memberRepository.findByEmail(userDetails.getUsername());
+        Store store = getStore(member);
 
-
-        Store store = storeRepository.findById(orderData.getStoreId());
-
-        String merchantUid = req.getName() + "-" +
+        String merchantUid = member.getName() + "-" +
                              UUID.randomUUID().toString().substring(0, 8);
 
 
@@ -181,6 +178,7 @@ public class PaymentService {
             if (storeItemDetail.getStock() < itemDto.getQuantity()) {
                 throw new PaymentException(INSUFFICIENT_STOCK);
             }
+            log.warn("재고가 부족합니다");
 
             // 재고 차감 (음수로 전달)
             storeItemDetail.updateStock(-itemDto.getQuantity());
@@ -256,6 +254,23 @@ public class PaymentService {
                 - (orderData.getCouponDiscount() != null ? orderData.getCouponDiscount() : 0);
 
         return finalAmount;
+    }
+
+    /**
+     * Member로부터 Store 조회
+     * BRANCH_MANAGER: Store.member로 직접 조회
+     * POS_MEMBER: POS -> Store로 조회
+     */
+    private Store getStore(Member member) {
+        switch (member.getRole()) {
+            case BRANCH_MANAGER:
+                return storeRepository.findByMember(member);
+            case POS_MEMBER:
+                POS pos = posRepository.findByMember(member);
+                return pos.getStore();
+            default:
+                throw new PaymentException(PAYMENT_VALIDATION_FAILED);
+        }
     }
 
     /**

@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,47 +28,47 @@ public class StoreItemController {
     // 특정 매장의 전체 상품 조회 (페이징)
     @GetMapping("/list")
     public ResponseEntity<BaseResponse<PageRes<StoreItemDetailRes>>> getItemList(
-            @RequestParam Integer storeId,
+            @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        PageRes<StoreItemDetailRes> result = storeItemService.findItemDetailsByStoreId(storeId, pageable);
+        PageRes<StoreItemDetailRes> result = storeItemService.findItemDetailsByStoreId(userDetails, pageable);
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 
     // 상품 검색 (페이징) - 한글명, 영문명, 바코드 검색
     @GetMapping("/search")
     public ResponseEntity<BaseResponse<PageRes<StoreItemDetailRes>>> searchItems(
-            @RequestParam Integer storeId,
+            @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        PageRes<StoreItemDetailRes> result = storeItemService.findItemDetailsByStoreIdAndSearch(storeId, keyword, pageable);
+        PageRes<StoreItemDetailRes> result = storeItemService.findItemDetailsByStoreIdAndSearch(userDetails, keyword, pageable);
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 
     // 카테고리별 조회 (페이징)
     @GetMapping("/category")
     public ResponseEntity<BaseResponse<PageRes<StoreItemDetailRes>>> getItemsByCategory(
-            @RequestParam Integer storeId,
+            @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam String category,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        PageRes<StoreItemDetailRes> result = storeItemService.findItemDetailsByStoreIdAndCategory(storeId, category, pageable);
+        PageRes<StoreItemDetailRes> result = storeItemService.findItemDetailsByStoreIdAndCategory(userDetails, category, pageable);
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 
     // 재고 부족 상품 조회 (페이징)
     @GetMapping("/low-stock")
     public ResponseEntity<BaseResponse<PageRes<StoreItemDetailRes>>> getLowStockItems(
-            @RequestParam Integer storeId,
+            @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam(defaultValue = "10") Integer minStock,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        PageRes<StoreItemDetailRes> result = storeItemService.findItemDetailsByStoreIdAndLowStock(storeId, minStock, pageable);
+        PageRes<StoreItemDetailRes> result = storeItemService.findItemDetailsByStoreIdAndLowStock(userDetails, minStock, pageable);
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 

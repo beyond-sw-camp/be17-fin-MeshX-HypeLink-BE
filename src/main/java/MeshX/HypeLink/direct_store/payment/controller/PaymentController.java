@@ -20,8 +20,9 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping("/validate")
-    public ResponseEntity<BaseResponse<String>> validatePayment(@RequestBody PaymentValidationReq req) {
-        paymentService.validatePayment(req);
+    public ResponseEntity<BaseResponse<String>> validatePayment(@RequestBody PaymentValidationReq req
+    , @AuthenticationPrincipal UserDetails userDetails) {
+        paymentService.validatePayment(req,userDetails);
         return ResponseEntity.status(200).body(BaseResponse.of("검증 성공 "));
     }
 }
