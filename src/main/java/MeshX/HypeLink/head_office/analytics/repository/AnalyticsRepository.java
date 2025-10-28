@@ -675,7 +675,7 @@ public class AnalyticsRepository {
         return queryFactory
             .select(Projections.constructor(MeshX.HypeLink.head_office.analytics.dto.CategoryCustomerSalesDTO.class,
                 storeItem.category.category,
-                orderItem.totalPrice.sum()
+                orderItem.totalPrice.sum().castToNum(Long.class)
             ))
             .from(orderItem)
             .join(orderItem.customerReceipt, customerReceipt)
