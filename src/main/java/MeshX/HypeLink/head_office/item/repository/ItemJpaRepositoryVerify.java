@@ -3,7 +3,11 @@ package MeshX.HypeLink.head_office.item.repository;
 import MeshX.HypeLink.common.exception.BaseException;
 import MeshX.HypeLink.head_office.item.model.entity.Category;
 import MeshX.HypeLink.head_office.item.model.entity.Item;
+import MeshX.HypeLink.head_office.item.model.entity.QCategory;
+import MeshX.HypeLink.head_office.item.model.entity.QItem;
 import MeshX.HypeLink.head_office.order.model.dto.response.PurchaseOrderInfoRes;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -21,6 +25,7 @@ import static MeshX.HypeLink.head_office.item.exception.ItemExceptionMessage.*;
 @RequiredArgsConstructor
 public class ItemJpaRepositoryVerify {
     private final ItemRepository repository;
+    private final JPAQueryFactory jpaQueryFactory;
 
     public Item save(Item entity) {
         return repository.save(entity);
@@ -64,10 +69,6 @@ public class ItemJpaRepositoryVerify {
         return repository.findAllWithImage();
     }
 
-    public Page<Item> findItemsWithPaging(Pageable pageable) {
-        return repository.findAllWithImages(pageable);
-    }
-
     public List<Item> findItemsByCategory(Category category) {
         return repository.findByCategory(category);
     }
@@ -99,5 +100,48 @@ public class ItemJpaRepositoryVerify {
                         Collectors.toList(),
                         list -> new PageImpl<>(list, pageable, list.size())
                 ));
+    }
+
+    public Page<Item> findItemsWithPaging(Pageable pageable, String keyword, String category) {
+        QItem item = QItem.item;
+        QCategory c = QCategory.category1;
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        // --- 카테고리 필터 ---
+        if (category != null && !"all".equalsIgnoreCase(category.trim())) {
+            builder.and(item.category.category.eq(category));
+        }
+
+        // --- 키워드 필터 ---
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            builder.andAnyOf(
+                    item.itemCode.containsIgnoreCase(keyword),
+                    item.koName.containsIgnoreCase(keyword),
+                    item.enName.containsIgnoreCase(keyword),
+                    item.company.containsIgnoreCase(keyword)
+            );
+        }
+
+        // --- 쿼리 실행 ---
+        List<Item> content = jpaQueryFactory
+                .selectFrom(item)
+                .leftJoin(item.category, c).fetchJoin()
+                .leftJoin(item.itemImages).fetchJoin() // 이미지까지 fetch 조인 (원래 findAllWithImages의 역할)
+                .where(builder)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(item.id.desc())
+                .fetch();
+
+        // --- 전체 개수 ---
+        Long total = jpaQueryFactory
+                .select(item.count())
+                .from(item)
+                .leftJoin(item.category, c)
+                .where(builder)
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, total == null ? 0 : total);
     }
 }
