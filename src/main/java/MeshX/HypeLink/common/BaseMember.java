@@ -36,8 +36,6 @@ public class BaseMember {
 
     }
 
-
-
     private boolean initMembers() {
         try {
             memberRepository.findByEmail("hq@company.com");

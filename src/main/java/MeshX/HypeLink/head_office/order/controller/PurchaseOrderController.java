@@ -44,10 +44,12 @@ public class PurchaseOrderController {
         return ResponseEntity.status(200).body(BaseResponse.of(headOrderInfoListRes));
     }
 
-    @GetMapping("/page/all")
-    public ResponseEntity<BaseResponse<PageRes<PurchaseOrderInfoDetailRes>>> getPurchaseOrders(Pageable pageReq,
+    @GetMapping("/page/search")
+    public ResponseEntity<BaseResponse<PageRes<PurchaseOrderInfoDetailRes>>> searchPurchaseOrders(Pageable pageReq,
+                                                                                               @RequestParam String keyWord,
+                                                                                               @RequestParam String status,
                                                                                                @AuthenticationPrincipal UserDetails userDetails) {
-        PageRes<PurchaseOrderInfoDetailRes> pageRes = headPurchaseOrderService.getList(pageReq, userDetails);
+        PageRes<PurchaseOrderInfoDetailRes> pageRes = headPurchaseOrderService.searchList(pageReq, keyWord, status, userDetails);
         return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
     }
 

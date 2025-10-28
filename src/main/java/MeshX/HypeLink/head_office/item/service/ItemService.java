@@ -93,8 +93,8 @@ public class ItemService {
     }
 
     // Paging 처리 완료
-    public PageRes<ItemInfoRes> findItemsWithPaging(Pageable pageable) {
-        Page<Item> items = itemRepository.findItemsWithPaging(pageable);
+    public PageRes<ItemInfoRes> findItemsWithPaging(Pageable pageable, String keyWord, String category) {
+        Page<Item> items = itemRepository.findItemsWithPaging(pageable, keyWord, category);
         Page<ItemInfoRes> mapped = items.map(item -> ItemInfoRes.toDto(item, this::exportS3Url));
         return PageRes.toDto(mapped);
     }

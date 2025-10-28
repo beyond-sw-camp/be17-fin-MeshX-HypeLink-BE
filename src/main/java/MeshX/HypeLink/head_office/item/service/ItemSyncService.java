@@ -143,7 +143,7 @@ public class ItemSyncService {
         sendCategoriesToStore(storeId, storeApiUrl);
 
         do {
-            pageResult = itemRepository.findItemsWithPaging(PageRequest.of(page, size));
+            pageResult = itemRepository.findItemsWithPaging(PageRequest.of(page, size), "", "all");
             List<Item> items = pageResult.getContent();
 
             if (!items.isEmpty()) {

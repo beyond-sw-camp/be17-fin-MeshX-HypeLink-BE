@@ -32,8 +32,10 @@ public class ItemController {
 
     // paging 처리
     @GetMapping("/list")
-    public ResponseEntity<BaseResponse<PageRes<ItemInfoRes>>> getItems(Pageable pageable) {
-        PageRes<ItemInfoRes> items = itemService.findItemsWithPaging(pageable);
+    public ResponseEntity<BaseResponse<PageRes<ItemInfoRes>>> getItems(Pageable pageable,
+                                                                       @RequestParam String keyWord,
+                                                                       @RequestParam String category) {
+        PageRes<ItemInfoRes> items = itemService.findItemsWithPaging(pageable, keyWord, category);
         return ResponseEntity.ok(BaseResponse.of(items));
     }
 

@@ -129,15 +129,17 @@ public class PurchaseOrderService {
         return PurchaseOrderInfoDetailListRes.toDto(purchaseOrders);
     }
 
-    public PageRes<PurchaseOrderInfoDetailRes> getList(Pageable pageReq, UserDetails userDetails) {
+    public PageRes<PurchaseOrderInfoDetailRes> searchList(Pageable pageReq, String keyWord, String status,
+                                                          UserDetails userDetails) {
         String email = userDetails.getUsername();
         Member member = memberRepository.findByEmail(email);
+
         if(member.getRole().equals(BRANCH_MANAGER)) {
-            Page<PurchaseOrder> orderPage = orderRepository.findByRequester(member, pageReq);
+            Page<PurchaseOrder> orderPage = orderRepository.findSearchByRequester(keyWord, status, member, pageReq);
             Page<PurchaseOrderInfoDetailRes> dtoPage = PurchaseOrderInfoDetailRes.toDtoPage(orderPage);
             return PageRes.toDto(dtoPage);
         } else if (member.getRole().equals(ADMIN) || member.getRole().equals(MANAGER)) {
-            Page<PurchaseOrder> orders = orderRepository.findAllOrderWithPriority(pageReq);
+            Page<PurchaseOrder> orders = orderRepository.findAllSearchOrderWithPriority(keyWord, status, pageReq);
             Page<PurchaseOrderInfoDetailRes> dtoPage = PurchaseOrderInfoDetailRes.toDtoPage(orders);
             return PageRes.toDto(dtoPage);
         }
