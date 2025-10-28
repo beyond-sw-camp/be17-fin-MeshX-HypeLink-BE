@@ -132,4 +132,10 @@ public class UserController {
         return ResponseEntity.ok(BaseResponse.of("사용자가 성공적으로 삭제되었습니다."));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @GetMapping("/store/list/address")
+    public ResponseEntity<BaseResponse<StoreAddInfoListRes>> getMyStoreId() {
+        StoreAddInfoListRes result = memberService.getStoreAddress();
+        return ResponseEntity.ok(BaseResponse.of(result));
+    }
 }

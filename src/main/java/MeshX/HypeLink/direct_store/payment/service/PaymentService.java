@@ -24,7 +24,6 @@ import MeshX.HypeLink.head_office.customer.repository.CustomerJpaRepositoryVerif
 import io.portone.sdk.server.payment.Payment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,12 +60,12 @@ public class PaymentService {
     private final PaymentJpaRepositoryVerify paymentRepository;
     private final PortOneConfig portOneConfig;
     private final StoreJpaRepositoryVerify storeRepository;
-    private final PosJpaRepositoryVerify posRepository;
-    private final MemberJpaRepositoryVerify memberRepository;
+    private final MemberJpaRepositoryVerify memberJpaRepositoryVerify;
+    private final PosJpaRepositoryVerify posJpaRepositoryVerify;
 
 
     @Transactional
-    public void validatePayment(PaymentValidationReq req, UserDetails userDetails) {
+    public void validatePayment(PaymentValidationReq req, Member member) {
         try {
             // 포트원 서버에서 결제정보를 가져와서 진짜 결제가 완료 됐는지 검증
             Payment.Recognized portOnePayment = fetchAndValidatePortOnePayment(req.getPaymentId());
@@ -78,7 +77,8 @@ public class PaymentService {
             validatePaymentAmount(req.getPaymentId(), expectedAmount, actualAmount);
 
             // CustomerReceipt 및 Payment 생성
-            createReceiptAndPayment(req, portOnePayment, actualAmount, userDetails);
+            POS pos = findPosCode(member);
+            createReceiptAndPayment(req, portOnePayment, actualAmount,pos.getPosCode());
 
         } catch (Exception e) {
             // 1. 먼저 결제를 취소합니다.
@@ -94,6 +94,10 @@ public class PaymentService {
                 throw new PaymentException(PAYMENT_VALIDATION_FAILED);
             }
         }
+    }
+
+    private POS findPosCode(Member member) {
+        return posJpaRepositoryVerify.findByMember(member);
     }
 
     // 프론트에서 받은 paymentId(각종 예외처리 거치고) 형 변환해서 리턴시키는 메서드
@@ -130,8 +134,7 @@ public class PaymentService {
 
     private void createReceiptAndPayment(PaymentValidationReq req,
                                          Payment.Recognized portOnePayment,
-                                         Integer actualAmount,
-                                         UserDetails userDetails) {
+                                         Integer actualAmount, String posCode) {
         ReceiptCreateReq orderData = req.getOrderData();
 
 
@@ -142,7 +145,10 @@ public class PaymentService {
         Member member = memberRepository.findByEmail(userDetails.getUsername());
         Store store = getStore(member);
 
-        String merchantUid = member.getName() + "-" +
+
+        Store store = storeRepository.findById(orderData.getStoreId());
+
+        String merchantUid = posCode + "-" +
                              UUID.randomUUID().toString().substring(0, 8);
 
 
@@ -286,5 +292,9 @@ public class PaymentService {
             return reason;
         }
         return reason.substring(0, 252) + "...";
+    }
+
+    public Member getMember(String username) {
+        return memberJpaRepositoryVerify.findByEmail(username);
     }
 }

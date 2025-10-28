@@ -44,4 +44,9 @@ public class Parcel extends BaseEntity {
         this.requester = requester;
         this.supplier = supplier;
     }
+
+    public void setShipment(Shipment shipment) {
+        this.shipment = shipment;
+    }
+
 }

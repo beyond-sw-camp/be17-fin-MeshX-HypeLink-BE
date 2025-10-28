@@ -60,7 +60,7 @@ public class MemberService {
 
         return drivers.stream()
                 .map(driver -> DriverListReqDto.builder()
-                        .id(driver.getMember().getId())
+                        .id(driver.getId())
                         .name(driver.getMember().getName())
                         .phone(driver.getMember().getPhone())
                         .region(driver.getMember().getRegion())
@@ -338,5 +338,10 @@ public class MemberService {
         Store store = storeJpaRepositoryVerify.findByMember(member);
 
         return store.getId();
+    }
+
+    public StoreAddInfoListRes getStoreAddress() {
+        List<Store> storeList = storeJpaRepositoryVerify.findAllWithMember();
+        return StoreAddInfoListRes.toDto(storeList);
     }
 }
