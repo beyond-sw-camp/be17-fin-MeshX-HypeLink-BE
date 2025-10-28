@@ -180,4 +180,47 @@ public class AnalyticsService {
 
         return new LocalDateTime[]{startDate, endDate};
     }
+
+    /**
+     * 일별 매출 데이터 조회 (Sales Management 페이지용)
+     * @param startDate 시작일
+     * @param endDate 종료일
+     * @param storeId 매장 ID (optional)
+     */
+    public List<MeshX.HypeLink.head_office.analytics.dto.DailySalesDTO> getDailySales(
+            String startDate, String endDate, Integer storeId) {
+        LocalDateTime start = startDate != null ? LocalDateTime.parse(startDate + "T00:00:00") : LocalDateTime.now().minusMonths(1);
+        LocalDateTime end = endDate != null ? LocalDateTime.parse(endDate + "T23:59:59") : LocalDateTime.now();
+
+        return analyticsRepository.getDailySales(start, end, storeId);
+    }
+
+    /**
+     * 최근 7일간 매출 차트 데이터 (Sales Management 페이지용)
+     * @param storeId 매장 ID (optional, null이면 전체)
+     */
+    public List<MeshX.HypeLink.head_office.analytics.dto.SalesChartDataDTO> getSalesChartData(Integer storeId) {
+        return analyticsRepository.getSalesChartData(storeId);
+    }
+
+    /**
+     * 고객 분석 데이터 조회 (Customer Analytics 페이지용)
+     */
+    public List<MeshX.HypeLink.head_office.analytics.dto.CustomerAnalyticsDTO> getCustomerAnalytics() {
+        return analyticsRepository.getCustomerAnalytics();
+    }
+
+    /**
+     * 연령대별 고객 분포
+     */
+    public List<MeshX.HypeLink.head_office.analytics.dto.AgeDistributionDTO> getAgeDistribution() {
+        return analyticsRepository.getAgeDistribution();
+    }
+
+    /**
+     * 카테고리별 고객 매출 (Customer Analytics 페이지용)
+     */
+    public List<MeshX.HypeLink.head_office.analytics.dto.CategoryCustomerSalesDTO> getCategoryCustomerSales() {
+        return analyticsRepository.getCategoryCustomerSales();
+    }
 }

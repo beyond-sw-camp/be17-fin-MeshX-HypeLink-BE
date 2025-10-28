@@ -40,6 +40,10 @@ public interface ItemDetailRepository extends JpaRepository<ItemDetail, Integer>
     @Query("SELECT d FROM ItemDetail d JOIN FETCH d.item i WHERE i.id = :id")
     List<ItemDetail> findByItemId(Integer id);
 
+    // 모든 ItemDetail 조회 시 Item도 함께 Fetch
+    @Query("SELECT DISTINCT d FROM ItemDetail d JOIN FETCH d.item")
+    List<ItemDetail> findAllWithItem();
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({
             @QueryHint(name = "javax.persistence.lock.timeout", value = "5000") // 5초 대기 후 예외 발생

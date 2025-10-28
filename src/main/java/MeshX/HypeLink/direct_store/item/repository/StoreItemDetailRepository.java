@@ -33,6 +33,10 @@ public interface StoreItemDetailRepository extends JpaRepository<StoreItemDetail
     @Query("SELECT d FROM StoreItemDetail d WHERE d.item.store.id = :storeId")
     Page<StoreItemDetail> findByStoreId(@Param("storeId") Integer storeId, Pageable pageable);
 
+    // 특정 매장의 전체 상품 조회 (리스트) - StoreItem을 Eager Fetch
+    @Query("SELECT d FROM StoreItemDetail d JOIN FETCH d.item WHERE d.item.store.id = :storeId")
+    List<StoreItemDetail> findAllByStoreId(@Param("storeId") Integer storeId);
+
     // 특정 매장의 상품명 검색 (페이징) - 한글명, 영문명, 바코드 모두 검색
     @Query("SELECT d FROM StoreItemDetail d WHERE d.item.store.id = :storeId AND " +
            "(d.item.koName LIKE %:keyword% OR d.item.enName LIKE %:keyword% OR d.itemDetailCode LIKE %:keyword%)")
