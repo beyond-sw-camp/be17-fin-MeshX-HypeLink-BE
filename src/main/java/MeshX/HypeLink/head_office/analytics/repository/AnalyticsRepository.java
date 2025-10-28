@@ -43,9 +43,9 @@ public class AnalyticsRepository {
 
         SalesOverviewDTO result = queryFactory
             .select(Projections.constructor(SalesOverviewDTO.class,
-                totalRevenue.longValue(),
+                totalRevenue,
                 totalTransactions,
-                avgOrderValue.longValue(),
+                avgOrderValue,
                 Expressions.constant(0.0) // growthRate는 나중에 계산
             ))
             .from(customerReceipt)
@@ -108,7 +108,7 @@ public class AnalyticsRepository {
                 store.id,
                 store.storeNumber,
                 member.name,
-                customerReceipt.finalAmount.sum().longValue(),
+                customerReceipt.finalAmount.sum(),
                 customerReceipt.count(),
                 Expressions.constant(0.0)
             ))
@@ -136,9 +136,9 @@ public class AnalyticsRepository {
                 storeItem.koName,
                 storeItem.enName,
                 storeItem.category.category,
-                orderItem.totalPrice.sum().longValue(),
-                orderItem.quantity.sum().longValue(),
-                orderItem.unitPrice.avg().longValue(),
+                orderItem.totalPrice.sum(),
+                orderItem.quantity.sum(),
+                orderItem.unitPrice.avg(),
                 Expressions.constant(0.0)
             ))
             .from(orderItem)
@@ -162,9 +162,9 @@ public class AnalyticsRepository {
         return queryFactory
             .select(Projections.constructor(CategoryPerformanceDTO.class,
                 storeItem.category.category,
-                orderItem.totalPrice.sum().longValue(),
-                orderItem.quantity.sum().longValue(),
-                orderItem.unitPrice.avg().longValue(),
+                orderItem.totalPrice.sum(),
+                orderItem.quantity.sum(),
+                orderItem.unitPrice.avg(),
                 Expressions.constant(0.0)
             ))
             .from(orderItem)
@@ -213,9 +213,9 @@ public class AnalyticsRepository {
         return queryFactory
             .select(Projections.constructor(SalesTrendDTO.class,
                 Expressions.stringTemplate("DATE({0})", customerReceipt.paidAt),
-                customerReceipt.finalAmount.sum().longValue(),
+                customerReceipt.finalAmount.sum(),
                 customerReceipt.count(),
-                customerReceipt.finalAmount.avg().longValue()
+                customerReceipt.finalAmount.avg()
             ))
             .from(customerReceipt)
             .where(
@@ -257,7 +257,7 @@ public class AnalyticsRepository {
             .select(Projections.constructor(SalesHeatmapDTO.class,
                 dayOfWeek,
                 hourOfDay,
-                customerReceipt.finalAmount.sum().longValue(),
+                customerReceipt.finalAmount.sum(),
                 customerReceipt.count()
             ))
             .from(customerReceipt)
@@ -279,7 +279,7 @@ public class AnalyticsRepository {
                 store.id,
                 store.storeNumber,
                 member.name,
-                customerReceipt.finalAmount.sum().longValue(),
+                customerReceipt.finalAmount.sum(),
                 customerReceipt.count(),
                 Expressions.constant(0.0)
             ))
@@ -320,9 +320,9 @@ public class AnalyticsRepository {
                 storeItem.koName,
                 storeItem.enName,
                 storeItem.category.category,
-                orderItem.totalPrice.sum().longValue(),
-                orderItem.quantity.sum().longValue(),
-                orderItem.unitPrice.avg().longValue(),
+                orderItem.totalPrice.sum(),
+                orderItem.quantity.sum(),
+                orderItem.unitPrice.avg(),
                 Expressions.constant(0.0)
             ))
             .from(orderItem)
@@ -546,7 +546,7 @@ public class AnalyticsRepository {
                 member.name,
                 store.storeNumber,
                 Expressions.stringTemplate("DATE({0})", customerReceipt.paidAt),
-                customerReceipt.finalAmount.sum().longValue()
+                customerReceipt.finalAmount.sum()
             ))
             .from(customerReceipt)
             .join(customerReceipt.store, store)
@@ -675,7 +675,7 @@ public class AnalyticsRepository {
         return queryFactory
             .select(Projections.constructor(MeshX.HypeLink.head_office.analytics.dto.CategoryCustomerSalesDTO.class,
                 storeItem.category.category,
-                orderItem.totalPrice.sum().longValue()
+                orderItem.totalPrice.sum()
             ))
             .from(orderItem)
             .join(orderItem.customerReceipt, customerReceipt)

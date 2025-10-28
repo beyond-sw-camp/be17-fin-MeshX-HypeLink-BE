@@ -12,4 +12,7 @@ public interface CustomerRepository extends JpaRepository<Customer,Integer> {
 
     @Query("SELECT c FROM Customer c LEFT JOIN FETCH c.customerCoupons WHERE c.phone = :phone")
     Optional<Customer> findByPhoneWithCoupons(@Param("phone") String phone);
+
+    @Query("SELECT c FROM Customer c")
+    java.util.List<Customer> readAll();
 }
