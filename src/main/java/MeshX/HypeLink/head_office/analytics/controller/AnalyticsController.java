@@ -196,6 +196,19 @@ public class AnalyticsController {
     }
 
     /**
+     * 날짜별로 그룹화된 일별 매출 데이터 조회 (Sales Management 페이지용)
+     * GET /api/analytics/sales/daily-grouped?startDate=2024-01-01&endDate=2024-12-31&storeId=1
+     */
+    @GetMapping("/sales/daily-grouped")
+    public ResponseEntity<BaseResponse<List<DailySalesGroupDTO>>> getDailySalesGrouped(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            @RequestParam(required = false) Integer storeId) {
+        List<DailySalesGroupDTO> data = analyticsService.getDailySalesGrouped(startDate, endDate, storeId);
+        return ResponseEntity.ok(BaseResponse.of(data, "날짜별 그룹화된 매출 데이터 조회 성공"));
+    }
+
+    /**
      * 최근 7일간 매출 차트 데이터 (Sales Management 페이지용)
      * GET /api/analytics/sales/chart?storeId=1
      */

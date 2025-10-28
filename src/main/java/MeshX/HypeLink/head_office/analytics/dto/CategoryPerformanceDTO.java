@@ -14,6 +14,6 @@ public class CategoryPerformanceDTO {
     private String categoryName;
     private Long revenue;
     private Long quantity;
-    private Long avgPrice;
+    private Double avgPrice;
     private Double growthRate;
 }

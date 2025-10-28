@@ -18,6 +18,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static MeshX.HypeLink.auth.model.entity.QMember.member;
 import static MeshX.HypeLink.auth.model.entity.QStore.store;
@@ -37,7 +38,7 @@ public class AnalyticsRepository {
      * 매출 현황 조회 (고객 구매 기반)
      */
     public SalesOverviewDTO getSalesOverview(LocalDateTime startDate, LocalDateTime endDate) {
-        NumberExpression<Integer> totalRevenue = customerReceipt.finalAmount.sum();
+        NumberExpression<Long> totalRevenue = customerReceipt.finalAmount.sum().castToNum(Long.class);
         NumberExpression<Long> totalTransactions = customerReceipt.count();
         NumberExpression<Double> avgOrderValue = customerReceipt.finalAmount.avg();
 
@@ -56,14 +57,14 @@ public class AnalyticsRepository {
             .fetchOne();
 
         if (result == null || result.getTotalTransactions() == 0) {
-            result = new SalesOverviewDTO(0L, 0L, 0L, 0.0);
+            result = new SalesOverviewDTO(0L, 0L, 0.0, 0.0);
         }
 
         long periodDays = java.time.Duration.between(startDate, endDate).toDays();
         if (periodDays == 0) periodDays = 1;
         LocalDateTime prevStartDate = startDate.minusDays(periodDays);
 
-        Integer prevRevenue = queryFactory
+        Integer prevRevenueInt = queryFactory
             .select(customerReceipt.finalAmount.sum())
             .from(customerReceipt)
             .where(
@@ -72,7 +73,8 @@ public class AnalyticsRepository {
             )
             .fetchOne();
 
-        if (prevRevenue != null && prevRevenue > 0) {
+        if (prevRevenueInt != null && prevRevenueInt > 0) {
+            long prevRevenue = prevRevenueInt.longValue();
             double growthRate = ((result.getTotalRevenue() - prevRevenue) * 100.0) / prevRevenue;
             result.setGrowthRate(Math.round(growthRate * 100.0) / 100.0);
         }
@@ -108,7 +110,7 @@ public class AnalyticsRepository {
                 store.id,
                 store.storeNumber,
                 member.name,
-                customerReceipt.finalAmount.sum(),
+                customerReceipt.finalAmount.sum().castToNum(Long.class),
                 customerReceipt.count(),
                 Expressions.constant(0.0)
             ))
@@ -136,8 +138,8 @@ public class AnalyticsRepository {
                 storeItem.koName,
                 storeItem.enName,
                 storeItem.category.category,
-                orderItem.totalPrice.sum(),
-                orderItem.quantity.sum(),
+                orderItem.totalPrice.sum().castToNum(Long.class),
+                orderItem.quantity.sum().castToNum(Long.class),
                 orderItem.unitPrice.avg(),
                 Expressions.constant(0.0)
             ))
@@ -162,8 +164,8 @@ public class AnalyticsRepository {
         return queryFactory
             .select(Projections.constructor(CategoryPerformanceDTO.class,
                 storeItem.category.category,
-                orderItem.totalPrice.sum(),
-                orderItem.quantity.sum(),
+                orderItem.totalPrice.sum().castToNum(Long.class),
+                orderItem.quantity.sum().castToNum(Long.class),
                 orderItem.unitPrice.avg(),
                 Expressions.constant(0.0)
             ))
@@ -210,13 +212,13 @@ public class AnalyticsRepository {
      * 매출 추이 조회 (고객 구매 기반)
      */
     public List<SalesTrendDTO> getSalesTrend(LocalDateTime startDate, LocalDateTime endDate) {
-        return queryFactory
-            .select(Projections.constructor(SalesTrendDTO.class,
+        List<Tuple> results = queryFactory
+            .select(
                 Expressions.stringTemplate("DATE({0})", customerReceipt.paidAt),
                 customerReceipt.finalAmount.sum(),
                 customerReceipt.count(),
                 customerReceipt.finalAmount.avg()
-            ))
+            )
             .from(customerReceipt)
             .where(
                 customerReceipt.paidAt.between(startDate, endDate),
@@ -225,25 +227,47 @@ public class AnalyticsRepository {
             .groupBy(Expressions.stringTemplate("DATE({0})", customerReceipt.paidAt))
             .orderBy(Expressions.stringTemplate("DATE({0})", customerReceipt.paidAt).asc())
             .fetch();
+
+        return results.stream().map(tuple -> {
+            java.sql.Date sqlDate = tuple.get(0, java.sql.Date.class);
+            String dateStr = sqlDate != null ? sqlDate.toString() : null;
+            Integer revenueInt = tuple.get(1, Integer.class);
+            Long totalRevenue = revenueInt != null ? revenueInt.longValue() : 0L;
+            Long orderCount = tuple.get(2, Long.class);
+            Double avgOrderValue = tuple.get(3, Double.class);
+
+            return new SalesTrendDTO(dateStr, totalRevenue, orderCount, avgOrderValue);
+        }).collect(Collectors.toList());
     }
 
     /**
      * 주문 추이 조회 (고객 구매 기반)
      */
     public List<OrderTrendDTO> getOrderTrend(LocalDateTime startDate, LocalDateTime endDate) {
-        return queryFactory
-            .select(Projections.constructor(OrderTrendDTO.class,
+        List<Tuple> results = queryFactory
+            .select(
                 Expressions.stringTemplate("DATE({0})", customerReceipt.createdAt),
                 customerReceipt.count(),
                 Expressions.cases().when(customerReceipt.status.eq(PaymentStatus.READY)).then(1L).otherwise(0L).sum(),
                 Expressions.cases().when(customerReceipt.status.eq(PaymentStatus.PAID)).then(1L).otherwise(0L).sum(),
                 Expressions.cases().when(customerReceipt.status.eq(PaymentStatus.CANCELLED)).then(1L).otherwise(0L).sum()
-            ))
+            )
             .from(customerReceipt)
             .where(customerReceipt.createdAt.between(startDate, endDate))
             .groupBy(Expressions.stringTemplate("DATE({0})", customerReceipt.createdAt))
             .orderBy(Expressions.stringTemplate("DATE({0})", customerReceipt.createdAt).asc())
             .fetch();
+
+        return results.stream().map(tuple -> {
+            java.sql.Date sqlDate = tuple.get(0, java.sql.Date.class);
+            String dateStr = sqlDate != null ? sqlDate.toString() : null;
+            Long totalOrders = tuple.get(1, Long.class);
+            Long pendingOrders = tuple.get(2, Long.class) != null ? tuple.get(2, Long.class) : 0L;
+            Long completedOrders = tuple.get(3, Long.class) != null ? tuple.get(3, Long.class) : 0L;
+            Long cancelledOrders = tuple.get(4, Long.class) != null ? tuple.get(4, Long.class) : 0L;
+
+            return new OrderTrendDTO(dateStr, totalOrders, pendingOrders, completedOrders, cancelledOrders);
+        }).collect(Collectors.toList());
     }
 
     /**
@@ -257,7 +281,7 @@ public class AnalyticsRepository {
             .select(Projections.constructor(SalesHeatmapDTO.class,
                 dayOfWeek,
                 hourOfDay,
-                customerReceipt.finalAmount.sum(),
+                customerReceipt.finalAmount.sum().castToNum(Long.class),
                 customerReceipt.count()
             ))
             .from(customerReceipt)
@@ -279,7 +303,7 @@ public class AnalyticsRepository {
                 store.id,
                 store.storeNumber,
                 member.name,
-                customerReceipt.finalAmount.sum(),
+                customerReceipt.finalAmount.sum().castToNum(Long.class),
                 customerReceipt.count(),
                 Expressions.constant(0.0)
             ))
@@ -320,8 +344,8 @@ public class AnalyticsRepository {
                 storeItem.koName,
                 storeItem.enName,
                 storeItem.category.category,
-                orderItem.totalPrice.sum(),
-                orderItem.quantity.sum(),
+                orderItem.totalPrice.sum().castToNum(Long.class),
+                orderItem.quantity.sum().castToNum(Long.class),
                 orderItem.unitPrice.avg(),
                 Expressions.constant(0.0)
             ))
@@ -382,7 +406,8 @@ public class AnalyticsRepository {
             LocalDateTime lastOrderDate = stat.get(customerReceipt.paidAt.max());
             long daysSince = ChronoUnit.DAYS.between(Objects.requireNonNull(lastOrderDate), now);
             long frequency = stat.get(customerReceipt.count());
-            long monetary = Objects.requireNonNull(stat.get(customerReceipt.finalAmount.sum())).longValue();
+            Integer monetaryInt = stat.get(customerReceipt.finalAmount.sum());
+            long monetary = monetaryInt != null ? monetaryInt.longValue() : 0L;
 
             recencyDaysList.add(daysSince);
             frequencyList.add(frequency);
@@ -400,7 +425,8 @@ public class AnalyticsRepository {
             String customerPhone = stat.get(customer.phone);
             LocalDateTime lastOrderDate = stat.get(customerReceipt.paidAt.max());
             long frequency = stat.get(customerReceipt.count());
-            long monetary = Objects.requireNonNull(stat.get(customerReceipt.finalAmount.sum())).longValue();
+            Integer monetaryInt = stat.get(customerReceipt.finalAmount.sum());
+            long monetary = monetaryInt != null ? monetaryInt.longValue() : 0L;
             long daysSince = ChronoUnit.DAYS.between(Objects.requireNonNull(lastOrderDate), now);
 
             int recencyScore = 6 - getQuintileScore(daysSince, recencyQuintiles);
@@ -449,7 +475,10 @@ public class AnalyticsRepository {
             .fetch();
 
         long totalRevenue = productSales.stream()
-            .mapToLong(stat -> Objects.requireNonNull(stat.get(orderItem.totalPrice.sum())).longValue())
+            .mapToLong(stat -> {
+                Integer sum = stat.get(orderItem.totalPrice.sum());
+                return sum != null ? sum.longValue() : 0L;
+            })
             .sum();
 
         if (totalRevenue == 0) return new ArrayList<>();
@@ -462,10 +491,12 @@ public class AnalyticsRepository {
             Long productId = Objects.requireNonNull(stat.get(storeItem.id)).longValue();
             String productName = stat.get(storeItem.koName);
             String categoryName = stat.get(storeItem.category.category);
-            long revenue = Objects.requireNonNull(stat.get(orderItem.totalPrice.sum())).longValue();
-            long quantity = Objects.requireNonNull(stat.get(orderItem.quantity.sum())).longValue();
+            Integer revenueInt = stat.get(orderItem.totalPrice.sum());
+            Integer quantityInt = stat.get(orderItem.quantity.sum());
+            long revenue = revenueInt != null ? revenueInt.longValue() : 0L;
+            long quantity = quantityInt != null ? quantityInt.longValue() : 0L;
 
-            double revenuePercentage = (revenue * 100.0) / totalRevenue;
+            double revenuePercentage = revenue * 100.0 / totalRevenue;
             cumulativePercentage += revenuePercentage;
 
             String abcGrade = (cumulativePercentage <= 80) ? "A" : (cumulativePercentage <= 95) ? "B" : "C";
@@ -483,10 +514,10 @@ public class AnalyticsRepository {
 
     // ===== Helper Methods =====
 
-    private int[] calculateQuintiles(List<Long> values) {
+    private <T extends Number & Comparable<T>> int[] calculateQuintiles(List<T> values) {
         if (values.isEmpty()) return new int[]{0, 0, 0, 0, 0};
-        List<Long> sorted = new ArrayList<>(values);
-        sorted.sort(Long::compareTo);
+        List<T> sorted = new ArrayList<>(values);
+        sorted.sort(T::compareTo);
         int size = sorted.size();
         return new int[]{
             sorted.get(Math.max(0, (int) (size * 0.2) - 1)).intValue(),
@@ -540,14 +571,13 @@ public class AnalyticsRepository {
             LocalDateTime startDate, LocalDateTime endDate, Integer storeId) {
 
         var query = queryFactory
-            .select(Projections.constructor(MeshX.HypeLink.head_office.analytics.dto.DailySalesDTO.class,
-                customerReceipt.id,
+            .select(
                 store.id,
                 member.name,
                 store.storeNumber,
                 Expressions.stringTemplate("DATE({0})", customerReceipt.paidAt),
                 customerReceipt.finalAmount.sum()
-            ))
+            )
             .from(customerReceipt)
             .join(customerReceipt.store, store)
             .join(store.member, member)
@@ -568,7 +598,70 @@ public class AnalyticsRepository {
             query.where(store.id.eq(storeId));
         }
 
-        return query.fetch();
+        List<Tuple> results = query.fetch();
+
+        return results.stream().map(tuple -> {
+            Integer stId = tuple.get(0, Integer.class);
+            String storeName = tuple.get(1, String.class);
+            String storeNumber = tuple.get(2, String.class);
+            java.sql.Date sqlDate = tuple.get(3, java.sql.Date.class);
+            String date = sqlDate != null ? sqlDate.toString() : null;
+            Integer amountInt = tuple.get(4, Integer.class);
+            Long amount = amountInt != null ? amountInt.longValue() : 0L;
+
+            DailySalesDTO dto = new DailySalesDTO();
+            dto.setId(null); // 그룹화된 데이터이므로 개별 ID 없음
+            dto.setStoreId(stId);
+            dto.setStoreName(storeName);
+            dto.setStoreNumber(storeNumber);
+            dto.setDate(date);
+            dto.setAmount(amount);
+
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    /**
+     * 날짜별로 그룹화된 일별 매출 데이터 조회 (날짜 > 가맹점 구조)
+     */
+    public List<DailySalesGroupDTO> getDailySalesGrouped(
+            LocalDateTime startDate, LocalDateTime endDate, Integer storeId) {
+
+        // 먼저 기존 getDailySales 로직 재사용
+        List<DailySalesDTO> dailySales = getDailySales(startDate, endDate, storeId);
+
+        // 날짜별로 그룹화
+        return dailySales.stream()
+            .collect(Collectors.groupingBy(DailySalesDTO::getDate))
+            .entrySet().stream()
+            .map(entry -> {
+                String date = entry.getKey();
+                List<DailySalesDTO> storesForDate = entry.getValue();
+
+                // 해당 날짜의 가맹점별 상세 정보로 변환
+                List<DailyStoreDetailDTO> storeDetails = storesForDate.stream()
+                    .map(sale -> new DailyStoreDetailDTO(
+                        sale.getStoreId(),
+                        sale.getStoreName(),
+                        sale.getStoreNumber(),
+                        sale.getAmount()
+                    ))
+                    .collect(Collectors.toList());
+
+                // 해당 날짜의 전체 매출 합계 계산
+                Long totalAmount = storesForDate.stream()
+                    .mapToLong(DailySalesDTO::getAmount)
+                    .sum();
+
+                return new DailySalesGroupDTO(
+                    date,
+                    totalAmount,
+                    storeDetails.size(),
+                    storeDetails
+                );
+            })
+            .sorted((a, b) -> b.getDate().compareTo(a.getDate())) // 날짜 역순 정렬
+            .collect(Collectors.toList());
     }
 
     /**

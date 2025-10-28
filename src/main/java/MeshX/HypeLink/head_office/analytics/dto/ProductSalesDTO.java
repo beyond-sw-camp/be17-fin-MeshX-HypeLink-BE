@@ -18,6 +18,6 @@ public class ProductSalesDTO {
     private String categoryName;
     private Long totalRevenue;
     private Long quantity;
-    private Long avgPrice;
+    private Double avgPrice;
     private Double growthRate;
 }

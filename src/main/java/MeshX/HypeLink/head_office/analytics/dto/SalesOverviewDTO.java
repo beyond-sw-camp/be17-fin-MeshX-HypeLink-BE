@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class SalesOverviewDTO {
     private Long totalRevenue;      // 총 매출
     private Long totalTransactions; // 총 거래 수
-    private Long avgOrderValue;     // 평균 주문 금액
+    private Double avgOrderValue;     // 평균 주문 금액
     private Double growthRate;      // 성장률 (%)
 
     // 비교 데이터
@@ -23,7 +23,7 @@ public class SalesOverviewDTO {
     private Double yearOverYearGrowth;    // 전년 대비 성장률 (%)
 
     // 기본 4개 필드 생성자
-    public SalesOverviewDTO(Long totalRevenue, Long totalTransactions, Long avgOrderValue, Double growthRate) {
+    public SalesOverviewDTO(Long totalRevenue, Long totalTransactions, Double avgOrderValue, Double growthRate) {
         this.totalRevenue = totalRevenue;
         this.totalTransactions = totalTransactions;
         this.avgOrderValue = avgOrderValue;
