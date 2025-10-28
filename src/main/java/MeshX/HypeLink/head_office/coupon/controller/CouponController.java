@@ -1,14 +1,11 @@
 package MeshX.HypeLink.head_office.coupon.controller;
 
 import MeshX.HypeLink.common.BaseResponse;
-import MeshX.HypeLink.common.Page.PageReq;
-import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.head_office.coupon.model.dto.request.CouponCreateReq;
 import MeshX.HypeLink.head_office.coupon.model.dto.response.CouponInfoListRes;
 import MeshX.HypeLink.head_office.coupon.model.dto.response.CouponInfoRes;
 import MeshX.HypeLink.head_office.coupon.service.CouponService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -48,9 +45,7 @@ public class CouponController {
 
     @GetMapping("/list")
     public ResponseEntity<BaseResponse<CouponInfoListRes>> getCouponList(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
+            Pageable pageable) {
         CouponInfoListRes result = couponService.readAll(pageable);
         return ResponseEntity.status(200).body(BaseResponse.of(result));
     }
