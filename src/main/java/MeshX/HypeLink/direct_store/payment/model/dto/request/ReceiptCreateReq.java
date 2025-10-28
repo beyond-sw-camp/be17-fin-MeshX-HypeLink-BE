@@ -11,5 +11,6 @@ public class ReceiptCreateReq {
     private String memberName;
     private String memberPhone;
     private Integer couponDiscount;
+    private Integer customerCouponId;  // 사용한 고객 쿠폰 ID
     private List<ReceiptItemDto> items;
 }

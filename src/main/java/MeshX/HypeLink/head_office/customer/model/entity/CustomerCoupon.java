@@ -36,12 +36,12 @@ public class CustomerCoupon extends BaseEntity {
 
     @JsonProperty("isUsed")
     @Column(nullable = false)
-    private boolean isUsed;
+    private Boolean isUsed;
 
     private LocalDate usedDate;
 
     @Builder
-    public CustomerCoupon(Customer customer, Coupon coupon, LocalDate issuedDate, LocalDate expirationDate, boolean isUsed, LocalDate usedDate) {
+    public CustomerCoupon(Customer customer, Coupon coupon, LocalDate issuedDate, LocalDate expirationDate, Boolean isUsed, LocalDate usedDate) {
         this.customer = customer;
         this.coupon = coupon;
         this.issuedDate = issuedDate;
@@ -50,7 +50,7 @@ public class CustomerCoupon extends BaseEntity {
         this.usedDate = usedDate;
     }
 
-    public void setCustomer(Customer customer) {
+    public void changeCustomer(Customer customer) {
         this.customer = customer;
     }
 

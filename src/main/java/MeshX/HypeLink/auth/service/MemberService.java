@@ -105,7 +105,7 @@ public class MemberService {
 
         // POS_MEMBER인 경우: POS 테이블에서 member로 조회 → Store 찾기
             // 기존 로직은 store 테이블에서 pos기를 찾았는데 pos기 테이블에서 찾아야됨.!!! ㅇ
-        if (member.getRole() == MemberRole.POS_MEMBER) {
+        if (member.getRole().equals(MemberRole.POS_MEMBER)) {
             POS pos = posJpaRepositoryVerify.findByMember(member);
             store = pos.getStore();
         } else {

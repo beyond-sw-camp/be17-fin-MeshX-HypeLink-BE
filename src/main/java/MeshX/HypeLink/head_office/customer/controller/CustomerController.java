@@ -4,10 +4,10 @@ import MeshX.HypeLink.auth.model.dto.res.StoreWithPosResDto;
 import MeshX.HypeLink.auth.model.entity.Member;
 import MeshX.HypeLink.auth.service.MemberService;
 import MeshX.HypeLink.common.BaseResponse;
+import MeshX.HypeLink.head_office.customer.model.dto.request.CustomerSignupReq;
 import MeshX.HypeLink.head_office.customer.model.dto.request.CustomerUpdateReq;
 import MeshX.HypeLink.head_office.customer.model.dto.response.CustomerInfoListRes;
 import MeshX.HypeLink.head_office.customer.model.dto.response.CustomerInfoRes;
-import MeshX.HypeLink.head_office.customer.model.dto.request.CustomerSignupReq;
 import MeshX.HypeLink.head_office.customer.model.dto.response.ReceiptListPagingRes;
 import MeshX.HypeLink.head_office.customer.model.dto.response.ReceiptListRes;
 import MeshX.HypeLink.head_office.customer.service.CustomerService;
@@ -39,6 +39,12 @@ public class CustomerController {
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 
+    @GetMapping("/phone/{phone}/available-coupons")
+    public ResponseEntity<BaseResponse<CustomerInfoRes>> getCustomerWithAvailableCoupons(@PathVariable String phone) {
+        CustomerInfoRes result = customerService.findByPhoneWithAvailableCoupons(phone);
+        return ResponseEntity.ok(BaseResponse.of(result));
+    }
+
     @GetMapping("/list")
     public ResponseEntity<BaseResponse<CustomerInfoListRes>> getCustomerInfos(
             @RequestParam(defaultValue = "0") int page,
@@ -67,8 +73,8 @@ public class CustomerController {
 
     @PostMapping("/{customerId}/coupons")
     public ResponseEntity<BaseResponse<String>> issueCoupon(
-       @PathVariable Integer customerId,
-       @RequestParam Integer couponId) {
+            @PathVariable Integer customerId,
+            @RequestParam Integer couponId) {
         customerService.issueCoupon(customerId, couponId);
         return ResponseEntity.status(200).body(BaseResponse.of("쿠폰이 발급되었습니다."));
     }
@@ -76,7 +82,7 @@ public class CustomerController {
     // 매장별 주문 내역 조회
     @GetMapping("/receipts")
     public ResponseEntity<BaseResponse<ReceiptListRes>> getReceipts(@AuthenticationPrincipal UserDetails userDetails) {
-        Member member = memberService.findMember( userDetails.getUsername());
+        Member member = memberService.findMember(userDetails.getUsername());
         StoreWithPosResDto dto = memberService.readMyStore(member);
         ReceiptListRes result = customerService.getReceiptsByStoreId(dto.getId());
         return ResponseEntity.ok(BaseResponse.of(result));
@@ -86,11 +92,9 @@ public class CustomerController {
     @GetMapping("/receipts/paging")
     public ResponseEntity<BaseResponse<ReceiptListPagingRes>> getReceiptsPaging(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            Pageable pageable) {
         Member member = memberService.findMember(userDetails.getUsername());
         StoreWithPosResDto dto = memberService.readMyStore(member);
-        Pageable pageable = PageRequest.of(page, size);
         ReceiptListPagingRes result = customerService.getReceiptsByStoreId(dto.getId(), pageable);
         return ResponseEntity.ok(BaseResponse.of(result));
     }

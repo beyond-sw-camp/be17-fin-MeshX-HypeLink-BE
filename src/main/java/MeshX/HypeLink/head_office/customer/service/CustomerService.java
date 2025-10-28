@@ -86,6 +86,11 @@ public class CustomerService {
         return CustomerInfoRes.toDto(customer);
     }
 
+    public CustomerInfoRes findByPhoneWithAvailableCoupons(String phone) {
+        Customer customer = customerRepository.findByPhoneWithAvailableCoupons(phone);
+        return CustomerInfoRes.toDto(customer);
+    }
+
     // 매장별 주문 내역 조회
     public ReceiptListRes getReceiptsByStoreId(Integer storeId) {
         List<CustomerReceipt> receipts = receiptRepository.findByStoreIdOrderByPaidAtDesc(storeId);

@@ -52,6 +52,11 @@ public class CustomerJpaRepositoryVerify {
                 .orElseThrow(() -> new CustomerException(NOT_FOUND));
     }
 
+    public Customer findByPhoneWithAvailableCoupons(String phone) {
+        return repository.findByPhoneWithAvailableCoupons(phone)
+                .orElseThrow(() -> new CustomerException(NOT_FOUND));
+    }
+
     public List<Customer> readAll() {
         List<Customer> customer = repository.findAll();
 

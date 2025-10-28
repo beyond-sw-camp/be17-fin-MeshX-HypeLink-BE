@@ -1,7 +1,6 @@
 package MeshX.HypeLink.head_office.promotion.controller;
 
 import MeshX.HypeLink.common.BaseResponse;
-import MeshX.HypeLink.common.Page.PageReq;
 import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.head_office.promotion.model.dto.request.PromotionCreateReq;
 import MeshX.HypeLink.head_office.promotion.model.dto.request.PromotionUpdateReq;
@@ -26,7 +25,7 @@ public class PromotionController {
     }
 
     @GetMapping("/read/all")
-    public ResponseEntity<BaseResponse<PromotionInfoListRes>> readPromotions(){
+    public ResponseEntity<BaseResponse<PromotionInfoListRes>> readPromotions() {
         PromotionInfoListRes promotionInfoListRes = promotionService.readList();
         return ResponseEntity.status(200).body(BaseResponse.of(promotionInfoListRes));
     }
@@ -45,14 +44,14 @@ public class PromotionController {
 
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<BaseResponse<String>> deletePromotion(@PathVariable Integer id){
+    public ResponseEntity<BaseResponse<String>> deletePromotion(@PathVariable Integer id) {
         promotionService.delete(id);
         return ResponseEntity.status(200).body(BaseResponse.of("프로모션이 성공적으로 삭제 되었습니다."));
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<BaseResponse<PromotionInfoRes>>updatePromotion(@PathVariable Integer id,
-                                                                             @RequestBody PromotionUpdateReq dto){
+    public ResponseEntity<BaseResponse<PromotionInfoRes>> updatePromotion(@PathVariable Integer id,
+                                                                          @RequestBody PromotionUpdateReq dto) {
         PromotionInfoRes promotionInfoRes = promotionService.update(id, dto.getTitle(), dto.getContents(), dto.getStartDate(), dto.getEndDate(), dto.getStatus(), dto.getCouponId());
         return ResponseEntity.status(200).body(BaseResponse.of(promotionInfoRes));
     }

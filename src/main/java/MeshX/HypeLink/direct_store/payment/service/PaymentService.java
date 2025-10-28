@@ -15,10 +15,8 @@ import MeshX.HypeLink.direct_store.payment.model.dto.request.ReceiptCreateReq;
 import MeshX.HypeLink.direct_store.payment.model.dto.request.ReceiptItemDto;
 import MeshX.HypeLink.direct_store.payment.model.entity.Payments;
 import MeshX.HypeLink.direct_store.payment.repository.PaymentJpaRepositoryVerify;
-import MeshX.HypeLink.head_office.customer.model.entity.Customer;
-import MeshX.HypeLink.head_office.customer.model.entity.CustomerReceipt;
-import MeshX.HypeLink.head_office.customer.model.entity.OrderItem;
-import MeshX.HypeLink.head_office.customer.model.entity.PaymentStatus;
+import MeshX.HypeLink.head_office.customer.model.entity.*;
+import MeshX.HypeLink.head_office.customer.repository.CustomerCouponJpaRepositoryVerify;
 import MeshX.HypeLink.head_office.customer.repository.CustomerJpaReceiptRepositoryVerify;
 import MeshX.HypeLink.head_office.customer.repository.CustomerJpaRepositoryVerify;
 import io.portone.sdk.server.payment.Payment;
@@ -62,6 +60,7 @@ public class PaymentService {
     private final StoreJpaRepositoryVerify storeRepository;
     private final MemberJpaRepositoryVerify memberJpaRepositoryVerify;
     private final PosJpaRepositoryVerify posJpaRepositoryVerify;
+    private final CustomerCouponJpaRepositoryVerify customerCouponRepository;
 
 
     @Transactional
@@ -78,7 +77,7 @@ public class PaymentService {
 
             // CustomerReceipt 및 Payment 생성
             POS pos = findPosCode(member);
-            createReceiptAndPayment(req, portOnePayment, actualAmount,pos.getPosCode());
+            createReceiptAndPayment(req, portOnePayment, actualAmount,pos.getPosCode(), member);
 
         } catch (Exception e) {
             // 1. 먼저 결제를 취소합니다.
@@ -135,7 +134,7 @@ public class PaymentService {
 
     private void createReceiptAndPayment(PaymentValidationReq req,
                                          Payment.Recognized portOnePayment,
-                                         Integer actualAmount, String posCode) {
+                                         Integer actualAmount, String posCode, Member member) {
         ReceiptCreateReq orderData = req.getOrderData();
 
 
@@ -143,10 +142,8 @@ public class PaymentService {
         if (orderData.getMemberId() != null) {
             customer = customerRepository.findById(orderData.getMemberId());
         }
-
-
-
-        Store store = storeRepository.findById(orderData.getStoreId());
+            POS pos = posJpaRepositoryVerify.findByMember(member);
+            Store store = storeRepository.findById(pos.getStore().getId());
 
         String merchantUid = posCode + "-" +
                              UUID.randomUUID().toString().substring(0, 8);
@@ -207,6 +204,11 @@ public class PaymentService {
         receiptRepository.save(receipt);
         log.info("CustomerReceipt 저장 완료. ID: {}", receipt.getId());
 
+        // 쿠폰 사용 처리
+        if (orderData.getCustomerCouponId() != null) {
+            CustomerCoupon customerCoupon = customerCouponRepository.findById(orderData.getCustomerCouponId());
+            customerCoupon.useCoupon(LocalDateTime.now().toLocalDate());
+        }
 
         String channelKey = portOnePayment.getChannel() != null ?
                 portOnePayment.getChannel().getId() : null;

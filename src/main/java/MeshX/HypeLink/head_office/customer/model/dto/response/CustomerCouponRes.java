@@ -28,7 +28,7 @@ public class CustomerCouponRes {
                 .couponValue(entity.getCoupon().getValue())
                 .issuedDate(entity.getIssuedDate())
                 .expirationDate(entity.getExpirationDate())
-                .isUsed(entity.isUsed())
+                .isUsed(entity.getIsUsed())
                 .usedDate(entity.getUsedDate())
                 .build();
     }

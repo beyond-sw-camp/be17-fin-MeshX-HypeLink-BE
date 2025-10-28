@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.ArrayList; // Import ArrayList
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -47,7 +47,7 @@ public class Customer extends BaseEntity {
 
     public void addCustomerCoupon(CustomerCoupon customerCoupon) {
         this.customerCoupons.add(customerCoupon);
-        customerCoupon.setCustomer(this);
+        customerCoupon.changeCustomer(this);
     }
 
 }
