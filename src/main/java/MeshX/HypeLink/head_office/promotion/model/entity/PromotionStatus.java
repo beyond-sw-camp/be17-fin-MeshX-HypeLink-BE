@@ -20,6 +20,6 @@ public enum PromotionStatus {
                 return status;
             }
         }
-        throw new IllegalArgumentException("유효하지 않은 발주 사유입니다: " + description);
+        return null;
     }
 }
