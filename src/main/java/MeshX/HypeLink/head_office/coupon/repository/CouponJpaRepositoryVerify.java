@@ -37,11 +37,7 @@ public class CouponJpaRepositoryVerify {
     }
 
     public List<Coupon> findAll() {
-        List<Coupon> coupons = repository.findAll();
-        if (!coupons.isEmpty()) {
-            return coupons;
-        }
-        throw new CouponException(COUPON_NOT_FOUNT);
+        return repository.findAll();
     }
 
     public Page<Coupon> findAll(PageReq pageReq) {
