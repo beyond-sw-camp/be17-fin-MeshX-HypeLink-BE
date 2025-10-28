@@ -4,6 +4,8 @@ import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.head_office.as.exception.AsException;
 import MeshX.HypeLink.head_office.as.model.entity.As;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -34,5 +36,13 @@ public class AsJpaRepositoryVerify {
 
     public List<As> findByStore(Store store) {
         return repository.findByStore(store);
+    }
+
+    public Page<As> findAll(Pageable pageable) {
+        Page<As> asPage = repository.findAll(pageable);
+        if (asPage.isEmpty()) {
+            throw new AsException(AS_NOT_FOUNT);
+        }
+        return asPage;
     }
 }

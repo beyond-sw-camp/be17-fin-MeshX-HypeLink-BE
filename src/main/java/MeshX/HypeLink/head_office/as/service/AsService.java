@@ -7,6 +7,7 @@ import MeshX.HypeLink.head_office.as.exception.AsException;
 import MeshX.HypeLink.head_office.as.model.dto.req.AsStatusUpdateReq;
 import MeshX.HypeLink.head_office.as.model.dto.req.CommentCreateReq;
 import MeshX.HypeLink.head_office.as.model.dto.res.AsDetailRes;
+import MeshX.HypeLink.head_office.as.model.dto.res.AsListPagingRes;
 import MeshX.HypeLink.head_office.as.model.dto.res.AsListRes;
 import MeshX.HypeLink.head_office.as.model.entity.As;
 import MeshX.HypeLink.head_office.as.model.entity.AsComment;
@@ -15,6 +16,8 @@ import MeshX.HypeLink.head_office.as.repository.AsCommentJpaRepositoryVerify;
 import MeshX.HypeLink.head_office.as.repository.AsJpaRepositoryVerify;
 import MeshX.HypeLink.head_office.as.repository.AsRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,6 +70,19 @@ public class AsService {
             return member;
         }
         else throw new AsException(NO_PERMISSION);
+    }
+
+    // 전체 AS 목록 조회 (페이징)
+    public AsListPagingRes getAllAsRequests(Pageable pageable) {
+        Page<As> asPage = asJpaRepositoryVerify.findAll(pageable);
+        List<AsListRes> asListResList = AsListRes.fromList(asPage.getContent());
+        return AsListPagingRes.builder()
+                .asListResList(asListResList)
+                .totalPages(asPage.getTotalPages())
+                .totalElements(asPage.getTotalElements())
+                .currentPage(asPage.getNumber())
+                .pageSize(asPage.getSize())
+                .build();
     }
 
 }

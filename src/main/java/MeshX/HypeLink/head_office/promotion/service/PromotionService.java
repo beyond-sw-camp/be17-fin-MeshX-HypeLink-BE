@@ -6,9 +6,14 @@ import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
 import MeshX.HypeLink.head_office.coupon.model.entity.Coupon;
 import MeshX.HypeLink.head_office.coupon.repository.CouponJpaRepositoryVerify;
+import MeshX.HypeLink.head_office.order.model.dto.response.PurchaseDetailsStatusInfoListRes;
+import MeshX.HypeLink.head_office.order.model.dto.response.PurchaseDetailsStatusInfoRes;
+import MeshX.HypeLink.head_office.order.model.entity.PurchaseDetailStatus;
 import MeshX.HypeLink.head_office.promotion.model.dto.request.PromotionCreateReq;
 import MeshX.HypeLink.head_office.promotion.model.dto.response.PromotionInfoListRes;
 import MeshX.HypeLink.head_office.promotion.model.dto.response.PromotionInfoRes;
+import MeshX.HypeLink.head_office.promotion.model.dto.response.PromotionStatusInfoRes;
+import MeshX.HypeLink.head_office.promotion.model.dto.response.PromotionStatusListRes;
 import MeshX.HypeLink.head_office.promotion.model.entity.*;
 import MeshX.HypeLink.head_office.promotion.repository.PromotionJpaRepositoryVerify;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -98,8 +105,23 @@ public class PromotionService {
     }
 
     public PageRes<PromotionInfoRes> search(String keyword, String status, Pageable pageReq) {
-        Page<Promotion> entityPage = repository.search(keyword, status, pageReq);
+        PromotionStatus promotionStatus = PromotionStatus.fromDescription(status);
+        Page<Promotion> entityPage = repository.search(keyword, promotionStatus, pageReq);
         Page<PromotionInfoRes> dtoPage =PromotionInfoRes.toDtoPage(entityPage);
         return PageRes.toDto(dtoPage);
     }
+
+    public PromotionStatusListRes readStatus() {
+        List<PromotionStatusInfoRes> states = Arrays.stream(PromotionStatus.values())
+                .map(state -> PromotionStatusInfoRes.builder()
+                        .description(state.getDescription())
+                        .build())
+                .collect(Collectors.toList());
+
+        return PromotionStatusListRes.builder()
+                .promotionStatusInfos(states)
+                .build();
+    }
+
+
 }

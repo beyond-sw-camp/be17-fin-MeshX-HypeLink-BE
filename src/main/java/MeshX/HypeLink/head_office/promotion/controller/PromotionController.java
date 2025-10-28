@@ -1,21 +1,17 @@
 package MeshX.HypeLink.head_office.promotion.controller;
 
 import MeshX.HypeLink.common.BaseResponse;
-import MeshX.HypeLink.common.Page.PageReq;
 import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.head_office.promotion.model.dto.request.PromotionCreateReq;
 import MeshX.HypeLink.head_office.promotion.model.dto.request.PromotionUpdateReq;
 import MeshX.HypeLink.head_office.promotion.model.dto.response.PromotionInfoListRes;
 import MeshX.HypeLink.head_office.promotion.model.dto.response.PromotionInfoRes;
+import MeshX.HypeLink.head_office.promotion.model.dto.response.PromotionStatusListRes;
 import MeshX.HypeLink.head_office.promotion.service.PromotionService;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/promotion")
@@ -65,6 +61,12 @@ public class PromotionController {
     public ResponseEntity<BaseResponse<PageRes<PromotionInfoRes>>> searchPromotion(String keyword, String status, Pageable pageReq) {
         PageRes<PromotionInfoRes> pageRes = promotionService.search(keyword, status, pageReq);
         return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<BaseResponse<PromotionStatusListRes>> readStatus(){
+        PromotionStatusListRes result = promotionService.readStatus();
+        return ResponseEntity.status(200).body(BaseResponse.of(result));
     }
 
 }

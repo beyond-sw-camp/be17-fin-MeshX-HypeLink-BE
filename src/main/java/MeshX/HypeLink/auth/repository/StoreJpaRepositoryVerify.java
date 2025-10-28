@@ -31,6 +31,10 @@ public class StoreJpaRepositoryVerify {
         return repository.findAll();
     }
 
+    public List<Store> findAllWithMember()  {
+        return repository.findAllWithMember();
+    }
+
     public Store findByMember(Member member) {
         Optional<Store> optional = repository.findByMember(member);
         if(optional.isEmpty()) {

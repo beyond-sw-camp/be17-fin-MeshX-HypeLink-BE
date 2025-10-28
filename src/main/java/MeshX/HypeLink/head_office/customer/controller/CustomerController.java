@@ -8,9 +8,12 @@ import MeshX.HypeLink.head_office.customer.model.dto.request.CustomerUpdateReq;
 import MeshX.HypeLink.head_office.customer.model.dto.response.CustomerInfoListRes;
 import MeshX.HypeLink.head_office.customer.model.dto.response.CustomerInfoRes;
 import MeshX.HypeLink.head_office.customer.model.dto.request.CustomerSignupReq;
+import MeshX.HypeLink.head_office.customer.model.dto.response.ReceiptListPagingRes;
 import MeshX.HypeLink.head_office.customer.model.dto.response.ReceiptListRes;
 import MeshX.HypeLink.head_office.customer.service.CustomerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,8 +40,11 @@ public class CustomerController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<BaseResponse<CustomerInfoListRes>> getCustomerInfos() {
-        CustomerInfoListRes result = customerService.readAll();
+    public ResponseEntity<BaseResponse<CustomerInfoListRes>> getCustomerInfos(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        CustomerInfoListRes result = customerService.readAll(pageable);
         return ResponseEntity.status(200).body(BaseResponse.of(result));
     }
 
@@ -73,6 +79,19 @@ public class CustomerController {
         Member member = memberService.findMember( userDetails.getUsername());
         StoreWithPosResDto dto = memberService.readMyStore(member);
         ReceiptListRes result = customerService.getReceiptsByStoreId(dto.getId());
+        return ResponseEntity.ok(BaseResponse.of(result));
+    }
+
+    // 매장별 주문 내역 조회 (페이징)
+    @GetMapping("/receipts/paging")
+    public ResponseEntity<BaseResponse<ReceiptListPagingRes>> getReceiptsPaging(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Member member = memberService.findMember(userDetails.getUsername());
+        StoreWithPosResDto dto = memberService.readMyStore(member);
+        Pageable pageable = PageRequest.of(page, size);
+        ReceiptListPagingRes result = customerService.getReceiptsByStoreId(dto.getId(), pageable);
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 }

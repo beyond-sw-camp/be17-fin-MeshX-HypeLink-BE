@@ -35,8 +35,19 @@ public class CustomerInfoRes {
 
     public static List<CustomerInfoRes> toDtoList(List<Customer> entities) {
         return entities.stream()
-                .map(CustomerInfoRes::toDto)
+                .map(CustomerInfoRes::toDtoSimple)
                 .toList();
+    }
+
+    public static CustomerInfoRes toDtoSimple(Customer entity) {
+        return CustomerInfoRes.builder()
+                .customerId(entity.getId())
+                .name(entity.getName())
+                .phone(entity.getPhone())
+                .birthday(entity.getBirthDate())
+                .customerCoupons(List.of())
+                .customerReceiptList(List.of())
+                .build();
     }
 
     @Builder

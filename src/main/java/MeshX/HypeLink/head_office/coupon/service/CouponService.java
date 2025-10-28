@@ -3,12 +3,14 @@ package MeshX.HypeLink.head_office.coupon.service;
 import MeshX.HypeLink.common.Page.PageReq;
 import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.head_office.coupon.model.dto.request.CouponCreateReq;
+import MeshX.HypeLink.head_office.coupon.model.dto.response.CouponInfoListRes;
 import MeshX.HypeLink.head_office.coupon.model.dto.response.CouponInfoRes;
 import MeshX.HypeLink.head_office.coupon.model.entity.Coupon;
 import MeshX.HypeLink.head_office.coupon.repository.CouponJpaRepositoryVerify;
 import MeshX.HypeLink.utils.datechanger.DateChanger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -55,6 +57,23 @@ public class CouponService {
             return CouponInfoRes.toDto(coupon, period);
         });
         return PageRes.toDto(dtoPage);
+    }
+
+    public CouponInfoListRes readAll(Pageable pageable) {
+        Page<Coupon> couponPage = couponRepository.findAll(pageable);
+        List<CouponInfoRes> couponInfoResList = couponPage.getContent().stream()
+                .map(coupon -> {
+                    String period = toPeriod(coupon.getStartDate(), coupon.getEndDate());
+                    return CouponInfoRes.toDto(coupon, period);
+                })
+                .collect(Collectors.toList());
+        return CouponInfoListRes.builder()
+                .couponInfoResList(couponInfoResList)
+                .totalPages(couponPage.getTotalPages())
+                .totalElements(couponPage.getTotalElements())
+                .currentPage(couponPage.getNumber())
+                .pageSize(couponPage.getSize())
+                .build();
     }
 
 }

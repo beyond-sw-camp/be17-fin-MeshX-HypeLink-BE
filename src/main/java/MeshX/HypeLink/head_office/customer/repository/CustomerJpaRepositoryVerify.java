@@ -4,6 +4,8 @@ import MeshX.HypeLink.head_office.customer.exception.CustomerException;
 import MeshX.HypeLink.head_office.customer.model.entity.Customer;
 import MeshX.HypeLink.head_office.notice.model.entity.Notice;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -58,6 +60,16 @@ public class CustomerJpaRepositoryVerify {
         }
 
         throw new CustomerException(NOT_FOUNT);
+    }
+
+    public Page<Customer> readAll(Pageable pageable) {
+        Page<Customer> customerPage = repository.findAll(pageable);
+
+        if(customerPage.isEmpty()) {
+            throw new CustomerException(NOT_FOUNT);
+        }
+
+        return customerPage;
     }
 
     public void delete(Customer customer) {

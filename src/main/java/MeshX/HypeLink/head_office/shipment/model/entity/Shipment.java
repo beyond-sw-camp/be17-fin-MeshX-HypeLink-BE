@@ -42,4 +42,6 @@ public class Shipment extends BaseEntity {
     public void updateShipmentStatus(ShipmentStatus shipmentStatus) {
         this.shipmentStatus = shipmentStatus;
     }
+
+
 }

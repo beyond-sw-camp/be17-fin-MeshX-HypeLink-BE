@@ -64,7 +64,7 @@ public class PromotionJpaRepositoryVerify {
         return repository.save(entity);
     }
 
-    public Page<Promotion> search(String keyword, String status, Pageable pageable) {
+    public Page<Promotion> search(String keyword, PromotionStatus status, Pageable pageable) {
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -73,8 +73,8 @@ public class PromotionJpaRepositoryVerify {
                     .or(promotion.contents.contains(keyword)));
         }
 
-        if(status != null && !status.isBlank()) {
-            builder.and(promotion.status.eq(PromotionStatus.valueOf(status)));
+        if(status != null) {
+            builder.and(promotion.status.eq(status));
         }
 
         List<Promotion> content = queryFactory
