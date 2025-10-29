@@ -89,13 +89,16 @@ public class AnalyticsController {
     }
 
     /**
-     * 재고 부족 품목 조회
-     * GET /api/analytics/inventory/low-stock?threshold=20
+     * 재고 부족 품목 조회 (페이지네이션)
+     * GET /api/analytics/inventory/low-stock?threshold=20&page=0&size=10
      */
     @GetMapping("/inventory/low-stock")
-    public ResponseEntity<BaseResponse<List<LowStockItemDTO>>> getLowStockItems(
-            @RequestParam(defaultValue = "20") int threshold) {
-        List<LowStockItemDTO> data = analyticsService.getLowStockItems(threshold);
+    public ResponseEntity<BaseResponse<Page<LowStockItemDTO>>> getLowStockItems(
+            @RequestParam(defaultValue = "20") int threshold,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Pageable pageable) {
+        Page<LowStockItemDTO> data = analyticsService.getLowStockItems(threshold, pageable);
         return ResponseEntity.ok(BaseResponse.of(data, "재고 부족 품목 조회 성공"));
     }
 

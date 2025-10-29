@@ -84,4 +84,12 @@ public class CustomerJpaRepositoryVerify {
     public Customer update(Customer customer) {
         return repository.save(customer);
     }
+
+    public List<Customer> searchCustomers(String keyword, String ageGroup) {
+        return repository.searchCustomers(keyword, ageGroup);
+    }
+
+    public Page<Customer> searchCustomersPaged(String keyword, String ageGroup, Pageable pageable) {
+        return repository.searchCustomersPaged(keyword, ageGroup, pageable);
+    }
 }

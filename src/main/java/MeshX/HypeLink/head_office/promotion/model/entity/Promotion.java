@@ -2,6 +2,7 @@ package MeshX.HypeLink.head_office.promotion.model.entity;
 
 import MeshX.HypeLink.common.BaseEntity;
 import MeshX.HypeLink.head_office.coupon.model.entity.Coupon;
+import MeshX.HypeLink.image.model.entity.Image;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -9,6 +10,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -30,6 +34,9 @@ public class Promotion extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private PromotionStatus status;
+
+    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PromotionImages> promotionImages = new ArrayList<>();
 
     @Builder
     private Promotion(
@@ -86,5 +93,20 @@ public class Promotion extends BaseEntity {
         else this.status = PromotionStatus.ONGOING;
     }
 
+    //== Relationship Management Methods ==//
+    public void clearImages() {
+        this.promotionImages.clear();
+    }
+
+    public void addPromotionImage(PromotionImages promotionImage) {
+        this.promotionImages.add(promotionImage);
+    }
+
+    //== Helper Method for DTO ==//
+    public List<Image> getImages() {
+        return this.promotionImages.stream()
+                .map(PromotionImages::getImage)
+                .collect(Collectors.toList());
+    }
 
 }

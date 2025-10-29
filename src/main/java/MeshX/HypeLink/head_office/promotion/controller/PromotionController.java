@@ -53,7 +53,7 @@ public class PromotionController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<BaseResponse<PromotionInfoRes>> updatePromotion(@PathVariable Integer id,
                                                                           @RequestBody PromotionUpdateReq dto) {
-        PromotionInfoRes promotionInfoRes = promotionService.update(id, dto.getTitle(), dto.getContents(), dto.getStartDate(), dto.getEndDate(), dto.getStatus(), dto.getCouponId());
+        PromotionInfoRes promotionInfoRes = promotionService.update(id, dto.getTitle(), dto.getContents(), dto.getStartDate(), dto.getEndDate(), dto.getStatus(), dto.getCouponId(), dto.getImages());
         return ResponseEntity.status(200).body(BaseResponse.of(promotionInfoRes));
     }
 

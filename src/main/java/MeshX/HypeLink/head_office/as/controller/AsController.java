@@ -9,7 +9,6 @@ import MeshX.HypeLink.head_office.as.model.dto.res.AsListPagingRes;
 import MeshX.HypeLink.head_office.as.model.dto.res.AsListRes;
 import MeshX.HypeLink.head_office.as.service.AsService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,10 +32,7 @@ public class AsController {
 
     // 전체 AS 목록 조회 (페이징)
     @GetMapping("/list/paging")
-    public ResponseEntity<BaseResponse<AsListPagingRes>> listPaging(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "15") int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public ResponseEntity<BaseResponse<AsListPagingRes>> listPaging(Pageable pageable) {
         AsListPagingRes response = asService.getAllAsRequests(pageable);
         return ResponseEntity.status(200).body(BaseResponse.of(response));
     }

@@ -98,4 +98,16 @@ public class CustomerController {
         ReceiptListPagingRes result = customerService.getReceiptsByStoreId(dto.getId(), pageable);
         return ResponseEntity.ok(BaseResponse.of(result));
     }
+
+    // 고객 검색 (키워드 + 연령대)
+    @GetMapping("/search")
+    public ResponseEntity<BaseResponse<CustomerInfoListRes>> searchCustomers(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false, defaultValue = "all") String ageGroup,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        CustomerInfoListRes result = customerService.searchCustomers(keyword, ageGroup, pageable);
+        return ResponseEntity.ok(BaseResponse.of(result));
+    }
 }

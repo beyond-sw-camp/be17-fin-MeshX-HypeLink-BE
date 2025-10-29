@@ -3,6 +3,7 @@ package MeshX.HypeLink.head_office.promotion.service;
 
 import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.common.Page.PageRes;
+import MeshX.HypeLink.common.s3.S3UrlBuilder;
 import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
 import MeshX.HypeLink.head_office.coupon.model.entity.Coupon;
 import MeshX.HypeLink.head_office.coupon.repository.CouponJpaRepositoryVerify;
@@ -16,6 +17,8 @@ import MeshX.HypeLink.head_office.promotion.model.dto.response.PromotionStatusIn
 import MeshX.HypeLink.head_office.promotion.model.dto.response.PromotionStatusListRes;
 import MeshX.HypeLink.head_office.promotion.model.entity.*;
 import MeshX.HypeLink.head_office.promotion.repository.PromotionJpaRepositoryVerify;
+import MeshX.HypeLink.image.model.entity.Image;
+import MeshX.HypeLink.image.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,31 +37,45 @@ import java.util.stream.Collectors;
 public class PromotionService {
     private final PromotionJpaRepositoryVerify repository;
     private final CouponJpaRepositoryVerify couponRepository;
+    private final ImageService imageService;
+    private final S3UrlBuilder s3UrlBuilder;
 
 
     @Transactional
     public void createPromotion(PromotionCreateReq dto) {
         Coupon coupon = couponRepository.findById(dto.getCouponId());
         Promotion promotion = dto.toEntity(coupon);
+
+        if (dto.getImages() != null && !dto.getImages().isEmpty()) {
+            List<Image> images = imageService.createImagesFromRequest(dto.getImages());
+            for (Image image : images) {
+                PromotionImages promotionImage = PromotionImages.builder()
+                        .promotion(promotion)
+                        .image(image)
+                        .build();
+                promotion.addPromotionImage(promotionImage);
+            }
+        }
+
         promotion.autoUpdateStatus();
         repository.createPromotion(promotion);
     }
 
     public PromotionInfoListRes readList() {//비페이징용
         List<Promotion> promotions = repository.findAll();
-        return PromotionInfoListRes.toDto(promotions);
+        return PromotionInfoListRes.toDto(promotions, this::exportS3Url);
     }
 
     public PageRes<PromotionInfoRes> readList(Pageable pageReq) {//페이징용
         Page<Promotion> entityPage = repository.findAll(pageReq);
-        Page<PromotionInfoRes> dtoPage =PromotionInfoRes.toDtoPage(entityPage);
+        Page<PromotionInfoRes> dtoPage = PromotionInfoRes.toDtoPage(entityPage, this::exportS3Url);
         return PageRes.toDto(dtoPage);
     }
 
 
     public PromotionInfoRes readDetails(Integer id) {
         Promotion promotion = repository.findById(id);
-        return PromotionInfoRes.toDto(promotion);
+        return PromotionInfoRes.toDto(promotion, this::exportS3Url);
     }
 
     @Transactional
@@ -68,7 +85,7 @@ public class PromotionService {
     }
 
     @Transactional
-    public PromotionInfoRes update(Integer id, String title, String contents, LocalDate startDate, LocalDate endDate, PromotionStatus status, Integer couponId) {
+    public PromotionInfoRes update(Integer id, String title, String contents, LocalDate startDate, LocalDate endDate, PromotionStatus status, Integer couponId, List<MeshX.HypeLink.image.model.dto.request.ImageCreateRequest> images) {
         Promotion promotion = repository.findById(id);
 
 
@@ -99,16 +116,32 @@ public class PromotionService {
             promotion.updateCoupon(coupon);
         }
 
+        if (images != null) {
+            promotion.clearImages();
+            List<Image> newImages = imageService.createImagesFromRequest(images);
+            for (Image image : newImages) {
+                PromotionImages promotionImage = PromotionImages.builder()
+                        .promotion(promotion)
+                        .image(image)
+                        .build();
+                promotion.addPromotionImage(promotionImage);
+            }
+        }
+
 
         Promotion update = repository.update(promotion);
-        return PromotionInfoRes.toDto(update);
+        return PromotionInfoRes.toDto(update, this::exportS3Url);
     }
 
     public PageRes<PromotionInfoRes> search(String keyword, String status, Pageable pageReq) {
         PromotionStatus promotionStatus = PromotionStatus.fromDescription(status);
         Page<Promotion> entityPage = repository.search(keyword, promotionStatus, pageReq);
-        Page<PromotionInfoRes> dtoPage =PromotionInfoRes.toDtoPage(entityPage);
+        Page<PromotionInfoRes> dtoPage = PromotionInfoRes.toDtoPage(entityPage, this::exportS3Url);
         return PageRes.toDto(dtoPage);
+    }
+
+    public String exportS3Url(Image image) {
+        return s3UrlBuilder.buildPublicUrl(image.getSavedPath());
     }
 
     public PromotionStatusListRes readStatus() {

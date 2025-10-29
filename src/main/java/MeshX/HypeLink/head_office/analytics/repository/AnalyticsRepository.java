@@ -183,10 +183,10 @@ public class AnalyticsRepository {
     }
 
     /**
-     * 재고 부족 품목 조회 (StoreItemDetail 기반)
+     * 재고 부족 품목 조회 (StoreItemDetail 기반, 페이지네이션)
      */
-    public List<LowStockItemDTO> getLowStockItems(int threshold) {
-        return queryFactory
+    public Page<LowStockItemDTO> getLowStockItems(int threshold, Pageable pageable) {
+        List<LowStockItemDTO> content = queryFactory
             .select(Projections.constructor(LowStockItemDTO.class,
                 storeItemDetail.id,
                 storeItem.itemCode,
@@ -205,7 +205,18 @@ public class AnalyticsRepository {
             .join(storeItemDetail.item, storeItem)
             .where(storeItemDetail.stock.lt(threshold))
             .orderBy(storeItemDetail.stock.asc())
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
             .fetch();
+
+        Long total = queryFactory
+            .select(storeItemDetail.count())
+            .from(storeItemDetail)
+            .join(storeItemDetail.item, storeItem)
+            .where(storeItemDetail.stock.lt(threshold))
+            .fetchOne();
+
+        return new PageImpl<>(content, pageable, total != null ? total : 0);
     }
 
     /**

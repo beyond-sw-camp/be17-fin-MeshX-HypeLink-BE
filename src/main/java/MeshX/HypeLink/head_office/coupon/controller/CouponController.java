@@ -2,6 +2,7 @@ package MeshX.HypeLink.head_office.coupon.controller;
 
 import MeshX.HypeLink.common.BaseResponse;
 import MeshX.HypeLink.head_office.coupon.model.dto.request.CouponCreateReq;
+import MeshX.HypeLink.head_office.coupon.model.dto.request.CouponUpdateReq;
 import MeshX.HypeLink.head_office.coupon.model.dto.response.CouponInfoListRes;
 import MeshX.HypeLink.head_office.coupon.model.dto.response.CouponInfoRes;
 import MeshX.HypeLink.head_office.coupon.service.CouponService;
@@ -48,5 +49,13 @@ public class CouponController {
             Pageable pageable) {
         CouponInfoListRes result = couponService.readAll(pageable);
         return ResponseEntity.status(200).body(BaseResponse.of(result));
+    }
+
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<BaseResponse<CouponInfoRes>> update(
+            @PathVariable Integer id,
+            @RequestBody CouponUpdateReq dto) {
+        CouponInfoRes result = couponService.update(id, dto);
+        return ResponseEntity.ok(BaseResponse.of(result, "쿠폰 수정 완료"));
     }
 }

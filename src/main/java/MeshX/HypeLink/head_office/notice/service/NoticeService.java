@@ -36,7 +36,10 @@ public class NoticeService {
         if (dto.getImages() != null && !dto.getImages().isEmpty()) {
             List<Image> images = imageService.createImagesFromRequest(dto.getImages());
             for (Image image : images) {
-                NoticeImages noticeImage = NoticeImages.of(notice, image);
+                NoticeImages noticeImage = NoticeImages.builder()
+                        .notice(notice)
+                        .image(image)
+                        .build();
                 notice.addNoticeImage(noticeImage);
             }
         }
@@ -80,7 +83,10 @@ public class NoticeService {
             notice.clearImages();
             List<Image> newImages = imageService.createImagesFromRequest(dto.getImages());
             for (Image image : newImages) {
-                NoticeImages noticeImage = NoticeImages.of(notice, image);
+                NoticeImages noticeImage = NoticeImages.builder()
+                        .notice(notice)
+                        .image(image)
+                        .build();
                 notice.addNoticeImage(noticeImage);
             }
         }

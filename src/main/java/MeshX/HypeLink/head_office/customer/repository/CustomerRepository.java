@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface CustomerRepository extends JpaRepository<Customer,Integer> {
+public interface CustomerRepository extends JpaRepository<Customer,Integer>, CustomerRepositoryCustom {
     Optional<Customer> findByPhone(String phone);
 
     // 멤버십 조회용 - 쿠폰 조건 없음

@@ -47,4 +47,24 @@ public class Coupon {
         this.startDate = startDate;
         this.endDate = endDate;
     }
+
+    public void updateName(String name) {
+        this.name = name;
+    }
+
+    public void updateCouponType(CouponType couponType) {
+        this.couponType = couponType;
+    }
+
+    public void updateValue(Integer value) {
+        this.value = value;
+    }
+
+    public void updateStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public void updateEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
 }
