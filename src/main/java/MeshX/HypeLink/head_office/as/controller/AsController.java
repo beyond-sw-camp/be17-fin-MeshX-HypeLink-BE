@@ -4,6 +4,7 @@ import MeshX.HypeLink.auth.model.entity.Member;
 import MeshX.HypeLink.common.BaseResponse;
 import MeshX.HypeLink.head_office.as.model.dto.req.AsStatusUpdateReq;
 import MeshX.HypeLink.head_office.as.model.dto.req.CommentCreateReq;
+import MeshX.HypeLink.head_office.as.model.dto.res.ASStatusInfoListRes;
 import MeshX.HypeLink.head_office.as.model.dto.res.AsDetailRes;
 import MeshX.HypeLink.head_office.as.model.dto.res.AsListPagingRes;
 import MeshX.HypeLink.head_office.as.model.dto.res.AsListRes;
@@ -26,8 +27,11 @@ public class AsController {
 
     // 전체 AS 목록 조회
     @GetMapping("/list")
-    public ResponseEntity<BaseResponse<List<AsListRes>>> list() {
-        List<AsListRes> response = asService.getAllAsRequests();
+    public ResponseEntity<BaseResponse<AsListPagingRes>> list(@AuthenticationPrincipal UserDetails userDetails,
+                                                              Pageable pageable,
+                                                              @RequestParam String keyWord,
+                                                              @RequestParam String status) {
+        AsListPagingRes response = asService.getAllAsRequests(userDetails, pageable, keyWord, status);
         return ResponseEntity.ok(BaseResponse.of(response));
     }
 
@@ -35,9 +39,11 @@ public class AsController {
     @GetMapping("/list/paging")
     public ResponseEntity<BaseResponse<AsListPagingRes>> listPaging(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "15") int size) {
+            @RequestParam(defaultValue = "15") int size,
+            @RequestParam String keyWord,
+            @RequestParam String status) {
         Pageable pageable = PageRequest.of(page, size);
-        AsListPagingRes response = asService.getAllAsRequests(pageable);
+        AsListPagingRes response = asService.getAllAsRequests(pageable, keyWord, status);
         return ResponseEntity.status(200).body(BaseResponse.of(response));
     }
 
@@ -68,5 +74,11 @@ public class AsController {
         Member member = asService.getMemberByUserNameAndValidate(userDetails.getUsername());
         AsDetailRes response = asService.createComment(id, req, member);
         return ResponseEntity.ok(BaseResponse.of(response));
+    }
+
+    @GetMapping("/read/status")
+    public ResponseEntity<BaseResponse<ASStatusInfoListRes>> getStatusList() {
+        ASStatusInfoListRes result = asService.getASStatus();
+        return ResponseEntity.ok(BaseResponse.of(result));
     }
 }

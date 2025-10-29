@@ -6,9 +6,7 @@ import MeshX.HypeLink.auth.repository.MemberJpaRepositoryVerify;
 import MeshX.HypeLink.head_office.as.exception.AsException;
 import MeshX.HypeLink.head_office.as.model.dto.req.AsStatusUpdateReq;
 import MeshX.HypeLink.head_office.as.model.dto.req.CommentCreateReq;
-import MeshX.HypeLink.head_office.as.model.dto.res.AsDetailRes;
-import MeshX.HypeLink.head_office.as.model.dto.res.AsListPagingRes;
-import MeshX.HypeLink.head_office.as.model.dto.res.AsListRes;
+import MeshX.HypeLink.head_office.as.model.dto.res.*;
 import MeshX.HypeLink.head_office.as.model.entity.As;
 import MeshX.HypeLink.head_office.as.model.entity.AsComment;
 import MeshX.HypeLink.head_office.as.model.entity.AsStatus;
@@ -18,10 +16,13 @@ import MeshX.HypeLink.head_office.as.repository.AsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static MeshX.HypeLink.head_office.as.exception.AsExceptionMessage.*;
 
@@ -72,9 +73,24 @@ public class AsService {
         else throw new AsException(NO_PERMISSION);
     }
 
+    // 전체 AS 목록 조회
+    public AsListPagingRes getAllAsRequests(UserDetails userDetails, Pageable pageable, String keyWord, String status) {
+        Member member = memberJpaRepositoryVerify.findByEmail(userDetails.getUsername());
+        Page<As> asPage = asJpaRepositoryVerify.findAll(member, pageable, keyWord, status);
+        List<AsListRes> asListResList = AsListRes.fromList(asPage.getContent());
+
+        return AsListPagingRes.builder()
+                .asListResList(asListResList)
+                .totalPages(asPage.getTotalPages())
+                .totalElements(asPage.getTotalElements())
+                .currentPage(asPage.getNumber())
+                .pageSize(asPage.getSize())
+                .build();
+    }
+
     // 전체 AS 목록 조회 (페이징)
-    public AsListPagingRes getAllAsRequests(Pageable pageable) {
-        Page<As> asPage = asJpaRepositoryVerify.findAll(pageable);
+    public AsListPagingRes getAllAsRequests(Pageable pageable, String keyWord, String status) {
+        Page<As> asPage = asJpaRepositoryVerify.findAll(pageable, keyWord, status);
         List<AsListRes> asListResList = AsListRes.fromList(asPage.getContent());
         return AsListPagingRes.builder()
                 .asListResList(asListResList)
@@ -85,4 +101,15 @@ public class AsService {
                 .build();
     }
 
+    public ASStatusInfoListRes getASStatus() {
+        List<ASStatusInfoRes> states = Arrays.stream(AsStatus.values())
+                .map(state -> ASStatusInfoRes.builder()
+                        .description(state.getDescription())
+                        .build())
+                .toList();
+
+        return ASStatusInfoListRes.builder()
+                .status(states)
+                .build();
+    }
 }
