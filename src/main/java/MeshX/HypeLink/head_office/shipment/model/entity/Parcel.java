@@ -1,5 +1,6 @@
 package MeshX.HypeLink.head_office.shipment.model.entity;
 
+import MeshX.HypeLink.auth.model.entity.Member;
 import MeshX.HypeLink.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -8,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-
 
 @Entity
 @Getter
@@ -21,21 +21,32 @@ public class Parcel extends BaseEntity {
     private String trackingNumber;
     // 송장 번호
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parcel")
     private List<ParcelItem> parcelItems;
-    // 아이템들
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shipment_id")
+    @OneToOne(mappedBy = "parcel")
     private Shipment shipment;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "requester_id")
+    private Member requester;       // 발주를 요청한 본사 or 매장
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "supplier_id")
+    private Member supplier;        // 발주를 수락하고 공급하는 쪽
 
     @Builder
-    public Parcel(Integer id, String trackingNumber, List<ParcelItem> parcelItems, Shipment shipment) {
-        this.id = id;
+    private Parcel(String trackingNumber, List<ParcelItem> parcelItems, Shipment shipment, Member requester,
+                   Member supplier) {
         this.trackingNumber = trackingNumber;
         this.parcelItems = parcelItems;
         this.shipment = shipment;
+        this.requester = requester;
+        this.supplier = supplier;
     }
+
+    public void setShipment(Shipment shipment) {
+        this.shipment = shipment;
+    }
+
 }

@@ -1,32 +1,27 @@
 package MeshX.HypeLink.head_office.item.model.dto.response;
 
+import MeshX.HypeLink.head_office.item.model.entity.ItemDetail;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.List;
-
 @Getter
+@Builder
 public class ItemDetailInfoRes {
     private Integer id;
-    private String name;
-    private String category;
+    private String itemDetailCode;
+    private String color;
+    private String colorCode;
+    private String size;
+    private Integer stock;
 
-    private List<ItemStockRes> itemStockList; // 사이즈 및 색깔별로 재고 현황
-    private Integer amount; // 가격
-    private String content; // 아이템 설명
-    private String company; // 회사
-    private String itemCode; // 아이템 코드
-
-    @Builder
-    private ItemDetailInfoRes(Integer id, String name, String category, List<ItemStockRes> itemStockList,
-                              Integer amount, String content, String company, String itemCode) {
-        this.id = id;
-        this.name = name;
-        this.category = category;
-        this.itemStockList = itemStockList;
-        this.amount = amount;
-        this.content = content;
-        this.company = company;
-        this.itemCode = itemCode;
+    public static ItemDetailInfoRes toDto(ItemDetail itemDetail) {
+        return ItemDetailInfoRes.builder()
+                .id(itemDetail.getId())
+                .itemDetailCode(itemDetail.getItemDetailCode())
+                .color(itemDetail.getColor().getColorName())
+                .colorCode(itemDetail.getColor().getColorCode())
+                .size(itemDetail.getSize().getSize())
+                .stock(itemDetail.getStock())
+                .build();
     }
 }

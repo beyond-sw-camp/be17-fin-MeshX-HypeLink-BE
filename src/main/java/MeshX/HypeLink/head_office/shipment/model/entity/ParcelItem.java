@@ -2,8 +2,10 @@ package MeshX.HypeLink.head_office.shipment.model.entity;
 
 import MeshX.HypeLink.common.BaseEntity;
 import MeshX.HypeLink.head_office.item.model.entity.Item;
+import MeshX.HypeLink.head_office.order.model.entity.PurchaseOrder;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,11 +17,17 @@ public class ParcelItem extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "item_id")
-    private Item item;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "purchase_order_id")
+    private PurchaseOrder purchaseOrder;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parcel_id")
     private Parcel parcel;
+
+    @Builder
+    private ParcelItem(PurchaseOrder purchaseOrder, Parcel parcel) {
+        this.purchaseOrder = purchaseOrder;
+        this.parcel = parcel;
+    }
 }

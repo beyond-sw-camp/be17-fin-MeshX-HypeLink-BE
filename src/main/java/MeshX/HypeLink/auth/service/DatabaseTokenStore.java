@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.time.Duration;
 import java.util.Optional;
 
-@Primary
+//@Primary
 @Slf4j
 @Repository
 @RequiredArgsConstructor

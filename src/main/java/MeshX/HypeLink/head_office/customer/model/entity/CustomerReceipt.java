@@ -2,12 +2,15 @@ package MeshX.HypeLink.head_office.customer.model.entity;
 
 import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.common.BaseEntity;
+import MeshX.HypeLink.direct_store.payment.model.entity.Payments;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -17,10 +20,6 @@ public class CustomerReceipt extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id", nullable = false)
-    private Customer customer;
 
     @Column(nullable = false, length = 50)
     private String pgProvider;   // ex) portone, toss
@@ -32,24 +31,64 @@ public class CustomerReceipt extends BaseEntity {
     private String merchantUid;  // 우리 시스템 주문번호
 
     @Column(nullable = false)
-    private Integer amount;
+    private Integer totalAmount;     // 총액(할인전)
 
-    @OneToMany(mappedBy = "customerReceipt")
-    private List<OrderItem> orderItems;
+    private Integer discountAmount;  // 할인액
+    private Integer couponDiscount;  // 쿠폰 할인액
+
+    @Column(nullable = false)
+    private Integer finalAmount;     // 최종 결제 금액
+
+    @OneToMany(mappedBy = "customerReceipt", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> orderItems = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "store_id")
     private Store store;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", nullable = true)
+    private Customer customer;
+
+    // 비회원 정보
+    private String memberName;
+    private String memberPhone;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
-    private String payMethod;
-    private String cardName;
-    private String cardNumber;
+    @OneToOne(mappedBy = "customerReceipt")
+    private Payments payments;
 
     private LocalDateTime paidAt;
     private LocalDateTime cancelledAt;
 
+    @Builder
+    public CustomerReceipt(String pgProvider, String pgTid, String merchantUid,
+                           Integer totalAmount, Integer discountAmount,
+                           Integer couponDiscount, Integer finalAmount,
+                           Store store, Customer customer,
+                           String memberName, String memberPhone,
+                           PaymentStatus status,
+                           LocalDateTime paidAt) {
+        this.pgProvider = pgProvider;
+        this.pgTid = pgTid;
+        this.merchantUid = merchantUid;
+        this.totalAmount = totalAmount;
+        this.discountAmount = discountAmount;
+        this.couponDiscount = couponDiscount;
+        this.finalAmount = finalAmount;
+        this.store = store;
+        this.customer = customer;
+        this.memberName = memberName;
+        this.memberPhone = memberPhone;
+        this.status = status;
+        this.paidAt = paidAt;
+    }
+
+    public void addOrderItem(OrderItem orderItem) {
+        this.orderItems.add(orderItem);
+        orderItem.setCustomerReceipt(this);
+    }
 }

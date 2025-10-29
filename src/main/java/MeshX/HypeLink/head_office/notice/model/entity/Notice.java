@@ -1,14 +1,16 @@
 package MeshX.HypeLink.head_office.notice.model.entity;
 
 import MeshX.HypeLink.common.BaseEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import MeshX.HypeLink.image.model.entity.Image;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -20,13 +22,18 @@ public class Notice extends BaseEntity {
 
     private String title;
     private String contents;
+    private String author;
     private Boolean isOpen;
 
+    @OneToMany(mappedBy = "notice", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<NoticeImages> noticeImages = new ArrayList<>();
+
     @Builder
-    private Notice(String title, String contents, Boolean isOpen) {
+    private Notice(String title, String contents, String author) {
         this.title = title;
         this.contents = contents;
-        this.isOpen = isOpen;
+        this.author = author;
+        this.isOpen = false;
     }
 
     public void updateTitle(String title) {
@@ -37,7 +44,27 @@ public class Notice extends BaseEntity {
         this.contents = contents;
     }
 
-    public void changeOpen(Boolean isOpen) {
-        this.isOpen = isOpen;
+    public void changeOpen() {
+        this.isOpen = true;
+    }
+
+    public void updateAuthor(String author) {
+        this.author = author;
+    }
+
+    //== Relationship Management Methods ==//
+    public void clearImages() {
+        this.noticeImages.clear();
+    }
+
+    public void addNoticeImage(NoticeImages noticeImage) {
+        this.noticeImages.add(noticeImage);
+    }
+
+    //== Helper Method for DTO ==//
+    public List<Image> getImages() {
+        return this.noticeImages.stream()
+                .map(NoticeImages::getImage)
+                .collect(Collectors.toList());
     }
 }

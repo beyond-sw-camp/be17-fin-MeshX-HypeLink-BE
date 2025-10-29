@@ -1,6 +1,7 @@
 package MeshX.HypeLink.auth.config;
 
 import MeshX.HypeLink.auth.filter.JwtAuthenticationFilter;
+import MeshX.HypeLink.auth.filter.JwtExceptionFilter;
 import MeshX.HypeLink.auth.handler.JwtAccessDeniedHandler;
 import MeshX.HypeLink.auth.handler.JwtAuthenticationEntryPoint;
 import MeshX.HypeLink.auth.service.TokenStore;
@@ -26,8 +27,11 @@ import java.util.List;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true) // 메소드 수준 보안 활성화
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -45,7 +49,6 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -82,13 +85,14 @@ public class SecurityConfig {
                 // 요청 경로별 권한 설정
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("*").permitAll() // 개발용
-                        .requestMatchers("/**").permitAll() // 개발용
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
                         .anyRequest().authenticated()
                 )
 
                 // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 추가
-                .addFilterBefore(new JwtAuthenticationFilter(jwtUtils, tokenStore), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthenticationFilter(jwtUtils, tokenStore), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtExceptionFilter(), JwtAuthenticationFilter.class);
 
         return http.build();
     }

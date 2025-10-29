@@ -2,14 +2,9 @@ package MeshX.HypeLink.direct_store.item.model.entity;
 
 import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.common.BaseEntity;
-import MeshX.HypeLink.head_office.customer.model.entity.OrderItem;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import java.util.List;
+import lombok.*;
 
 @Entity
 @Getter
@@ -18,55 +13,68 @@ public class StoreItem extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String category;
-    private String color;
-    private String size;
 
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private StoreCategory category;
+
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id")
     private Store store;
 
-    @OneToMany(mappedBy = "storeItem", fetch = FetchType.LAZY)
-    private List<OrderItem> orderItems;
+    // OrderItem과의 관계 제거 - OrderItem은 이제 StoreItemDetail과 연결됨
 
+//    @Column(unique = true, nullable = false)
+    private String itemCode; // 아이템 코드
+    private Integer unitPrice;       // 단가
     private Integer amount; // 가격
-    private String name; // 이름
+    private String enName; // 이름
+    private String koName; // 이름
     private String content; // 아이템 설명
     private String company; // 회사
-    private String itemCode; // 아이템 코드
-    private Integer stock; // 재고
 
     @Builder
-    private StoreItem(String category, String color, String size, Integer amount,
-                      String name, String content, String company, String itemCode,
-                      Integer stock) {
+    private StoreItem(StoreCategory category, Store store, String itemCode,
+                      Integer unitPrice, Integer amount, String enName, String koName,
+                      String content, String company) {
         this.category = category;
-        this.color = color;
-        this.size = size;
+        this.store = store;
+        this.itemCode = itemCode;
+        this.unitPrice = unitPrice;
         this.amount = amount;
-        this.name = name;
+        this.enName = enName;
+        this.koName = koName;
         this.content = content;
         this.company = company;
-        this.itemCode = itemCode;
-        this.stock = stock;
+    }
+
+    public void updateEnName(String enName) {
+        this.enName = enName;
+    }
+
+    public void updateKoName(String koName) {
+        this.koName = koName;
+    }
+
+    public void updateUnitPrice(Integer unitPrice) {
+        this.unitPrice = unitPrice;
+    }
+
+    public void updateCategory(StoreCategory category) {
+        this.category = category;
     }
 
     public void updateAmount(Integer amount){
         this.amount = amount;
     }
-    public void updateName(String name){
-        this.name = name;
-    }
+
     public void updateContent(String content){
         this.content = content;
     }
+
     public void updateCompany(String company){
         this.company = company;
-    }
-    public void updateItemCode(String itemCode){
-        this.itemCode = itemCode;
-    }
-    public void updateStock(Integer stock){
-        this.stock = stock;
     }
 }
