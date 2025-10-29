@@ -14,4 +14,14 @@ public enum AsStatus {
     AsStatus(String description) {
         this.description = description;
     }
+
+    // description(한글 설명)으로 Enum 찾기
+    public static AsStatus fromDescription(String description) {
+        for (AsStatus status : values()) {
+            if (status.getDescription().equals(description)) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException("유효하지 않은 상태입니다: " + description);
+    }
 }
