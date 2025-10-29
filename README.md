@@ -1,4 +1,4 @@
-
+![전체배송추척품질다운](https://github.com/user-attachments/assets/da766273-1efe-40b6-82e0-7b971a9dc618)
 <div align="center"> 
  <img src="https://github.com/user-attachments/assets/807a5735-e104-4bbe-adf5-b7a47830b0cf" width="150"/>
 </div>
@@ -128,6 +128,35 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 ## 본사 공지사항 작성
 ![공지사항 작성](https://github.com/user-attachments/assets/f0b91cb2-6663-4988-a1bb-8a6d81788f06)
 
+## AS/고장 접수
+![AS](https://github.com/user-attachments/assets/1c9672ca-952e-4b9a-8f49-81fa4743d3b6)
+
+## 고객분석
+![고객분석](https://github.com/user-attachments/assets/5c9d7b18-90b7-4ba4-a467-02744d73388d)
+
+## 매출 관리
+![매출관리](https://github.com/user-attachments/assets/3f8ccace-f9ce-4a5c-95ad-3c3f7db3873a)
+
+## 상품 관리
+![상품관리 02](https://github.com/user-attachments/assets/5cb08fb9-ff69-401c-8d30-bf529e0514d7)
+
+## 재고 관리
+![재고관리](https://github.com/user-attachments/assets/d0866639-79ef-4521-88fe-4306829088b2)
+
+## 전체 배송 추적
+![전체배송추척품질다운](https://github.com/user-attachments/assets/dbcec5e0-5382-4e53-9e7b-87846d9f0b49)
+
+## 창고 재고 관리
+![창고재고관리](https://github.com/user-attachments/assets/e90ba0c6-55c7-4b8e-b4e4-355224bdc313)
+
+## 쿠폰 관리
+![쿠폰관리 동영상](https://github.com/user-attachments/assets/937cf216-b828-4f9d-b085-d2a11c945a9f)
+
+## 통합 분석
+![통합분석 동영상](https://github.com/user-attachments/assets/cddc865a-d81d-44cc-ac2d-43803f4b4ea5)
+
+## 프로모션 관리
+![프로모션관리](https://github.com/user-attachments/assets/53bdd4b0-0f5a-40f3-95b5-2b917ecbd227)
 
 </div>
 </details>
