@@ -38,11 +38,9 @@ public class AsController {
     // 전체 AS 목록 조회 (페이징)
     @GetMapping("/list/paging")
     public ResponseEntity<BaseResponse<AsListPagingRes>> listPaging(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "15") int size,
+            Pageable pageable,
             @RequestParam String keyWord,
             @RequestParam String status) {
-        Pageable pageable = PageRequest.of(page, size);
         AsListPagingRes response = asService.getAllAsRequests(pageable, keyWord, status);
         return ResponseEntity.status(200).body(BaseResponse.of(response));
     }
