@@ -58,10 +58,10 @@ public class AsController {
     })
     @GetMapping("/list/paging")
     public ResponseEntity<BaseResponse<AsListPagingRes>> listPaging(
-            @Parameter(description = "페이지 번호 (0부터 시작)", example = "0") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "페이지 크기", example = "15") @RequestParam(defaultValue = "15") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        AsListPagingRes response = asService.getAllAsRequests(pageable);
+            Pageable pageable,
+            @RequestParam String keyWord,
+            @RequestParam String status) {
+        AsListPagingRes response = asService.getAllAsRequests(pageable, keyWord, status);
         return ResponseEntity.status(200).body(BaseResponse.of(response));
     }
 

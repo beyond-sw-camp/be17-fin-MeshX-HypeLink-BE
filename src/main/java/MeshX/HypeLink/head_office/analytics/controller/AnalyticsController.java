@@ -155,9 +155,12 @@ public class AnalyticsController {
                             examples = @ExampleObject(value = AnalyticsSwaggerConstants.LOW_STOCK_ITEM_LIST_RES_EXAMPLE)))
     })
     @GetMapping("/inventory/low-stock")
-    public ResponseEntity<BaseResponse<List<LowStockItemDTO>>> getLowStockItems(
-            @Parameter(description = "재고 부족 임계값", example = "20") @RequestParam(defaultValue = "20") int threshold) {
-        List<LowStockItemDTO> data = analyticsService.getLowStockItems(threshold);
+    public ResponseEntity<BaseResponse<Page<LowStockItemDTO>>> getLowStockItems(
+            @RequestParam(defaultValue = "20") int threshold,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Pageable pageable) {
+        Page<LowStockItemDTO> data = analyticsService.getLowStockItems(threshold, pageable);
         return ResponseEntity.ok(BaseResponse.of(data, "재고 부족 품목 조회 성공"));
     }
 

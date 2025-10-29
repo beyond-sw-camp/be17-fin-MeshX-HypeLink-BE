@@ -81,10 +81,9 @@ public class PromotionController {
                     content = @Content(examples = @ExampleObject(value = PromotionSwaggerConstants.PROMOTION_INFO_RES_EXAMPLE)))
     })
     @PatchMapping("/update/{id}")
-    public ResponseEntity<BaseResponse<PromotionInfoRes>> updatePromotion(
-            @Parameter(description = "프로모션 ID") @PathVariable Integer id,
-            @RequestBody PromotionUpdateReq dto) {
-        PromotionInfoRes promotionInfoRes = promotionService.update(id, dto.getTitle(), dto.getContents(), dto.getStartDate(), dto.getEndDate(), dto.getStatus(), dto.getCouponId());
+    public ResponseEntity<BaseResponse<PromotionInfoRes>> updatePromotion(@PathVariable Integer id,
+                                                                          @RequestBody PromotionUpdateReq dto) {
+        PromotionInfoRes promotionInfoRes = promotionService.update(id, dto.getTitle(), dto.getContents(), dto.getStartDate(), dto.getEndDate(), dto.getStatus(), dto.getCouponId(), dto.getImages());
         return ResponseEntity.status(200).body(BaseResponse.of(promotionInfoRes));
     }
 
