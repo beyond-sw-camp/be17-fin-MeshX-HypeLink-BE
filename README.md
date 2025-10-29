@@ -128,7 +128,7 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 ## 본사 공지사항 작성
 ![공지사항 작성](https://github.com/user-attachments/assets/f0b91cb2-6663-4988-a1bb-8a6d81788f06)
 
-## AS/고장 접수
+## AS/고장 접수처리
 ![AS](https://github.com/user-attachments/assets/1c9672ca-952e-4b9a-8f49-81fa4743d3b6)
 
 ## 고객분석
