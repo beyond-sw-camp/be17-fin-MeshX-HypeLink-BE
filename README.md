@@ -1,4 +1,4 @@
-<h1 align="center"> HypeLink (MeshX) </h1>
+![사용자 추가](https://github.com/user-attachments/assets/a6a1b8a9-554a-440b-a63d-c9b9be95108c)<h1 align="center"> HypeLink (MeshX) </h1>
 <div align="center"> 
  <img src="https://github.com/user-attachments/assets/807a5735-e104-4bbe-adf5-b7a47830b0cf" width="150"/>
 </div>
@@ -87,11 +87,50 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 ## 💚 Front-end
 - <a href="https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-FE">프론트엔드 깃허브 바로가기</a>
 <details>
-<summary>작동 영상 </summary>
+ 
+<summary>POS기 작동 영상 </summary>
 <div markdown="1">
 
 ## POS기 결제 
-https://github.com/user-attachments/assets/f09af943-2685-4d06-b2ba-36d168becb23
+![pos_gif](https://github.com/user-attachments/assets/086e6512-c76e-430a-8061-11aacb365e50)
+
+## POS기 회원 결제
+![포스기 회원 결제](https://github.com/user-attachments/assets/637100dd-1409-4bb3-90f7-d89f04595ca8)
+
+## POS기 결제 내역
+![포스기 결제내역](https://github.com/user-attachments/assets/7ee47852-b185-4ad7-8424-19bc6b10fbf1)
+
+## POS기 공지사항
+![포스기 공지사항](https://github.com/user-attachments/assets/2a66ebf2-1099-422f-9600-cc927fe540d9)
+
+</div>
+</details>
+
+<details>
+<summary>관리자 페이지 </summary>
+<div markdown="1">
+
+## 가맹점 로그인
+![가맹점 로그인 화면](https://github.com/user-attachments/assets/f02bf0e3-1915-4739-a63b-775359e4bb64)
+
+## 본사 로그인
+![본사 관리자](https://github.com/user-attachments/assets/3d5406f6-9176-4b58-b819-286af2814787)
+
+## 서브관리자 로그인
+![서브관리자 로그인](https://github.com/user-attachments/assets/cbcf828b-a845-4e3f-bb4e-94b2aca982d8)
+
+## 웹소켓 메신저
+![웹소켓 메신저](https://github.com/user-attachments/assets/32b0c983-74b9-49bb-b9e4-d12f7ef0cc47)
+
+## 가맹점 및 관리자 추가
+![사용자 추가](https://github.com/user-attachments/assets/a020ee21-5df4-4ace-98d4-4789e54c43c3)
+
+## 본사 공지사항 작성
+![공지사항 작성](https://github.com/user-attachments/assets/f0b91cb2-6663-4988-a1bb-8a6d81788f06)
+
+
+
+
 </div>
 </details>
 ---
