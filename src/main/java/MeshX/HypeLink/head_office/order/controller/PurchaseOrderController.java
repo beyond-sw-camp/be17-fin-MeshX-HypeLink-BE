@@ -46,8 +46,8 @@ public class PurchaseOrderController {
 
     @GetMapping("/page/search")
     public ResponseEntity<BaseResponse<PageRes<PurchaseOrderInfoDetailRes>>> searchPurchaseOrders(Pageable pageReq,
-                                                                                               @RequestParam String keyWord,
-                                                                                               @RequestParam String status,
+                                                                                               @RequestParam(required = false, defaultValue = "") String keyWord,
+                                                                                               @RequestParam(required = false, defaultValue = "all") String status,
                                                                                                @AuthenticationPrincipal UserDetails userDetails) {
         PageRes<PurchaseOrderInfoDetailRes> pageRes = headPurchaseOrderService.searchList(pageReq, keyWord, status, userDetails);
         return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
@@ -55,8 +55,8 @@ public class PurchaseOrderController {
 
     @GetMapping("/read/page/all")
     public ResponseEntity<BaseResponse<PageRes<PurchaseOrderInfoRes>>> getOrders(Pageable pageReq,
-                                                                                 @RequestParam String keyWord,
-                                                                                 @RequestParam String category) {
+                                                                                 @RequestParam(required = false, defaultValue = "") String keyWord,
+                                                                                 @RequestParam(required = false, defaultValue = "all") String category) {
         PageRes<PurchaseOrderInfoRes> pageRes = headPurchaseOrderService.getPurchaseOrderList(pageReq, keyWord, category);
         return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
     }
