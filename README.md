@@ -86,7 +86,14 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 
 ## 💚 Front-end
 - <a href="https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-FE">프론트엔드 깃허브 바로가기</a>
+<details>
+<summary>작동 영상 </summary>
+<div markdown="1">
 
+## POS기 결제 
+https://github.com/user-attachments/assets/f09af943-2685-4d06-b2ba-36d168becb23
+</div>
+</details>
 ---
 
 ## 🔧 시스템 아키텍처
