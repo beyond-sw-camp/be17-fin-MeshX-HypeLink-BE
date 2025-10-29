@@ -1,4 +1,4 @@
-![사용자 추가](https://github.com/user-attachments/assets/a6a1b8a9-554a-440b-a63d-c9b9be95108c)<h1 align="center"> HypeLink (MeshX) </h1>
+
 <div align="center"> 
  <img src="https://github.com/user-attachments/assets/807a5735-e104-4bbe-adf5-b7a47830b0cf" width="150"/>
 </div>
@@ -127,8 +127,6 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 
 ## 본사 공지사항 작성
 ![공지사항 작성](https://github.com/user-attachments/assets/f0b91cb2-6663-4988-a1bb-8a6d81788f06)
-
-
 
 
 </div>
