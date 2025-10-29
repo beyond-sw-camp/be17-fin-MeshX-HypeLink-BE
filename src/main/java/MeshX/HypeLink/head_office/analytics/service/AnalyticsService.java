@@ -83,11 +83,12 @@ public class AnalyticsService {
     }
 
     /**
-     * 재고 부족 품목 조회
+     * 재고 부족 품목 조회 (페이지네이션)
      * @param threshold 재고 기준값 (기본 20)
+     * @param pageable 페이지 정보
      */
-    public List<LowStockItemDTO> getLowStockItems(int threshold) {
-        return analyticsRepository.getLowStockItems(threshold);
+    public Page<LowStockItemDTO> getLowStockItems(int threshold, Pageable pageable) {
+        return analyticsRepository.getLowStockItems(threshold, pageable);
     }
 
     /**

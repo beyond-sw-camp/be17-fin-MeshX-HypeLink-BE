@@ -3,6 +3,7 @@ package MeshX.HypeLink.head_office.promotion.model.dto.request;
 
 import MeshX.HypeLink.head_office.coupon.model.entity.Coupon;
 import MeshX.HypeLink.head_office.promotion.model.entity.*;
+import MeshX.HypeLink.image.model.dto.request.ImageCreateRequest;
 import lombok.Getter;
 
 import java.time.LocalDate;
@@ -18,6 +19,7 @@ public class PromotionCreateReq {
     private LocalDate endDate;
 
     private Integer couponId;
+    private List<ImageCreateRequest> images;
 
     //공통 Promotion 엔티티 생성
     public Promotion toEntity(Coupon coupon) {

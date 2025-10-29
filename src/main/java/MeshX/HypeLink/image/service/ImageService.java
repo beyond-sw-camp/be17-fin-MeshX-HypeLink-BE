@@ -21,6 +21,7 @@ public class ImageService {
 
     private static final String NOTICE_IMAGE_FILE_PATH = "images/notice/";
     private static final String ITEM_IMAGE_FILE_PATH = "images/item/";
+    private static final String PROMOTION_IMAGE_FILE_PATH = "images/promotion/";
 
     private final S3FileManager s3FileManager;
     private final ImageRepository imageRepository;
@@ -49,6 +50,10 @@ public class ImageService {
 
     public PresignedUrlResponse getItemImagePresignedUrl(PresignedUrlRequestDto requestDto) {
         return createPresignedUrl(requestDto, ITEM_IMAGE_FILE_PATH);
+    }
+
+    public PresignedUrlResponse getPromotionImagePresignedUrl(PresignedUrlRequestDto requestDto) {
+        return createPresignedUrl(requestDto, PROMOTION_IMAGE_FILE_PATH);
     }
 
     private PresignedUrlResponse createPresignedUrl(PresignedUrlRequestDto requestDto, String directoryPath) {

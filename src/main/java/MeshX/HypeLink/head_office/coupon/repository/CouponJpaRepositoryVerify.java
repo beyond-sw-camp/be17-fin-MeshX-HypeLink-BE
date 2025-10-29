@@ -56,4 +56,8 @@ public class CouponJpaRepositoryVerify {
         return page;
     }
 
+    public Coupon update(Coupon coupon) {
+        return repository.save(coupon);
+    }
+
 }

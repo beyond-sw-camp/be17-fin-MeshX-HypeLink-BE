@@ -31,6 +31,12 @@ public class ImageController {
         return ResponseEntity.ok(BaseResponse.of(presigned, ""));
     }
 
+    @PostMapping("/presigned/promotion")
+    public ResponseEntity<BaseResponse<PresignedUrlResponse>> getPromotionImagePresignedUrl(@RequestBody PresignedUrlRequestDto requestDto) {
+        PresignedUrlResponse presigned = ImageService.getPromotionImagePresignedUrl(requestDto);
+        return ResponseEntity.ok(BaseResponse.of(presigned, ""));
+    }
+
 //
 //    @PostMapping
 //    public ResponseEntity<BaseResponse<Integer>> registerImage(@RequestBody ImageCreateRequest requestDto) {

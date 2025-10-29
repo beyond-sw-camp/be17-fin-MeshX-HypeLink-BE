@@ -3,6 +3,7 @@ package MeshX.HypeLink.head_office.coupon.service;
 import MeshX.HypeLink.common.Page.PageReq;
 import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.head_office.coupon.model.dto.request.CouponCreateReq;
+import MeshX.HypeLink.head_office.coupon.model.dto.request.CouponUpdateReq;
 import MeshX.HypeLink.head_office.coupon.model.dto.response.CouponInfoListRes;
 import MeshX.HypeLink.head_office.coupon.model.dto.response.CouponInfoRes;
 import MeshX.HypeLink.head_office.coupon.model.entity.Coupon;
@@ -12,7 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -73,6 +76,30 @@ public class CouponService {
                 .currentPage(couponPage.getNumber())
                 .pageSize(couponPage.getSize())
                 .build();
+    }
+
+    @Transactional
+    public CouponInfoRes update(Integer id, CouponUpdateReq dto) {
+        Coupon coupon = couponRepository.findById(id);
+
+        if (dto.getName() != null && !dto.getName().isEmpty()) {
+            coupon.updateName(dto.getName());
+        }
+        if (dto.getCouponType() != null) {
+            coupon.updateCouponType(dto.getCouponType());
+        }
+        if (dto.getValue() != null) {
+            coupon.updateValue(dto.getValue());
+        }
+        if (dto.getPeriod() != null && !dto.getPeriod().isEmpty()) {
+            LocalDate[] dates = DateChanger.toDate(dto.getPeriod());
+            coupon.updateStartDate(dates[0]);
+            coupon.updateEndDate(dates[1]);
+        }
+
+        Coupon updated = couponRepository.update(coupon);
+        String period = toPeriod(updated.getStartDate(), updated.getEndDate());
+        return CouponInfoRes.toDto(updated, period);
     }
 
 }

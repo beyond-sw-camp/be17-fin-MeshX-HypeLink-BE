@@ -1,4 +1,4 @@
-package MeshX.HypeLink.head_office.notice.model.entity;
+package MeshX.HypeLink.head_office.promotion.model.entity;
 
 import MeshX.HypeLink.image.model.entity.Image;
 import jakarta.persistence.*;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class NoticeImages {
+public class PromotionImages {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -20,12 +20,12 @@ public class NoticeImages {
     private Image image;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "notice_id")
-    private Notice notice;
+    @JoinColumn(name = "promotion_id")
+    private Promotion promotion;
 
     @Builder
-    private NoticeImages(Image image, Notice notice) {
+    private PromotionImages(Image image, Promotion promotion) {
         this.image = image;
-        this.notice = notice;
+        this.promotion = promotion;
     }
 }

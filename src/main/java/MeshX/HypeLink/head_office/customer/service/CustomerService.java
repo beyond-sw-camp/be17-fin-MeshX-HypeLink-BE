@@ -111,4 +111,17 @@ public class CustomerService {
                 .pageSize(receiptPage.getSize())
                 .build();
     }
+
+    // 고객 검색 (키워드 + 연령대) - 페이징
+    public CustomerInfoListRes searchCustomers(String keyword, String ageGroup, Pageable pageable) {
+        Page<Customer> customerPage = customerRepository.searchCustomersPaged(keyword, ageGroup, pageable);
+        List<CustomerInfoRes> customerInfoResList = CustomerInfoRes.toDtoList(customerPage.getContent());
+        return CustomerInfoListRes.builder()
+                .customerInfoResList(customerInfoResList)
+                .totalPages(customerPage.getTotalPages())
+                .totalElements(customerPage.getTotalElements())
+                .currentPage(customerPage.getNumber())
+                .pageSize(customerPage.getSize())
+                .build();
+    }
 }
