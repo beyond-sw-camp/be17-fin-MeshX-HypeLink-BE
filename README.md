@@ -1,4 +1,4 @@
-![전체배송추척품질다운](https://github.com/user-attachments/assets/da766273-1efe-40b6-82e0-7b971a9dc618)
+
 <div align="center"> 
  <img src="https://github.com/user-attachments/assets/807a5735-e104-4bbe-adf5-b7a47830b0cf" width="150"/>
 </div>
@@ -122,7 +122,7 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 ## 웹소켓 메신저
 ![웹소켓 메신저](https://github.com/user-attachments/assets/32b0c983-74b9-49bb-b9e4-d12f7ef0cc47)
 
-## 가맹점 및 관리자 추가
+## 사용자 추가
 ![사용자 추가](https://github.com/user-attachments/assets/a020ee21-5df4-4ace-98d4-4789e54c43c3)
 
 ## 본사 공지사항 작성
