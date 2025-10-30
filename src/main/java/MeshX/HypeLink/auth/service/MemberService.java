@@ -12,10 +12,15 @@ import MeshX.HypeLink.auth.repository.DriverJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.MemberJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.PosJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
+import MeshX.HypeLink.head_office.shipment.model.entity.Shipment;
+import MeshX.HypeLink.head_office.shipment.model.entity.ShipmentStatus;
+import MeshX.HypeLink.head_office.shipment.repository.ShipmentJpaRepositoryVerify;
 import MeshX.HypeLink.utils.geocode.model.dto.GeocodeDto;
 import MeshX.HypeLink.utils.geocode.service.GeocodingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +39,7 @@ public class MemberService {
     private final StoreJpaRepositoryVerify storeJpaRepositoryVerify;
     private final PosJpaRepositoryVerify posJpaRepositoryVerify;
     private final GeocodingService geocodingService;
-
+    private final ShipmentJpaRepositoryVerify shipmentJpaRepositoryVerify;
 
     public UserListResDto list() {
         List<Member> memberResult = memberJpaRepositoryVerify.findAll();
@@ -87,17 +92,16 @@ public class MemberService {
                 .collect(Collectors.toList());
     }
 
-    public List<StoreListResDto> storeList() {
-        List<Store> stores = storeJpaRepositoryVerify.findAll();
+    public Page<StoreListResDto> storeList(Pageable pageable, String keyWord, String status) {
+        Page<Store> stores = storeJpaRepositoryVerify.findAll(pageable, keyWord, status);
 
-        return stores.stream()
-                .map(store -> StoreListResDto.builder()
-                        .storeId(store.getId())
-                        .storeName(store.getMember().getName())
-                        .storeAddress(store.getMember().getAddress())
-                        .storePhone(store.getMember().getPhone())
-                        .storeState(store.getStoreState())
-                        .build()).toList();
+        return stores.map(store -> StoreListResDto.builder()
+                .storeId(store.getId())
+                .storeName(store.getMember().getName())
+                .storeAddress(store.getMember().getAddress())
+                .storePhone(store.getMember().getPhone())
+                .storeState(store.getStoreState())
+                .build());
     }
 
     public StoreWithPosResDto readMyStore(Member member) {
@@ -320,15 +324,26 @@ public class MemberService {
         }
     }
 
+    @Transactional
     public void deleteDriver(Integer id) {
-        Member driverMember = memberJpaRepositoryVerify.findById(id);
-        Driver driver = driverJpaRepositoryVerify.findByMember(driverMember);
+        Driver driver = driverJpaRepositoryVerify.findById(id);
+        Member driverMember = driver.getMember();
+
+        // 진행 중인 배송이 있는지 확인
+        List<ShipmentStatus> activeStatuses = Arrays.asList(
+            ShipmentStatus.DRIVER_ASSIGNED,
+            ShipmentStatus.IN_PROGRESS
+        );
+        List<Shipment> activeShipments = shipmentJpaRepositoryVerify.findByShipmentStatusIn(driver, activeStatuses);
+
+        if (!activeShipments.isEmpty()) {
+            throw new MemberException(MemberExceptionMessage.CANNOT_DELETE_DRIVER_WITH_SHIPMENTS);
+        }
 
         driverJpaRepositoryVerify.deleteById(driver.getId());
         if (driverMember != null) {
             memberJpaRepositoryVerify.delete(driverMember);
         }
-
     }
 
     public Integer getMyStoreId(UserDetails userDetails) {
