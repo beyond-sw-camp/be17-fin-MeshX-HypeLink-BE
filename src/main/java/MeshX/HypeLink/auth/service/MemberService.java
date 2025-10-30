@@ -16,6 +16,8 @@ import MeshX.HypeLink.utils.geocode.model.dto.GeocodeDto;
 import MeshX.HypeLink.utils.geocode.service.GeocodingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,17 +89,16 @@ public class MemberService {
                 .collect(Collectors.toList());
     }
 
-    public List<StoreListResDto> storeList() {
-        List<Store> stores = storeJpaRepositoryVerify.findAll();
+    public Page<StoreListResDto> storeList(Pageable pageable, String keyWord, String status) {
+        Page<Store> stores = storeJpaRepositoryVerify.findAll(pageable, keyWord, status);
 
-        return stores.stream()
-                .map(store -> StoreListResDto.builder()
-                        .storeId(store.getId())
-                        .storeName(store.getMember().getName())
-                        .storeAddress(store.getMember().getAddress())
-                        .storePhone(store.getMember().getPhone())
-                        .storeState(store.getStoreState())
-                        .build()).toList();
+        return stores.map(store -> StoreListResDto.builder()
+                .storeId(store.getId())
+                .storeName(store.getMember().getName())
+                .storeAddress(store.getMember().getAddress())
+                .storePhone(store.getMember().getPhone())
+                .storeState(store.getStoreState())
+                .build());
     }
 
     public StoreWithPosResDto readMyStore(Member member) {
