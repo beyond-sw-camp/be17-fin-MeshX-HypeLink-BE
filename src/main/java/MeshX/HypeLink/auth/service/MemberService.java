@@ -12,6 +12,9 @@ import MeshX.HypeLink.auth.repository.DriverJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.MemberJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.PosJpaRepositoryVerify;
 import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
+import MeshX.HypeLink.head_office.shipment.model.entity.Shipment;
+import MeshX.HypeLink.head_office.shipment.model.entity.ShipmentStatus;
+import MeshX.HypeLink.head_office.shipment.repository.ShipmentJpaRepositoryVerify;
 import MeshX.HypeLink.utils.geocode.model.dto.GeocodeDto;
 import MeshX.HypeLink.utils.geocode.service.GeocodingService;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +39,7 @@ public class MemberService {
     private final StoreJpaRepositoryVerify storeJpaRepositoryVerify;
     private final PosJpaRepositoryVerify posJpaRepositoryVerify;
     private final GeocodingService geocodingService;
-
+    private final ShipmentJpaRepositoryVerify shipmentJpaRepositoryVerify;
 
     public UserListResDto list() {
         List<Member> memberResult = memberJpaRepositoryVerify.findAll();
@@ -321,15 +324,26 @@ public class MemberService {
         }
     }
 
+    @Transactional
     public void deleteDriver(Integer id) {
-        Member driverMember = memberJpaRepositoryVerify.findById(id);
-        Driver driver = driverJpaRepositoryVerify.findByMember(driverMember);
+        Driver driver = driverJpaRepositoryVerify.findById(id);
+        Member driverMember = driver.getMember();
+
+        // 진행 중인 배송이 있는지 확인
+        List<ShipmentStatus> activeStatuses = Arrays.asList(
+            ShipmentStatus.DRIVER_ASSIGNED,
+            ShipmentStatus.IN_PROGRESS
+        );
+        List<Shipment> activeShipments = shipmentJpaRepositoryVerify.findByShipmentStatusIn(driver, activeStatuses);
+
+        if (!activeShipments.isEmpty()) {
+            throw new MemberException(MemberExceptionMessage.CANNOT_DELETE_DRIVER_WITH_SHIPMENTS);
+        }
 
         driverJpaRepositoryVerify.deleteById(driver.getId());
         if (driverMember != null) {
             memberJpaRepositoryVerify.delete(driverMember);
         }
-
     }
 
     public Integer getMyStoreId(UserDetails userDetails) {
