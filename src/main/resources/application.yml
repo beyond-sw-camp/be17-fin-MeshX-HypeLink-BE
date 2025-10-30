@@ -47,3 +47,15 @@ naver:
 websocket:
   allowed-origin: ${SERVER}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics  # 필요 시 "*" 로 전체 공개
+      base-path: /api/health     # 기본값 (원하면 /api/health 로 커스터마이징 가능)
+  endpoint:
+    health:
+      show-details: always     # 상세 상태 보기 (디버깅에 유용)
+  metrics:
+    tags:
+      application: hypelink
