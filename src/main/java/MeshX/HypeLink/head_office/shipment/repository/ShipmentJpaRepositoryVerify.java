@@ -1,5 +1,6 @@
 package MeshX.HypeLink.head_office.shipment.repository;
 
+import MeshX.HypeLink.auth.model.entity.Driver;
 import MeshX.HypeLink.head_office.shipment.exception.ShipmentException;
 import MeshX.HypeLink.head_office.shipment.model.entity.Shipment;
 import MeshX.HypeLink.head_office.shipment.model.entity.ShipmentStatus;
@@ -34,6 +35,10 @@ public class ShipmentJpaRepositoryVerify {
 
     public List<Shipment> findByShipmentStatusIn(List<ShipmentStatus> shipmentStatuses) {
         return repository.findByShipmentStatusIn(shipmentStatuses);
+    }
+
+    public List<Shipment> findByShipmentStatusIn(Driver driver, List<ShipmentStatus> statuses) {
+        return repository.findByDriverAndShipmentStatusIn(driver, statuses);
     }
 
 }
