@@ -17,6 +17,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -82,8 +86,11 @@ public class UserController {
                             examples = @ExampleObject(value = AuthSwaggerConstants.STORE_LIST_RES_EXAMPLE)))
     })
     @GetMapping("/store/list")
-    public ResponseEntity<BaseResponse<List<StoreListResDto>>> storeList() {
-        List<StoreListResDto> result = memberService.storeList();
+    public ResponseEntity<BaseResponse<Page<StoreListResDto>>> storeList(
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(defaultValue = "") String keyWord,
+            @RequestParam(defaultValue = "all") String status) {
+        Page<StoreListResDto> result = memberService.storeList(pageable, keyWord, status);
 
         return ResponseEntity.ok(BaseResponse.of(result));
     }

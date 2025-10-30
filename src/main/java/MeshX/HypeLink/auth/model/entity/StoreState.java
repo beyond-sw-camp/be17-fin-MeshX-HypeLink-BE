@@ -13,4 +13,14 @@ public enum StoreState {
     StoreState(String description) {
         this.description = description;
     }
+
+    // description(한글 설명)으로 Enum 찾기
+    public static StoreState fromDescription(String description) {
+        for (StoreState state : values()) {
+            if (state.getDescription().equals(description)) {
+                return state;
+            }
+        }
+        throw new IllegalArgumentException("유효하지 않은 상태입니다: " + description);
+    }
 }
