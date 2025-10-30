@@ -7,6 +7,7 @@ import MeshX.HypeLink.auth.handler.JwtAuthenticationEntryPoint;
 import MeshX.HypeLink.auth.service.TokenStore;
 import MeshX.HypeLink.auth.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,6 +35,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 @EnableGlobalMethodSecurity(prePostEnabled = true) // 메소드 수준 보안 활성화
 @RequiredArgsConstructor
 public class SecurityConfig {
+    @Value("${websocket.allowed-origin}")
+    private String allowedOrigin;
 
     private final JwtUtils jwtUtils;
     private final TokenStore tokenStore; // TokenStore 주입
@@ -54,8 +57,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
         configuration.setAllowedOrigins(List.of(
-                "http://localhost:5174",
-                "http://localhost:5173"
+                "http://localhost:5173",
+                allowedOrigin
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setExposedHeaders(List.of("*"));
