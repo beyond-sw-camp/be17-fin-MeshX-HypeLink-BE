@@ -17,7 +17,7 @@ public class S3UrlBuilder {
 
     public String buildPublicUrl(String s3Key) {
         // return String.format("%s/%s", frontServerAddress, s3Key);
-        return "/images/" + s3Key;
+        return "/" + s3Key;
     }
 }
 

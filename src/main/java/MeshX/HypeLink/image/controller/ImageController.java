@@ -35,6 +35,7 @@ public class ImageController {
     public ResponseEntity<BaseResponse<PresignedUrlResponse>> getPromotionImagePresignedUrl(@RequestBody PresignedUrlRequestDto requestDto) {
         PresignedUrlResponse presigned = ImageService.getPromotionImagePresignedUrl(requestDto);
         return ResponseEntity.ok(BaseResponse.of(presigned, ""));
+
     }
 
 //
