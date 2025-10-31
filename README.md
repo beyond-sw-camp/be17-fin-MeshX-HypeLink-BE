@@ -93,7 +93,114 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 
 ## 📝 SWAGGER API
 
-- [스웨거 API 문서보기 (PDF)](https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-BE/blob/main/doc/Swagger.pdf)  
+<details>
+<summary>핵심 API 명세서 보기</summary>
+<div markdown="1">
+
+<details>
+<summary>1. 배송 기능 API 명세서</summary>
+<div markdown="1">
+ 
+## 배송 기능 API
+<img width="891" height="556" alt="배송기능1" src="https://github.com/user-attachments/assets/f686ae72-922a-4892-9419-89c85efa9980" />
+<img width="888" height="707" alt="배송기능2" src="https://github.com/user-attachments/assets/bcd136df-ec1a-4ec4-b639-a4c958a4f668" />
+
+</div>
+</details>
+
+<details>
+<summary>2. 통계 기능 API 명세서</summary>
+<div markdown="1">
+
+## 통계 기능 API
+<img width="1186" height="845" alt="통계3" src="https://github.com/user-attachments/assets/71d958d1-f480-4ca6-b2cc-a346881cc62e" />
+<img width="1187" height="643" alt="통계2" src="https://github.com/user-attachments/assets/54251074-0cbc-41c0-9aa0-3669cd359f9c" />
+<img width="892" height="742" alt="통계1" src="https://github.com/user-attachments/assets/23290732-075c-4084-a381-429c06e90b48" />
+<img width="890" height="585" alt="통계11" src="https://github.com/user-attachments/assets/5e7520e6-2513-43fc-aa5b-b7eaa443cb1c" />
+<img width="1186" height="616" alt="통계10" src="https://github.com/user-attachments/assets/6d75849c-1321-47ca-bd1c-024558d4ecb5" />
+<img width="1186" height="642" alt="통계9" src="https://github.com/user-attachments/assets/5b1d1a38-e415-4f9d-88b2-89295e35a3db" />
+<img width="890" height="743" alt="통계8" src="https://github.com/user-attachments/assets/e08e4a0f-3e6b-402b-91ba-dfbbff40e39c" />
+<img width="1185" height="791" alt="통계7" src="https://github.com/user-attachments/assets/f3dafa68-0dc6-4d24-8221-be5ffb3e8f85" />
+<img width="1183" height="747" alt="통계6" src="https://github.com/user-attachments/assets/44da83bd-90be-4bcb-8347-285983ddcc27" />
+<img width="1190" height="725" alt="통계5" src="https://github.com/user-attachments/assets/ebb2d2d6-122a-4ddb-bc1d-bd2148a4bcdb" />
+<img width="890" height="890" alt="통계4" src="https://github.com/user-attachments/assets/cdfb8440-8f87-4a39-bc73-9988f0c0c38b" />
+<img width="892" height="727" alt="통계19" src="https://github.com/user-attachments/assets/69d64301-f1cf-4d64-af56-868e89c17bc3" />
+<img width="890" height="707" alt="통계18" src="https://github.com/user-attachments/assets/8133febd-d00b-42bd-8c8e-f92fb0f5cf3e" />
+<img width="592" height="637" alt="통계17" src="https://github.com/user-attachments/assets/422c4631-6338-4a11-b3f8-cd035a1ecb6c" />
+<img width="593" height="592" alt="통계16" src="https://github.com/user-attachments/assets/93e4e756-55ef-470f-ad9b-6d282fe3df0e" />
+<img width="887" height="876" alt="통계15" src="https://github.com/user-attachments/assets/a8822a5a-d0f6-44ae-8c93-d89875c26e7c" />
+<img width="891" height="892" alt="통계14" src="https://github.com/user-attachments/assets/3727356a-57ab-4a31-9803-640f10f2964e" />
+<img width="890" height="566" alt="통계13" src="https://github.com/user-attachments/assets/f0789b3c-d25c-4631-b1a6-fbcaba79d7b5" />
+<img width="887" height="800" alt="통계12" src="https://github.com/user-attachments/assets/508b21ff-1580-4cab-9f6f-77da7f591ccb" />
+
+</div>
+</details>
+
+<details>
+<summary>3. 본사 발주 API 명세서 </summary>
+<div markdown="1">
+
+## 본사 발주 API 명세서
+<img width="1188" height="722" alt="발주7" src="https://github.com/user-attachments/assets/3eb362af-1f7d-4a7d-888b-2326d70ca325" />
+<img width="1187" height="722" alt="발주6" src="https://github.com/user-attachments/assets/3cc3e84b-8b58-4ba0-af12-54833b84f76c" />
+<img width="1183" height="805" alt="발주5" src="https://github.com/user-attachments/assets/16334be0-c289-49e6-92ff-72fc818906c7" />
+<img width="1188" height="735" alt="발주4" src="https://github.com/user-attachments/assets/21ded542-d982-4c39-acf7-1d7c64702f9e" />
+<img width="887" height="906" alt="발주3" src="https://github.com/user-attachments/assets/a99e500b-0195-49f7-8e26-d42a0211467c" />
+<img width="1332" height="693" alt="발주2" src="https://github.com/user-attachments/assets/46be6f9d-6dd6-492c-be3d-63c98d7620cc" />
+<img width="1332" height="690" alt="발주1" src="https://github.com/user-attachments/assets/10a9905b-f703-4983-abe3-c3186eba0fdf" />
+<img width="1188" height="715" alt="발주9" src="https://github.com/user-attachments/assets/d75d140e-648a-45fd-81df-de44b2ef87e0" />
+<img width="887" height="902" alt="발주8" src="https://github.com/user-attachments/assets/4c47a878-fdbd-45ea-bb01-6c71ed056ba5" />
+
+
+</div>
+</details>
+
+<details>
+<summary>4. 가맹점 발주 API 명세서 </summary>
+<div markdown="1">
+
+## 가맹점 발수 API 명세서
+<img width="887" height="762" alt="발주8" src="https://github.com/user-attachments/assets/482f49a9-660a-4d9c-8e72-0d61b4fc0ebd" />
+<img width="1188" height="818" alt="발주7" src="https://github.com/user-attachments/assets/24cf0ddf-5a1e-4cd2-8458-9277fe66d3f9" />
+<img width="886" height="881" alt="발주6" src="https://github.com/user-attachments/assets/b54bd7f1-8294-4ccc-a591-c63e1eb7add1" />
+<img width="591" height="612" alt="발주3" src="https://github.com/user-attachments/assets/f9796118-2fa2-469c-80fa-8b85ace6917a" />
+<img width="887" height="662" alt="발주2" src="https://github.com/user-attachments/assets/7633651a-6620-4972-9527-02bce57b5f0f" />
+<img width="887" height="882" alt="발주1" src="https://github.com/user-attachments/assets/b1d2a88f-002f-4ce0-8673-3da07767df20" />
+<img width="888" height="796" alt="발주5" src="https://github.com/user-attachments/assets/1a691b22-f343-4eab-90ee-3e426df1c51f" />
+<img width="888" height="560" alt="발주9" src="https://github.com/user-attachments/assets/bf24d8c1-c8e9-4172-a870-3c1d99fd145a" />
+
+
+</div>
+</details>
+
+<details>
+<summary>5. 본부 상품관리 API 명세서</summary>
+<div markdown="1">
+
+## 본사 상품관리 API 명세서
+
+<img width="900" height="882" alt="본사 상품관리4" src="https://github.com/user-attachments/assets/6e4b5ea3-de0f-4482-b60d-719cb81008ee" />
+<img width="1188" height="722" alt="본사 상품관리3" src="https://github.com/user-attachments/assets/8fde2ccf-8919-472b-ae49-31571c67be5b" />
+<img width="1190" height="727" alt="본사 상품관리2" src="https://github.com/user-attachments/assets/edf9923e-1522-4e18-a430-348217c5fbc7" />
+<img width="1191" height="726" alt="본사 상품관리1" src="https://github.com/user-attachments/assets/27042b38-d5d2-471c-9565-3d67f4823c06" />
+<img width="1195" height="832" alt="본사 상품관리7" src="https://github.com/user-attachments/assets/37e269c9-73a3-4ea4-95b2-0cc37bea0283" />
+<img width="1198" height="775" alt="본사 상품관리6" src="https://github.com/user-attachments/assets/4910b11d-a869-43a2-917c-297bfe5d347a" />
+<img width="595" height="632" alt="본사 상품관리5" src="https://github.com/user-attachments/assets/25a5c71e-7aeb-4584-a9df-e3db502aceb5" />
+<img width="1193" height="727" alt="본사 상품관리13" src="https://github.com/user-attachments/assets/90e10c77-519b-49fc-8cba-e7b9b10ebeda" />
+<img width="1197" height="723" alt="본사 상품관리12" src="https://github.com/user-attachments/assets/c5061c42-b539-407f-b728-55e796db2068" />
+<img width="1190" height="722" alt="본사 상품관리11" src="https://github.com/user-attachments/assets/594f153e-d8ba-401f-9d63-b91d12892dcf" />
+<img width="1192" height="772" alt="본사 상품관리10" src="https://github.com/user-attachments/assets/bfbc207c-081b-434c-9ce0-cd66b9eda4f1" />
+<img width="896" height="882" alt="본사 상품관리9" src="https://github.com/user-attachments/assets/783122b3-d2d5-4cd3-8d9c-8f41529bb255" />
+<img width="1201" height="728" alt="본사 상품관리8" src="https://github.com/user-attachments/assets/76bdda01-5d45-4b30-849e-953333d2a8bb" />
+<img width="1197" height="772" alt="본사 상품관리14" src="https://github.com/user-attachments/assets/51721710-4134-4d6b-bfe2-afacd3cce81f" />
+
+</div>
+</details>
+
+</div>
+</details>
+
+
 - [스웨거 UI 접속하기](http://3.36.70.161:8080/swagger-ui/index.html)
 
 
