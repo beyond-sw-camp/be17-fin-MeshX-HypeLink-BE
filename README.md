@@ -87,9 +87,16 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 ## 💚 Front-end
 - <a href="https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-FE">프론트엔드 깃허브 바로가기</a>
 
+<br/>
 
 ## 🔧 시스템 아키텍처
 - <a href="https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-BE/blob/raccoon/swagger/doc/%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98.png">시스템 아키텍처 문서 보기</a>
+<br/>
+
+## ⚙️ CI/CD 파이프라인 문서
+- <a href="https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-BE/wiki/HypeLink-CI-CD-%ED%8C%8C%EC%9D%B4%ED%94%84%EB%9D%BC%EC%9D%B8-%EB%AC%B8%EC%84%9C"> CI/CD 파이프라인 문서
+<br/>
+
 
 ## 📝 SWAGGER API
 
