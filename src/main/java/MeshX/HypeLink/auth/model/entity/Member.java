@@ -16,8 +16,10 @@ public class Member extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(unique = true)
     private String email;
     private String password;
+    @Column(unique = true)
     private String name;
     private String phone;
     private String address;
