@@ -11,6 +11,7 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 public class CreateItemImageReq {
+    private Long id;  // ← 이미지 ID 추가
     private String originalFilename;
     private Long fileSize;
     private String contentType;
