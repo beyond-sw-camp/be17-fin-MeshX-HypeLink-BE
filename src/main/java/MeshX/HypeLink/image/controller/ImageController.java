@@ -17,33 +17,26 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ImageController {
 
-    private final ImageService ImageService;
+    private final ImageService imageService;
 
     @PostMapping("/presigned/notice")
     public ResponseEntity<BaseResponse<PresignedUrlResponse>> getNoticeImagePresignedUrl(@RequestBody PresignedUrlRequestDto requestDto) {
-        PresignedUrlResponse presigned = ImageService.getNoticeImagePresignedUrl(requestDto);
+        PresignedUrlResponse presigned = imageService.getNoticeImagePresignedUrl(requestDto);
         return ResponseEntity.ok(BaseResponse.of(presigned, ""));
     }
 
     @PostMapping("/presigned/item")
     public ResponseEntity<BaseResponse<PresignedUrlResponse>> getItemImagePresignedUrl(@RequestBody PresignedUrlRequestDto requestDto) {
-        PresignedUrlResponse presigned = ImageService.getItemImagePresignedUrl(requestDto);
+        PresignedUrlResponse presigned = imageService.getItemImagePresignedUrl(requestDto);
         return ResponseEntity.ok(BaseResponse.of(presigned, ""));
     }
 
     @PostMapping("/presigned/promotion")
     public ResponseEntity<BaseResponse<PresignedUrlResponse>> getPromotionImagePresignedUrl(@RequestBody PresignedUrlRequestDto requestDto) {
-        PresignedUrlResponse presigned = ImageService.getPromotionImagePresignedUrl(requestDto);
+        PresignedUrlResponse presigned = imageService.getPromotionImagePresignedUrl(requestDto);
         return ResponseEntity.ok(BaseResponse.of(presigned, ""));
 
     }
-
-//
-//    @PostMapping
-//    public ResponseEntity<BaseResponse<Integer>> registerImage(@RequestBody ImageCreateRequest requestDto) {
-//        Integer imageIdx = ImageService.createNoticeImage(requestDto);
-//        return ResponseEntity.ok(BaseResponse.of(imageIdx, "이미지가 등록되었습니다."));
-//    }
 
 
 }
