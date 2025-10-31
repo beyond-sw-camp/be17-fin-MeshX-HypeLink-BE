@@ -251,4 +251,32 @@ public class AnalyticsController {
         List<CategoryCustomerSalesDTO> data = analyticsService.getCategoryCustomerSales();
         return ResponseEntity.ok(BaseResponse.of(data, "카테고리별 고객 매출 조회 성공"));
     }
+
+    /**
+     * 특정 연령대의 인기 품목 조회 (드릴다운, 페이지네이션)
+     * GET /api/analytics/customers/age-distribution/top-items?ageGroup=20대&page=0&size=10
+     */
+    @GetMapping("/customers/age-distribution/top-items")
+    public ResponseEntity<BaseResponse<Page<TopItemBySegmentDTO>>> getTopItemsByAgeGroup(
+            @RequestParam String ageGroup,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "salesAmount"));
+        Page<TopItemBySegmentDTO> data = analyticsService.getTopItemsByAgeGroup(ageGroup, pageable);
+        return ResponseEntity.ok(BaseResponse.of(data, "연령대별 인기 품목 조회 성공"));
+    }
+
+    /**
+     * 특정 카테고리의 인기 품목 조회 (드릴다운, 페이지네이션)
+     * GET /api/analytics/customers/category-sales/top-items?category=상의&page=0&size=10
+     */
+    @GetMapping("/customers/category-sales/top-items")
+    public ResponseEntity<BaseResponse<Page<TopItemBySegmentDTO>>> getTopItemsByCategory(
+            @RequestParam String category,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "salesAmount"));
+        Page<TopItemBySegmentDTO> data = analyticsService.getTopItemsByCategory(category, pageable);
+        return ResponseEntity.ok(BaseResponse.of(data, "카테고리별 인기 품목 조회 성공"));
+    }
 }
