@@ -238,4 +238,22 @@ public class AnalyticsService {
     public List<MeshX.HypeLink.head_office.analytics.dto.CategoryCustomerSalesDTO> getCategoryCustomerSales() {
         return analyticsRepository.getCategoryCustomerSales();
     }
+
+    /**
+     * 특정 연령대의 인기 품목 조회 (드릴다운, 페이지네이션)
+     * @param ageGroup "10대", "20대", "30대", "40대", "50대 이상"
+     * @param pageable 페이지 정보
+     */
+    public Page<MeshX.HypeLink.head_office.analytics.dto.TopItemBySegmentDTO> getTopItemsByAgeGroup(String ageGroup, Pageable pageable) {
+        return analyticsRepository.getTopItemsByAgeGroup(ageGroup, pageable);
+    }
+
+    /**
+     * 특정 카테고리의 인기 품목 조회 (드릴다운, 페이지네이션)
+     * @param category 카테고리 이름
+     * @param pageable 페이지 정보
+     */
+    public Page<MeshX.HypeLink.head_office.analytics.dto.TopItemBySegmentDTO> getTopItemsByCategory(String category, Pageable pageable) {
+        return analyticsRepository.getTopItemsByCategory(category, pageable);
+    }
 }
