@@ -94,7 +94,7 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 ## 📝 SWAGGER API
 
 <details>
-<summary>핵심 API 명세서 보기</summary>
+<summary> 📝 핵심 API 명세서 보기</summary>
 <div markdown="1">
 
 <details>
