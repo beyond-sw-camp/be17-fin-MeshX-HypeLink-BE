@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "본부 프로모션 관리", description = "본부에서 프로모션을 관리하는 API")
@@ -32,6 +33,7 @@ public class PromotionController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "생성 성공")
     })
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PostMapping("/create")
     public ResponseEntity<BaseResponse<String>> createPromotion(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
