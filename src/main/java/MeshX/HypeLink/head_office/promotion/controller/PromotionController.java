@@ -11,6 +11,7 @@ import MeshX.HypeLink.head_office.promotion.service.PromotionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class PromotionController {
     private final PromotionService promotionService;
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PostMapping("/create")
     public ResponseEntity<BaseResponse<String>> createPromotion(@RequestBody PromotionCreateReq dto) {
         promotionService.createPromotion(dto);
