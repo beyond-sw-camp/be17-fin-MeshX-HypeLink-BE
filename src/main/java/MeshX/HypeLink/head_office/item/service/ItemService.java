@@ -209,7 +209,9 @@ public class ItemService {
     }
 
     private void updateImages(CreateItemImageReq one, Item item) {
-        Image image = imageRepository.findByOriginalFilename(one.getOriginalFilename());
+        // ✅ id로 이미지를 찾도록 변경 (originalFilename으로 찾으면 중복 가능)
+        Image image = imageRepository.findById(one.getId())
+                .orElseThrow(() -> new ImageException("이미지를 찾을 수 없습니다. id: " + one.getId()));
 
         ItemImage itemImage = itemImageRepository.findByItemAndImage(item, image);
 
