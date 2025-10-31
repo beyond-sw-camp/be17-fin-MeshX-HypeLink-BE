@@ -2,8 +2,13 @@ package MeshX.HypeLink.common;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import org.springdoc.core.properties.AbstractSwaggerUiConfigProperties;
+import org.springdoc.core.properties.SwaggerUiConfigParameters;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
+import java.util.Set;
 
 @Configuration
 public class SwaggerConfig {

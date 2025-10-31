@@ -790,4 +790,114 @@ public class AnalyticsRepository {
             .orderBy(orderItem.totalPrice.sum().desc())
             .fetch();
     }
+
+    /**
+     * 특정 연령대의 인기 품목 조회 (드릴다운, 페이지네이션)
+     * @param ageGroup "10대", "20대", "30대", "40대", "50대 이상"
+     * @param pageable 페이지 정보
+     */
+    public Page<TopItemBySegmentDTO> getTopItemsByAgeGroup(String ageGroup, Pageable pageable) {
+        List<TopItemBySegmentDTO> content = queryFactory
+            .select(Projections.constructor(TopItemBySegmentDTO.class,
+                storeItem.koName,
+                storeItem.category.category,
+                orderItem.quantity.sum().castToNum(Long.class),
+                orderItem.totalPrice.sum().castToNum(Long.class)
+            ))
+            .from(orderItem)
+            .join(orderItem.customerReceipt, customerReceipt)
+            .join(orderItem.storeItemDetail, storeItemDetail)
+            .join(storeItemDetail.item, storeItem)
+            .join(customerReceipt.customer, customer)
+            .where(
+                customerReceipt.status.eq(PaymentStatus.PAID),
+                customer.birthDate.isNotNull(),
+                Expressions.stringTemplate(
+                    "CASE " +
+                    "WHEN YEAR(CURDATE()) - YEAR({0}) < 20 THEN '10대' " +
+                    "WHEN YEAR(CURDATE()) - YEAR({0}) < 30 THEN '20대' " +
+                    "WHEN YEAR(CURDATE()) - YEAR({0}) < 40 THEN '30대' " +
+                    "WHEN YEAR(CURDATE()) - YEAR({0}) < 50 THEN '40대' " +
+                    "ELSE '50대 이상' END",
+                    customer.birthDate
+                ).eq(ageGroup)
+            )
+            .groupBy(storeItem.koName, storeItem.category.category)
+            .orderBy(orderItem.totalPrice.sum().desc())
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
+
+        // groupBy 결과의 정확한 개수를 세기 위해 동일한 쿼리로 fetch하여 size를 구함
+        Long total = (long) queryFactory
+            .select(storeItem.id)
+            .from(orderItem)
+            .join(orderItem.customerReceipt, customerReceipt)
+            .join(orderItem.storeItemDetail, storeItemDetail)
+            .join(storeItemDetail.item, storeItem)
+            .join(customerReceipt.customer, customer)
+            .where(
+                customerReceipt.status.eq(PaymentStatus.PAID),
+                customer.birthDate.isNotNull(),
+                Expressions.stringTemplate(
+                    "CASE " +
+                    "WHEN YEAR(CURDATE()) - YEAR({0}) < 20 THEN '10대' " +
+                    "WHEN YEAR(CURDATE()) - YEAR({0}) < 30 THEN '20대' " +
+                    "WHEN YEAR(CURDATE()) - YEAR({0}) < 40 THEN '30대' " +
+                    "WHEN YEAR(CURDATE()) - YEAR({0}) < 50 THEN '40대' " +
+                    "ELSE '50대 이상' END",
+                    customer.birthDate
+                ).eq(ageGroup)
+            )
+            .groupBy(storeItem.koName, storeItem.category.category)
+            .fetch()
+            .size();
+
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    /**
+     * 특정 카테고리의 인기 품목 조회 (드릴다운, 페이지네이션)
+     * @param category 카테고리 이름
+     * @param pageable 페이지 정보
+     */
+    public Page<TopItemBySegmentDTO> getTopItemsByCategory(String category, Pageable pageable) {
+        List<TopItemBySegmentDTO> content = queryFactory
+            .select(Projections.constructor(TopItemBySegmentDTO.class,
+                storeItem.koName,
+                storeItem.category.category,
+                orderItem.quantity.sum().castToNum(Long.class),
+                orderItem.totalPrice.sum().castToNum(Long.class)
+            ))
+            .from(orderItem)
+            .join(orderItem.customerReceipt, customerReceipt)
+            .join(orderItem.storeItemDetail, storeItemDetail)
+            .join(storeItemDetail.item, storeItem)
+            .where(
+                customerReceipt.status.eq(PaymentStatus.PAID),
+                storeItem.category.category.eq(category)
+            )
+            .groupBy(storeItem.koName, storeItem.category.category)
+            .orderBy(orderItem.totalPrice.sum().desc())
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
+
+        // groupBy 결과의 정확한 개수를 세기 위해 동일한 쿼리로 fetch하여 size를 구함
+        Long total = (long) queryFactory
+            .select(storeItem.id)
+            .from(orderItem)
+            .join(orderItem.customerReceipt, customerReceipt)
+            .join(orderItem.storeItemDetail, storeItemDetail)
+            .join(storeItemDetail.item, storeItem)
+            .where(
+                customerReceipt.status.eq(PaymentStatus.PAID),
+                storeItem.category.category.eq(category)
+            )
+            .groupBy(storeItem.koName, storeItem.category.category)
+            .fetch()
+            .size();
+
+        return new PageImpl<>(content, pageable, total);
+    }
 }
