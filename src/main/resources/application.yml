@@ -47,3 +47,36 @@ naver:
 websocket:
   allowed-origin: ${SERVER}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics  # 필요 시 "*" 로 전체 공개
+      base-path: /api/health     # 기본값 (원하면 /api/health 로 커스터마이징 가능)
+  endpoint:
+    health:
+      show-details: always     # 상세 상태 보기 (디버깅에 유용)
+      group:
+        core:
+          include:
+            - db
+            - redis
+            - diskSpace
+            - ssl
+  metrics:
+    tags:
+      application: hypelink
+
+springdoc:
+  api-docs:
+    path: /api/v3/api-docs
+  swagger-ui:
+    path: /api/swagger-ui.html
+    # Swagger UI가 로드할 메인 문서 지정 (Petstore fallback 방지)
+    url: /api/v3/api-docs
+    # 여러 스펙을 쓰고 싶다면 urls 목록으로도 가능 (선택)
+    urls:
+      - name: HypeLink API
+        url: /api/v3/api-docs
+    # api-docs path를 바꿨으니 config-url도 맞춰줌 (명시 권장)
+    config-url: /api/v3/api-docs/swagger-config

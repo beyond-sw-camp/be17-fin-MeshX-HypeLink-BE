@@ -14,6 +14,7 @@ public class POS {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(unique = true)
     private String posCode; // Store Code + 01, 02, 03, 04 ...
 
     @ManyToOne

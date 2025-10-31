@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hypelink-svc
+  namespace: hypelink
+spec:
+  selector:
+    type: backend
+    ver: green
+  ports:
+    - name: http-8080
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+  type: ClusterIP

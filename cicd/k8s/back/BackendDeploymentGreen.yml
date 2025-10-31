@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-deployment-green
+  namespace: hypelink
+spec:
+  selector:
+    matchLabels:
+      type: backend
+      ver: green
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        type: backend
+        ver: green
+    spec:
+      containers:
+        - name: container
+          image: raccoon98/hypelink-back:1
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: hypelink-config
+          startupProbe:
+            httpGet:
+              path: /api/health/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 24
+          livenessProbe:
+            httpGet:
+              path: /api/health/health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/health/test
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+      terminationGracePeriodSeconds: 30
