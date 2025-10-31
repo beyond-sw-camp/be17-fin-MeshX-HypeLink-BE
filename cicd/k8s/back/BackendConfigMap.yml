@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hypelink-config
+  namespace: hypelink
+data:
+  DB_PASSWORD: "[DB 만들 때 설정했던 비밀번호 입력]"
+  DB_URL: "jdbc:mariadb://mariadb.hypelink.svc.cluster.local:3306/hypelink"
+  DB_USERNAME: "meshx"
+  JWT_ACCESS: "[JWT Access Token 생존 시간]"
+  JWT_KEY: "[JWT 키 값]"
+  JWT_REFRESH: "[JWT Refresh Token 생존 시간]"
+  NAVER_MAP_CLIENT: "[네이버지도 클라이언트 ID]"
+  NAVER_MAP_SECRET: "[네이버지도 시크릿 키]"
+  PORTONE_API_SECRET: "[PORT ONE API 키]"
+  PORTONE_STORE_ID: "[PORT ONE STORE ID]"
+  REDIS_PORT: "6379"
+  REDIS_URL: "redis-svc"
+  S3_ACCESS_KEY: "[S3 ACCESS KEY]"
+  S3_BUCKET_NAME: "[S3 BUCKET 이름]"
+  S3_PRESIGNED_URL_DURATION: "[Presigned URL 생존 시간]"
+  S3_REGION: "[S3 REGION]"
+  S3_SECRET_KEY: "[S3 SECRET KEY]"
+  SERVER: "[FRONT DOMAIN]"

@@ -1,0 +1,17 @@
+auth:
+  rootPassword: [루트 사용자 비밀번호]
+  username: meshx
+  password: [meshx 사용자 비밀번호]
+  database: hypelink
+
+primary:
+  persistence:
+    enabled: true
+    size: 8Gi
+    storageClass: longhorn
+  service:
+    type: ClusterIP
+    port: 3306
+
+secondary:
+  replicaCount: 0

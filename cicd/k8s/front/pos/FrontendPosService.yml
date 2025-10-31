@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hypelink-front-pos
+  namespace: hypelink
+  annotations:
+    metallb.universe.tf/ip-allocated-from-pool: "first-pool"
+spec:
+  selector:
+    type: app-pos
+    ver: blue
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 32106
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 443
+      nodePort: 31868
+  type: LoadBalancer
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
