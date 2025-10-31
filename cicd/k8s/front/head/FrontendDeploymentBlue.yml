@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vue-deployment-blue
+  namespace: hypelink
+spec:
+  selector:
+    matchLabels:
+      type: app
+      ver: blue
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        type: app
+        ver: blue
+    spec:
+      containers:
+        - name: container
+          image: raccoon98/hypelink-front:1
+          volumeMounts:
+            - name: tls-secret
+              mountPath: /etc/nginx/ssl
+              readOnly: true
+          ports:
+            - containerPort: 80
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 2
+      volumes:
+        - name: tls-secret
+          secret:
+            secretName: hypelink-tls
+      terminationGracePeriodSeconds: 0

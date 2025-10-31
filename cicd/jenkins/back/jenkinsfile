@@ -1,0 +1,274 @@
+pipeline {
+  agent {
+    kubernetes {
+      label "gradle-kaniko-${UUID.randomUUID().toString()}"
+      defaultContainer 'gradle'
+      yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: hypelink
+spec:
+  restartPolicy: Never
+  containers:
+    - name: gradle
+      image: gradle:8.9-jdk17
+      command: ['cat']
+      tty: true
+      volumeMounts:
+        - name: gradle-cache
+          mountPath: /home/gradle/.gradle
+        - name: workspace
+          mountPath: /workspace
+    - name: kaniko
+      image: gcr.io/kaniko-project/executor:debug
+      command: ['/busybox/sh','-c','sleep infinity']
+      tty: true
+      volumeMounts:
+        - name: docker-config
+          mountPath: /kaniko/.docker
+        - name: workspace
+          mountPath: /workspace
+  volumes:
+    - name: gradle-cache
+      emptyDir: {}
+    - name: workspace
+      emptyDir: {}
+    - name: docker-config
+      secret:
+        secretName: dockerhub-cred
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+"""
+    }
+  }
+  environment {
+    docker_name = 'raccoon98'
+    GIT_URL = 'https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-BE'
+    IMAGE_NAME = "${docker_name}/hypelink-back"
+    IMAGE_TAG = "${env.BUILD_NUMBER}"
+    DISCORD_WEBHOOK_URL = credentials('discord-webhook-back')
+  }
+  stages {
+    stage('Checkout') {
+      steps {
+        container('gradle') {
+          checkout([$class: 'GitSCM',
+            branches: [[name: '*/main']],
+            userRemoteConfigs: [[url: "${GIT_URL}"]]
+          ])
+        }
+      }
+    }
+    stage('Check File Structure') {
+      steps {
+        container('gradle') {
+          sh '''
+            ls -la ${WORKSPACE}
+            ls -la ${WORKSPACE}/build/libs || true
+            ls -la ${WORKSPACE}/Dockerfile || true
+            ls -la ${WORKSPACE}/backend || true
+          '''
+        }
+      }
+    }
+    stage('Gradle Build') {
+      steps {
+        container('gradle') {
+          sh '''
+            chmod +x ./gradlew || true
+            ./gradlew --no-daemon clean bootJar
+            ls -la build/libs
+          '''
+        }
+      }
+    }
+    stage('Kaniko Build & Push') {
+      steps {
+        container('kaniko') {
+          catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+            sh """
+              /kaniko/executor \\
+                --context=${WORKSPACE} \\
+                --dockerfile=${WORKSPACE}/Dockerfile \\
+                --destination=${IMAGE_NAME}:${IMAGE_TAG} \\
+                --destination=${IMAGE_NAME}:latest \\
+                --single-snapshot \\
+                --use-new-run \\
+                --cache=true \\
+                --snapshotMode=redo \\
+            """
+          }
+        }
+      }
+    }
+    stage('Deploy to Kubernetes') {
+      steps {
+        echo "Deploying to Kubernetes with Blue-Green strategy"
+        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+          sshPublisher(
+            continueOnError: false,
+            failOnError: true,
+            publishers: [
+              sshPublisherDesc(
+                configName: 'K8S_MASTER',
+                verbose: true,
+                transfers: [
+                  sshTransfer(
+                    execCommand: """
+                      IMAGE_TAG="${IMAGE_TAG}"
+                      echo "DEBUG: IMAGE_TAG is \$IMAGE_TAG"
+                      if kubectl get service hypelink-svc -n hypelink >/dev/null 2>&1; then
+                        VER=\$(kubectl get service hypelink-svc -n hypelink -o jsonpath='{.spec.selector.ver}')
+                        echo "DEBUG: Current VER is \$VER"
+                      else
+                        VER=""
+                        echo "DEBUG: No existing service, VER is empty"
+                      fi
+                      if [ -z "\$VER" ]; then
+                        echo "🔹 서비스가 없으므로 초기 배포를 시작합니다."
+                        NEW_VER="blue"
+                      elif [ "\$VER" = "blue" ]; then
+                        NEW_VER="green"
+                      elif [ "\$VER" = "green" ]; then
+                        NEW_VER="blue"
+                      else
+                        echo "❌ 알 수 없는 버전: \$VER"
+                        exit 1
+                      fi
+                      echo "현재 버전: \${VER:-없음}"
+                      echo "새 버전: \$NEW_VER"
+                      cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-deployment-\$NEW_VER
+  namespace: hypelink
+spec:
+  selector:
+    matchLabels:
+      type: backend
+      ver: \$NEW_VER
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        type: backend
+        ver: \$NEW_VER
+    spec:
+      containers:
+      - name: container
+        image: ${docker_name}/hypelink-back:\$IMAGE_TAG
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: hypelink-config
+        startupProbe:
+          httpGet:
+            path: /api/health/health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 24
+        livenessProbe:
+          httpGet:
+            path: /api/health/health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/health/test
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      terminationGracePeriodSeconds: 30
+EOF
+                      echo "DEBUG: Applied deployment spring-deployment-\$NEW_VER"
+                      kubectl rollout status deployment/spring-deployment-\$NEW_VER -n hypelink --timeout=600s
+                      echo "DEBUG: Rollout status completed for spring-deployment-\$NEW_VER"
+                      cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: hypelink-svc
+  namespace: hypelink
+spec:
+  selector:
+    type: backend
+    ver: \$NEW_VER
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP
+EOF
+                      echo "DEBUG: Applied service hypelink-svc with ver=\$NEW_VER"
+                      if [ -n "\$VER" ]; then
+                        echo "DEBUG: Scaling down previous deployment spring-deployment-\$VER"
+                        kubectl scale deployment/spring-deployment-\$VER -n hypelink --replicas=0
+                        echo "DEBUG: Scaled down spring-deployment-\$VER"
+                      else
+                        echo "DEBUG: No previous version to scale down"
+                      fi
+                    """
+                  )
+                ]
+              )
+            ]
+          )
+        }
+      }
+    }
+    stage('Result') {
+      steps {
+        echo "Pushed and Deployed: ${IMAGE_NAME}:${IMAGE_TAG}"
+      }
+    }
+  }
+  post {
+    success {
+      script {
+        sh """
+          curl -X POST -H 'Content-Type: application/json' \
+            -d '{
+              "embeds": [{
+                "title": "✅ 빌드 성공: ${env.JOB_NAME}",
+                "description": "이미지: ${IMAGE_NAME}:${IMAGE_TAG}\\n빌드 번호: ${env.BUILD_NUMBER}\\n@@@@@하이프링크 백엔드 배포 성공!!!@@@@",
+                "color": 65280
+              }]
+            }' \
+            ${DISCORD_WEBHOOK_URL}
+        """
+      }
+    }
+    failure {
+      script {
+        sh """
+          curl -X POST -H 'Content-Type: application/json' \
+            -d '{
+              "embeds": [{
+                "title": "❌ 빌드 실패: ${env.JOB_NAME}",
+                "description": "빌드 번호: ${env.BUILD_NUMBER}\\n배포에 실패 하였습니다..ㅜㅜ.",
+                "color": 16711680
+              }]
+            }' \
+            ${DISCORD_WEBHOOK_URL}
+        """
+      }
+    }
+  }
+}
