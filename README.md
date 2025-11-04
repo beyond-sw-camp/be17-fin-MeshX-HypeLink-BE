@@ -166,7 +166,7 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 - <a href="https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-BE/blob/raccoon/swagger/doc/%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98.png">시스템 아키텍처 문서 보기</a>
 
 ## 🔧 고도화 시스템 아키텍처
-- <a href="https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-BE/blob/raccoon/swagger/doc/meshx system architecture BE.png">고도화 시스템 아키텍처 문서 보기</a>
+- <a href="https://github.com/user-attachments/assets/7e4bfc91-1e03-4062-b250-b47bae4c6622">고도화 시스템 아키텍처 문서 보기</a>
 
 ## 📝 SWAGGER API
 
