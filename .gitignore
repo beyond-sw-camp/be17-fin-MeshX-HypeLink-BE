@@ -41,7 +41,7 @@ out/
 
 ### env ###
 .env
-src/main/resources/.env
+monolith/src/main/resources/.env
 
 NUL
 .claude
