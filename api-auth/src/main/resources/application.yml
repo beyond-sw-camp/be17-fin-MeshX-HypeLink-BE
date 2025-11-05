@@ -19,8 +19,8 @@ spring:
 
   data:
     redis:
-      host: ${REDIS_URL}
-      port: ${REDIS_PORT}
+      host: ${AUTH_REDIS_PORT}
+      port: ${AUTH_REDIS_PORT}
 
   # Kafka 설정
   kafka:
