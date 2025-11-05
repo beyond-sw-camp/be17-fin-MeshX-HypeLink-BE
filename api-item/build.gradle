@@ -1,6 +1,6 @@
 group = 'MeshX'
 version = '0.0.1-SNAPSHOT'
-description = 'api-user'
+description = 'api-item'
 
 repositories {
     mavenCentral()
