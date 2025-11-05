@@ -14,11 +14,11 @@ java {
 	}
 }
 
-repositories {
-	mavenCentral()
-}
-
 subprojects {
+    compileJava {
+        sourceCompatibility = 17
+        targetCompatibility = 17
+    }
 	apply plugin: 'java'
 	apply plugin: 'java-library'
 	apply plugin: 'org.springframework.boot'
