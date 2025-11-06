@@ -58,22 +58,31 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 return exchange.getResponse().setComplete();
             }
 
-            // 5. email, role 추출
-            String email = jwtTokenProvider.getEmailFromToken(token);
-            String role = jwtTokenProvider.getRoleFromToken(token);
+            // 5. 블랙리스트 체크
+            return isTokenBlacklisted(token)
+                    .flatMap(isBlacklisted -> {
+                        if (isBlacklisted) {
+                            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                            return exchange.getResponse().setComplete();
+                        }
 
-            // 6. email → memberId 변환
-            return getMemberIdFromEmail(email)
-                    .flatMap(memberId -> {
+                        // 6. email, role 추출
+                        String email = jwtTokenProvider.getEmailFromToken(token);
+                        String role = jwtTokenProvider.getRoleFromToken(token);
 
-                        // 7. 헤더 추가
-                        ServerHttpRequest request = exchange.getRequest().mutate()
-                                .header("Member-Id", memberId.toString())
-                                .header("Member-Email", email)
-                                .header("Member-Role", role)
-                                .build();
+                        // 7. email → memberId 변환
+                        return getMemberIdFromEmail(email)
+                                .flatMap(memberId -> {
 
-                        return chain.filter(exchange.mutate().request(request).build());
+                                    // 8. 헤더 추가
+                                    ServerHttpRequest request = exchange.getRequest().mutate()
+                                            .header("Member-Id", memberId.toString())
+                                            .header("Member-Email", email)
+                                            .header("Member-Role", role)
+                                            .build();
+
+                                    return chain.filter(exchange.mutate().request(request).build());
+                                });
                     })
                     .onErrorResume(e -> {
                         exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -81,6 +90,13 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     });
         };
 
+    }
+
+    private Mono<Boolean> isTokenBlacklisted(String token) {
+        String redisKey = "blacklist:" + token;
+        return redisTemplate.opsForValue().get(redisKey)
+                .map(value -> "logout".equals(value))
+                .defaultIfEmpty(false);
     }
 
     private Mono<Integer> getMemberIdFromEmail(String email) {
