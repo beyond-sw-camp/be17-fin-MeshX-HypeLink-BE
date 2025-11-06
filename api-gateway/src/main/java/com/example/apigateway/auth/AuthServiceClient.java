@@ -18,7 +18,7 @@ public class AuthServiceClient {
                 .retrieve()
                 .bodyToMono(ApiResponse.class)
                 .map(response -> {
-                    if (response.isSuccess()) {
+                    if (response.getData() != null) {
                         return response.getData();
                     }
                     throw new RuntimeException("Failed to get memberId");
@@ -27,7 +27,6 @@ public class AuthServiceClient {
 
     @Data
     private static class ApiResponse {
-        private boolean success;
         private Integer data;       // memberId
         private String message;
     }

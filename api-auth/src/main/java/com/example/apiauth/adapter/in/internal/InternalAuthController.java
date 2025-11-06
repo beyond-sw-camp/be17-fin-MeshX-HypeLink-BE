@@ -21,19 +21,19 @@ public class InternalAuthController {
     }
     @GetMapping("/store")
     public BaseResponse<Integer> getStoreIdByEmail(@RequestParam("email") String email) {
-        Integer result = memberQueryUseCase.getMemberIdByEmail(email);
+        Integer result = memberQueryUseCase.getStoreIdByEmail(email);
         return BaseResponse.of(result);
     }
 
     @GetMapping("/pos")
     public BaseResponse<Integer> getPosIdByEmail(@RequestParam("email") String email) {
-        Integer result = memberQueryUseCase.getMemberIdByEmail(email);
+        Integer result = memberQueryUseCase.getPosIdByEmail(email);
         return BaseResponse.of(result);
     }
 
     @GetMapping("/driver")
     public BaseResponse<Integer> getDriverIdByEmail(@RequestParam("email") String email) {
-        Integer result = memberQueryUseCase.getMemberIdByEmail(email);
+        Integer result = memberQueryUseCase.getDriverIdByEmail(email);
         return BaseResponse.of(result);
     }
 
