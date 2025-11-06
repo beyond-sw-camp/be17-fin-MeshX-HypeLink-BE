@@ -1,11 +1,13 @@
 package com.example.apiauth.adapter.out.persistence.entity;
 
+import com.example.apiauth.domain.model.value.StoreState;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Getter
 @Table(name = "Store")
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class StoreEntity {
@@ -26,17 +28,17 @@ public class StoreEntity {
     @JoinColumn(name = "member_id")
     private MemberEntity member;
 
-    @Builder
-    private StoreEntity(Double lat, Double lon, String address, Integer posCount,
-                  String storeNumber, /*List<StoreItem> storeItems,*/ MemberEntity member, StoreState storeState) {
-        this.lat = lat;
-        this.lon = lon;
-        this.posCount = posCount;
-        this.storeNumber = storeNumber;
-//        this.storeItems = storeItems;
-        this.member = member;
-        this.storeState = storeState != null ? storeState : StoreState.TEMP_CLOSED;
-    }
+//    @Builder
+//    private StoreEntity(Double lat, Double lon, String address, Integer posCount,
+//                  String storeNumber, /*List<StoreItem> storeItems,*/ MemberEntity member, StoreState storeState) {
+//        this.lat = lat;
+//        this.lon = lon;
+//        this.posCount = posCount;
+//        this.storeNumber = storeNumber;
+////        this.storeItems = storeItems;
+//        this.member = member;
+//        this.storeState = storeState != null ? storeState : StoreState.TEMP_CLOSED;
+//    }
 
     public void increasePosCount()
     {

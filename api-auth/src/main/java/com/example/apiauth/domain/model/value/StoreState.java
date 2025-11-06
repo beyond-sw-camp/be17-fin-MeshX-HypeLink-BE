@@ -1,4 +1,4 @@
-package com.example.apiauth.adapter.out.persistence.entity;
+package com.example.apiauth.domain.model.value;
 
 import lombok.Getter;
 

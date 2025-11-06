@@ -1,6 +1,7 @@
 package com.example.apiauth.usecase.service;
 
 import MeshX.common.UseCase;
+import com.example.apiauth.adapter.out.persistence.entity.MemberEntity;
 import lombok.RequiredArgsConstructor;
 import com.example.apiauth.adapter.in.web.dto.LoginResDto;
 import com.example.apiauth.adapter.out.security.JwtTokenProvider;
@@ -28,8 +29,7 @@ public class AuthService implements AuthUseCase {
 
     @Override
     public LoginResDto login(LoginCommand dto) {
-        Member member = memberPort.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new AuthException(USER_NAME_NOT_FOUND));
+        Member member = memberPort.findByEmail(dto.getEmail());
 
         if (!passwordEncoder.matches(dto.getPassword(), member.getPassword())) {
             throw new AuthException(INVALID_CREDENTIALS);
