@@ -23,6 +23,7 @@ public class MemberMapper {
 
     public static MemberEntity toEntity(Member member){
         return MemberEntity.builder()
+                .id(member.getId())
                 .email(member.getEmail())
                 .password(member.getPassword())
                 .name(member.getName())

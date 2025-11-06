@@ -1,4 +1,4 @@
-package com.example.apiauth.adapter.out.persistence.entity;
+package com.example.apiauth.domain.model.value;
 
 public enum Region {
     SEOUL_GYEONGGI("서울/경기"),

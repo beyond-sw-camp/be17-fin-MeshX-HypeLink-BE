@@ -1,14 +1,15 @@
 package com.example.apiauth.adapter.out.persistence.entity;
 
 import MeshX.common.BaseEntity;
+import com.example.apiauth.domain.model.value.MemberRole;
+import com.example.apiauth.domain.model.value.Region;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
+@AllArgsConstructor
+@Builder
 @Table(name = "Member")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberEntity extends BaseEntity {
@@ -34,20 +35,6 @@ public class MemberEntity extends BaseEntity {
 
     @Column(nullable = true)
     private String refreshToken;
-
-
-    @Builder
-    private MemberEntity(String email, String password, String name, String phone,
-                   String address, MemberRole role, Region region, String refreshToken) {
-        this.email = email;
-        this.password = password;
-        this.name = name;
-        this.phone = phone;
-        this.address = address;
-        this.role = role;
-        this.region = region;
-        this.refreshToken = refreshToken;
-    }
 
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;

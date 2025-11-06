@@ -21,6 +21,6 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    // Feign Client 인터페이스 정의용 (라이브러리 모듈이므로 Eureka Client 제거)
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
-    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 }

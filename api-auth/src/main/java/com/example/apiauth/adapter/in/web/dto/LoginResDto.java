@@ -3,7 +3,7 @@ package com.example.apiauth.adapter.in.web.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Getter;
-import com.example.apiauth.adapter.out.persistence.entity.MemberRole;
+import com.example.apiauth.domain.model.value.MemberRole;
 import com.example.apiauth.domain.model.value.AuthTokens;
 
 @Getter

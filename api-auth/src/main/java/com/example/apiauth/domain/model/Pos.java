@@ -5,11 +5,12 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class Driver {
+public class Pos {
 
     private Integer id;
-    private String macAddress;
-    private String carNumber;
+    private String posCode;
+    private Boolean healthCheck;
+    private Store store;
     private Member member;
 
 }
