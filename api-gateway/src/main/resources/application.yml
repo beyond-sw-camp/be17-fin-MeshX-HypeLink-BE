@@ -5,7 +5,18 @@ eureka:
     registerWithEureka: true
     fetchRegistry: true
 
+jwt:
+  secret-key: ${JWT_KEY}
+
 spring:
+  application:
+    name: api-gateway
+
+  data:
+    redis:
+      host: ${AUTH_REDIS_URL}
+      port: ${AUTH_REDIS_PORT}
+
   cloud:
     gateway:
       server:
