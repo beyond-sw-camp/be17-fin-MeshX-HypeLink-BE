@@ -1,0 +1,102 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: api-auth
+
+  # Database 설정 (MySQL)
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: ${AUTH_DB_URL}
+    username: ${AUTH_DB_USERNAME}
+    password: ${AUTH_DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+
+  data:
+    redis:
+      host: ${AUTH_REDIS_PORT}
+      port: ${AUTH_REDIS_PORT}
+
+  # Kafka 설정
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+    consumer:
+      group-id: auth-service-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+    listener:
+      ack-mode: manual
+
+# JWT 설정
+jwt:
+  secret-key: ${JWT_KEY}
+  access-token-expiration-ms: ${JWT_ACCESS}
+  refresh-token-expiration-ms: ${JWT_REFRESH}
+
+# Feign 설정
+feign:
+  client:
+    config:
+      default:
+        connect-timeout: 5000
+        read-timeout: 5000
+        logger-level: basic
+  circuitbreaker:
+    enabled: true
+
+# Circuit Breaker 설정 (Resilience4j)
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        sliding-window-size: 10
+        sliding-window-type: COUNT_BASED
+    instances:
+      geocoding:
+        base-config: default
+      storeService:
+        base-config: default
+
+# Actuator 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,circuitbreakers
+  endpoint:
+    health:
+      show-details: always
+
+# Eureka 설정
+eureka:
+  instance:
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://localhost:9090/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+    enabled: false
+
+naver:
+  api:
+    client-id: ${NAVER_MAP_CLIENT}
+    client-secret: ${NAVER_MAP_SECRET}
