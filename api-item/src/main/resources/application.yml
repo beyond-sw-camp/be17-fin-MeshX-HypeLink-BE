@@ -17,6 +17,28 @@ spring:
       ddl-auto: update
     show-sql: false
 
+  kafka:
+    bootstrap-servers: ${KAFKA_IP}
+
+    producer:
+      acks: all
+      retries: 10
+      batch-size: 32768
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        enable.idempotence: true
+        linger.ms: 5
+        max.in.flight.requests.per.connection: 5
+        delivery.timeout.ms: 120000
+
+    consumer:
+      group-id: ${KAFKA_GROUP_ID}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
 eureka:
   client:
     service-url:

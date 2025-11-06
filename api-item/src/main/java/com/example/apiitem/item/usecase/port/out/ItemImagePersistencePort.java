@@ -15,4 +15,5 @@ public interface ItemImagePersistencePort {
 
     List<ItemImage> findByItem(Item item);
 
+    void saveAllWithId(List<ItemImage> itemImages, Item item);
 }

@@ -9,6 +9,7 @@ import com.example.apiitem.item.usecase.port.out.CategoryPersistencePort;
 import com.example.apiitem.util.CategoryMapper;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Optional;
 
 @PersistenceAdapter
@@ -20,6 +21,16 @@ public class CategoryPersistenceAdaptor implements CategoryPersistencePort {
     public Category findByName(String category) {
         CategoryEntity entity = findCategoryByCategoryName(category);
         return CategoryMapper.toDomain(entity);
+    }
+
+    @Override
+    public void saveAllWithId(List<Category> categories) {
+        categoryRepository.deleteAllInBatch(); // 기존 전부 삭제
+        List<CategoryEntity> entities = categories.stream()
+                .map(CategoryMapper::toEntity)
+                .toList();
+
+        entities.forEach(categoryRepository::upsert);
     }
 
     private CategoryEntity findCategoryByCategoryName(String category) {

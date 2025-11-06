@@ -16,10 +16,9 @@ spring:
       ddl-auto: update
     show-sql: false
 
-
   data:
     redis:
-      host: ${AUTH_REDIS_PORT}
+      host: ${AUTH_REDIS_URL}
       port: ${AUTH_REDIS_PORT}
 
   # Kafka 설정

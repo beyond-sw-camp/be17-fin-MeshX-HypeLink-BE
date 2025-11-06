@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface ItemDetailPersistencePort {
     void saveAll(List<ItemDetail> itemDetails, Item entity);
+    void saveAllWithId(List<ItemDetail> itemDetails, Item entity);
 }

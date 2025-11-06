@@ -1,6 +1,5 @@
 package com.example.apiitem.item.adaptor.out.jpa;
 
-import MeshX.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -39,19 +38,20 @@ public class ItemEntity extends BaseEntity {
     private String company; // 회사
 
     @Builder
-    private ItemEntity(CategoryEntity category, List<ItemDetailEntity> itemDetails, List<ItemImageEntity> itemImages, Integer unitPrice,
-                 Integer amount, String enName, String koName, String content, String company,
-                 String itemCode) {
+    private ItemEntity(Integer id, CategoryEntity category, List<ItemDetailEntity> itemDetails, List<ItemImageEntity> itemImages,
+                      String itemCode, Integer unitPrice, Integer amount, String enName,
+                      String koName, String content, String company) {
+        this.id = id;
         this.category = category;
         this.itemDetails = itemDetails;
         this.itemImages = itemImages;
+        this.itemCode = itemCode;
         this.unitPrice = unitPrice;
         this.amount = amount;
         this.enName = enName;
         this.koName = koName;
         this.content = content;
         this.company = company;
-        this.itemCode = itemCode;
     }
 
     public void updateEnName(String enName) {

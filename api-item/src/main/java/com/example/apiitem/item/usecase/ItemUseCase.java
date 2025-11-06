@@ -13,6 +13,7 @@ import com.example.apiitem.item.usecase.port.out.ItemPersistencePort;
 import com.example.apiitem.item.usecase.port.out.response.ItemInfoDto;
 import com.example.apiitem.item.usecase.util.S3UrlBuilder;
 import com.example.apiitem.util.ItemDetailMapper;
+import com.example.apiitem.util.ItemImageMapper;
 import com.example.apiitem.util.ItemMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 
 @UseCase
 @RequiredArgsConstructor
-public class ItemUsecase implements WebPort {
+public class ItemUseCase implements WebPort {
     private final ItemPersistencePort itemPersistencePort;
     private final CategoryPersistencePort categoryPersistencePort;
     private final ItemImagePersistencePort itemImagePersistencePort;
@@ -143,7 +144,7 @@ public class ItemUsecase implements WebPort {
     }
 
     private void saveItemImage(CreateItemImageCommand one, Integer itemId) {
-        ItemImage entity = ItemImage.toDomain(one);
+        ItemImage entity = ItemImageMapper.toDomain(one);
         itemImagePersistencePort.save(entity, itemId);
     }
 

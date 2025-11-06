@@ -9,17 +9,4 @@ import lombok.Getter;
 public class Category {
     private Integer id;
     private String category;
-
-    public CategoryEntity toEntity() {
-        return CategoryEntity.builder()
-                .category(category)
-                .build();
-    }
-
-    public static Category toDomain(CategoryEntity itemEntity) {
-        return Category.builder()
-                .id(itemEntity.getId())
-                .category(itemEntity.getCategory())
-                .build();
-    }
 }

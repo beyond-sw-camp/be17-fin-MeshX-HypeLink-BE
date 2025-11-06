@@ -1,6 +1,5 @@
 package com.example.apiitem.item.adaptor.out.jpa;
 
-import MeshX.common.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,7 +19,8 @@ public class CategoryEntity extends BaseEntity {
     private String category;
 
     @Builder
-    private CategoryEntity(String category) {
+    private CategoryEntity(Integer id, String category) {
+        this.id = id;
         this.category = category;
     }
 }

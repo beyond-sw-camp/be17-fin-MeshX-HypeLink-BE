@@ -1,6 +1,5 @@
 package com.example.apiitem.item.adaptor.out.jpa;
 
-import MeshX.common.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,7 +20,8 @@ public class ColorEntity extends BaseEntity {
     private String colorCode;
 
     @Builder
-    private ColorEntity(String colorName, String colorCode) {
+    private ColorEntity(Integer id, String colorName, String colorCode) {
+        this.id = id;
         this.colorName = colorName;
         this.colorCode = colorCode;
     }

@@ -65,6 +65,15 @@ public class ItemImagePersistenceAdapter implements ItemImagePersistencePort {
                 .toList();
     }
 
+    @Override
+    public void saveAllWithId(List<ItemImage> itemImages, Item item) {
+        ItemEntity itemEntity = findItemEntityById(item.getId());
+        List<ItemImageEntity> itemImageEntities = itemImages.stream()
+                .map(one -> ItemImageMapper.toEntity(one, itemEntity))
+                .toList();
+        itemImageEntities.forEach(itemImageRepository::upsert);
+    }
+
     private ItemEntity findItemEntityById(Integer id) {
         Optional<ItemEntity> item = itemRepository.findById(id);
         if(item.isPresent()) {

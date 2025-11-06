@@ -32,8 +32,36 @@ public class ItemDetailPersistenceAdaptor implements ItemDetailPersistencePort {
         itemDetailRepository.saveAll(entities);
     }
 
+    @Override
+    public void saveAllWithId(List<ItemDetail> itemDetails, Item entity) {
+        ItemEntity itemEntity = findItemEntityById(entity);
+        List<ItemDetailEntity> entities = itemDetails.stream().map(one -> {
+            SizeEntity size = findSizeEntity(one);
+            ColorEntity color = findColorEntity(one);
+            return ItemDetailMapper.toEntity(one, color, size, itemEntity);
+        }).toList();
+
+        entities.forEach(itemDetailRepository::upsert);
+    }
+
+    private SizeEntity findSizeEntity(ItemDetail domain) {
+        Optional<SizeEntity> optional = sizeRepository.findById(domain.getSizeId());
+        if(optional.isPresent()) {
+            return optional.get();
+        }
+        throw new BaseException(null);
+    }
+
     private SizeEntity findSizeEntityBySize(ItemDetail domain) {
         Optional<SizeEntity> optional = sizeRepository.findBySize(domain.getSize());
+        if(optional.isPresent()) {
+            return optional.get();
+        }
+        throw new BaseException(null);
+    }
+
+    private ColorEntity findColorEntity(ItemDetail domain) {
+        Optional<ColorEntity> optional = colorRepository.findById(domain.getColorId());
         if(optional.isPresent()) {
             return optional.get();
         }

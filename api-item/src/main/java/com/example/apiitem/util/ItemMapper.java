@@ -4,6 +4,7 @@ import com.example.apiitem.item.adaptor.out.jpa.CategoryEntity;
 import com.example.apiitem.item.adaptor.out.jpa.ItemEntity;
 import com.example.apiitem.item.domain.Item;
 import com.example.apiitem.item.usecase.port.in.request.CreateItemCommand;
+import com.example.apiitem.item.usecase.port.in.request.kafka.KafkaItemCommand;
 import com.example.apiitem.item.usecase.port.out.response.ItemImageInfoDto;
 import com.example.apiitem.item.usecase.port.out.response.ItemInfoDto;
 
@@ -38,6 +39,20 @@ public class ItemMapper {
                 .build();
     }
 
+    public static Item toDomain(KafkaItemCommand command) {
+        return Item.builder()
+                .id(command.getId())
+                .unitPrice(command.getUnitPrice())
+                .itemCode(command.getItemCode())
+                .amount(command.getAmount())
+                .enName(command.getEnName())
+                .koName(command.getKoName())
+                .content(command.getContent())
+                .company(command.getCompany())
+                .categoryId(command.getCategory())
+                .build();
+    }
+
     public static Item toDomain(Integer id) {
         return Item.builder()
                 .id(id)
@@ -52,6 +67,7 @@ public class ItemMapper {
 
     public static ItemEntity toEntity(CategoryEntity categoryEntity, Item item) {
         return ItemEntity.builder()
+                .id(item.getId())
                 .category(categoryEntity)
                 .itemCode(item.getItemCode())
                 .unitPrice(item.getUnitPrice())

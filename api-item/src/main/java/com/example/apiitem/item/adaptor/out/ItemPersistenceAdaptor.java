@@ -58,6 +58,25 @@ public class ItemPersistenceAdaptor implements ItemPersistencePort {
         return ItemMapper.toDomain(save);
     }
 
+    @Override
+    public Item saveWithCategoryId(Item item) {
+        CategoryEntity category = findCategoryByCategoryId(item.getCategoryId());
+        ItemEntity entity = ItemMapper.toEntity(category, item);
+
+        itemRepository.upsert(entity);
+        ItemEntity save = findEntityById(entity.getId());
+
+        return ItemMapper.toDomain(save);
+    }
+
+    private CategoryEntity findCategoryByCategoryId(Integer id) {
+        Optional<CategoryEntity> optional = categoryRepository.findById(id);
+        if(optional.isPresent()) {
+            return optional.get();
+        }
+        throw new BaseException(null);
+    }
+
     private CategoryEntity findCategoryByCategoryName(String category) {
         Optional<CategoryEntity> optional = categoryRepository.findByCategory(category);
         if(optional.isPresent()) {

@@ -1,6 +1,5 @@
 package com.example.apiitem.item.adaptor.out.jpa;
 
-import MeshX.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -26,8 +25,9 @@ public class ItemImageEntity extends BaseEntity {
     private Long fileSize;
 
     @Builder
-    public ItemImageEntity(ItemEntity item, Integer sortIndex, String originalFilename, String savedPath,
-                           String contentType, Long fileSize) {
+    public ItemImageEntity(Integer id, ItemEntity item, Integer sortIndex, String originalFilename,
+                           String savedPath, String contentType, Long fileSize) {
+        this.id = id;
         this.item = item;
         this.sortIndex = sortIndex;
         this.originalFilename = originalFilename;

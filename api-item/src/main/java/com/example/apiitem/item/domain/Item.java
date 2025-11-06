@@ -12,6 +12,7 @@ import java.util.List;
 public class Item {
     private Integer id;
     private String category;
+    private Integer categoryId;
     private List<ItemDetail> itemDetails;
     private List<ItemImage> itemImages;
     private String itemCode; // 아이템 코드

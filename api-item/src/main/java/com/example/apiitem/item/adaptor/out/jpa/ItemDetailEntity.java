@@ -1,6 +1,5 @@
 package com.example.apiitem.item.adaptor.out.jpa;
 
-import MeshX.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -32,8 +31,9 @@ public class ItemDetailEntity extends BaseEntity {
     private ItemEntity item;
 
     @Builder
-    private ItemDetailEntity(ColorEntity color, SizeEntity size, String itemDetailCode, Integer stock,
-                       ItemEntity item) {
+    private ItemDetailEntity(Integer id, ColorEntity color, SizeEntity size, String itemDetailCode,
+                             Integer stock, ItemEntity item) {
+        this.id = id;
         this.color = color;
         this.size = size;
         this.itemDetailCode = itemDetailCode;

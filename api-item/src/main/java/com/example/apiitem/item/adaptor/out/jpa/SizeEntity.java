@@ -1,6 +1,5 @@
 package com.example.apiitem.item.adaptor.out.jpa;
 
-import MeshX.common.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,7 +19,8 @@ public class SizeEntity extends BaseEntity {
     private String size;
 
     @Builder
-    private SizeEntity(String size) {
+    private SizeEntity(Integer id, String size) {
+        this.id = id;
         this.size = size;
     }
 }

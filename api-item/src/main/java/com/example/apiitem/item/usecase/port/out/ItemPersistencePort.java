@@ -6,13 +6,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface ItemPersistencePort {
+    Item save(Item item);
+    Item saveWithCategoryId(Item item);
+
     Item findById(Item domain);
     Item findByItemCode(Item domain);
 
     Page<Item> findItemsWithPaging(Pageable pageable, String keyWord, String category);
 
     boolean isExist(Item domain);
-    Item save(Item item);
     void updateContents(Integer itemId, String content);
     void updateEnName(Integer itemId, String enName);
     void updateKoName(Integer itemId, String koName);

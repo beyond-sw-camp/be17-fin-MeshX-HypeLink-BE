@@ -15,7 +15,6 @@ spring:
       ddl-auto: update
     show-sql: false
 
-
   data:
     redis:
       host: ${REDIS_URL}
@@ -31,6 +30,20 @@ spring:
         secret-key: ${S3_SECRET_KEY}
       region:
         static: ${S3_REGION}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_IP}
+    producer:
+      acks: all
+      retries: 10
+      batch-size: 32768
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        enable.idempotence: true
+        linger.ms: 5
+        max.in.flight.requests.per.connection: 5
+        delivery.timeout.ms: 120000
 
 jwt:
   secret-key: ${JWT_KEY}
@@ -83,3 +96,11 @@ springdoc:
         url: /api/v3/api-docs
     # api-docs path를 바꿨으니 config-url도 맞춰줌 (명시 권장)
     config-url: /api/v3/api-docs/swagger-config
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:9090/eureka/
+    registerWithEureka: true
+    fetchRegistry: true
+
