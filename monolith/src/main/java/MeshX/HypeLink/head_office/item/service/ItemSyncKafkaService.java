@@ -11,6 +11,7 @@ import MeshX.HypeLink.head_office.item.repository.SizeJpaRepositoryVerify;
 import MeshX.HypeLink.head_office.item.service.kafka.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,15 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ItemSyncKafkaService {
+    @Value("${kafka.topic.item}")
+    private String itemTopic;
+    @Value("${kafka.topic.color}")
+    private String colorTopic;
+    @Value("${kafka.topic.category}")
+    private String categoryTopic;
+    @Value("${kafka.topic.size}")
+    private String sizeTopic;
+
     private final KafkaTemplate<String, KafkaEnvelope> kafkaTemplate;
 
     private final ItemJpaRepositoryVerify itemRepository;
@@ -33,7 +43,7 @@ public class ItemSyncKafkaService {
     private final ColorJpaRepositoryVerify colorRepository;
 
     @Transactional(readOnly = true)
-    @Scheduled(cron = "0 43 * * * *") // 매시 33분
+//    @Scheduled(cron = "0 0 0 * * *") // 매시 33분
     public void sync() {
         syncCategoryList();
         syncColorList();
@@ -48,7 +58,7 @@ public class ItemSyncKafkaService {
                 .type("CATEGORY")
                 .payload(dto)
                 .build();
-        kafkaTemplate.send("category.sync.1", envelope);
+        kafkaTemplate.send(categoryTopic, envelope);
     }
 
     public void syncSizeList() {
@@ -58,7 +68,7 @@ public class ItemSyncKafkaService {
                 .type("SIZE")
                 .payload(dto)
                 .build();
-        kafkaTemplate.send("size.sync.1", envelope);
+        kafkaTemplate.send(sizeTopic, envelope);
     }
 
     public void syncColorList() {
@@ -68,7 +78,7 @@ public class ItemSyncKafkaService {
                 .type("COLOR")
                 .payload(dto)
                 .build();
-        kafkaTemplate.send("color.sync.1", envelope);
+        kafkaTemplate.send(colorTopic, envelope);
     }
 
     public void syncItemList() {
@@ -100,7 +110,7 @@ public class ItemSyncKafkaService {
                 .type("ITEM")
                 .payload(dto)
                 .build();
-        kafkaTemplate.send("items.sync.1",envelope)
+        kafkaTemplate.send(itemTopic,envelope)
                 .whenComplete((result, ex) -> {
                     if (ex != null) {
                         log.error("Kafka send failed for itemCode: {} / error={}",

@@ -1,12 +1,22 @@
 eureka:
+  instance:
+    prefer-ip-address: false
+    hostname: hypelink-gateway-svc          # ✅ K8s Service 이름
   client:
     service-url:
-      defaultZone: http://localhost:9090/eureka/
+      defaultZone: ${API_DISCOVERY_SERVICE}
     registerWithEureka: true
     fetchRegistry: true
 
 jwt:
   secret-key: ${JWT_KEY}
+
+management:
+  endpoints:
+    web:
+      base-path: /api/health    # actuator의 기본 경로를 변경
+      exposure:
+        include: health,info    # 노출시킬 엔드포인트 지정
 
 spring:
   application:
@@ -22,20 +32,14 @@ spring:
       server:
         webflux:
           routes:
-#            - id: api-direct
-#              uri: lb://api-direct
+#            - id: api-item
+#              uri: ${ITEM_SERVICE_URI}
+#              order: 1
 #              predicates:
-#                - Path=/api/store/**
-            - id: api-item
-              uri: lb://api-item
-              predicates:
-                - Path=/api/item/**
-#            - id: api-purchase
-#              uri: lb://api-purchase
-#              predicates:
-#                - Path=/api/purchase/**
+#                - Path=/api/item/**
             - id: api-monolith
-              uri: lb://api-monolith
+              uri: ${MONOLITH_SERVICE_URI}
+              order: 1
               predicates:
                 - Path=/api/**
 

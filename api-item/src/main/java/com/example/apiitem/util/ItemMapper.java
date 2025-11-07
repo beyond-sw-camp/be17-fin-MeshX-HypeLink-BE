@@ -3,6 +3,7 @@ package com.example.apiitem.util;
 import com.example.apiitem.item.adaptor.out.jpa.CategoryEntity;
 import com.example.apiitem.item.adaptor.out.jpa.ItemEntity;
 import com.example.apiitem.item.domain.Item;
+import com.example.apiitem.item.domain.ItemImage;
 import com.example.apiitem.item.usecase.port.in.request.CreateItemCommand;
 import com.example.apiitem.item.usecase.port.in.request.kafka.KafkaItemCommand;
 import com.example.apiitem.item.usecase.port.out.response.ItemImageInfoDto;
@@ -14,15 +15,21 @@ import java.util.stream.Collectors;
 
 public class ItemMapper {
     public static Item toDomain(ItemEntity itemEntity) {
+        List<ItemImage> itemImages = itemEntity.getItemImages().stream()
+                .map(ItemImageMapper::toDomain)
+                .toList();
+
         return Item.builder()
                 .id(itemEntity.getId())
                 .itemCode(itemEntity.getItemCode())
+                .category(itemEntity.getCategory().getCategory())
                 .unitPrice(itemEntity.getUnitPrice())
                 .amount(itemEntity.getAmount())
                 .enName(itemEntity.getEnName())
                 .koName(itemEntity.getKoName())
                 .content(itemEntity.getContent())
                 .company(itemEntity.getCompany())
+                .itemImages(itemImages)
                 .build();
     }
 

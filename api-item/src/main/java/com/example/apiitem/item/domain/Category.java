@@ -1,10 +1,11 @@
 package com.example.apiitem.item.domain;
 
-import com.example.apiitem.item.adaptor.out.jpa.CategoryEntity;
+import MeshX.common.Domain;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@Domain
 @Builder
 public class Category {
     private Integer id;

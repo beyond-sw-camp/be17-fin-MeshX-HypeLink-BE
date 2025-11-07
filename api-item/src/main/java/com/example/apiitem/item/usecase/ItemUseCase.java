@@ -138,6 +138,10 @@ public class ItemUseCase implements WebPort {
     }
 
 
+    public String exportS3Url(String imagePath) {
+        return s3UrlBuilder.buildPublicUrl(imagePath);
+    }
+
     private void updateImageIndex(CreateItemImageCommand one) {
         // id로 이미지를 찾도록 변경 (originalFilename으로 찾으면 중복 가능)
         itemImagePersistencePort.updateImageIndex(one);
@@ -146,9 +150,5 @@ public class ItemUseCase implements WebPort {
     private void saveItemImage(CreateItemImageCommand one, Integer itemId) {
         ItemImage entity = ItemImageMapper.toDomain(one);
         itemImagePersistencePort.save(entity, itemId);
-    }
-
-    public String exportS3Url(String imagePath) {
-        return s3UrlBuilder.buildPublicUrl(imagePath);
     }
 }

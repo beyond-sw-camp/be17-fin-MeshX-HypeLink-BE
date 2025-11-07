@@ -1,5 +1,5 @@
-server:
-  port: 8079
+#server:
+#  port: 8079
 
 spring:
   application:
@@ -98,9 +98,19 @@ springdoc:
     config-url: /api/v3/api-docs/swagger-config
 
 eureka:
+  instance:
+    prefer-ip-address: false
+    hostname: hypelink-monolith-svc          # ✅ K8s Service 이름
   client:
     service-url:
-      defaultZone: http://localhost:9090/eureka/
+      defaultZone: ${API_DISCOVERY_SERVICE}
     registerWithEureka: true
     fetchRegistry: true
+
+kafka:
+  topic:
+    item: ${KAFKA_ITEM_TOPIC}
+    category: ${KAFKA_CATEGORY_TOPIC}
+    size: ${KAFKA_SIZE_TOPIC}
+    color: ${KAFKA_COLOR_TOPIC}
 

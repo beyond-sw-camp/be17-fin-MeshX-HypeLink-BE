@@ -1,4 +1,4 @@
-package com.example.apiitem.item.adaptor.out.jpa;
+package MeshX.common;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

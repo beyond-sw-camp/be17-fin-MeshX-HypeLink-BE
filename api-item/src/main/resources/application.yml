@@ -40,6 +40,9 @@ spring:
         spring.json.trusted.packages: "*"
 
 eureka:
+#  instance:
+#    prefer-ip-address: false
+#    hostname: hypelink          # ✅ K8s Service 이름
   client:
     service-url:
       defaultZone: http://localhost:9090/eureka/

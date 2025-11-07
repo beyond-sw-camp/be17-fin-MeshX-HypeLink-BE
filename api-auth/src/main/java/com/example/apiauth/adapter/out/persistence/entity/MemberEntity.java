@@ -1,5 +1,6 @@
 package com.example.apiauth.adapter.out.persistence.entity;
 
+import MeshX.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

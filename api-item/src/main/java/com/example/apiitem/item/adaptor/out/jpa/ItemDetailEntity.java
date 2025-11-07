@@ -1,5 +1,6 @@
 package com.example.apiitem.item.adaptor.out.jpa;
 
+import MeshX.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

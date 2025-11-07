@@ -1,13 +1,13 @@
 package com.example.apiitem.item.domain;
 
+import MeshX.common.Domain;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.awt.*;
-import java.awt.print.Pageable;
 import java.util.List;
 
 @Getter
+@Domain
 @Builder
 public class Item {
     private Integer id;

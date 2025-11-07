@@ -5,8 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
 @Domain
+@Builder
 public class ItemImage {
     private Integer id;
     private Integer itemId;
