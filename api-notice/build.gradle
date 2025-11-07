@@ -1,0 +1,17 @@
+group = 'MeshX'
+version = '0.0.1-SNAPSHOT'
+description = 'api-notice'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // common
+    implementation project(":common")
+    // web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    // db
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+}
