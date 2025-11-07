@@ -13,6 +13,6 @@ eureka:
 management:
   endpoints:
     web:
-      base-path: /api/health    # ✅ actuator의 기본 경로를 변경
+      base-path: /api/health    # actuator의 기본 경로를 변경
       exposure:
         include: health,info    # 노출시킬 엔드포인트 지정

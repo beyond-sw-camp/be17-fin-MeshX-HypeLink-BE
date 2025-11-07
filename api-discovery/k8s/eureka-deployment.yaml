@@ -21,6 +21,7 @@ spec:
         type: eureka
         ver: green
     spec:
+      hostname: hypelink-eureka-svc
       containers:
         - name: container
           image: raccoon98/hypelink-api-eureka:latest

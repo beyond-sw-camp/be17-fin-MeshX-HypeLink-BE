@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: spring-auth-deployment-green
+  name: spring-item-deployment-green
   namespace: hypelink
   annotations: {}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      type: auth
+      type: item
       ver: green
   strategy:
     type: RollingUpdate
@@ -18,20 +18,20 @@ spec:
   template:
     metadata:
       labels:
-        type: auth
+        type: item
         ver: green
     spec:
-      hostname: hypelink-auth-svc
+      hostname: hypelink-item-svc
       containers:
         - name: container
-          image: raccoon98/hypelink-api-auth:latest
+          image: raccoon98/hypelink-api-item:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
               protocol: TCP
           envFrom:
             - configMapRef:
-                name: hypelink-auth-config
+                name: hypelink-item-config
           resources:
             limits:
               cpu: "500m"
@@ -51,7 +51,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: /api/health/test
+              path: /api/health/info
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 10
