@@ -22,6 +22,14 @@ public class WebAdaptor {
 
     }
 
+    @GetMapping("/read/{id}")
+    public ResponseEntity<BaseResponse<NoticeInfoDto>> readNotice(@PathVariable Integer id) {
+         NoticeInfoDto result = webPort.read(id);
+         return ResponseEntity.status(200).body(BaseResponse.of(result));
+
+    }
+
+    
 
 
 }

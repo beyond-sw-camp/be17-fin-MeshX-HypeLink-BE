@@ -14,20 +14,20 @@ public class Notice {
     private String author;
 
 
-    public static Notice from(NoticeSaveCommand noticeSaveCommand) {
-        return Notice.builder()
-                .title(noticeSaveCommand.getTitle())
-                .contents(noticeSaveCommand.getContents())
-                .author(noticeSaveCommand.getAuthor())
-                .build();
+//    public static Notice from(NoticeSaveCommand noticeSaveCommand) {
+//        return Notice.builder()
+//                .title(noticeSaveCommand.getTitle())
+//                .contents(noticeSaveCommand.getContents())
+//                .author(noticeSaveCommand.getAuthor())
+//                .build();
+//
+//    }
 
-    }
-
-    public  NoticeEntity toEntity() {
-        return NoticeEntity.builder()
-                .title(this.title)
-                .contents(this.contents)
-                .author(this.author)
-                .build();
-    }
+//    public  NoticeEntity toEntity() {
+//        return NoticeEntity.builder()
+//                .title(this.title)
+//                .contents(this.contents)
+//                .author(this.author)
+//                .build();
+//    }
 }
