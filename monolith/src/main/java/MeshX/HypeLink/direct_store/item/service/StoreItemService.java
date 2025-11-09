@@ -50,7 +50,6 @@ public class StoreItemService {
     @Transactional
     public void saveAll(SaveStoreItemListReq dto) {
         Store store = storeRepository.findById(dto.getStoreId());
-        log.info("{}", dto.getItems());
 
         dto.getItems().forEach(one -> {
             StoreCategory category = storeCategoryRepository.findByCategory(one.getCategory(), store);
