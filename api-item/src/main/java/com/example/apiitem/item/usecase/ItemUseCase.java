@@ -4,7 +4,7 @@ import MeshX.common.Page.PageRes;
 import MeshX.common.UseCase;
 import MeshX.common.exception.BaseException;
 import com.example.apiitem.item.domain.*;
-import com.example.apiitem.item.usecase.port.in.WebPort;
+import com.example.apiitem.item.usecase.port.in.ItemWebPort;
 import com.example.apiitem.item.usecase.port.in.request.*;
 import com.example.apiitem.item.usecase.port.out.CategoryPersistencePort;
 import com.example.apiitem.item.usecase.port.out.ItemDetailPersistencePort;
@@ -18,14 +18,16 @@ import com.example.apiitem.util.ItemMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @UseCase
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class ItemUseCase implements WebPort {
+public class ItemUseCase implements ItemWebPort {
     private final ItemPersistencePort itemPersistencePort;
     private final CategoryPersistencePort categoryPersistencePort;
     private final ItemImagePersistencePort itemImagePersistencePort;
@@ -56,6 +58,7 @@ public class ItemUseCase implements WebPort {
     }
 
     @Override
+    @Transactional
     public void saveItem(CreateItemCommand command) {
         Item domain = ItemMapper.toDomain(command);
         if(!itemPersistencePort.isExist(domain)) {
@@ -77,42 +80,50 @@ public class ItemUseCase implements WebPort {
     }
 
     @Override
+    @Transactional
     public void updateContents(UpdateItemContentCommand dto) {
         itemPersistencePort.updateContents(dto.getItemId(), dto.getContent());
     }
 
     @Override
+    @Transactional
     public void updateEnName(UpdateItemEnNameCommand dto) {
         itemPersistencePort.updateEnName(dto.getItemId(), dto.getEnName());
     }
 
     @Override
+    @Transactional
     public void updateKoName(UpdateItemKoNameCommand dto) {
         itemPersistencePort.updateKoName(dto.getItemId(), dto.getKoName());
     }
 
     @Override
+    @Transactional
     public void updateAmount(UpdateItemAmountCommand dto) {
         itemPersistencePort.updateAmount(dto.getItemId(), dto.getAmount());
     }
 
     @Override
+    @Transactional
     public void updateUnitPrice(UpdateItemUnitPriceCommand dto) {
         itemPersistencePort.updateUnitPrice(dto.getItemId(), dto.getUnitPrice());
     }
 
     @Override
+    @Transactional
     public void updateCompany(UpdateItemCompanyCommand dto) {
         itemPersistencePort.updateCompany(dto.getItemId(), dto.getCompany());
     }
 
     @Override
+    @Transactional
     public void updateCategory(UpdateItemCategoryCommand dto) {
         Category category = categoryPersistencePort.findByName(dto.getCategory());
         itemPersistencePort.updateCategory(dto.getItemId(), category);
     }
 
     @Override
+    @Transactional
     public void updateImages(UpdateItemImagesCommand dto) {
         Item domain = ItemMapper.toDomain(dto.getItemId());
         Item item = itemPersistencePort.findById(domain);

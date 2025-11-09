@@ -5,7 +5,7 @@ import com.example.apiitem.item.usecase.port.in.request.*;
 import com.example.apiitem.item.usecase.port.out.response.ItemInfoDto;
 import org.springframework.data.domain.Pageable;
 
-public interface WebPort {
+public interface ItemWebPort {
     ItemInfoDto findItemById(Integer id);
     ItemInfoDto findItemsByItemCode(String code);
 

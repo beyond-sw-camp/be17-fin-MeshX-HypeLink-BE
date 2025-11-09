@@ -8,6 +8,8 @@ import com.example.apiitem.item.domain.ItemDetail;
 import com.example.apiitem.item.usecase.port.out.ItemDetailPersistencePort;
 import com.example.apiitem.util.ItemDetailMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +27,7 @@ public class ItemDetailPersistenceAdaptor implements ItemDetailPersistencePort {
         ItemEntity itemEntity = findItemEntityById(entity);
         List<ItemDetailEntity> entities = itemDetails.stream().map(one -> {
             SizeEntity size = findSizeEntityBySize(one);
-            ColorEntity color = findColorEntityBySize(one);
+            ColorEntity color = findColorEntityByName(one);
             return ItemDetailMapper.toEntity(one, color, size, itemEntity);
         }).toList();
 
@@ -42,6 +44,44 @@ public class ItemDetailPersistenceAdaptor implements ItemDetailPersistencePort {
         }).toList();
 
         entities.forEach(itemDetailRepository::upsert);
+    }
+
+    @Override
+    public ItemDetail findById(Integer id) {
+        ItemDetailEntity itemDetailEntity = findItemDetailEntityById(id);
+
+        return ItemDetailMapper.toDomain(itemDetailEntity);
+    }
+
+    @Override
+    public ItemDetail findByItemDetailCode(String detailCode) {
+        ItemDetailEntity itemDetailEntity = findItemDetailEntityByItemDetailCode(detailCode);
+
+        return ItemDetailMapper.toDomain(itemDetailEntity);
+    }
+
+    @Override
+    public List<ItemDetail> findByItemId(Integer id) {
+        List<ItemDetailEntity> itemDetails = itemDetailRepository.findByItem_Id(id);
+        return itemDetails.stream()
+                .map(ItemDetailMapper::toSimpleDomain)
+                .toList();
+    }
+
+    private ItemDetailEntity findItemDetailEntityById(Integer id) {
+        Optional<ItemDetailEntity> optional = itemDetailRepository.findById(id);
+        if(optional.isPresent()) {
+            return optional.get();
+        }
+        throw new BaseException(null);
+    }
+
+    private ItemDetailEntity findItemDetailEntityByItemDetailCode(String itemDetailCode) {
+        Optional<ItemDetailEntity> optional = itemDetailRepository.findByItemDetailCode(itemDetailCode);
+        if(optional.isPresent()) {
+            return optional.get();
+        }
+        throw new BaseException(null);
     }
 
     private SizeEntity findSizeEntity(ItemDetail domain) {
@@ -68,7 +108,7 @@ public class ItemDetailPersistenceAdaptor implements ItemDetailPersistencePort {
         throw new BaseException(null);
     }
 
-    private ColorEntity findColorEntityBySize(ItemDetail domain) {
+    private ColorEntity findColorEntityByName(ItemDetail domain) {
         Optional<ColorEntity> optional = colorRepository.findByColorName(domain.getColorName());
         if(optional.isPresent()) {
             return optional.get();
