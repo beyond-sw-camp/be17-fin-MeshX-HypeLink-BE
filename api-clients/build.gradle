@@ -23,4 +23,7 @@ dependencies {
 
     // Feign Client 인터페이스 정의용 (라이브러리 모듈이므로 Eureka Client 제거)
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+    // Common 모듈 (BaseResponse)
+    implementation project(':common')
 }
