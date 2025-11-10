@@ -1,4 +1,4 @@
-package com.example.apiauth.usecase.port.out.usecase;
+package com.example.apiauth.usecase.port.out.kafka;
 
 import com.example.apiauth.domain.kafka.MemberRegisterEvent;
 

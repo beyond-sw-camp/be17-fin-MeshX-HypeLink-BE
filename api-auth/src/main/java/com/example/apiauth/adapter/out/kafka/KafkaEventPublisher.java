@@ -1,7 +1,7 @@
 package com.example.apiauth.adapter.out.kafka;
 
 import com.example.apiauth.domain.kafka.MemberRegisterEvent;
-import com.example.apiauth.usecase.port.out.usecase.EventPublisherPort;
+import com.example.apiauth.usecase.port.out.kafka.EventPublisherPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;

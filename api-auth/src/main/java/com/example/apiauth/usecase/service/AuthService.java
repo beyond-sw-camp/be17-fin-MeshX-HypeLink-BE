@@ -18,7 +18,7 @@ import com.example.apiauth.usecase.port.in.ReissueTokenCommand;
 import com.example.apiauth.usecase.port.out.external.GeocodingPort;
 import com.example.apiauth.usecase.port.out.persistence.*;
 import com.example.apiauth.usecase.port.out.usecase.AuthUseCase;
-import com.example.apiauth.usecase.port.out.usecase.EventPublisherPort;
+import com.example.apiauth.usecase.port.out.kafka.EventPublisherPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
