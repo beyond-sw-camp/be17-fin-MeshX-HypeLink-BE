@@ -13,6 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 
+import java.util.List;
+
 import static com.example.apinotice.notice.common.exception.NoticeExceptionMessage.NOTICE_NOT_FOUND;
 
 
@@ -40,4 +42,9 @@ public class NoticePersistenceAdaptor implements NoticePersistencePort {
         return entity.map(NoticeMapper::toDomain);
     }
 
+    @Override
+    public List<Notice> findAll(){
+        List<NoticeEntity> entities = noticeRepository.findAll();
+        return entities.stream().map(NoticeMapper::toDomain).toList();
+    }
 }

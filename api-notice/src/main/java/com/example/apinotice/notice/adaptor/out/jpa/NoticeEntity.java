@@ -10,7 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+
 
 @Entity
 @Getter
@@ -24,6 +24,5 @@ public class NoticeEntity extends BaseEntity {
     private String title;
     private String contents;
     private String author;
-//    private LocalDateTime created;
-//    private LocalDateTime updated;
+
 }

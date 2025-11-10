@@ -38,5 +38,13 @@ public class WebAdaptor {
         return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
     }
 
+    @GetMapping("/read/all")
+    public ResponseEntity<BaseResponse<NoticeListInfoDto>> readNotices() {
+        NoticeListInfoDto noticeInfoListDto = webPort.readList();
+        return ResponseEntity.status(200).body(BaseResponse.of(noticeInfoListDto));
+    }
+
+
+
 
 }

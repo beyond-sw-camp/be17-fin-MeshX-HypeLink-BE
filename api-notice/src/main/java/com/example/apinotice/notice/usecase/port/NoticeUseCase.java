@@ -47,5 +47,10 @@ public class NoticeUseCase implements WebPort {
         return PageRes.toDto(dtoPage);
     }
 
+    @Override
+    public NoticeListInfoDto readList(){
+        List<Notice> noticeList = noticePersistencePort.findAll();
+        return NoticeListInfoDto.toDto(noticeList);
+    }
 
 }
