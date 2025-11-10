@@ -40,7 +40,7 @@ public class AuthService implements AuthUseCase {
             throw new AuthException(INVALID_CREDENTIALS);
         }
 
-        AuthTokens authTokens = issueTokens(member.getEmail(), member.getRole().name());
+        AuthTokens authTokens = issueTokens(member.getId(), member.getEmail(), member.getRole().name());
 
         return LoginResDto.builder()
                 .email(member.getEmail())
@@ -55,6 +55,7 @@ public class AuthService implements AuthUseCase {
 
         jwtTokenProvider.validateToken(reissueTokenCommand.getRefreshToken());
 
+        Integer memberId = jwtTokenProvider.getMemberIdFromToken(reissueTokenCommand.getRefreshToken());
         String email = jwtTokenProvider.getEmailFromToken(reissueTokenCommand.getRefreshToken());
         String role = jwtTokenProvider.getRoleFromToken(reissueTokenCommand.getRefreshToken());
 
@@ -65,7 +66,7 @@ public class AuthService implements AuthUseCase {
             throw new TokenException(INVALID_TOKEN);
         }
 
-        return issueTokens(email, role);
+        return issueTokens(memberId, email, role);
     }
 
     @Override
@@ -79,8 +80,8 @@ public class AuthService implements AuthUseCase {
         tokenStorePort.blacklistToken(accessToken, remainingTime);
     }
 
-    private AuthTokens issueTokens(String email, String role) {
-        AuthTokens tokens = jwtTokenProvider.generateTokens(email, role);
+    private AuthTokens issueTokens(Integer memberId, String email, String role) {
+        AuthTokens tokens = jwtTokenProvider.generateTokens(memberId, email, role);
         tokenStorePort.saveRefreshToken(email, tokens.getRefreshToken());
         return tokens;
     }

@@ -14,15 +14,6 @@ import java.util.List;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Autowired(required = false)
-    private GetStoreIdResolver getStoreIdResolver;
-
-    @Autowired(required = false)
-    private GetPosIdResolver getPosIdResolver;
-
-    @Autowired(required = false)
-    private GetDriverIdResolver getDriverIdResolver;
-
     @Bean
     public GetMemberIdResolver getMemberIdResolver() {
         return new GetMemberIdResolver();
@@ -33,36 +24,9 @@ public class WebConfig implements WebMvcConfigurer {
         return new GetMemberEmailResolver();
     }
 
-    @Bean
-    @ConditionalOnBean(AuthApiClient.class)
-    public GetStoreIdResolver getStoreIdResolver(AuthApiClient authApiClient) {
-        return new GetStoreIdResolver(authApiClient);
-    }
-
-    @Bean
-    @ConditionalOnBean(AuthApiClient.class)
-    public GetPosIdResolver getPosIdResolver(AuthApiClient authApiClient) {
-        return new GetPosIdResolver(authApiClient);
-    }
-
-    @Bean
-    @ConditionalOnBean(AuthApiClient.class)
-    public GetDriverIdResolver getDriverIdResolver(AuthApiClient authApiClient) {
-        return new GetDriverIdResolver(authApiClient);
-    }
-
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(getMemberIdResolver());
         resolvers.add(getMemberEmailResolver());
-        if (getStoreIdResolver != null) {
-            resolvers.add(getStoreIdResolver);
-        }
-        if (getPosIdResolver != null) {
-            resolvers.add(getPosIdResolver);
-        }
-        if (getDriverIdResolver != null) {
-            resolvers.add(getDriverIdResolver);
-        }
     }
 }
