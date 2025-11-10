@@ -27,13 +27,13 @@ public class NoticeUseCase implements WebPort {
 
     @Override
     public NoticeInfoDto read(Integer id) {
-        Notice notice = NoticeMapper.toDomain(noticePersistencePort.findById(id));
+        Notice notice = noticePersistencePort.findById(id);
         return NoticeInfoDto.toDto(notice);
-
     }
 
-    @Override
-    public PageRes<NoticeListInfoDto> readList(Pageable pageable) {
-        Notice notice = NoticeMapper.toDomain(noticePersistencePort.find)
-    }
+//    @Override
+//    public PageRes<NoticeListInfoDto> readList(Pageable pageable) {
+//        Notice notice = NoticeMapper.toDomain(noticePersistencePort.findAll(pageable));
+//        return
+//    }
 }

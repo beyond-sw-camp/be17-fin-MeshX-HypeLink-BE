@@ -25,11 +25,11 @@ public class NoticePersistenceAdaptor implements NoticePersistencePort {
     }
 
     @Override
-    public NoticeEntity findById(Integer id) {
+    public Notice findById(Integer id) {
         NoticeEntity entity = noticeRepository.findById(id)
                 .orElseThrow(() -> new NoticeException(NOTICE_NOT_FOUND));
 
-        return entity;
+        return NoticeMapper.toDomain(entity);
     }
 
 }

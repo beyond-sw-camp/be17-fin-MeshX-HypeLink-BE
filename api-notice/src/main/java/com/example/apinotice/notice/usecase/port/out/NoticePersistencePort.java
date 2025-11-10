@@ -7,5 +7,5 @@ import com.example.apinotice.notice.domain.Notice;
 public interface NoticePersistencePort {
     void create(Notice notice);
 
-    NoticeEntity findById(Integer id);
+    Notice findById(Integer id);
 }
