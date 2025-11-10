@@ -10,6 +10,7 @@ import com.example.apiauth.usecase.port.out.persistence.StorePort;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.example.apiauth.common.exception.AuthExceptionMessage.USER_NAME_NOT_FOUND;
 
@@ -39,16 +40,30 @@ public class StoreJpaAdapter implements StorePort {
 
     @Override
     public Store findByMember(MemberEntity member) {
-        return null;
+        StoreEntity storeEntity = storeJpaRepository.findByMember(member)
+                .orElseThrow(() -> new AuthException(USER_NAME_NOT_FOUND));
+
+        return StoreMapper.toDomain(storeEntity);
     }
 
     @Override
     public Store findByStoreId(Integer storeId) {
-        return null;
+        StoreEntity storeEntity = storeJpaRepository.findById(storeId)
+                .orElseThrow(() -> new AuthException(USER_NAME_NOT_FOUND));
+        return StoreMapper.toDomain(storeEntity);
     }
 
     @Override
     public List<Store> findAllWithMember() {
-        return List.of();
+        List<StoreEntity> entities = storeJpaRepository.findAll();
+        return entities.stream()
+                .map(StoreMapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Store save(Store store) {
+        StoreEntity storeEntity = storeJpaRepository.save(StoreMapper.toEntity(store));
+        return StoreMapper.toDomain(storeEntity);
     }
 }

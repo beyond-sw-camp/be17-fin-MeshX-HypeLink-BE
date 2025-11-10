@@ -11,6 +11,7 @@ import com.example.apiauth.usecase.port.out.persistence.PosPort;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
@@ -19,23 +20,42 @@ public class PosJpaAdapter implements PosPort {
     private final PosJpaRepository posJpaRepository;
 
     @Override
+    public Pos save(Pos pos) {
+        PosEntity posEntity = posJpaRepository.save(PosMapper.toEntity(pos));
+        return  PosMapper.toDomain(posEntity);
+    }
+
+    @Override
     public List<Pos> findByStoreIdIn(List<Integer> storeIds) {
-        return List.of();
+        List<PosEntity> entities = posJpaRepository.findByStoreIdIn(storeIds);
+        return entities.stream()
+                .map(PosMapper::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override
     public Pos findByMember(MemberEntity member) {
-        return null;
+        PosEntity pos = posJpaRepository.findByMember(member)
+                .orElseThrow(() -> new AuthException(AuthExceptionMessage.USER_NAME_NOT_FOUND));
+
+        return PosMapper.toDomain(pos);
     }
 
     @Override
     public Pos findByMember_Id(Integer memberId) {
-        return null;
+        PosEntity pos = posJpaRepository.findByMember_Id(memberId)
+                .orElseThrow(() -> new AuthException(AuthExceptionMessage.USER_NAME_NOT_FOUND));
+
+        return PosMapper.toDomain(pos);
+
     }
 
     @Override
     public Pos findByPosId(Integer posid) {
-        return null;
+        PosEntity pos = posJpaRepository.findById(posid)
+                .orElseThrow(() -> new AuthException(AuthExceptionMessage.USER_NAME_NOT_FOUND));
+
+        return PosMapper.toDomain(pos);
     }
 
     @Override

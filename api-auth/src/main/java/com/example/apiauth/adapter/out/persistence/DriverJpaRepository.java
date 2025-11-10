@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface DriverJpaRepository extends JpaRepository<DriverEntity, Integer> {
-    Optional<DriverEntity> findByMember(MemberEntity member);
+    Optional<DriverEntity> findByMember(MemberEntity memberEntity);
     Optional<DriverEntity> findByMember_Id(Integer memberId);
     Optional<DriverEntity> findByMember_Email(String email);
 }

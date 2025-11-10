@@ -10,7 +10,7 @@ public interface MemberPort {
 
     Member findById(Integer id);
 
-    void save(Member member);
+    Member save(Member member);
 
     boolean existsByEmail(String email);
 }

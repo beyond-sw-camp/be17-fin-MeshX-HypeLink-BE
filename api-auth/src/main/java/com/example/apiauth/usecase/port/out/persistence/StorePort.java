@@ -9,9 +9,9 @@ import java.util.List;
 public interface StorePort {
     Store findByMemberId(Integer memberId);
     Store findByMember(MemberEntity member);
-
     Store findByMember_Email(String memberEmail);
-
     Store findByStoreId(Integer storeId);
     List<Store> findAllWithMember();
+
+    Store save(Store store);
 }

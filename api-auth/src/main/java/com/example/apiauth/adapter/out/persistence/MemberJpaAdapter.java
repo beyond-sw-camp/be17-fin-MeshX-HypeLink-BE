@@ -34,12 +34,13 @@ public class MemberJpaAdapter implements MemberPort {
     }
 
     @Override
-    public void save(Member member) {
-        memberJpaRepository.save(MemberMapper.toEntity(member));
+    public Member save(Member member) {
+        MemberEntity memberEntity = memberJpaRepository.save(MemberMapper.toEntity(member));
+        return  MemberMapper.toDomain(memberEntity);
     }
 
     @Override
     public boolean existsByEmail(String email) {
-        return false;
+        return memberJpaRepository.existsByEmail(email);
     }
 }

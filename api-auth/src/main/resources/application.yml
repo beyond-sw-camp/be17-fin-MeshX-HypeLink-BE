@@ -22,22 +22,20 @@ spring:
       host: ${AUTH_REDIS_PORT}
       port: ${AUTH_REDIS_PORT}
 
-  # Kafka 설정
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_IP}
     producer:
+      acks: all
+      retries: 10
+      batch-size: 32768
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      acks: all
-      retries: 3
-    consumer:
-      group-id: auth-service-group
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      auto-offset-reset: earliest
-      enable-auto-commit: false
-    listener:
-      ack-mode: manual
+      properties:
+        enable.idempotence: true
+        linger.ms: 5
+        max.in.flight.requests.per.connection: 5
+        delivery.timeout.ms: 120000
+        spring.json.type.mapping: memberRegisterEvent:com.example.apiauth.domain.kafka.MemberRegisterEvent
 
 # JWT 설정
 jwt:

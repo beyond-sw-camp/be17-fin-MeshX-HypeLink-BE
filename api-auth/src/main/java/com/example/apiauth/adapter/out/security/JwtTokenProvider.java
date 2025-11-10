@@ -112,24 +112,4 @@ public class JwtTokenProvider {
 
         return builder.compact();
     }
-
-    public Authentication getAuthentication(String token) {
-        try {
-            Claims claims = parseClaims(token);
-
-            Object authoritiesClaim = claims.get(AUTHORITIES_KEY);
-            if (authoritiesClaim == null) {
-                throw new TokenException(TokenExceptionMessage.INVALID_TOKEN);
-            }
-
-            Collection<? extends GrantedAuthority> authorities = Arrays.stream(authoritiesClaim.toString().split(","))
-                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                    .collect(Collectors.toList());
-
-            UserDetails principal = new User(claims.getSubject(), "", authorities);
-            return new UsernamePasswordAuthenticationToken(principal, "", authorities);
-        } catch (ExpiredJwtException e) {
-            throw new TokenException(TokenExceptionMessage.EXPIRED_TOKEN);
-        }
-    }
 }
