@@ -30,21 +30,7 @@ import java.util.UUID;
 
 import static MeshX.HypeLink.direct_store.payment.exception.PaymentExceptionMessage.*;
 
-// TODO: [도메인 책임 분리] PaymentService가 CustomerReceipt 생성을 직접 담당
-// TODO: 현재 구조:
-//  - Payment 도메인에서 CustomerReceipt와 OrderItem 생성
-//  - 결제 검증 후 즉시 영수증 생성 (동기 처리)
-//
-// TODO: 실제 배포 시 고려 사항:
-//  [옵션 1] Event-Driven 패턴
-//    - PaymentService: 검증 후 PaymentValidatedEvent 발행
-//    - ReceiptService: 이벤트 리스닝 후 영수증 생성
-//    - 비동기 처리로 각 도메인 독립성 확보
-//
-//  [옵션 2] Facade 패턴
-//    - PaymentReceiptFacade 서비스 생성
-//    - PaymentService.validate() + ReceiptService.create() 조합
-//    - 트랜잭션 경계를 Facade에서 관리
+
 @Slf4j
 @Service
 @Transactional(readOnly = true)
@@ -239,23 +225,14 @@ public class PaymentService {
 
 
     private Integer calculateExpectedAmount(ReceiptCreateReq orderData) {
-        // TODO: [보안 취약점] 프론트에서 받은 금액을 그대로 사용 중 (프로토타입용)
-        // TODO: 실제 배포 시 반드시 DB에서 상품 실제 가격 조회 후 서버에서 계산해야 함!
-        // TODO: 예시 코드:
-        //  Integer totalAmount = 0;
-        //  for (ReceiptItemDto item : orderData.getItems()) {
-        //      Product product = productRepository.findById(item.getProductId())
-        //          .orElseThrow(() -> new ProductNotFoundException());
-        //      totalAmount += product.getPrice() * item.getQuantity();
-        //  }
+
 
         //  총 상품 금액 계산 (현재: 프론트가 보낸 subtotal을 그대로 신뢰)
         Integer totalAmount = orderData.getItems().stream()
                 .mapToInt(ReceiptItemDto::getSubtotal)
                 .sum();
 
-        // TODO: [보안 취약점] 쿠폰도 DB에서 검증 필요
-        // TODO: 쿠폰: 쿠폰 ID로 DB 조회 후 실제 할인 금액 확인, 유효기간/사용여부 검증
+
 
         //  최종 결제 금액 계산 (총액 - 쿠폰)
         Integer finalAmount = totalAmount

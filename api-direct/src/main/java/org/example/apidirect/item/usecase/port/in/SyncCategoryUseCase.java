@@ -1,7 +1,7 @@
 package org.example.apidirect.item.usecase.port.in;
 
-import java.util.List;
+import org.example.apidirect.item.usecase.port.in.command.SyncCategoryCommand;
 
 public interface SyncCategoryUseCase {
-    void syncCategories(List<String> categories);
+    void syncCategories(SyncCategoryCommand command);
 }
