@@ -35,7 +35,7 @@ public class ItemKafkaAdaptor {
                 log.warn("⚠️ Unknown Kafka message type: {}", type);
             }
         } catch (Exception e) {
-            log.error("❌ Kafka 메시지 파싱 실패", e);
+            log.error("Kafka 메시지 파싱 실패", e);
         }
     }
 

@@ -16,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +24,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ItemSyncKafkaService {
+public class KafkaItemSyncService {
     @Value("${kafka.topic.item}")
     private String itemTopic;
     @Value("${kafka.topic.color}")

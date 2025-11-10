@@ -41,7 +41,7 @@ public class Item extends BaseEntity {
     @Builder
     private Item(Category category, List<ItemDetail> itemDetails, List<ItemImage> itemImages, Integer unitPrice,
                  Integer amount, String enName, String koName, String content, String company,
-                 String itemCode) {
+                 String itemCode, Integer id) {
         this.category = category;
         this.itemDetails = itemDetails;
         this.itemImages = itemImages;
@@ -52,6 +52,7 @@ public class Item extends BaseEntity {
         this.content = content;
         this.company = company;
         this.itemCode = itemCode;
+        this.id = id;
     }
 
     public void updateEnName(String enName) {

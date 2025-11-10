@@ -12,10 +12,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<ItemEntity, Integer> {
-    @EntityGraph(attributePaths = {"category", "itemDetails", "itemImages"})
+    @EntityGraph(attributePaths = {"category", "itemDetails"})
     Optional<ItemEntity> findById(Integer id);
 
+    @EntityGraph(attributePaths = {"category", "itemDetails"})
     Optional<ItemEntity> findByItemCode(String itemCode);
+
     @Query("""
         SELECT DISTINCT i
         FROM ItemEntity i

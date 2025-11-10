@@ -33,4 +33,7 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     // Spring Kafka
     implementation("org.springframework.kafka:spring-kafka")
+    // openfeign
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
 }

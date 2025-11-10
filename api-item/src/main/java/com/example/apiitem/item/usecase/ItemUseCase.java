@@ -6,10 +6,7 @@ import MeshX.common.exception.BaseException;
 import com.example.apiitem.item.domain.*;
 import com.example.apiitem.item.usecase.port.in.ItemWebPort;
 import com.example.apiitem.item.usecase.port.in.request.*;
-import com.example.apiitem.item.usecase.port.out.CategoryPersistencePort;
-import com.example.apiitem.item.usecase.port.out.ItemDetailPersistencePort;
-import com.example.apiitem.item.usecase.port.out.ItemImagePersistencePort;
-import com.example.apiitem.item.usecase.port.out.ItemPersistencePort;
+import com.example.apiitem.item.usecase.port.out.*;
 import com.example.apiitem.item.usecase.port.out.response.ItemInfoDto;
 import com.example.apiitem.item.usecase.util.S3UrlBuilder;
 import com.example.apiitem.util.ItemDetailMapper;
@@ -32,6 +29,7 @@ public class ItemUseCase implements ItemWebPort {
     private final CategoryPersistencePort categoryPersistencePort;
     private final ItemImagePersistencePort itemImagePersistencePort;
     private final ItemDetailPersistencePort itemDetailPersistencePort;
+    private final ItemFeignPort itemFeignPort;
 
     private final S3UrlBuilder s3UrlBuilder;
 
@@ -62,7 +60,8 @@ public class ItemUseCase implements ItemWebPort {
     public void saveItem(CreateItemCommand command) {
         Item domain = ItemMapper.toDomain(command);
         if(!itemPersistencePort.isExist(domain)) {
-            Item saveItem = itemPersistencePort.save(domain);
+            itemPersistencePort.save(domain);
+            Item saveItem = itemPersistencePort.findByItemCode(domain);
 
             command.getItemImages().forEach(one -> {
                 saveItemImage(one, saveItem.getId());
@@ -70,13 +69,10 @@ public class ItemUseCase implements ItemWebPort {
 
             saveItemDetails(command, saveItem);
         }
-    }
+        Item saveItem = itemPersistencePort.findByItemCode(domain);
 
-    private void saveItemDetails(CreateItemCommand dto, Item entity) {
-        List<ItemDetail> itemDetails = dto.getItemDetailList()
-                .stream().map(ItemDetailMapper::toDomain).toList();
-
-        itemDetailPersistencePort.saveAll(itemDetails, entity);
+        // monolith 서버에 저장 로직 실행(ID값도 같게 실행)
+        itemFeignPort.saveItem(saveItem, command);
     }
 
     @Override
@@ -148,9 +144,15 @@ public class ItemUseCase implements ItemWebPort {
         });
     }
 
-
     public String exportS3Url(String imagePath) {
         return s3UrlBuilder.buildPublicUrl(imagePath);
+    }
+
+    private void saveItemDetails(CreateItemCommand dto, Item entity) {
+        List<ItemDetail> itemDetails = dto.getItemDetailList()
+                .stream().map(ItemDetailMapper::toDomain).toList();
+
+        itemDetailPersistencePort.saveAll(itemDetails, entity);
     }
 
     private void updateImageIndex(CreateItemImageCommand one) {
@@ -161,5 +163,6 @@ public class ItemUseCase implements ItemWebPort {
     private void saveItemImage(CreateItemImageCommand one, Integer itemId) {
         ItemImage entity = ItemImageMapper.toDomain(one);
         itemImagePersistencePort.save(entity, itemId);
+
     }
 }

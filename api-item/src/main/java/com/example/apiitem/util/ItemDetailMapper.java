@@ -1,5 +1,6 @@
 package com.example.apiitem.util;
 
+import com.example.apiitem.item.adaptor.out.feign.dto.SaveItemDetailReq;
 import com.example.apiitem.item.adaptor.out.jpa.ColorEntity;
 import com.example.apiitem.item.adaptor.out.jpa.ItemDetailEntity;
 import com.example.apiitem.item.adaptor.out.jpa.ItemEntity;
@@ -131,6 +132,16 @@ public class ItemDetailMapper {
                 .color(domain.getColorName())
                 .colorCode(domain.getColorCode())
                 .itemDetailCode(domain.getItemDetailCode())
+                .size(domain.getSize())
+                .build();
+    }
+
+    public static SaveItemDetailReq toFeignDto(ItemDetail domain) {
+        return SaveItemDetailReq.builder()
+                .id(domain.getId())
+                .itemDetailCode(domain.getItemDetailCode())
+                .color(domain.getColorName())
+                .stock(domain.getStock())
                 .size(domain.getSize())
                 .build();
     }

@@ -54,6 +54,12 @@ public class ItemController {
         return ResponseEntity.status(200).body(BaseResponse.of("result"));
     }
 
+    @PostMapping("/save")
+    public ResponseEntity<BaseResponse<String>> saveItem(@RequestBody SaveItemReq dto) {
+        itemService.saveItem(dto);
+        return ResponseEntity.status(200).body(BaseResponse.of("동기화가 완료되었습니다."));
+    }
+
     @PatchMapping("/content")
     public ResponseEntity<BaseResponse<String>> updateContents(@RequestBody UpdateItemContentReq dto) {
         itemService.updateContents(dto);

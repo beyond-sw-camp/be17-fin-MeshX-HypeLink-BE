@@ -1,22 +1,35 @@
 package com.example.apiitem.util;
 
+import com.example.apiitem.item.adaptor.out.feign.dto.SaveItemDetailReq;
+import com.example.apiitem.item.adaptor.out.feign.dto.SaveItemReq;
 import com.example.apiitem.item.adaptor.out.jpa.CategoryEntity;
 import com.example.apiitem.item.adaptor.out.jpa.ItemEntity;
 import com.example.apiitem.item.domain.Item;
+import com.example.apiitem.item.domain.ItemDetail;
 import com.example.apiitem.item.domain.ItemImage;
 import com.example.apiitem.item.usecase.port.in.request.CreateItemCommand;
 import com.example.apiitem.item.usecase.port.in.request.kafka.KafkaItemCommand;
 import com.example.apiitem.item.usecase.port.out.response.ItemImageInfoDto;
 import com.example.apiitem.item.usecase.port.out.response.ItemInfoDto;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ItemMapper {
     public static Item toDomain(ItemEntity itemEntity) {
-        List<ItemImage> itemImages = itemEntity.getItemImages().stream()
+        List<ItemImage> itemImages = Optional.ofNullable(itemEntity.getItemImages())
+                .orElse(Collections.emptyList()) // null이면 빈 리스트
+                .stream()
                 .map(ItemImageMapper::toDomain)
+                .toList();
+
+        List<ItemDetail> itemDetails = Optional.ofNullable(itemEntity.getItemDetails())
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(ItemDetailMapper::toDomain)
                 .toList();
 
         return Item.builder()
@@ -29,7 +42,9 @@ public class ItemMapper {
                 .koName(itemEntity.getKoName())
                 .content(itemEntity.getContent())
                 .company(itemEntity.getCompany())
+
                 .itemImages(itemImages)
+                .itemDetails(itemDetails)
                 .build();
     }
 
@@ -109,6 +124,20 @@ public class ItemMapper {
                 .company(item.getCompany())
                 .itemCode(item.getItemCode())
                 .images(imageDtos)
+                .build();
+    }
+
+    public static SaveItemReq toFeignDto(Item item, List<SaveItemDetailReq> itemDetailReqs) {
+        return SaveItemReq.builder()
+                .id(item.getId())
+                .enName(item.getEnName())
+                .koName(item.getKoName())
+                .amount(item.getAmount())
+                .unitPrice(item.getUnitPrice())
+                .category(item.getCategory())
+                .itemCode(item.getItemCode())
+                .company(item.getCompany())
+                .itemDetailList(itemDetailReqs)
                 .build();
     }
 }

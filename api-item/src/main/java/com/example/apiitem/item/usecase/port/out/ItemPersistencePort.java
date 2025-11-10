@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface ItemPersistencePort {
-    Item save(Item item);
+    void save(Item item);
     Item saveWithCategoryId(Item item);
 
     Item findById(Item domain);

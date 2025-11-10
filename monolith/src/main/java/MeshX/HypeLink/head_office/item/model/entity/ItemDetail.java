@@ -33,12 +33,13 @@ public class ItemDetail extends BaseEntity {
 
     @Builder
     private ItemDetail(Color color, Size size, String itemDetailCode, Integer stock,
-                       Item item) {
+                       Item item, Integer id) {
         this.color = color;
         this.size = size;
         this.itemDetailCode = itemDetailCode;
         this.stock = stock;
         this.item = item;
+        this.id = id;
     }
 
     public void updateStock(Integer stock){

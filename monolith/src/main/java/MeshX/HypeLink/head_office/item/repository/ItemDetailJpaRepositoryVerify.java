@@ -41,6 +41,10 @@ public class ItemDetailJpaRepositoryVerify {
         repository.saveAll(entities);
     }
 
+    public void saveAllWithId(List<ItemDetail> entities) {
+        entities.forEach(repository::upsert);
+    }
+
     public ItemDetail findById(Integer id) {
         Optional<ItemDetail> optional = repository.findById(id);
         if(optional.isPresent()) {

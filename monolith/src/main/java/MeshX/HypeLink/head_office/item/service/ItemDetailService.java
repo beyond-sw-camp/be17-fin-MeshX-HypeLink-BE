@@ -2,6 +2,7 @@ package MeshX.HypeLink.head_office.item.service;
 
 import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.head_office.item.model.dto.request.CreateItemDetailsReq;
+import MeshX.HypeLink.head_office.item.model.dto.request.SaveItemDetailsReq;
 import MeshX.HypeLink.head_office.item.model.dto.response.ItemDetailsInfoListRes;
 import MeshX.HypeLink.head_office.item.model.dto.response.ItemAndItemDetailInfoRes;
 import MeshX.HypeLink.head_office.item.model.entity.Item;
@@ -47,13 +48,32 @@ public class ItemDetailService {
     }
 
     @Transactional
-    public void saveItemDetails(CreateItemDetailsReq dto) {
+    public void createItemDetails(CreateItemDetailsReq dto) {
         Item item = itemRepository.findById(dto.getItemId());
         List<ItemDetail> itemDetails = toEntitiesByItemDetails(dto, item);
         itemDetailRepository.saveAll(itemDetails);
     }
 
+    @Transactional
+    public void saveItemDetails(SaveItemDetailsReq dto) {
+        Item item = itemRepository.findById(dto.getItemId());
+        List<ItemDetail> itemDetails = toEntitiesByItemDetails(dto, item);
+        itemDetailRepository.saveAllWithId(itemDetails);
+    }
+
     private List<ItemDetail> toEntitiesByItemDetails(CreateItemDetailsReq dto, Item item) {
+        return dto.getDetails().stream().map(one -> ItemDetail.builder()
+                        .item(item)
+                        .stock(one.getStock())
+                        .color(colorRepository.findByName(one.getColor()))
+                        .size(sizeRepository.findByName(one.getSize()))
+                        .itemDetailCode(one.getItemDetailCode())
+                        .build()
+                )
+                .toList();
+    }
+
+    private List<ItemDetail> toEntitiesByItemDetails(SaveItemDetailsReq dto, Item item) {
         return dto.getDetails().stream().map(one -> ItemDetail.builder()
                         .item(item)
                         .stock(one.getStock())

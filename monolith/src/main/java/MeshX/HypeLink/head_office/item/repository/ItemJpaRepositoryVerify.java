@@ -32,6 +32,10 @@ public class ItemJpaRepositoryVerify {
         return repository.save(entity);
     }
 
+    public void saveWithId(Item entity) {
+        repository.upsert(entity);
+    }
+
     public void merge(Item entity) {
         repository.save(entity);
     }

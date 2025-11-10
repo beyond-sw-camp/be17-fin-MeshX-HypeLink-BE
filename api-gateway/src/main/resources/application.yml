@@ -1,7 +1,7 @@
 eureka:
-  instance:
-    prefer-ip-address: false
-    hostname: hypelink-gateway-svc          # ✅ K8s Service 이름
+#  instance:
+#    prefer-ip-address: false
+#    hostname: hypelink-gateway-svc          # K8s Service 이름
   client:
     service-url:
       defaultZone: ${API_DISCOVERY_SERVICE}
@@ -32,14 +32,14 @@ spring:
       server:
         webflux:
           routes:
-#            - id: api-item
-#              uri: ${ITEM_SERVICE_URI}
-#              order: 1
-#              predicates:
-#                - Path=/api/item/**
+            - id: api-item
+              uri: ${ITEM_SERVICE_URI}
+              order: 1
+              predicates:
+                - Path=/api/item/**
             - id: api-monolith
               uri: ${MONOLITH_SERVICE_URI}
-              order: 1
+              order: 2
               predicates:
                 - Path=/api/**
 

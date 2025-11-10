@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @RequiredArgsConstructor
 public class SyncInitializer {
-    private final ItemSyncKafkaService kafkaService;
+    private final KafkaItemSyncService kafkaService;
 
     @Bean
     public ApplicationRunner runSyncOnceAfterStartup() {

@@ -49,13 +49,11 @@ public class ItemPersistenceAdaptor implements ItemPersistencePort {
     }
 
     @Override
-    public Item save(Item item) {
+    public void save(Item item) {
         CategoryEntity category = findCategoryByCategoryName(item.getCategory());
         ItemEntity entity = ItemMapper.toEntity(category, item);
 
-        ItemEntity save = itemRepository.save(entity);
-
-        return ItemMapper.toDomain(save);
+        itemRepository.save(entity);
     }
 
     @Override

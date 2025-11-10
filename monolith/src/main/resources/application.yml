@@ -1,9 +1,9 @@
-#server:
-#  port: 8079
+server:
+  port: 8079
 
 spring:
   application:
-    name: HypeLink
+    name: api-monolith
 
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
@@ -98,9 +98,9 @@ springdoc:
     config-url: /api/v3/api-docs/swagger-config
 
 eureka:
-  instance:
-    prefer-ip-address: false
-    hostname: hypelink-monolith-svc          # ✅ K8s Service 이름
+#  instance:
+#    prefer-ip-address: false
+#    hostname: api-monolith # hypelink-monolith-svc          # K8s Service 이름
   client:
     service-url:
       defaultZone: ${API_DISCOVERY_SERVICE}

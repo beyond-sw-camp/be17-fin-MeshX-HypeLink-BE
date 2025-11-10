@@ -45,6 +45,10 @@ eureka:
 #    hostname: hypelink          # ✅ K8s Service 이름
   client:
     service-url:
-      defaultZone: http://localhost:9090/eureka/
+      defaultZone: ${API_DISCOVERY_SERVICE}
     registerWithEureka: true
     fetchRegistry: true
+
+feign:
+  item: ${FEIGN_MONOLITH_ITEM_URL}
+  item_detail: ${FEIGN_MONOLITH_ITEM_DETAIL_URL}
