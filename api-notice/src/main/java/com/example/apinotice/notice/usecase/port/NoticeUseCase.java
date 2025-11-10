@@ -11,6 +11,7 @@ import com.example.apinotice.notice.usecase.port.out.NoticePersistencePort;
 import com.example.apinotice.notice.usecase.port.out.response.NoticeInfoDto;
 import com.example.apinotice.notice.usecase.port.out.response.NoticeListInfoDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 @UseCase
@@ -33,8 +34,10 @@ public class NoticeUseCase implements WebPort {
 
     @Override
     public PageRes<NoticeListInfoDto> readList(Pageable pageable) {
-        Notice notice = noticePersistencePort.findAll(pageable));
-        return PageRes.toDto(notice);
+        Page<Notice> notice = noticePersistencePort.findAll(pageable));
+        Page<NoticeListInfoDto> page = notice.map(NoticeListInfoDto::toDto);
+        return PageRes.toDto(page);
     }
+
 
 }

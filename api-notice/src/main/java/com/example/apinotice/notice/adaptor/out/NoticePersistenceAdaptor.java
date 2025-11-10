@@ -9,6 +9,8 @@ import com.example.apinotice.notice.common.exception.NoticeException;
 import com.example.apinotice.notice.domain.Notice;
 import com.example.apinotice.notice.usecase.port.out.NoticePersistencePort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 
 import static com.example.apinotice.notice.common.exception.NoticeExceptionMessage.NOTICE_NOT_FOUND;
@@ -30,6 +32,12 @@ public class NoticePersistenceAdaptor implements NoticePersistencePort {
                 .orElseThrow(() -> new NoticeException(NOTICE_NOT_FOUND));
 
         return NoticeMapper.toDomain(entity);
+    }
+
+    @Override
+    public Page<Notice> findAll(Pageable pageable){
+        Page<NoticeEntity> entity = noticeRepository.findAll(pageable);
+        return entity.map(NoticeMapper::toDomain);
     }
 
 }

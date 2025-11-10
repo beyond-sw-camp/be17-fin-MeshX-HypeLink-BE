@@ -1,28 +1,27 @@
 package com.example.apinotice.notice.usecase.port.out.response;
 
 
+import com.example.apinotice.notice.domain.Notice;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
 
 @Getter
+@Builder
 public class NoticeListInfoDto {
-    private final List<NoticeListInfoDto> notices;
+    private List<NoticeInfoDto> notices;
 
+    public static NoticeListInfoDto toDto(List<Notice> domainList) {
+        List<NoticeInfoDto> dtoList = domainList.stream()
+                .map(NoticeInfoDto::toDto)
+                .toList();
 
-//    public static NoticeListInfoDto toDto(List<Notice> domain) {
-//        return NoticeListInfoDto.builder()
-//                .notices(domain.stream()
-//                        .map(NoticeListInfoDto::toDto)
-//                        .collect(Collectors.toList())
-//                )
-//                .build();
-//    }
-
-    @Builder
-    private NoticeListInfoDto(List<NoticeListInfoDto> notices) {
-        this.notices = notices;
+        return NoticeListInfoDto.builder()
+                .notices(dtoList)
+                .build();
     }
 }
+
