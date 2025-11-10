@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Getter
@@ -17,7 +18,7 @@ public class NoticeListInfoDto {
     public static NoticeListInfoDto toDto(List<Notice> domainList) {
         List<NoticeInfoDto> dtoList = domainList.stream()
                 .map(NoticeInfoDto::toDto)
-                .toList();
+                .collect(Collectors.toList());
 
         return NoticeListInfoDto.builder()
                 .notices(dtoList)

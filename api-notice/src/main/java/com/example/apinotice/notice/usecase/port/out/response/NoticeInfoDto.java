@@ -1,6 +1,5 @@
 package com.example.apinotice.notice.usecase.port.out.response;
 
-import com.example.apinotice.notice.adaptor.out.jpa.NoticeEntity;
 import com.example.apinotice.notice.domain.Notice;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,6 +11,7 @@ public class NoticeInfoDto {
     private String title;
     private String contents;
     private String author;
+
 
     public static NoticeInfoDto toDto(Notice notice) {
         return NoticeInfoDto.builder()

@@ -11,5 +11,5 @@ public interface NoticePersistencePort {
 
     Notice findById(Integer id);
 
-    Page<Notice> finaAll(Pageable pageable);
+    Page<Notice> findAll(Pageable pageable);
 }
