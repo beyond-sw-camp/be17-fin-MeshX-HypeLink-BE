@@ -32,11 +32,11 @@ public class WebAdaptor {
 
     }
 
-//    @GetMapping("/read/page/all")
-//    public ResponseEntity<BaseResponse<PageRes<NoticeListInfoDto>>> readNotices(Pageable pageable) {
-//        PageRes<NoticeListInfoDto> pageRes = webPort.readList(pageable);
-//        return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
-//    }
+    @GetMapping("/read/page/all")
+    public ResponseEntity<BaseResponse<PageRes<NoticeListInfoDto>>> readNotices(Pageable pageable) {
+        PageRes<NoticeListInfoDto> pageRes = webPort.readList(pageable);
+        return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
+    }
 
 
 }

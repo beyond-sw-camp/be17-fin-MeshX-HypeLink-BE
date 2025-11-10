@@ -11,5 +11,5 @@ public interface WebPort {
 
     NoticeInfoDto read(Integer id);
 
-//    PageRes<NoticeListInfoDto> readList(Pageable pageable);
+    PageRes<NoticeListInfoDto> readList(Pageable pageable);
 }
