@@ -2,7 +2,10 @@ package org.example.apidirect.item.adapter.out.persistence;
 
 import MeshX.common.PersistenceAdapter;
 import lombok.RequiredArgsConstructor;
+import org.example.apidirect.item.adapter.out.entity.ColorEntity;
+import org.example.apidirect.item.adapter.out.entity.SizeEntity;
 import org.example.apidirect.item.adapter.out.entity.StoreItemDetailEntity;
+import org.example.apidirect.item.adapter.out.entity.StoreItemEntity;
 import org.example.apidirect.item.adapter.out.mapper.ItemDetailMapper;
 import org.example.apidirect.item.domain.StoreItemDetail;
 import org.example.apidirect.item.usecase.port.out.ItemDetailPersistencePort;
@@ -17,13 +20,24 @@ public class ItemDetailPersistenceAdaptor implements ItemDetailPersistencePort {
 
     private final StoreItemDetailRepository itemDetailRepository;
     private final StoreItemRepository itemRepository;
+    private final ColorRepository colorRepository;
+    private final SizeRepository sizeRepository;
 
     @Override
     public StoreItemDetail save(StoreItemDetail detail) {
-        var item = itemRepository.findByItemCode(detail.getItemDetailCode())
+        // ItemCode에서 Item 조회
+        StoreItemEntity item = itemRepository.findByItemCode(detail.getItemDetailCode())
                 .orElseThrow(() -> new RuntimeException("Item not found"));
 
-        StoreItemDetailEntity entity = ItemDetailMapper.toEntity(detail, item);
+        // ColorId로 Color 조회
+        ColorEntity color = colorRepository.findById(detail.getColorId())
+                .orElseThrow(() -> new RuntimeException("Color not found: " + detail.getColorId()));
+
+        // SizeId로 Size 조회
+        SizeEntity size = sizeRepository.findById(detail.getSizeId())
+                .orElseThrow(() -> new RuntimeException("Size not found: " + detail.getSizeId()));
+
+        StoreItemDetailEntity entity = ItemDetailMapper.toEntity(detail, color, size, item);
         StoreItemDetailEntity saved = itemDetailRepository.save(entity);
         return ItemDetailMapper.toDomain(saved);
     }

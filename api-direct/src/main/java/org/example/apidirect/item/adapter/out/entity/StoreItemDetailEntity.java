@@ -19,9 +19,13 @@ public class StoreItemDetailEntity extends BaseEntity {
     @Column(nullable = false)
     private String itemDetailCode;
 
-    private String color;
-    private String colorCode;
-    private String size;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "color_id")
+    private ColorEntity color;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "size_id")
+    private SizeEntity size;
 
     @Column(nullable = false)
     private Integer stock;
@@ -32,11 +36,10 @@ public class StoreItemDetailEntity extends BaseEntity {
 
     @Builder
     private StoreItemDetailEntity(String itemDetailCode,
-                                 String color, String colorCode, String size,
+                                 ColorEntity color, SizeEntity size,
                                  Integer stock, StoreItemEntity item) {
         this.itemDetailCode = itemDetailCode;
         this.color = color;
-        this.colorCode = colorCode;
         this.size = size;
         this.stock = stock;
         this.item = item;
