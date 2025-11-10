@@ -25,26 +25,32 @@ public class ItemService implements ItemQueryUseCase, ItemCommandUseCase {
     private final ItemPersistencePort itemPersistencePort;
 
     @Override
-    public Page<StoreItemDetailResponse> findItemsByStoreId(Integer storeId, Pageable pageable) {
-        Page<StoreItemDetail> details = itemDetailQueryPort.findByStoreId(storeId, pageable);
+    public Page<StoreItemDetailResponse> findAllItems(Pageable pageable) {
+        Page<StoreItemDetail> details = itemDetailQueryPort.findAll(pageable);
         return details.map(this::toResponse);
     }
 
     @Override
-    public Page<StoreItemDetailResponse> searchItems(Integer storeId, String keyword, Pageable pageable) {
-        Page<StoreItemDetail> details = itemDetailQueryPort.findByStoreIdAndKeyword(storeId, keyword, pageable);
+    public Page<StoreItemDetailResponse> searchItems(String keyword, Pageable pageable) {
+        Page<StoreItemDetail> details;
+        if (keyword == null || keyword.isBlank()){
+            details = itemDetailQueryPort.findAll(pageable);
+        }
+        else{
+            details  = itemDetailQueryPort.findByKeyword(keyword, pageable);
+        }
         return details.map(this::toResponse);
     }
 
     @Override
-    public Page<StoreItemDetailResponse> findItemsByCategory(Integer storeId, String category, Pageable pageable) {
-        Page<StoreItemDetail> details = itemDetailQueryPort.findByStoreIdAndCategory(storeId, category, pageable);
+    public Page<StoreItemDetailResponse> findItemsByCategory(String category, Pageable pageable) {
+        Page<StoreItemDetail> details = itemDetailQueryPort.findByCategory(category, pageable);
         return details.map(this::toResponse);
     }
 
     @Override
-    public Page<StoreItemDetailResponse> findLowStockItems(Integer storeId, Integer minStock, Pageable pageable) {
-        Page<StoreItemDetail> details = itemDetailQueryPort.findByStoreIdAndLowStock(storeId, minStock, pageable);
+    public Page<StoreItemDetailResponse> findLowStockItems(Integer minStock, Pageable pageable) {
+        Page<StoreItemDetail> details = itemDetailQueryPort.findByLowStock(minStock, pageable);
         return details.map(this::toResponse);
     }
 
@@ -70,7 +76,7 @@ public class ItemService implements ItemQueryUseCase, ItemCommandUseCase {
         var item = itemPersistencePort.findByItemCode(detail.getItemCode())
                 .orElseThrow(() -> new ItemException(ItemExceptionMessage.NOT_FOUND));
 
-        return StoreItemDetailResponse.from(
+        return StoreItemDetailResponse.toResponse(
                 detail,
                 item.getKoName(),
                 item.getCategory(),

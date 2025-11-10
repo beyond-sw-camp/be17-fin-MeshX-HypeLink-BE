@@ -8,6 +8,7 @@ import org.example.apidirect.item.domain.Color;
 import org.example.apidirect.item.usecase.port.out.ColorPersistencePort;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @PersistenceAdapter
@@ -23,5 +24,18 @@ public class ColorPersistenceAdaptor implements ColorPersistencePort {
                 .collect(Collectors.toList());
 
         colorRepository.saveAll(entities);
+    }
+
+    @Override
+    public Optional<Color> findById(Integer id) {
+        return colorRepository.findById(id)
+                .map(ColorMapper::toDomain);
+    }
+
+    @Override
+    public List<Color> findAll() {
+        return colorRepository.findAll().stream()
+                .map(ColorMapper::toDomain)
+                .collect(Collectors.toList());
     }
 }

@@ -3,6 +3,7 @@ package org.example.apidirect.item.adapter.out.mapper;
 import org.example.apidirect.item.adapter.out.entity.StoreItemEntity;
 import org.example.apidirect.item.adapter.out.entity.StoreItemImageEntity;
 import org.example.apidirect.item.domain.StoreItemImage;
+import org.example.apidirect.item.usecase.port.in.request.kafka.KafkaItemImageCommand;
 
 public class ItemImageMapper {
 
@@ -16,6 +17,18 @@ public class ItemImageMapper {
                 .savedPath(entity.getSavedPath())
                 .contentType(entity.getContentType())
                 .fileSize(entity.getFileSize())
+                .build();
+    }
+
+    public static StoreItemImage toDomain(KafkaItemImageCommand command) {
+        if (command == null) return null;
+
+        return StoreItemImage.builder()
+                .sortIndex(command.getSortIndex())
+                .originalFilename(command.getOriginalFilename())
+                .savedPath(command.getSavedPath())
+                .contentType(command.getContentType())
+                .fileSize(command.getFileSize())
                 .build();
     }
 

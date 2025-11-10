@@ -1,16 +1,16 @@
 package org.example.apidirect.item.usecase.port.in;
 
-import org.example.apidirect.item.adapter.in.kafka.dto.KafkaCategoryList;
-import org.example.apidirect.item.adapter.in.kafka.dto.KafkaColorList;
-import org.example.apidirect.item.adapter.in.kafka.dto.KafkaItemDto;
-import org.example.apidirect.item.adapter.in.kafka.dto.KafkaSizeList;
+import org.example.apidirect.item.usecase.port.in.request.kafka.KafkaCategoryListCommand;
+import org.example.apidirect.item.usecase.port.in.request.kafka.KafkaColorListCommand;
+import org.example.apidirect.item.usecase.port.in.request.kafka.KafkaItemCommand;
+import org.example.apidirect.item.usecase.port.in.request.kafka.KafkaSizeListCommand;
 
 public interface KafkaPort {
-    void saveItem(KafkaItemDto dto);
+    void saveItem(KafkaItemCommand command);
 
-    void saveCategories(KafkaCategoryList dto);
+    void saveCategories(KafkaCategoryListCommand command);
 
-    void saveColors(KafkaColorList dto);
+    void saveColors(KafkaColorListCommand command);
 
-    void saveSizes(KafkaSizeList dto);
+    void saveSizes(KafkaSizeListCommand command);
 }

@@ -22,52 +22,34 @@ public class ItemWebAdapter {
 
 
     @GetMapping("/list")
-    public ResponseEntity<Page<StoreItemDetailResponse>> getItemList(
-            @RequestParam Integer storeId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50") int size) {
-
-        Pageable pageable = PageRequest.of(page, size);
-        Page<StoreItemDetailResponse> result = itemQueryUseCase.findItemsByStoreId(storeId, pageable);
+    public ResponseEntity<Page<StoreItemDetailResponse>> getItemList(Pageable pageable) {
+        Page<StoreItemDetailResponse> result = itemQueryUseCase.findAllItems(pageable);
         return ResponseEntity.ok(result);
     }
 
-
     @GetMapping("/search")
     public ResponseEntity<Page<StoreItemDetailResponse>> searchItems(
-            @RequestParam Integer storeId,
-            @RequestParam String keyword,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50") int size) {
-
-        Pageable pageable = PageRequest.of(page, size);
-        Page<StoreItemDetailResponse> result = itemQueryUseCase.searchItems(storeId, keyword, pageable);
+            @RequestParam(required = false) String keyword,
+            Pageable pageable) {
+        Page<StoreItemDetailResponse> result = itemQueryUseCase.searchItems(keyword, pageable);
         return ResponseEntity.ok(result);
     }
 
 
     @GetMapping("/category")
     public ResponseEntity<Page<StoreItemDetailResponse>> getItemsByCategory(
-            @RequestParam Integer storeId,
             @RequestParam String category,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50") int size) {
-
-        Pageable pageable = PageRequest.of(page, size);
-        Page<StoreItemDetailResponse> result = itemQueryUseCase.findItemsByCategory(storeId, category, pageable);
+            Pageable pageable) {
+        Page<StoreItemDetailResponse> result = itemQueryUseCase.findItemsByCategory(category, pageable);
         return ResponseEntity.ok(result);
     }
 
 
     @GetMapping("/low-stock")
     public ResponseEntity<Page<StoreItemDetailResponse>> getLowStockItems(
-            @RequestParam Integer storeId,
             @RequestParam(defaultValue = "10") Integer minStock,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50") int size) {
-
-        Pageable pageable = PageRequest.of(page, size);
-        Page<StoreItemDetailResponse> result = itemQueryUseCase.findLowStockItems(storeId, minStock, pageable);
+            Pageable pageable) {
+        Page<StoreItemDetailResponse> result = itemQueryUseCase.findLowStockItems(minStock, pageable);
         return ResponseEntity.ok(result);
     }
 
@@ -84,5 +66,4 @@ public class ItemWebAdapter {
         itemCommandUseCase.updateStock(request.getItemDetailCode(), request.getUpdateStock());
         return ResponseEntity.ok("재고 업데이트가 성공했습니다.");
     }
-
 }

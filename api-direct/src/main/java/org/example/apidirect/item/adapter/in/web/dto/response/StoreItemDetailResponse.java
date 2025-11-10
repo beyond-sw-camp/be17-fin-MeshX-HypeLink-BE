@@ -19,7 +19,7 @@ public class StoreItemDetailResponse {
     private String category;
     private String itemCode;
 
-    public static StoreItemDetailResponse from(StoreItemDetail detail, String koName, String category, Integer price) {
+    public static StoreItemDetailResponse toResponse(StoreItemDetail detail, String koName, String category, Integer price) {
         String productName = koName + " " + detail.getColor() + "/" + detail.getSize();
 
         return StoreItemDetailResponse.builder()
