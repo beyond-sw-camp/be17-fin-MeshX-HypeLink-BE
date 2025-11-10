@@ -14,6 +14,18 @@ public class Notice {
     private String author;
 
 
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
+    public void updateContents(String contents) {
+        this.contents = contents;
+    }
+
+    public void updateAuthor(String author) {
+        this.author = author;
+    }
+
 //    public static Notice from(NoticeSaveCommand noticeSaveCommand) {
 //        return Notice.builder()
 //                .title(noticeSaveCommand.getTitle())

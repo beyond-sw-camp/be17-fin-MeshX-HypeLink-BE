@@ -15,4 +15,6 @@ public interface NoticePersistencePort {
     Page<Notice> findAll(Pageable pageable);
 
     List<Notice> findAll();
+
+    Notice update(Notice notice);
 }

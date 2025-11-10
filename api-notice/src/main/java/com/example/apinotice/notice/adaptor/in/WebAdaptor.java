@@ -5,6 +5,7 @@ import MeshX.common.Page.PageRes;
 import MeshX.common.WebAdapter;
 import com.example.apinotice.notice.usecase.port.in.WebPort;
 import com.example.apinotice.notice.usecase.port.in.request.NoticeSaveCommand;
+import com.example.apinotice.notice.usecase.port.in.request.NoticeUpdateCommand;
 import com.example.apinotice.notice.usecase.port.out.response.NoticeInfoDto;
 import com.example.apinotice.notice.usecase.port.out.response.NoticeListInfoDto;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,15 @@ public class WebAdaptor {
         NoticeListInfoDto noticeInfoListDto = webPort.readList();
         return ResponseEntity.status(200).body(BaseResponse.of(noticeInfoListDto));
     }
+
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<BaseResponse<NoticeInfoDto>> updateNotice(
+            @PathVariable Integer id,
+            @RequestBody NoticeUpdateCommand updatecommand) {
+        NoticeInfoDto noticeInfoDto = webPort.update(id, updatecommand);
+        return ResponseEntity.status(200).body(BaseResponse.of(noticeInfoDto));
+    }
+
 
 
 

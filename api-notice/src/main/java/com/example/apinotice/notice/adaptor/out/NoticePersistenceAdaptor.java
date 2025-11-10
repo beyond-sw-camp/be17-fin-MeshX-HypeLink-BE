@@ -47,4 +47,11 @@ public class NoticePersistenceAdaptor implements NoticePersistencePort {
         List<NoticeEntity> entities = noticeRepository.findAll();
         return entities.stream().map(NoticeMapper::toDomain).toList();
     }
+
+    @Override
+    public Notice update(Notice notice) {
+        NoticeEntity entity = NoticeMapper.toEntity(notice);
+        NoticeEntity saved = noticeRepository.save(entity);
+        return NoticeMapper.toDomain(saved);
+    }
 }

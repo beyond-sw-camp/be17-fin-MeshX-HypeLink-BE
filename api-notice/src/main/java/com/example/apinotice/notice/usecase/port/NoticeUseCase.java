@@ -7,6 +7,7 @@ import com.example.apinotice.notice.adaptor.out.mapper.NoticeMapper;
 import com.example.apinotice.notice.domain.Notice;
 import com.example.apinotice.notice.usecase.port.in.WebPort;
 import com.example.apinotice.notice.usecase.port.in.request.NoticeSaveCommand;
+import com.example.apinotice.notice.usecase.port.in.request.NoticeUpdateCommand;
 import com.example.apinotice.notice.usecase.port.out.NoticePersistencePort;
 import com.example.apinotice.notice.usecase.port.out.response.NoticeInfoDto;
 import com.example.apinotice.notice.usecase.port.out.response.NoticeListInfoDto;
@@ -51,6 +52,24 @@ public class NoticeUseCase implements WebPort {
     public NoticeListInfoDto readList(){
         List<Notice> noticeList = noticePersistencePort.findAll();
         return NoticeListInfoDto.toDto(noticeList);
+    }
+
+    @Override
+    public NoticeInfoDto update(Integer id, NoticeUpdateCommand  noticeUpdateCommand) {
+        Notice notice = noticePersistencePort.findById(id);
+        if (noticeUpdateCommand.getTitle() != null && !noticeUpdateCommand.getTitle().isBlank()) {
+            notice.updateTitle(noticeUpdateCommand.getTitle());
+        }
+        if (noticeUpdateCommand.getContents() != null && !noticeUpdateCommand.getContents().isBlank()) {
+            notice.updateContents(noticeUpdateCommand.getContents());
+        }
+        if (noticeUpdateCommand.getAuthor() != null && !noticeUpdateCommand.getAuthor().isBlank()) {
+            notice.updateAuthor(noticeUpdateCommand.getAuthor());
+        }
+
+
+        Notice updated = noticePersistencePort.update(notice);
+        return NoticeInfoDto.toDto(updated);
     }
 
 }
