@@ -9,4 +9,5 @@ public class NoticeUpdateCommand {
     private String title;
     private String contents;
     private String author;
+    private Boolean isOpen;
 }

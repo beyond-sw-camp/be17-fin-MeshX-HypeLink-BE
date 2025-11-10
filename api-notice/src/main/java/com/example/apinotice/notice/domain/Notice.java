@@ -5,6 +5,8 @@ import com.example.apinotice.notice.usecase.port.in.request.NoticeSaveCommand;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 public class Notice {
@@ -12,6 +14,9 @@ public class Notice {
     private String title;
     private String contents;
     private String author;
+    private Boolean isOpen;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
 
     public void updateTitle(String title) {
@@ -25,21 +30,8 @@ public class Notice {
     public void updateAuthor(String author) {
         this.author = author;
     }
+    public void changeOpen() {
+        this.isOpen = true;
+    }
 
-//    public static Notice from(NoticeSaveCommand noticeSaveCommand) {
-//        return Notice.builder()
-//                .title(noticeSaveCommand.getTitle())
-//                .contents(noticeSaveCommand.getContents())
-//                .author(noticeSaveCommand.getAuthor())
-//                .build();
-//
-//    }
-
-//    public  NoticeEntity toEntity() {
-//        return NoticeEntity.builder()
-//                .title(this.title)
-//                .contents(this.contents)
-//                .author(this.author)
-//                .build();
-//    }
 }

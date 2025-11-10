@@ -67,6 +67,10 @@ public class NoticeUseCase implements WebPort {
             notice.updateAuthor(noticeUpdateCommand.getAuthor());
         }
 
+        if (noticeUpdateCommand.getIsOpen() != null) {
+            notice.changeOpen();
+        }
+
 
         Notice updated = noticePersistencePort.update(notice);
         return NoticeInfoDto.toDto(updated);

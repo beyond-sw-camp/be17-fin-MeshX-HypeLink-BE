@@ -13,6 +13,7 @@ public class NoticeMapper {
                .title(notice.getTitle())
                .contents(notice.getContents())
                .author(notice.getAuthor())
+               .isOpen(notice.getIsOpen())
                .build();
     }
 
@@ -22,6 +23,9 @@ public class NoticeMapper {
                 .title(noticeEntity.getTitle())
                 .contents((noticeEntity.getContents()))
                 .author(noticeEntity.getAuthor())
+                .isOpen(noticeEntity.getIsOpen())
+                .createdAt(noticeEntity.getCreatedAt())   // BaseEntity 에서 상속
+                .updatedAt(noticeEntity.getUpdatedAt())   // BaseEntity 에서 상속
                 .build();
     }
 
@@ -30,6 +34,7 @@ public class NoticeMapper {
                 .title(command.getTitle())
                 .contents((command.getContents()))
                 .author(command.getAuthor())
+                .isOpen(false)
                 .build();
     }
 }

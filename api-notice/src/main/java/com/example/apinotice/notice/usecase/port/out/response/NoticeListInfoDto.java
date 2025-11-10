@@ -4,7 +4,7 @@ package com.example.apinotice.notice.usecase.port.out.response;
 import com.example.apinotice.notice.domain.Notice;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+
 
 import java.util.List;
 import java.util.stream.Collectors;

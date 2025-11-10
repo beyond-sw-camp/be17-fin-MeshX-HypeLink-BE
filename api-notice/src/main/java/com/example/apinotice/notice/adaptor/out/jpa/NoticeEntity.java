@@ -24,5 +24,5 @@ public class NoticeEntity extends BaseEntity {
     private String title;
     private String contents;
     private String author;
-
+    private Boolean isOpen;
 }
