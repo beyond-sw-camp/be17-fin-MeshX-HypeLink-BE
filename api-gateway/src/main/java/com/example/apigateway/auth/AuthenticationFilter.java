@@ -58,13 +58,18 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 return exchange.getResponse().setComplete();
             }
 
-            // 5. email, role 추출
-            String email = jwtTokenProvider.getEmailFromToken(token);
-            String role = jwtTokenProvider.getRoleFromToken(token);
+            // 5. 블랙리스트 체크
+            return isTokenBlacklisted(token)
+                    .flatMap(isBlacklisted -> {
+                        if (isBlacklisted) {
+                            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                            return exchange.getResponse().setComplete();
+                        }
 
-            // 6. email → memberId 변환
-            return getMemberIdFromEmail(email)
-                    .flatMap(memberId -> {
+                        // 6. JWT에서 memberId, email, role 추출
+                        Integer memberId = jwtTokenProvider.getMemberIdFromToken(token);
+                        String email = jwtTokenProvider.getEmailFromToken(token);
+                        String role = jwtTokenProvider.getRoleFromToken(token);
 
                         // 7. 헤더 추가
                         ServerHttpRequest request = exchange.getRequest().mutate()
@@ -81,6 +86,13 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     });
         };
 
+    }
+
+    private Mono<Boolean> isTokenBlacklisted(String token) {
+        String redisKey = "blacklist:" + token;
+        return redisTemplate.opsForValue().get(redisKey)
+                .map(value -> "logout".equals(value))
+                .defaultIfEmpty(false);
     }
 
     private Mono<Integer> getMemberIdFromEmail(String email) {

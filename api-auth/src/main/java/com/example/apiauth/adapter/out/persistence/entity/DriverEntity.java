@@ -1,14 +1,13 @@
 package com.example.apiauth.adapter.out.persistence.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
 @Table(name = "Driver")
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class DriverEntity {
     @Id
@@ -22,12 +21,11 @@ public class DriverEntity {
     @JoinColumn(name = "member_id")
     private MemberEntity member;
 
-    @Builder
-    private DriverEntity(String macAddress, String carNumber, MemberEntity member) {
-        this.macAddress = macAddress;
-        this.carNumber = carNumber;
-        this.member = member;
-    }
+//    private DriverEntity(String macAddress, String carNumber, MemberEntity member) {
+//        this.macAddress = macAddress;
+//        this.carNumber = carNumber;
+//        this.member = member;
+//    }
 
     public void updateMacAddress(String macAddress) {
         this.macAddress = macAddress;

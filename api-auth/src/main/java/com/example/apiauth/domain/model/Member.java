@@ -1,9 +1,9 @@
 package com.example.apiauth.domain.model;
 
+import com.example.apiauth.domain.model.value.MemberRole;
+import com.example.apiauth.domain.model.value.Region;
 import lombok.Builder;
 import lombok.Getter;
-import com.example.apiauth.adapter.out.persistence.entity.MemberRole;
-import com.example.apiauth.adapter.out.persistence.entity.Region;
 
 @Getter
 @Builder
@@ -18,7 +18,5 @@ public class Member {
     private MemberRole role;
     private Region region;
     private String refreshToken;
-
-
 
 }

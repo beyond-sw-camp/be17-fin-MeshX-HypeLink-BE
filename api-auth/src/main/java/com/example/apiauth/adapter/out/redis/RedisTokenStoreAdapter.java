@@ -16,6 +16,8 @@ public class RedisTokenStoreAdapter implements TokenStorePort {
 
     // 리프레시 토큰의 키는 "RT:" 접두사를 붙여 구분
     private static final String REFRESH_TOKEN_KEY_PREFIX = "RT:";
+    // 블랙리스트 토큰의 키는 "blacklist:" 접두사를 붙여 구분
+    private static final String BLACKLIST_PREFIX = "blacklist:";
 
     public RedisTokenStoreAdapter(RedisTemplate<String, String> redisTemplate, @Value("${jwt.refresh-token-expiration-ms}") long refreshTokenExpirationMs) {
         this.redisTemplate = redisTemplate;
@@ -44,13 +46,8 @@ public class RedisTokenStoreAdapter implements TokenStorePort {
     @Override
     public void blacklistToken(String token, Duration timeToLive) {
         if (timeToLive.toSeconds() > 0) {
-            redisTemplate.opsForValue().set(token, "logout", timeToLive.toSeconds(), TimeUnit.SECONDS);
+            String redisKey = BLACKLIST_PREFIX + token;
+            redisTemplate.opsForValue().set(redisKey, "logout", timeToLive.toSeconds(), TimeUnit.SECONDS);
         }
-    }
-
-    @Override
-    public boolean isBlacklisted(String token) {
-        // 키(토큰)가 존재하는지 여부로 블랙리스트 포함 확인
-        return Boolean.TRUE.equals(redisTemplate.hasKey(token));
     }
 }
