@@ -1,4 +1,4 @@
-package org.example.apidirect.item.adapter.in.kafka.dto;
+package org.example.apidirect.item.usecase.port.in.request.kafka;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class KafkaItemDto {
+public class KafkaItemCommand {
     private Integer id;
     private Integer category;
     private String itemCode;
@@ -22,6 +22,6 @@ public class KafkaItemDto {
     private String content;
     private String company;
 
-    private List<KafkaItemImageDto> itemImages;
-    private List<KafkaItemDetailDto> itemDetails;
+    private List<KafkaItemImageCommand> itemImages;
+    private List<KafkaItemDetailCommand> itemDetails;
 }

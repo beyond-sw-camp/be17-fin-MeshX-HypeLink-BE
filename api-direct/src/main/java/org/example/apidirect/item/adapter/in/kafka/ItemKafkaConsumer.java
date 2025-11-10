@@ -2,8 +2,9 @@ package org.example.apidirect.item.adapter.in.kafka;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.apidirect.item.adapter.in.kafka.dto.*;
+import org.example.apidirect.item.adapter.in.kafka.dto.KafkaEnvelope;
 import org.example.apidirect.item.usecase.port.in.KafkaPort;
+import org.example.apidirect.item.usecase.port.in.request.kafka.*;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -15,14 +16,14 @@ public class ItemKafkaConsumer {
     private final KafkaPort kafkaPort;
 
     @KafkaListener(topics = "items.sync.1", groupId = "${spring.kafka.consumer.group-id}")
-    public void consumeItem(KafkaEnvelope<KafkaItemDto> envelope) {
+    public void consumeItem(KafkaEnvelope<KafkaItemCommand> envelope) {
         try {
             if (!"ITEM".equals(envelope.getType())) {
                 return;
             }
 
-            KafkaItemDto payload = envelope.getPayload();
-            kafkaPort.saveItem(payload);
+            KafkaItemCommand command = envelope.getPayload();
+            kafkaPort.saveItem(command);
 
         } catch (Exception e) {
             log.error("[KAFKA] Item sync failed: {}", e.getMessage(), e);
@@ -30,14 +31,14 @@ public class ItemKafkaConsumer {
     }
 
     @KafkaListener(topics = "category.sync.1", groupId = "${spring.kafka.consumer.group-id}")
-    public void consumeCategory(KafkaEnvelope<KafkaCategoryList> envelope) {
+    public void consumeCategory(KafkaEnvelope<KafkaCategoryListCommand> envelope) {
         try {
             if (!"CATEGORY".equals(envelope.getType())) {
                 return;
             }
 
-            KafkaCategoryList payload = envelope.getPayload();
-            kafkaPort.saveCategories(payload);
+            KafkaCategoryListCommand command = envelope.getPayload();
+            kafkaPort.saveCategories(command);
 
         } catch (Exception e) {
             log.error("[KAFKA] Category sync failed: {}", e.getMessage(), e);
@@ -45,14 +46,14 @@ public class ItemKafkaConsumer {
     }
 
     @KafkaListener(topics = "color.sync.1", groupId = "${spring.kafka.consumer.group-id}")
-    public void consumeColor(KafkaEnvelope<KafkaColorList> envelope) {
+    public void consumeColor(KafkaEnvelope<KafkaColorListCommand> envelope) {
         try {
             if (!"COLOR".equals(envelope.getType())) {
                 return;
             }
 
-            KafkaColorList payload = envelope.getPayload();
-            kafkaPort.saveColors(payload);
+            KafkaColorListCommand command = envelope.getPayload();
+            kafkaPort.saveColors(command);
 
         } catch (Exception e) {
             log.error("[KAFKA] Color sync failed: {}", e.getMessage(), e);
@@ -60,14 +61,14 @@ public class ItemKafkaConsumer {
     }
 
     @KafkaListener(topics = "size.sync.1", groupId = "${spring.kafka.consumer.group-id}")
-    public void consumeSize(KafkaEnvelope<KafkaSizeList> envelope) {
+    public void consumeSize(KafkaEnvelope<KafkaSizeListCommand> envelope) {
         try {
             if (!"SIZE".equals(envelope.getType())) {
                 return;
             }
 
-            KafkaSizeList payload = envelope.getPayload();
-            kafkaPort.saveSizes(payload);
+            KafkaSizeListCommand command = envelope.getPayload();
+            kafkaPort.saveSizes(command);
 
         } catch (Exception e) {
             log.error("[KAFKA] Size sync failed: {}", e.getMessage(), e);

@@ -10,11 +10,12 @@ public class StoreMapper {
 
         return Store.builder()
                 .id(entity.getId())
-                .storeName(entity.getStoreName())
-                .storeCode(entity.getStoreCode())
-                .address(entity.getAddress())
-                .phone(entity.getPhone())
-                .businessNumber(entity.getBusinessNumber())
+                .lat(entity.getLat())
+                .lon(entity.getLon())
+                .posCount(entity.getPosCount())
+                .storeNumber(entity.getStoreNumber())
+                .storeState(entity.getStoreState())
+                .memberId(entity.getMemberId())
                 .build();
     }
 
@@ -23,11 +24,12 @@ public class StoreMapper {
 
         return StoreEntity.builder()
                 .id(domain.getId())
-                .storeName(domain.getStoreName())
-                .storeCode(domain.getStoreCode())
-                .address(domain.getAddress())
-                .phone(domain.getPhone())
-                .businessNumber(domain.getBusinessNumber())
+                .lat(domain.getLat())
+                .lon(domain.getLon())
+                .posCount(domain.getPosCount())
+                .storeNumber(domain.getStoreNumber())
+                .storeState(domain.getStoreState())
+                .memberId(domain.getMemberId())
                 .build();
     }
 }

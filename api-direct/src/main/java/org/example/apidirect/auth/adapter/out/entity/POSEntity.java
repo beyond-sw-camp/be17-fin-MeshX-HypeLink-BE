@@ -18,6 +18,7 @@ public class POSEntity {
     @Column(unique = true, nullable = false)
     private String posCode;
 
+
     @Column(nullable = false)
     private Integer storeId;
 

@@ -2,8 +2,6 @@ package org.example.apidirect.item.adapter.out.persistence;
 
 import MeshX.common.PersistenceAdapter;
 import lombok.RequiredArgsConstructor;
-import org.example.apidirect.item.adapter.out.entity.ColorEntity;
-import org.example.apidirect.item.adapter.out.entity.SizeEntity;
 import org.example.apidirect.item.adapter.out.entity.StoreItemDetailEntity;
 import org.example.apidirect.item.adapter.out.entity.StoreItemEntity;
 import org.example.apidirect.item.adapter.out.mapper.ItemDetailMapper;
@@ -20,8 +18,6 @@ public class ItemDetailPersistenceAdaptor implements ItemDetailPersistencePort {
 
     private final StoreItemDetailRepository itemDetailRepository;
     private final StoreItemRepository itemRepository;
-    private final ColorRepository colorRepository;
-    private final SizeRepository sizeRepository;
 
     @Override
     public StoreItemDetail save(StoreItemDetail detail) {
@@ -29,15 +25,14 @@ public class ItemDetailPersistenceAdaptor implements ItemDetailPersistencePort {
         StoreItemEntity item = itemRepository.findByItemCode(detail.getItemDetailCode())
                 .orElseThrow(() -> new RuntimeException("Item not found"));
 
-        // ColorId로 Color 조회
-        ColorEntity color = colorRepository.findById(detail.getColorId())
-                .orElseThrow(() -> new RuntimeException("Color not found: " + detail.getColorId()));
+        // ID만 사용해서 Entity 생성 (다른 도메인 Repository 접근 제거)
+        StoreItemDetailEntity entity = ItemDetailMapper.toEntityWithIds(
+                detail,
+                detail.getColorId(),
+                detail.getSizeId(),
+                item
+        );
 
-        // SizeId로 Size 조회
-        SizeEntity size = sizeRepository.findById(detail.getSizeId())
-                .orElseThrow(() -> new RuntimeException("Size not found: " + detail.getSizeId()));
-
-        StoreItemDetailEntity entity = ItemDetailMapper.toEntity(detail, color, size, item);
         StoreItemDetailEntity saved = itemDetailRepository.save(entity);
         return ItemDetailMapper.toDomain(saved);
     }

@@ -2,7 +2,9 @@ package org.example.apidirect.item.adapter.out.mapper;
 
 import org.example.apidirect.item.adapter.out.entity.StoreItemEntity;
 import org.example.apidirect.item.domain.StoreItem;
+import org.example.apidirect.item.usecase.port.in.request.kafka.KafkaItemCommand;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ItemMapper {
@@ -26,6 +28,27 @@ public class ItemMapper {
                 .itemImages(entity.getItemImages().stream()
                         .map(ItemImageMapper::toDomain)
                         .collect(Collectors.toList()))
+                .build();
+    }
+
+    public static StoreItem toDomain(KafkaItemCommand command) {
+        if (command == null) return null;
+
+        return StoreItem.builder()
+                .itemCode(command.getItemCode())
+                .unitPrice(command.getUnitPrice())
+                .amount(command.getAmount())
+                .enName(command.getEnName())
+                .koName(command.getKoName())
+                .content(command.getContent())
+                .company(command.getCompany())
+                .category(String.valueOf(command.getCategory()))
+                .itemDetails(command.getItemDetails() != null ? command.getItemDetails().stream()
+                        .map(ItemDetailMapper::toDomain)
+                        .collect(Collectors.toList()) : List.of())
+                .itemImages(command.getItemImages() != null ? command.getItemImages().stream()
+                        .map(ItemImageMapper::toDomain)
+                        .collect(Collectors.toList()) : List.of())
                 .build();
     }
 

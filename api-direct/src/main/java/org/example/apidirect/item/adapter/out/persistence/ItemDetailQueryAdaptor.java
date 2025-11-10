@@ -17,26 +17,26 @@ public class ItemDetailQueryAdaptor implements ItemDetailQueryPort {
     private final StoreItemDetailRepository repository;
 
     @Override
-    public Page<StoreItemDetail> findByStoreId(Integer storeId, Pageable pageable) {
-        return repository.findByStoreId(storeId, pageable)
+    public Page<StoreItemDetail> findByKeyword(String keyword, Pageable pageable) {
+        return repository.findByKeyword(keyword, pageable)
                 .map(ItemDetailMapper::toDomain);
     }
 
     @Override
-    public Page<StoreItemDetail> findByStoreIdAndKeyword(Integer storeId, String keyword, Pageable pageable) {
-        return repository.findByStoreIdAndKeyword(storeId, keyword, pageable)
+    public Page<StoreItemDetail> findAll(Pageable pageable) {
+        return repository.findAll(pageable)
                 .map(ItemDetailMapper::toDomain);
     }
 
     @Override
-    public Page<StoreItemDetail> findByStoreIdAndCategory(Integer storeId, String category, Pageable pageable) {
-        return repository.findByStoreIdAndCategory(storeId, category, pageable)
+    public Page<StoreItemDetail> findByCategory(String category, Pageable pageable) {
+        return repository.findByCategory(category, pageable)
                 .map(ItemDetailMapper::toDomain);
     }
 
     @Override
-    public Page<StoreItemDetail> findByStoreIdAndLowStock(Integer storeId, Integer minStock, Pageable pageable) {
-        return repository.findByStoreIdAndLowStock(storeId, minStock, pageable)
+    public Page<StoreItemDetail> findByLowStock(Integer minStock, Pageable pageable) {
+        return repository.findByLowStock(minStock, pageable)
                 .map(ItemDetailMapper::toDomain);
     }
 

@@ -1,4 +1,4 @@
-package org.example.apidirect.item.adapter.in.kafka.dto;
+package org.example.apidirect.item.usecase.port.in.request.kafka;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class KafkaItemDetailDto {
+public class KafkaItemDetailCommand {
     private Integer id;
     private Integer colorId;
     private Integer sizeId;

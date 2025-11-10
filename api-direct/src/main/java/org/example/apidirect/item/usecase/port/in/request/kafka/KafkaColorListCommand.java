@@ -1,4 +1,4 @@
-package org.example.apidirect.item.adapter.in.kafka.dto;
+package org.example.apidirect.item.usecase.port.in.request.kafka;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +11,6 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class KafkaCategoryList {
-    private List<KafkaCategory> categories;
+public class KafkaColorListCommand {
+    private List<KafkaColorCommand> colors;
 }

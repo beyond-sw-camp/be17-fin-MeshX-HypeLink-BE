@@ -12,26 +12,55 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StoreEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false)
-    private String storeName;
+    private Double lat;
+    private Double lon;
+    private Integer posCount;
 
     @Column(unique = true)
-    private String storeCode;
+    private String storeNumber;
 
-    private String address;
-    private String phone;
-    private String businessNumber;
+    @Column(nullable = false)
+    private String storeState;
+
+    @Column(name = "member_id")
+    private Integer memberId;
 
     @Builder
-    private StoreEntity(Integer id, String storeName, String storeCode,
-                       String address, String phone, String businessNumber) {
+    private StoreEntity(Integer id, Double lat, Double lon, Integer posCount,
+                       String storeNumber, String storeState, Integer memberId) {
         this.id = id;
-        this.storeName = storeName;
-        this.storeCode = storeCode;
-        this.address = address;
-        this.phone = phone;
-        this.businessNumber = businessNumber;
+        this.lat = lat;
+        this.lon = lon;
+        this.posCount = posCount;
+        this.storeNumber = storeNumber;
+        this.storeState = storeState != null ? storeState : "TEMP_CLOSED";
+        this.memberId = memberId;
+    }
+
+    public void increasePosCount() {
+        this.posCount++;
+    }
+
+    public void decreasePosCount() {
+        this.posCount--;
+    }
+
+    public void updateStoreNumber(String storeNumber) {
+        this.storeNumber = storeNumber;
+    }
+
+    public void updateLat(Double lat) {
+        this.lat = lat;
+    }
+
+    public void updateLon(Double lon) {
+        this.lon = lon;
+    }
+
+    public void updateStoreState(String storeState) {
+        this.storeState = storeState;
     }
 }

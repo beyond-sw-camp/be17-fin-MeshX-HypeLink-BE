@@ -1,4 +1,4 @@
-package org.example.apidirect.item.adapter.in.kafka.dto;
+package org.example.apidirect.item.usecase.port.in.request.kafka;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class KafkaColor {
+public class KafkaCategoryCommand {
     private Integer id;
-    private String colorName;
-    private String colorCode;
+    private String category;
 }

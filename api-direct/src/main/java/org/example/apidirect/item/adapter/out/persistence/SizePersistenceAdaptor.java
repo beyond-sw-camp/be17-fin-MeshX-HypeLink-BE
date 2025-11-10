@@ -8,6 +8,7 @@ import org.example.apidirect.item.domain.Size;
 import org.example.apidirect.item.usecase.port.out.SizePersistencePort;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @PersistenceAdapter
@@ -23,5 +24,18 @@ public class SizePersistenceAdaptor implements SizePersistencePort {
                 .collect(Collectors.toList());
 
         sizeRepository.saveAll(entities);
+    }
+
+    @Override
+    public Optional<Size> findById(Integer id) {
+        return sizeRepository.findById(id)
+                .map(SizeMapper::toDomain);
+    }
+
+    @Override
+    public List<Size> findAll() {
+        return sizeRepository.findAll().stream()
+                .map(SizeMapper::toDomain)
+                .collect(Collectors.toList());
     }
 }
