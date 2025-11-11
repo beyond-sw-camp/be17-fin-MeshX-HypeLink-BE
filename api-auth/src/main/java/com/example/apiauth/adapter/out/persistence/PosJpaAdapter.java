@@ -47,7 +47,6 @@ public class PosJpaAdapter implements PosPort {
                 .orElseThrow(() -> new AuthException(AuthExceptionMessage.USER_NAME_NOT_FOUND));
 
         return PosMapper.toDomain(pos);
-
     }
 
     @Override
@@ -64,5 +63,10 @@ public class PosJpaAdapter implements PosPort {
                 .orElseThrow( () -> new AuthException(AuthExceptionMessage.USER_NAME_NOT_FOUND));
 
         return PosMapper.toDomain(pos);
+    }
+
+    @Override
+    public void delete(Integer id) {
+        posJpaRepository.deleteById(id);
     }
 }

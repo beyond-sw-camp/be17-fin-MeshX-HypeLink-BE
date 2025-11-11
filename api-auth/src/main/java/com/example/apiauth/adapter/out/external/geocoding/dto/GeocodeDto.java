@@ -1,7 +1,9 @@
 package com.example.apiauth.adapter.out.external.geocoding.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 
+@Builder
 public class GeocodeDto {
     @JsonProperty("x")
     private String lon;

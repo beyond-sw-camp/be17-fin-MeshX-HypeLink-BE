@@ -9,6 +9,9 @@ import com.example.apiauth.domain.model.Store;
 import com.example.apiauth.usecase.port.out.persistence.StorePort;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,8 +65,19 @@ public class StoreJpaAdapter implements StorePort {
     }
 
     @Override
+    public Page<Store> findAll(Pageable pageable, String keyWord, String status) {
+        Page<StoreEntity> entities = storeJpaRepository.findAll(pageable, keyWord, status);
+        return entities.map(StoreMapper::toDomain);
+    }
+
+    @Override
     public Store save(Store store) {
         StoreEntity storeEntity = storeJpaRepository.save(StoreMapper.toEntity(store));
         return StoreMapper.toDomain(storeEntity);
+    }
+
+    @Override
+    public void delete(Integer id) {
+        storeJpaRepository.deleteById(id);
     }
 }

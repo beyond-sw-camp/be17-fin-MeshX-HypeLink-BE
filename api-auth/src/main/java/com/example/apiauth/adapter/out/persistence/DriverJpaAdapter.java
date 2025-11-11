@@ -12,11 +12,23 @@ import com.example.apiauth.domain.model.Member;
 import com.example.apiauth.usecase.port.out.persistence.DriverPort;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class DriverJpaAdapter implements DriverPort {
 
     private final DriverJpaRepository driverJpaRepository;
+
+    @Override
+    public List<Driver> findAll() {
+        List<DriverEntity> drivers = driverJpaRepository.findAll();
+
+        return drivers.stream()
+                .map(DriverMapper::toDomain)
+                .toList();
+    }
+
 
     @Override
     public Driver save(Driver driver) {
@@ -54,5 +66,10 @@ public class DriverJpaAdapter implements DriverPort {
                 .orElseThrow(() -> new AuthException(AuthExceptionMessage.USER_NAME_NOT_FOUND));
 
         return DriverMapper.toDomain(driverEntity);
+    }
+
+    @Override
+    public void delete(Integer id) {
+        driverJpaRepository.deleteById(id);
     }
 }

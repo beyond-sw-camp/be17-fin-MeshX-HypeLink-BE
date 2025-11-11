@@ -1,4 +1,4 @@
-package org1.example1.apiauth1;
+package com.example.apiauth;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

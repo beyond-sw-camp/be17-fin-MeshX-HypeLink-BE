@@ -8,6 +8,21 @@ eureka:
 jwt:
   secret-key: ${JWT_KEY}
 
+# Circuit Breaker 설정 (Resilience4j)
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        sliding-window-size: 10
+        sliding-window-type: COUNT_BASED
+    instances:
+      authService:
+        base-config: default
+
 spring:
   application:
     name: api-gateway

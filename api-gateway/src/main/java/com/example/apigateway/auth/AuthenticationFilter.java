@@ -66,19 +66,22 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                             return exchange.getResponse().setComplete();
                         }
 
-                        // 6. JWT에서 memberId, email, role 추출
-                        Integer memberId = jwtTokenProvider.getMemberIdFromToken(token);
+                        // 6. JWT에서 email, role 추출
                         String email = jwtTokenProvider.getEmailFromToken(token);
                         String role = jwtTokenProvider.getRoleFromToken(token);
 
-                        // 7. 헤더 추가
-                        ServerHttpRequest request = exchange.getRequest().mutate()
-                                .header("Member-Id", memberId.toString())
-                                .header("Member-Email", email)
-                                .header("Member-Role", role)
-                                .build();
+                        // 7. Redis 캐시 or Feign으로 memberId 조회
+                        return getMemberIdFromEmail(email)
+                                .flatMap(memberId -> {
+                                    // 8. 헤더 추가
+                                    ServerHttpRequest request = exchange.getRequest().mutate()
+                                            .header("Member-Id", memberId.toString())
+                                            .header("Member-Email", email)
+                                            .header("Member-Role", role)
+                                            .build();
 
-                        return chain.filter(exchange.mutate().request(request).build());
+                                    return chain.filter(exchange.mutate().request(request).build());
+                                });
                     })
                     .onErrorResume(e -> {
                         exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);

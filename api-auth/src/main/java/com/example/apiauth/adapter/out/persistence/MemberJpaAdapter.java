@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 import com.example.apiauth.domain.model.Member;
 import com.example.apiauth.usecase.port.out.persistence.MemberPort;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.example.apiauth.common.exception.AuthExceptionMessage.USER_NAME_NOT_FOUND;
 
@@ -17,6 +19,16 @@ import static com.example.apiauth.common.exception.AuthExceptionMessage.USER_NAM
 public class MemberJpaAdapter implements MemberPort {
 
     private final MemberJpaRepository memberJpaRepository;
+
+    @Override
+    public List<Member> findAll() {
+        List<MemberEntity> memberEntities = memberJpaRepository.findAll();
+
+        return memberEntities.stream()
+                .map(MemberMapper::toDomain)
+                .toList();
+    }
+
 
     @Override
     public Member findByEmail(String email) {
@@ -42,5 +54,10 @@ public class MemberJpaAdapter implements MemberPort {
     @Override
     public boolean existsByEmail(String email) {
         return memberJpaRepository.existsByEmail(email);
+    }
+
+    @Override
+    public void delete(Integer id) {
+        memberJpaRepository.deleteById(id);
     }
 }

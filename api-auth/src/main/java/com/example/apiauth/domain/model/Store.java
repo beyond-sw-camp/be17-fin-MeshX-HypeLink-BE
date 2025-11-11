@@ -45,6 +45,18 @@ public class Store {
                 .build();
     }
 
+    public Store decreasePosCount() {
+        return Store.builder()
+                .id(this.id)
+                .member(this.member)
+                .lat(this.lat)
+                .lon(this.lon)
+                .storeNumber(this.storeNumber)
+                .posCount(this.posCount - 1)
+                .storeState(this.storeState)
+                .build();
+    }
+
     public MemberRegisterEvent.StoreInfo toEventInfo() {
         return MemberRegisterEvent.StoreInfo.builder()
                 .storeId(this.id)

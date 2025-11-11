@@ -54,7 +54,7 @@ public class AuthService implements AuthUseCase {
             throw new AuthException(INVALID_CREDENTIALS);
         }
 
-        AuthTokens authTokens = issueTokens(member.getId(), member.getEmail(), member.getRole().name());
+        AuthTokens authTokens = issueTokens(member.getEmail(), member.getRole().name());
 
         return LoginResDto.builder()
                 .email(member.getEmail())
@@ -69,7 +69,6 @@ public class AuthService implements AuthUseCase {
 
         jwtTokenProvider.validateToken(reissueTokenCommand.getRefreshToken());
 
-        Integer memberId = jwtTokenProvider.getMemberIdFromToken(reissueTokenCommand.getRefreshToken());
         String email = jwtTokenProvider.getEmailFromToken(reissueTokenCommand.getRefreshToken());
         String role = jwtTokenProvider.getRoleFromToken(reissueTokenCommand.getRefreshToken());
 
@@ -80,7 +79,7 @@ public class AuthService implements AuthUseCase {
             throw new TokenException(INVALID_TOKEN);
         }
 
-        return issueTokens(memberId, email, role);
+        return issueTokens(email, role);
     }
 
     @Override
@@ -113,13 +112,13 @@ public class AuthService implements AuthUseCase {
 
         switch (savedMember.getRole()) {
             case BRANCH_MANAGER:
-                savedStore = registerStore(command, member);
+                savedStore = registerStore(command, savedMember);
                 break;
             case POS_MEMBER:
-                savedPos = registerPos(command, member);
+                savedPos = registerPos(command, savedMember);
                 break;
             case DRIVER:
-                savedDriver = registerDriver(command, member);
+                savedDriver = registerDriver(command, savedMember);
                 break;
         }
 
@@ -128,8 +127,8 @@ public class AuthService implements AuthUseCase {
 
     }
 
-    private AuthTokens issueTokens(Integer memberId, String email, String role) {
-        AuthTokens tokens = jwtTokenProvider.generateTokens(memberId, email, role);
+    private AuthTokens issueTokens(String email, String role) {
+        AuthTokens tokens = jwtTokenProvider.generateTokens(email, role);
         tokenStorePort.saveRefreshToken(email, tokens.getRefreshToken());
         return tokens;
     }
@@ -145,7 +144,7 @@ public class AuthService implements AuthUseCase {
         validatePosCode(command.getPosCode());
         Store store = storePort.findByStoreId(command.getStoreId());
 
-        store.increasePosCount();
+        store = store.increasePosCount();
         storePort.save(store);
 
         Pos pos = Pos.createNew(member, store, command.getPosCode());

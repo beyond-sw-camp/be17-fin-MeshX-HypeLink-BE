@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider {
     private static final String AUTHORITIES_KEY = "role";
-    private static final String MEMBER_ID_KEY = "memberId";
     private final Key key;
     private final long accessTokenExpirationMs;
     private final long refreshTokenExpirationMs;
@@ -40,12 +39,12 @@ public class JwtTokenProvider {
         this.refreshTokenExpirationMs = refreshTokenExpirationMs;
     }
 
-    public String createAccessToken(Integer memberId, String email, String role) {
-        return generateToken(memberId, email, role, accessTokenExpirationMs);
+    public String createAccessToken(String email, String role) {
+        return generateToken(email, role, accessTokenExpirationMs);
     }
 
-    public String createRefreshToken(Integer memberId, String email, String role) {
-        return generateToken(memberId, email, role, refreshTokenExpirationMs);
+    public String createRefreshToken(String email, String role) {
+        return generateToken(email, role, refreshTokenExpirationMs);
     }
 
     public void validateToken(String token) {
@@ -64,10 +63,6 @@ public class JwtTokenProvider {
 
     public String getEmailFromToken(String token) {
         return parseClaims(token).getSubject();
-    }
-
-    public Integer getMemberIdFromToken(String token) {
-        return parseClaims(token).get(MEMBER_ID_KEY, Integer.class);
     }
 
     public String getRoleFromToken(String token) {
@@ -89,19 +84,18 @@ public class JwtTokenProvider {
         }
     }
 
-    public AuthTokens generateTokens(Integer memberId, String email, String role) {
-        String accessToken = createAccessToken(memberId, email, role);
-        String refreshToken = createRefreshToken(memberId, email, role);
+    public AuthTokens generateTokens(String email, String role) {
+        String accessToken = createAccessToken(email, role);
+        String refreshToken = createRefreshToken(email, role);
         return new AuthTokens(accessToken, refreshToken);
     }
 
-    private String generateToken(Integer memberId, String email, String role, long expirationMs) {
+    private String generateToken(String email, String role, long expirationMs) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationMs);
 
         JwtBuilder builder = Jwts.builder()
                 .setSubject(email)
-                .claim(MEMBER_ID_KEY, memberId)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(key, SignatureAlgorithm.HS256);

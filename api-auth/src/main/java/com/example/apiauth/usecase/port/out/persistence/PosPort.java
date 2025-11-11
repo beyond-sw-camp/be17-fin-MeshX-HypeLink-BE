@@ -18,4 +18,6 @@ public interface PosPort {
     Pos findByMember_Email(String email);
 
     Pos save(Pos pos);
+
+    void delete(Integer id);
 }
