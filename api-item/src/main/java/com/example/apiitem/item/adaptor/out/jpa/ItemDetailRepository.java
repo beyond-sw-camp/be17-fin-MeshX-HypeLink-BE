@@ -9,7 +9,26 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ItemDetailRepository extends JpaRepository<ItemDetailEntity, Integer> {
+    @Query("""
+        select d
+        from ItemDetailEntity d
+        left join fetch d.item i
+        left join fetch i.category
+        left join fetch d.color
+        left join fetch d.size 
+        where d.itemDetailCode = :itemDetailCode
+    """)
     Optional<ItemDetailEntity> findByItemDetailCode(String itemDetailCode);
+
+    @Query("""
+        select d
+        from ItemDetailEntity d
+        left join fetch d.item i
+        left join fetch i.category
+        left join fetch d.color
+        left join fetch d.size 
+        where i.id = :itemId
+    """)
     List<ItemDetailEntity> findByItem_Id(Integer itemId);
 
     @Modifying

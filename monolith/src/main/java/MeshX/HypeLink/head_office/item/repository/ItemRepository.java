@@ -43,7 +43,7 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
 
     @Modifying
     @Query(value = """
-INSERT INTO item_entity (
+INSERT INTO item (
   id,
   category_id,
   item_code,

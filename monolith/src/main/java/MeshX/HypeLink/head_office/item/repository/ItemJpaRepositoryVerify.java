@@ -182,4 +182,8 @@ public class ItemJpaRepositoryVerify {
 
         return new PageImpl<>(content, pageable, total == null ? 0 : total);
     }
+
+    public void deleteItem(Integer itemId) {
+        repository.deleteById(itemId);
+    }
 }

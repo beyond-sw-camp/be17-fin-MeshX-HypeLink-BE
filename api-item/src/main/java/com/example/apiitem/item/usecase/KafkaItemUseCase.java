@@ -2,7 +2,7 @@ package com.example.apiitem.item.usecase;
 
 import MeshX.common.UseCase;
 import com.example.apiitem.item.domain.*;
-import com.example.apiitem.item.usecase.port.in.KafkaPort;
+import com.example.apiitem.item.usecase.port.in.KafkaItemInPort;
 import com.example.apiitem.item.usecase.port.in.request.kafka.*;
 import com.example.apiitem.item.usecase.port.out.*;
 import com.example.apiitem.util.*;
@@ -14,7 +14,7 @@ import java.util.List;
 @UseCase
 @Transactional
 @RequiredArgsConstructor
-public class KafkaItemUseCase implements KafkaPort {
+public class KafkaItemUseCase implements KafkaItemInPort {
     private final ItemPersistencePort itemPersistencePort;
     private final ItemDetailPersistencePort itemDetailPersistencePort;
     private final ItemImagePersistencePort itemImagePersistencePort;
@@ -54,5 +54,12 @@ public class KafkaItemUseCase implements KafkaPort {
     public void saveColor(KafkaColorList command) {
         List<Color> colors = command.getColors().stream().map(ColorMapper::toDomain).toList();
         colorPersistencePort.saveAllWithId(colors);
+    }
+
+    @Override
+    public void rollback(Integer itemId) {
+        itemDetailPersistencePort.deleteAllWIthItemId(itemId);
+        itemImagePersistencePort.deleteAllWithItemId(itemId);
+        itemPersistencePort.deleteWithId(itemId);
     }
 }

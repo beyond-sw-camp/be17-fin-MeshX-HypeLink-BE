@@ -21,7 +21,7 @@ import java.util.Arrays;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     // 이 필터를 거치지 않을 경로 목록
-    private static final String[] EXCLUDE_PATHS = {"/api/auth/", "/api/swagger-ui/", "/api/v3/api-docs/", "/favicon.ico", "/api/health/"};
+    private static final String[] EXCLUDE_PATHS = {"/api/auth/", "/api/swagger-ui/", "/api/v3/api-docs/", "/favicon.ico", "/api/health/", "/api/item/"};
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String BEARER_PREFIX = "Bearer ";

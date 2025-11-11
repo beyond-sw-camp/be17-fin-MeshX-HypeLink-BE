@@ -21,4 +21,5 @@ public interface ItemWebPort {
     void updateCompany(UpdateItemCompanyCommand dto);
     void updateCategory(UpdateItemCategoryCommand dto);
     void updateImages(UpdateItemImagesCommand dto);
+    void validate(String validate);
 }

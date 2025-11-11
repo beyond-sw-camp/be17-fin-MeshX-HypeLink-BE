@@ -82,7 +82,7 @@ public interface ItemDetailRepository extends JpaRepository<ItemDetail, Integer>
 
     @Modifying
     @Query(value = """
-INSERT INTO item_detail_entity (
+INSERT INTO item_detail (
   id,
   color_id,
   size_id,

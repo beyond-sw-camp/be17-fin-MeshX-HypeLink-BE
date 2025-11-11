@@ -1,15 +1,14 @@
-package com.example.apiitem.item.adaptor.out;
+package com.example.apiitem.item.adaptor.out.persistence;
 
 import MeshX.common.PersistenceAdapter;
 import MeshX.common.exception.BaseException;
 import com.example.apiitem.item.adaptor.out.jpa.*;
 import com.example.apiitem.item.domain.Item;
 import com.example.apiitem.item.domain.ItemDetail;
+import com.example.apiitem.item.usecase.port.in.request.kafka.ItemDetailUpdateCommand;
 import com.example.apiitem.item.usecase.port.out.ItemDetailPersistencePort;
 import com.example.apiitem.util.ItemDetailMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +22,7 @@ public class ItemDetailPersistenceAdaptor implements ItemDetailPersistencePort {
     private final ColorRepository colorRepository;
 
     @Override
-    public void saveAll(List<ItemDetail> itemDetails, Item entity) {
+    public List<ItemDetail> saveAll(List<ItemDetail> itemDetails, Item entity) {
         ItemEntity itemEntity = findItemEntityById(entity);
         List<ItemDetailEntity> entities = itemDetails.stream().map(one -> {
             SizeEntity size = findSizeEntityBySize(one);
@@ -31,7 +30,10 @@ public class ItemDetailPersistenceAdaptor implements ItemDetailPersistencePort {
             return ItemDetailMapper.toEntity(one, color, size, itemEntity);
         }).toList();
 
-        itemDetailRepository.saveAll(entities);
+        List<ItemDetailEntity> itemDetailEntities = itemDetailRepository.saveAll(entities);
+        return itemDetailEntities.stream()
+                .map(ItemDetailMapper::toDomain)
+                .toList();
     }
 
     @Override
@@ -66,6 +68,19 @@ public class ItemDetailPersistenceAdaptor implements ItemDetailPersistencePort {
         return itemDetails.stream()
                 .map(ItemDetailMapper::toSimpleDomain)
                 .toList();
+    }
+
+    @Override
+    public void updateStock(ItemDetail domain) {
+        ItemDetailEntity itemDetailEntity = findItemDetailEntityById(domain.getId());
+        itemDetailEntity.updateStock(domain.getStock());
+        itemDetailRepository.save(itemDetailEntity);
+    }
+
+    @Override
+    public void deleteAllWIthItemId(Integer itemId) {
+        List<ItemDetailEntity> detailEntities = itemDetailRepository.findByItem_Id(itemId);
+        itemDetailRepository.deleteAll(detailEntities);
     }
 
     private ItemDetailEntity findItemDetailEntityById(Integer id) {

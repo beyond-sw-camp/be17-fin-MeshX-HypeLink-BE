@@ -33,11 +33,17 @@ spring:
         delivery.timeout.ms: 120000
 
     consumer:
+      auto-offset-reset: earliest
+      enable-auto-commit: false
       group-id: ${KAFKA_GROUP_ID}
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       properties:
+        isolation.level: read_committed
         spring.json.trusted.packages: "*"
+
+    listener:
+      ack-mode: record
 
 eureka:
 #  instance:
@@ -52,3 +58,18 @@ eureka:
 feign:
   item: ${FEIGN_MONOLITH_ITEM_URL}
   item_detail: ${FEIGN_MONOLITH_ITEM_DETAIL_URL}
+
+kafka:
+  topic:
+    item: ${KAFKA_ITEM_TOPIC}
+    itemDetail: ${KAFKA_ITEM_DETAIL_TOPIC}
+    category: ${KAFKA_CATEGORY_TOPIC}
+    size: ${KAFKA_SIZE_TOPIC}
+    color: ${KAFKA_COLOR_TOPIC}
+    transaction:
+      item:
+        save: ${KAFKA_ITEM_TRANSACTION_SAVE_TOPIC}
+        rollback: ${KAFKA_ITEM_TRANSACTION_ROLLBACK_TOPIC}
+      itemDetail:
+        save: ${KAFKA_ITEM_DETAIL_TRANSACTION_SAVE_TOPIC}
+        rollback: ${KAFKA_ITEM_DETAIL_TRANSACTION_ROLLBACK_TOPIC}

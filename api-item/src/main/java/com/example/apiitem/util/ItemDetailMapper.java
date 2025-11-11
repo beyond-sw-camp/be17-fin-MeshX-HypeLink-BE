@@ -1,13 +1,16 @@
 package com.example.apiitem.util;
 
 import com.example.apiitem.item.adaptor.out.feign.dto.SaveItemDetailReq;
+import com.example.apiitem.item.adaptor.out.feign.dto.SaveItemDetailsReq;
 import com.example.apiitem.item.adaptor.out.jpa.ColorEntity;
 import com.example.apiitem.item.adaptor.out.jpa.ItemDetailEntity;
 import com.example.apiitem.item.adaptor.out.jpa.ItemEntity;
 import com.example.apiitem.item.adaptor.out.jpa.SizeEntity;
+import com.example.apiitem.item.domain.Item;
 import com.example.apiitem.item.domain.ItemDetail;
 import com.example.apiitem.item.usecase.port.in.request.CreateItemDetailCommand;
 import com.example.apiitem.item.usecase.port.in.request.CreateItemDetailsCommand;
+import com.example.apiitem.item.usecase.port.in.request.kafka.ItemDetailUpdateCommand;
 import com.example.apiitem.item.usecase.port.in.request.kafka.KafkaItemDetailCommand;
 import com.example.apiitem.item.usecase.port.out.response.ItemAndItemDetailInfoDto;
 import com.example.apiitem.item.usecase.port.out.response.ItemDetailInfoDto;
@@ -88,8 +91,16 @@ public class ItemDetailMapper {
                 .build();
     }
 
+    public static ItemDetail toDomain(ItemDetailUpdateCommand command) {
+        return ItemDetail.builder()
+                .id(command.getId())
+                .stock(command.getStock())
+                .build();
+    }
+
     public static ItemDetail toDomain(KafkaItemDetailCommand command) {
         return ItemDetail.builder()
+                .id(command.getId())
                 .itemDetailCode(command.getItemDetailCode())
                 .stock(command.getStock())
                 .colorId(command.getColorId())
@@ -129,6 +140,7 @@ public class ItemDetailMapper {
     public static ItemDetailInfoDto toSimpleDto(ItemDetail domain) {
         return ItemDetailInfoDto.builder()
                 .id(domain.getId())
+                .stock(domain.getStock())
                 .color(domain.getColorName())
                 .colorCode(domain.getColorCode())
                 .itemDetailCode(domain.getItemDetailCode())
@@ -143,6 +155,13 @@ public class ItemDetailMapper {
                 .color(domain.getColorName())
                 .stock(domain.getStock())
                 .size(domain.getSize())
+                .build();
+    }
+
+    public static SaveItemDetailsReq toFeignDto(Item item, List<SaveItemDetailReq> itemDetailReqs) {
+        return SaveItemDetailsReq.builder()
+                .itemId(item.getId())
+                .details(itemDetailReqs)
                 .build();
     }
 }

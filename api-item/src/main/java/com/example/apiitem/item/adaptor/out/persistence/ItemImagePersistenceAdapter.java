@@ -1,11 +1,8 @@
-package com.example.apiitem.item.adaptor.out;
+package com.example.apiitem.item.adaptor.out.persistence;
 
 import MeshX.common.PersistenceAdapter;
 import MeshX.common.exception.BaseException;
-import com.example.apiitem.item.adaptor.out.jpa.ItemEntity;
-import com.example.apiitem.item.adaptor.out.jpa.ItemImageEntity;
-import com.example.apiitem.item.adaptor.out.jpa.ItemImageRepository;
-import com.example.apiitem.item.adaptor.out.jpa.ItemRepository;
+import com.example.apiitem.item.adaptor.out.jpa.*;
 import com.example.apiitem.item.domain.Item;
 import com.example.apiitem.item.domain.ItemImage;
 import com.example.apiitem.item.usecase.port.in.request.CreateItemImageCommand;
@@ -72,6 +69,12 @@ public class ItemImagePersistenceAdapter implements ItemImagePersistencePort {
                 .map(one -> ItemImageMapper.toEntity(one, itemEntity))
                 .toList();
         itemImageEntities.forEach(itemImageRepository::upsert);
+    }
+
+    @Override
+    public void deleteAllWithItemId(Integer itemId) {
+        List<ItemImageEntity> detailEntities = itemImageRepository.findByItem_Id(itemId);
+        itemImageRepository.deleteAll(detailEntities);
     }
 
     private ItemEntity findItemEntityById(Integer id) {

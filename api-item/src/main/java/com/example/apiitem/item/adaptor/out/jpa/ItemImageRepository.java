@@ -9,6 +9,8 @@ import java.util.List;
 
 public interface ItemImageRepository extends JpaRepository<ItemImageEntity, Integer> {
     List<ItemImageEntity> findByItem(ItemEntity item);
+    List<ItemImageEntity> findByItem_Id(Integer itemId);
+
     @Modifying
     @Query(value = """
 INSERT INTO item_image_entity (

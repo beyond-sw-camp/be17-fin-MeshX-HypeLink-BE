@@ -21,7 +21,7 @@ import java.util.List;
 public class ItemDetailUseCase implements ItemDetailWebPort {
     private final ItemPersistencePort itemPersistencePort;
     private final ItemDetailPersistencePort itemDetailPersistencePort;
-    private final ItemDetailFeignPort itemDetailFeignPort;
+    private final KafkaItemOutPort kafkaItemOutPort;
 
     @Override
     public ItemAndItemDetailInfoDto findItemDetailById(Integer id) {
@@ -48,6 +48,9 @@ public class ItemDetailUseCase implements ItemDetailWebPort {
         Item domain = ItemMapper.toDomain(command.getItemId());
         Item item = itemPersistencePort.findById(domain);
         List<ItemDetail> itemDetails = ItemDetailMapper.toDomains(command);
-        itemDetailPersistencePort.saveAll(itemDetails, item);
+        List<ItemDetail> saveDetails = itemDetailPersistencePort.saveAll(itemDetails, item);
+
+        // monolith 동기화
+        kafkaItemOutPort.saveItemDetail(item, saveDetails);
     }
 }

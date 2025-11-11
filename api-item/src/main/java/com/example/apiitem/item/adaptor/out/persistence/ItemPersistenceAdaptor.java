@@ -1,4 +1,4 @@
-package com.example.apiitem.item.adaptor.out;
+package com.example.apiitem.item.adaptor.out.persistence;
 
 import MeshX.common.PersistenceAdapter;
 import MeshX.common.exception.BaseException;
@@ -145,6 +145,11 @@ public class ItemPersistenceAdaptor implements ItemPersistencePort {
         entity.updateCategory(categoryEntity);
 
         itemRepository.save(entity);
+    }
+
+    @Override
+    public void deleteWithId(Integer itemId) {
+        itemRepository.deleteById(itemId);
     }
 
     private CategoryEntity findCategoryById(Category category) {

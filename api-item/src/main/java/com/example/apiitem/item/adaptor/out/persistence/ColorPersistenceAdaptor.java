@@ -1,4 +1,4 @@
-package com.example.apiitem.item.adaptor.out;
+package com.example.apiitem.item.adaptor.out.persistence;
 
 import MeshX.common.PersistenceAdapter;
 import com.example.apiitem.item.adaptor.out.jpa.ColorEntity;

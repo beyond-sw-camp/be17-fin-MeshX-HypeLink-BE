@@ -4,6 +4,7 @@ import MeshX.common.BaseResponse;
 import MeshX.common.exception.BaseException;
 import MeshX.common.exception.ErrorResponse;
 import MeshX.common.exception.ExceptionType;
+import com.example.apiitem.common.ItemException;
 import com.example.apiitem.common.ItemExceptionType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,7 +38,7 @@ public class FeignCustomDecoder implements Decoder {
         // 실패 구조일 경우 (code 존재)
         if (root.has("code")) {
             ErrorResponse error = objectMapper.treeToValue(root, ErrorResponse.class);
-            throw new BaseException(ItemExceptionType.builder()
+            throw new ItemException(ItemExceptionType.builder()
                     .message(error.getMessage())
                     .build());
         }

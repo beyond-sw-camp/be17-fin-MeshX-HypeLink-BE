@@ -57,7 +57,7 @@ public class ItemDetailService {
     @Transactional
     public void saveItemDetails(SaveItemDetailsReq dto) {
         Item item = itemRepository.findById(dto.getItemId());
-        List<ItemDetail> itemDetails = toEntitiesByItemDetails(dto, item);
+        List<ItemDetail> itemDetails = toEntitiesByItemDetailsWithId(dto, item);
         itemDetailRepository.saveAllWithId(itemDetails);
     }
 
@@ -73,8 +73,9 @@ public class ItemDetailService {
                 .toList();
     }
 
-    private List<ItemDetail> toEntitiesByItemDetails(SaveItemDetailsReq dto, Item item) {
+    private List<ItemDetail> toEntitiesByItemDetailsWithId(SaveItemDetailsReq dto, Item item) {
         return dto.getDetails().stream().map(one -> ItemDetail.builder()
+                        .id(one.getId())
                         .item(item)
                         .stock(one.getStock())
                         .color(colorRepository.findByName(one.getColor()))

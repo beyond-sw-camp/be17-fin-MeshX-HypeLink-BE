@@ -12,10 +12,22 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<ItemEntity, Integer> {
-    @EntityGraph(attributePaths = {"category", "itemDetails"})
+    @Query("""
+        select i
+        from ItemEntity i
+        left join fetch i.category
+        left join fetch i.itemDetails
+        where i.id = :id
+    """)
     Optional<ItemEntity> findById(Integer id);
 
-    @EntityGraph(attributePaths = {"category", "itemDetails"})
+    @Query("""
+        select i
+        from ItemEntity i
+        left join fetch i.category
+        left join fetch i.itemDetails
+        where i.itemCode = :itemCode
+    """)
     Optional<ItemEntity> findByItemCode(String itemCode);
 
     @Query("""

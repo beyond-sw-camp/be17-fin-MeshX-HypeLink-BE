@@ -37,6 +37,12 @@ public class ItemWebAdaptor {
         return ResponseEntity.ok(BaseResponse.of(items));
     }
 
+    @GetMapping("/validate")
+    public ResponseEntity<BaseResponse<String>> validateItem(@RequestParam String itemCode) {
+        itemWebPort.validate(itemCode);
+        return ResponseEntity.ok(BaseResponse.of("저장이 완료되었습니다."));
+    }
+
     @PostMapping("/create")
     public ResponseEntity<BaseResponse<String>> createItem(@RequestBody CreateItemCommand dto) {
         itemWebPort.saveItem(dto);

@@ -29,7 +29,9 @@ public class ItemUseCase implements ItemWebPort {
     private final CategoryPersistencePort categoryPersistencePort;
     private final ItemImagePersistencePort itemImagePersistencePort;
     private final ItemDetailPersistencePort itemDetailPersistencePort;
-    private final ItemFeignPort itemFeignPort;
+
+    private final FeignItemPort feignItemPort;
+    private final KafkaItemOutPort transactionItemPort;
 
     private final S3UrlBuilder s3UrlBuilder;
 
@@ -67,12 +69,10 @@ public class ItemUseCase implements ItemWebPort {
                 saveItemImage(one, saveItem.getId());
             });
 
-            saveItemDetails(command, saveItem);
+            List<ItemDetail> itemDetails = saveItemDetails(command, saveItem);
+            // monolith 서버에 저장 로직 실행(ID값도 같게 실행)
+            transactionItemPort.saveItem(saveItem, itemDetails);
         }
-        Item saveItem = itemPersistencePort.findByItemCode(domain);
-
-        // monolith 서버에 저장 로직 실행(ID값도 같게 실행)
-        itemFeignPort.saveItem(saveItem, command);
     }
 
     @Override
@@ -144,15 +144,20 @@ public class ItemUseCase implements ItemWebPort {
         });
     }
 
+    @Override
+    public void validate(String itemCode) {
+        feignItemPort.validateItem(itemCode);
+    }
+
     public String exportS3Url(String imagePath) {
         return s3UrlBuilder.buildPublicUrl(imagePath);
     }
 
-    private void saveItemDetails(CreateItemCommand dto, Item entity) {
+    private List<ItemDetail> saveItemDetails(CreateItemCommand dto, Item entity) {
         List<ItemDetail> itemDetails = dto.getItemDetailList()
                 .stream().map(ItemDetailMapper::toDomain).toList();
 
-        itemDetailPersistencePort.saveAll(itemDetails, entity);
+        return itemDetailPersistencePort.saveAll(itemDetails, entity);
     }
 
     private void updateImageIndex(CreateItemImageCommand one) {
@@ -163,6 +168,5 @@ public class ItemUseCase implements ItemWebPort {
     private void saveItemImage(CreateItemImageCommand one, Integer itemId) {
         ItemImage entity = ItemImageMapper.toDomain(one);
         itemImagePersistencePort.save(entity, itemId);
-
     }
 }

@@ -22,4 +22,6 @@ public interface ItemPersistencePort {
     void updateUnitPrice(Integer itemId, Integer unitPrice);
     void updateCompany(Integer itemId, String company);
     void updateCategory(Integer itemId, Category category);
+
+    void deleteWithId(Integer itemId);
 }
