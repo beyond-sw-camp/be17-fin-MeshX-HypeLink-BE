@@ -2,6 +2,7 @@ package com.example.apiitem.item.adaptor.in;
 
 import MeshX.common.EventInAdapter;
 import MeshX.common.TryCatchTemplate;
+import com.example.apiitem.item.adaptor.out.feign.dto.SaveItemDetailsReq;
 import com.example.apiitem.item.usecase.port.in.KafkaItemDetailInPort;
 import com.example.apiitem.item.usecase.port.in.request.kafka.ItemDetailUpdateCommand;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -33,6 +34,24 @@ public class ItemDetailKafkaAdaptor {
             if ("ITEM_DETAIL".equals(type)) {
                 ItemDetailUpdateCommand command = objectMapper.treeToValue(payload, ItemDetailUpdateCommand.class);
                 kafkaItemDetailInPort.updateItemDetail(command);
+            } else {
+                logErrorMatchTypeDto(type);
+            }
+        }, e -> log.error("Kafka 메시지 파싱 실패", e));
+    }
+
+    @KafkaListener(topics = "${kafka.topic.transaction.itemDetail.rollback}")
+    public void rollBackItemDetailStock(String rawMessage) {
+        TryCatchTemplate.parse(() -> {
+            JsonNode root = objectMapper.readTree(rawMessage);
+            String type = root.get(TYPE).asText();
+            JsonNode payload = root.get(PAYLOAD);
+
+            logGetKafkaMessageType(type);
+
+            if ("ITEM_DETAIL".equals(type)) {
+                SaveItemDetailsReq command = objectMapper.treeToValue(payload, SaveItemDetailsReq.class);
+                kafkaItemDetailInPort.rollback(command);
             } else {
                 logErrorMatchTypeDto(type);
             }

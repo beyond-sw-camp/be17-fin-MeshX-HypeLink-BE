@@ -23,6 +23,8 @@ public class KafkaController {
     private final String PAYLOAD = "payload";
     @Value("${kafka.topic.transaction.item.rollback}")
     private String itemRollbackTopic;
+    @Value("${kafka.topic.transaction.itemDetail.rollback}")
+    private String itemDetailRollbackTopic;
 
     private final ObjectMapper objectMapper;
     private final KafkaTemplate<String, KafkaEnvelope> kafkaTemplate;
@@ -88,7 +90,7 @@ public class KafkaController {
                     .type("ITEM_DETAIL")
                     .payload(dto)
                     .build();
-            kafkaTemplate.send(itemRollbackTopic, envelope);
+            kafkaTemplate.send(itemDetailRollbackTopic, envelope);
         });
     }
 

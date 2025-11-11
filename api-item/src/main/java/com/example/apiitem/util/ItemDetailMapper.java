@@ -91,6 +91,16 @@ public class ItemDetailMapper {
                 .build();
     }
 
+    public static ItemDetail toDomain(SaveItemDetailReq command) {
+        return ItemDetail.builder()
+                .id(command.getId())
+                .itemDetailCode(command.getItemDetailCode())
+                .stock(command.getStock())
+                .colorName(command.getColor())
+                .size(command.getSize())
+                .build();
+    }
+
     public static ItemDetail toDomain(ItemDetailUpdateCommand command) {
         return ItemDetail.builder()
                 .id(command.getId())

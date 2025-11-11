@@ -11,4 +11,6 @@ public interface KafkaItemInPort {
     void saveCategories(KafkaCategoryList command);
     void saveColor(KafkaColorList command);
     void rollback(Integer id);
+
+    void deleteByItemID(Integer itemId);
 }

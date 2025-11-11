@@ -78,6 +78,21 @@ public class ItemDetailPersistenceAdaptor implements ItemDetailPersistencePort {
     }
 
     @Override
+    public void rollback(Item domain, List<ItemDetail> itemDetails) {
+        ItemEntity item = findItemEntityById(domain);
+
+        List<ItemDetailEntity> entities = itemDetails.stream()
+                .map(one -> {
+                    ColorEntity color = findColorEntityByName(one);
+                    SizeEntity size = findSizeEntityBySize(one);
+                    return ItemDetailMapper.toEntity(one, color, size, item);
+                })
+                .toList();
+
+        itemDetailRepository.deleteAll(entities);
+    }
+
+    @Override
     public void deleteAllWIthItemId(Integer itemId) {
         List<ItemDetailEntity> detailEntities = itemDetailRepository.findByItem_Id(itemId);
         itemDetailRepository.deleteAll(detailEntities);

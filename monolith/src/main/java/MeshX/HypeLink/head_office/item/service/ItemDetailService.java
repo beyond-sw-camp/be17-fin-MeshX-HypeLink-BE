@@ -1,6 +1,7 @@
 package MeshX.HypeLink.head_office.item.service;
 
 import MeshX.HypeLink.common.Page.PageRes;
+import MeshX.HypeLink.head_office.item.exception.ItemException;
 import MeshX.HypeLink.head_office.item.model.dto.request.CreateItemDetailsReq;
 import MeshX.HypeLink.head_office.item.model.dto.request.SaveItemDetailsReq;
 import MeshX.HypeLink.head_office.item.model.dto.response.ItemDetailsInfoListRes;
@@ -59,6 +60,7 @@ public class ItemDetailService {
         Item item = itemRepository.findById(dto.getItemId());
         List<ItemDetail> itemDetails = toEntitiesByItemDetailsWithId(dto, item);
         itemDetailRepository.saveAllWithId(itemDetails);
+        throw new ItemException(null);
     }
 
     private List<ItemDetail> toEntitiesByItemDetails(CreateItemDetailsReq dto, Item item) {

@@ -19,4 +19,5 @@ public interface ItemDetailPersistencePort {
     List<ItemDetail> findByItemId(Integer id);
 
     void updateStock(ItemDetail command);
+    void rollback(Item domain, List<ItemDetail> itemDetails);
 }

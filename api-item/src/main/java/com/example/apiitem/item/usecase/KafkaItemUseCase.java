@@ -62,4 +62,9 @@ public class KafkaItemUseCase implements KafkaItemInPort {
         itemImagePersistencePort.deleteAllWithItemId(itemId);
         itemPersistencePort.deleteWithId(itemId);
     }
+
+    @Override
+    public void deleteByItemID(Integer itemId) {
+
+    }
 }
