@@ -127,3 +127,11 @@ kafka:
       itemDetail:
         save: ${KAFKA_ITEM_DETAIL_TRANSACTION_SAVE_TOPIC}
         rollback: ${KAFKA_ITEM_DETAIL_TRANSACTION_ROLLBACK_TOPIC}
+
+redisson:
+  cluster:
+    nodes:
+      - ${REDIS_IP_1}
+      - ${REDIS_IP_2}
+      - ${REDIS_IP_3}
+  password: ${REDIS_PASSWORD}
