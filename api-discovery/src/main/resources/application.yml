@@ -3,6 +3,8 @@ server:
 
 eureka:
   client:
+    service-url:
+      defaultZone: ${API_DISCOVERY_SERVICE}
     register-with-eureka: false
     fetch-registry: false
   server:

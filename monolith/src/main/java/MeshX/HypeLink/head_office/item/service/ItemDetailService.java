@@ -60,7 +60,6 @@ public class ItemDetailService {
         Item item = itemRepository.findById(dto.getItemId());
         List<ItemDetail> itemDetails = toEntitiesByItemDetailsWithId(dto, item);
         itemDetailRepository.saveAllWithId(itemDetails);
-        throw new ItemException(null);
     }
 
     private List<ItemDetail> toEntitiesByItemDetails(CreateItemDetailsReq dto, Item item) {

@@ -1,5 +1,5 @@
-server:
-  port: 9080
+#server:
+#  port: 9080
 
 spring:
   application:
@@ -73,3 +73,10 @@ kafka:
       itemDetail:
         save: ${KAFKA_ITEM_DETAIL_TRANSACTION_SAVE_TOPIC}
         rollback: ${KAFKA_ITEM_DETAIL_TRANSACTION_ROLLBACK_TOPIC}
+
+management:
+  endpoints:
+    web:
+      base-path: /api/health    # actuator의 기본 경로를 변경
+      exposure:
+        include: health,info    # 노출시킬 엔드포인트 지정
