@@ -126,13 +126,16 @@ public class MemberQueryService implements MemberQueryUseCase {
     public Page<StoreListResDto> storeList(Pageable pageable, String keyWord, String status) {
         Page<Store> stores = storeQueryPort.findAll(pageable, keyWord, status);
 
-        return stores.map(store -> StoreListResDto.builder()
-                .storeId(store.getId())
-                .storeName(store.getMember().getName())
-                .storeAddress(store.getMember().getAddress())
-                .storePhone(store.getMember().getPhone())
-                .storeState(store.getStoreState())
-                .build());
+        return stores.map(store -> {
+            Member member = store.getMember();
+            return StoreListResDto.builder()
+                    .storeId(store.getId())
+                    .storeName(member != null ? member.getName() : "Unknown")
+                    .storeAddress(member != null ? member.getAddress() : "Unknown")
+                    .storePhone(member != null ? member.getPhone() : "Unknown")
+                    .storeState(store.getStoreState())
+                    .build();
+        });
     }
 
     @Override

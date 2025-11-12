@@ -5,7 +5,7 @@ import lombok.*;
 
 @Entity
 @Getter
-@Table(name = "Driver")
+@Table(name = "driver")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

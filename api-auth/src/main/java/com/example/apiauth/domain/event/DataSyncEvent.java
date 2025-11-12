@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CqrsSyncEvent {
+public class DataSyncEvent {
 
     private SyncOperation operation;
     private EntityType entityType;

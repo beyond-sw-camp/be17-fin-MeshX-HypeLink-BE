@@ -10,15 +10,15 @@ import java.util.Optional;
 
 public interface PosReadRepository extends JpaRepository<PosReadEntity, Integer> {
 
-    @Query("SELECT p FROM PosReadEntity p JOIN FETCH p.store s JOIN FETCH p.member WHERE p.id = :id")
+    @Query("SELECT p FROM PosReadEntity p JOIN FETCH p.store s JOIN FETCH s.member JOIN FETCH p.member WHERE p.id = :id")
     Optional<PosReadEntity> findByIdWithAll(@Param("id") Integer id);
 
-    @Query("SELECT p FROM PosReadEntity p JOIN FETCH p.store JOIN FETCH p.member WHERE p.store.id = :storeId")
+    @Query("SELECT p FROM PosReadEntity p JOIN FETCH p.store s JOIN FETCH s.member JOIN FETCH p.member WHERE p.store.id = :storeId")
     List<PosReadEntity> findByStoreIdWithAll(@Param("storeId") Integer storeId);
 
-    @Query("SELECT p FROM PosReadEntity p JOIN FETCH p.store JOIN FETCH p.member WHERE p.member.id = :memberId")
+    @Query("SELECT p FROM PosReadEntity p JOIN FETCH p.store s JOIN FETCH s.member JOIN FETCH p.member WHERE p.member.id = :memberId")
     Optional<PosReadEntity> findByMemberIdWithAll(@Param("memberId") Integer memberId);
 
-    @Query("SELECT p FROM PosReadEntity p JOIN FETCH p.store JOIN FETCH p.member")
+    @Query("SELECT p FROM PosReadEntity p JOIN FETCH p.store s JOIN FETCH s.member JOIN FETCH p.member")
     List<PosReadEntity> findAllWithAll();
 }

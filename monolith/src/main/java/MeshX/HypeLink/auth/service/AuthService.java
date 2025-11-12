@@ -16,6 +16,9 @@ import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
 import MeshX.HypeLink.auth.utils.JwtUtils;
 import MeshX.HypeLink.utils.geocode.model.dto.GeocodeDto;
 import MeshX.HypeLink.utils.geocode.service.GeocodingService;
+import MeshX.HypeLink.common.kafka.DataSyncEvent;
+import MeshX.HypeLink.common.kafka.DataSyncEventProducer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,6 +42,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final TokenStore tokenStore;
     private final GeocodingService geocodingService;
+    private final DataSyncEventProducer dataSyncEventProducer;
+    private final ObjectMapper objectMapper;
 
     private static final Pattern POS_CODE_PATTERN = Pattern.compile("^[A-Z]{3}[0-9]{3}_[0-9]{2}$");
     // POSCODE를 위한 패턴 추가
@@ -70,6 +75,9 @@ public class AuthService {
             POS pos = requestDto.toPosEntity(member,associatedStore);
             memberJpaRepositoryVerify.save(member);
             posJpaRepositoryVerify.save(pos);
+
+            // MSA 동기화
+            publishToMsa(member, null, pos, null);
             return;
         }
 
@@ -77,22 +85,76 @@ public class AuthService {
         Member member = requestDto.toMemberEntity(encodedPassword);
         memberJpaRepositoryVerify.save(member);
 
+        Store store = null;
+        Driver driver = null;
+
         switch (requestDto.getRole()) {
             case BRANCH_MANAGER:
                 GeocodeDto geocodeDto = geocodingService.getCoordinates(requestDto.getAddress());
 
-                Store store = requestDto.toStoreEntity(member, geocodeDto);
+                store = requestDto.toStoreEntity(member, geocodeDto);
                 storeJpaRepositoryVerify.save(store);
                 break;
 
             case DRIVER:
-                Driver driver = requestDto.toDriverEntity(member);
+                driver = requestDto.toDriverEntity(member);
                 driverJpaRepositoryVerify.save(driver);
                 break;
 
             case ADMIN:
             case MANAGER:
                 break;
+        }
+
+        // MSA 동기화
+        publishToMsa(member, store, null, driver);
+    }
+
+    private void publishToMsa(Member member, Store store, POS pos, Driver driver) {
+        try {
+            // Member 동기화
+            DataSyncEvent memberEvent = DataSyncEvent.builder()
+                    .operation(DataSyncEvent.SyncOperation.CREATE)
+                    .entityType(DataSyncEvent.EntityType.MEMBER)
+                    .entityId(member.getId())
+                    .entityData(objectMapper.writeValueAsString(member))
+                    .build();
+            dataSyncEventProducer.publishEvent(memberEvent);
+
+            // Store 동기화
+            if (store != null) {
+                DataSyncEvent storeEvent = DataSyncEvent.builder()
+                        .operation(DataSyncEvent.SyncOperation.CREATE)
+                        .entityType(DataSyncEvent.EntityType.STORE)
+                        .entityId(store.getId())
+                        .entityData(objectMapper.writeValueAsString(store))
+                        .build();
+                dataSyncEventProducer.publishEvent(storeEvent);
+            }
+
+            // POS 동기화
+            if (pos != null) {
+                DataSyncEvent posEvent = DataSyncEvent.builder()
+                        .operation(DataSyncEvent.SyncOperation.CREATE)
+                        .entityType(DataSyncEvent.EntityType.POS)
+                        .entityId(pos.getId())
+                        .entityData(objectMapper.writeValueAsString(pos))
+                        .build();
+                dataSyncEventProducer.publishEvent(posEvent);
+            }
+
+            // Driver 동기화
+            if (driver != null) {
+                DataSyncEvent driverEvent = DataSyncEvent.builder()
+                        .operation(DataSyncEvent.SyncOperation.CREATE)
+                        .entityType(DataSyncEvent.EntityType.DRIVER)
+                        .entityId(driver.getId())
+                        .entityData(objectMapper.writeValueAsString(driver))
+                        .build();
+                dataSyncEventProducer.publishEvent(driverEvent);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to publish sync event to MSA", e);
         }
     }
 
