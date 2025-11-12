@@ -2,7 +2,7 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:9090/eureka/
-    registerWithEureka: false
+    registerWithEureka: true
     fetchRegistry: true
 
 jwt:
@@ -23,9 +23,15 @@ spring:
         webflux:
           routes:
             - id: api-notice
-              uri: http://localhost:9000
+              uri: lb://api-notice
+              order: 1
               predicates:
                 - Path=/api/notice/**
+            - id: HYPELINK
+              uri: lb://HYPELINK
+              order: 2
+              predicates:
+                - Path=/api/**
 #            - id: api-direct
 #              uri: lb://api-direct
 #              predicates:

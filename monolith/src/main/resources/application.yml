@@ -83,3 +83,10 @@ springdoc:
         url: /api/v3/api-docs
     # api-docs path를 바꿨으니 config-url도 맞춰줌 (명시 권장)
     config-url: /api/v3/api-docs/swagger-config
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:9090/eureka/
+    registerWithEureka: true
+    fetchRegistry: true
