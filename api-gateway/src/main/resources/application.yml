@@ -1,7 +1,4 @@
 eureka:
-#  instance:
-#    prefer-ip-address: false
-#    hostname: hypelink-gateway-svc          # K8s Service 이름
   client:
     service-url:
       defaultZone: ${API_DISCOVERY_SERVICE}
@@ -10,6 +7,21 @@ eureka:
 
 jwt:
   secret-key: ${JWT_KEY}
+
+# Circuit Breaker 설정 (Resilience4j)
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        sliding-window-size: 10
+        sliding-window-type: COUNT_BASED
+    instances:
+      authService:
+        base-config: default
 
 management:
   endpoints:
@@ -43,5 +55,11 @@ spring:
               predicates:
                 - Path=/api/**
 
+            - id: api-auth
+              uri: ${AUTH_SERVICE_URI}
+              predicates:
+                - Path=/api/auth/**
+              filters:
+                - Authentication
 #                - StripPrefix=1     # ?? 1
 #                - RewritePath=/user/(?<remaining>.*), /${remaining} # ?? 2

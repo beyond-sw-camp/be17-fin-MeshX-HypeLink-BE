@@ -5,38 +5,60 @@ spring:
   application:
     name: api-auth
 
-  # Database 설정 (MySQL)
+  # Database 설정 (CQRS - Write/Read 분리)
   datasource:
-    driver-class-name: org.mariadb.jdbc.Driver
-    url: ${AUTH_DB_URL}
-    username: ${AUTH_DB_USERNAME}
-    password: ${AUTH_DB_PASSWORD}
+    write:
+      driver-class-name: org.mariadb.jdbc.Driver
+      jdbc-url: ${AUTH_DB_WRITE_URL}
+      username: ${AUTH_DB_WRITE_USERNAME}
+      password: ${AUTH_DB_WRITE_PASSWORD}
+      hikari:
+        maximum-pool-size: 10
+        minimum-idle: 5
+    read:
+      driver-class-name: org.mariadb.jdbc.Driver
+      jdbc-url: ${AUTH_DB_READ_URL}
+      username: ${AUTH_DB_READ_USERNAME}
+      password: ${AUTH_DB_READ_PASSWORD}
+      hikari:
+        maximum-pool-size: 20
+        minimum-idle: 10
+        read-only: true
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: false
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
 
   data:
     redis:
       host: ${AUTH_REDIS_URL}
       port: ${AUTH_REDIS_PORT}
 
-  # Kafka 설정
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_IP}
     producer:
+      acks: all
+      retries: 10
+      batch-size: 32768
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      acks: all
-      retries: 3
+      properties:
+        enable.idempotence: true
+        linger.ms: 5
+        max.in.flight.requests.per.connection: 5
+        delivery.timeout.ms: 120000
+        spring.json.type.mapping: memberRegisterEvent:com.example.apiauth.domain.kafka.MemberRegisterEvent,cqrsSyncEvent:com.example.apiauth.domain.event.CqrsSyncEvent
     consumer:
-      group-id: auth-service-group
+      group-id: api-auth-cqrs-consumer
+      auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      auto-offset-reset: earliest
-      enable-auto-commit: false
-    listener:
-      ack-mode: manual
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.type.mapping: cqrsSyncEvent:com.example.apiauth.domain.event.CqrsSyncEvent
 
 # JWT 설정
 jwt:
@@ -93,7 +115,7 @@ eureka:
       defaultZone: ${API_DISCOVERY_SERVICE}
     register-with-eureka: true
     fetch-registry: true
-    enabled: false
+    enabled: true
 
 naver:
   api:

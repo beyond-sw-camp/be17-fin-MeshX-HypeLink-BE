@@ -10,6 +10,7 @@ import com.example.apiauth.usecase.port.in.LoginCommand;
 import com.example.apiauth.usecase.port.in.RegisterCommand;
 import com.example.apiauth.usecase.port.in.ReissueTokenCommand;
 import com.example.apiauth.usecase.port.out.usecase.AuthUseCase;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -18,12 +19,13 @@ import org.springframework.web.bind.annotation.*;
 
 @WebAdapter
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
-    private AuthUseCase authUseCase;
 
     @Value("${jwt.refresh-token-expiration-ms}")
     private long refreshTokenExpirationMs;
 
+    private AuthUseCase authUseCase;
 
     @PostMapping("/login")
     public ResponseEntity<BaseResponse<LoginResDto>> login(@RequestBody LoginCommand dto) {

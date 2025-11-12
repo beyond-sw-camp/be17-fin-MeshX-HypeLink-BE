@@ -5,6 +5,8 @@ import com.example.apiauth.domain.model.value.Region;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 public class Member {
@@ -18,5 +20,37 @@ public class Member {
     private MemberRole role;
     private Region region;
     private String refreshToken;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    public static Member createNew(String email, String password, String name,
+                                   String phone, String address, MemberRole role, Region region) {
+        return Member.builder()
+                .email(email)
+                .password(password)
+                .name(name)
+                .phone(phone)
+                .address(address)
+                .role(role)
+                .region(region)
+                .refreshToken(null)
+                .build();
+    }
+
+    /**
+     * POS 회원 생성 (Store 회원의 정보를 상속)
+     */
+    public static Member createPosFromStore(String email, String encodedPassword, String name, Member storeMember) {
+        return Member.builder()
+                .email(email)
+                .password(encodedPassword)
+                .name(name)
+                .phone(storeMember.getPhone())
+                .address(storeMember.getAddress())
+                .role(MemberRole.POS_MEMBER)
+                .region(storeMember.getRegion())
+                .refreshToken(null)
+                .build();
+    }
 
 }

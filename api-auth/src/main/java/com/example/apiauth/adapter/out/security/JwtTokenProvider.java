@@ -1,31 +1,21 @@
 package com.example.apiauth.adapter.out.security;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import com.example.apiauth.common.exception.TokenException;
 import com.example.apiauth.common.exception.TokenExceptionMessage;
 import com.example.apiauth.domain.model.value.AuthTokens;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenProvider {
     private static final String AUTHORITIES_KEY = "role";
-    private static final String MEMBER_ID_KEY = "memberId";
     private final Key key;
     private final long accessTokenExpirationMs;
     private final long refreshTokenExpirationMs;
@@ -40,12 +30,12 @@ public class JwtTokenProvider {
         this.refreshTokenExpirationMs = refreshTokenExpirationMs;
     }
 
-    public String createAccessToken(Integer memberId, String email, String role) {
-        return generateToken(memberId, email, role, accessTokenExpirationMs);
+    public String createAccessToken(String email, String role) {
+        return generateToken(email, role, accessTokenExpirationMs);
     }
 
-    public String createRefreshToken(Integer memberId, String email, String role) {
-        return generateToken(memberId, email, role, refreshTokenExpirationMs);
+    public String createRefreshToken(String email, String role) {
+        return generateToken(email, role, refreshTokenExpirationMs);
     }
 
     public void validateToken(String token) {
@@ -64,10 +54,6 @@ public class JwtTokenProvider {
 
     public String getEmailFromToken(String token) {
         return parseClaims(token).getSubject();
-    }
-
-    public Integer getMemberIdFromToken(String token) {
-        return parseClaims(token).get(MEMBER_ID_KEY, Integer.class);
     }
 
     public String getRoleFromToken(String token) {
@@ -89,19 +75,18 @@ public class JwtTokenProvider {
         }
     }
 
-    public AuthTokens generateTokens(Integer memberId, String email, String role) {
-        String accessToken = createAccessToken(memberId, email, role);
-        String refreshToken = createRefreshToken(memberId, email, role);
+    public AuthTokens generateTokens(String email, String role) {
+        String accessToken = createAccessToken(email, role);
+        String refreshToken = createRefreshToken(email, role);
         return new AuthTokens(accessToken, refreshToken);
     }
 
-    private String generateToken(Integer memberId, String email, String role, long expirationMs) {
+    private String generateToken(String email, String role, long expirationMs) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationMs);
 
         JwtBuilder builder = Jwts.builder()
                 .setSubject(email)
-                .claim(MEMBER_ID_KEY, memberId)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(key, SignatureAlgorithm.HS256);
@@ -111,25 +96,5 @@ public class JwtTokenProvider {
         }
 
         return builder.compact();
-    }
-
-    public Authentication getAuthentication(String token) {
-        try {
-            Claims claims = parseClaims(token);
-
-            Object authoritiesClaim = claims.get(AUTHORITIES_KEY);
-            if (authoritiesClaim == null) {
-                throw new TokenException(TokenExceptionMessage.INVALID_TOKEN);
-            }
-
-            Collection<? extends GrantedAuthority> authorities = Arrays.stream(authoritiesClaim.toString().split(","))
-                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                    .collect(Collectors.toList());
-
-            UserDetails principal = new User(claims.getSubject(), "", authorities);
-            return new UsernamePasswordAuthenticationToken(principal, "", authorities);
-        } catch (ExpiredJwtException e) {
-            throw new TokenException(TokenExceptionMessage.EXPIRED_TOKEN);
-        }
     }
 }
