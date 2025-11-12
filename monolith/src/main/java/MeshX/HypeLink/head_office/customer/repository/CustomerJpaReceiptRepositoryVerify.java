@@ -4,6 +4,8 @@ import MeshX.HypeLink.head_office.customer.model.entity.CustomerReceipt;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 @RequiredArgsConstructor
 public class CustomerJpaReceiptRepositoryVerify {
@@ -12,6 +14,9 @@ public class CustomerJpaReceiptRepositoryVerify {
 
     public void save(CustomerReceipt receipt) {
         receiptRepository.save(receipt);
+    }
 
+    public Optional<CustomerReceipt> findByMerchantUid(String merchantUid) {
+        return receiptRepository.findByMerchantUid(merchantUid);
     }
 }

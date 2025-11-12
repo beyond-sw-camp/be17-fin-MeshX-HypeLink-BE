@@ -63,3 +63,11 @@ spring:
                 - Authentication
 #                - StripPrefix=1     # ?? 1
 #                - RewritePath=/user/(?<remaining>.*), /${remaining} # ?? 2
+
+            - id: api-direct
+              uri: ${DIRECT_SERVICE_URI}
+              order: 1
+              predicates:
+                - Path=/api/customer/**, /api/payments/**, /api/store/**
+              filters:
+                - Authentication
