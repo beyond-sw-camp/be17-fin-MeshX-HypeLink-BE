@@ -16,10 +16,9 @@ spring:
       ddl-auto: update
     show-sql: false
 
-
   data:
     redis:
-      host: ${AUTH_REDIS_PORT}
+      host: ${AUTH_REDIS_URL}
       port: ${AUTH_REDIS_PORT}
 
   # Kafka 설정
@@ -91,7 +90,7 @@ eureka:
     prefer-ip-address: true
   client:
     service-url:
-      defaultZone: http://localhost:9090/eureka/
+      defaultZone: ${API_DISCOVERY_SERVICE}
     register-with-eureka: true
     fetch-registry: true
     enabled: false

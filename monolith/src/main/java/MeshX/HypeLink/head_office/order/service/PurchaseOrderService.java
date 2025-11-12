@@ -19,7 +19,7 @@ import MeshX.HypeLink.head_office.order.model.entity.PurchaseDetailStatus;
 import MeshX.HypeLink.head_office.order.model.entity.PurchaseOrder;
 import MeshX.HypeLink.head_office.order.model.entity.PurchaseOrderState;
 import MeshX.HypeLink.head_office.order.repository.PurchaseOrderJpaRepositoryVerify;
-import MeshX.HypeLink.head_office.order.service.dto.StoreItemDetailInfoRes;
+import MeshX.HypeLink.head_office.order.service.dto.ItemDetailUpdateDto;
 import MeshX.HypeLink.head_office.order.service.dto.UpdateStoreItemDetailReq;
 import jakarta.persistence.LockTimeoutException;
 import jakarta.persistence.PessimisticLockException;
@@ -46,6 +46,8 @@ import static MeshX.HypeLink.head_office.order.exception.PurchaseOrderExceptionM
 @RequiredArgsConstructor
 public class PurchaseOrderService {
     private static final int MAX_RETRY = 3;
+
+    private final KafkaPurchaseService kafkaPurchaseService;
 
     private final PurchaseOrderJpaRepositoryVerify orderRepository;
     private final ItemDetailJpaRepositoryVerify itemDetailRepository;
@@ -79,11 +81,13 @@ public class PurchaseOrderService {
                 throw new PurchaseOrderException(UNDER_ZERO);
             }
             itemDetail.updateStock(-1 * dto.getQuantity());
+            kafkaPurchaseService.syncItemDetailStockMinus(itemDetail, dto.getQuantity());
         } else {
             String itemCode = itemDetail.getItem().getItemCode();
             supplier = verifyStoreItemStock(dto, itemCode);
             Store store = storeRepository.findByMember(supplier);
             updateStoreItemStock(store, itemCode, dto.getItemDetailCode(), -1 * dto.getQuantity());
+            kafkaPurchaseService.syncDirectItemDetailStock(store, itemDetail.getId(), -1 * dto.getQuantity());
         }
 
         orderRepository.createOrder(dto.toEntity(itemDetail, requester, supplier));
@@ -99,7 +103,7 @@ public class PurchaseOrderService {
                 .baseUrl("http://localhost:8080") // 실제 서버 주소로 변경
                 .build();
 
-        BaseResponse<StoreItemDetailInfoRes> response = webClient.get()
+        BaseResponse<ItemDetailUpdateDto> response = webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/api/store/item/detail/code")
                         .queryParam("itemDetailCode", dto.getItemDetailCode())
@@ -107,7 +111,7 @@ public class PurchaseOrderService {
                         .queryParam("itemCode", itemCode)
                         .build())
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<BaseResponse<StoreItemDetailInfoRes>>() {})
+                .bodyToMono(new ParameterizedTypeReference<BaseResponse<ItemDetailUpdateDto>>() {})
                 .block(); // 동기식 호출 (트랜잭션 내에서 즉시 대기)
 
         if(response == null) {
@@ -212,13 +216,16 @@ public class PurchaseOrderService {
                     throw new PurchaseOrderException(UNDER_ZERO);
                 }
                 itemDetailRepository.merge(itemDetail);
+                kafkaPurchaseService.syncItemDetailStock(itemDetail, purchaseOrder.getQuantity());
             } else {
                 Store store = storeRepository.findByMember(purchaseOrder.getRequester());
                 String itemCode = purchaseOrder.getItemDetail().getItem().getItemCode();
+                Integer itemDetailId = purchaseOrder.getItemDetail().getId();
                 String itemDetailCode = purchaseOrder.getItemDetail().getItemDetailCode();
                 Integer quantity = purchaseOrder.getQuantity();
 
-                updateStoreItemStock(store, itemCode, itemDetailCode, quantity);
+//                updateStoreItemStock(store, itemCode, itemDetailCode, quantity); // HTTP 통신 대신 Kafka에 적용
+                kafkaPurchaseService.syncDirectItemDetailStock(store, itemDetailId, quantity);
             }
         } else {
             purchaseOrder.updateOrderDetailStatus(PurchaseDetailStatus.OTHER_CANCELLATION);

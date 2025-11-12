@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,6 +30,10 @@ public class ItemJpaRepositoryVerify {
 
     public Item save(Item entity) {
         return repository.save(entity);
+    }
+
+    public void saveWithId(Item entity) {
+        repository.upsert(entity);
     }
 
     public void merge(Item entity) {
@@ -143,5 +148,42 @@ public class ItemJpaRepositoryVerify {
                 .fetchOne();
 
         return new PageImpl<>(content, pageable, total == null ? 0 : total);
+    }
+
+    public Page<Item> findItemsWithRelations(Pageable pageable) {
+        QItem item = QItem.item;
+
+        // 먼저 Item의 ID만 페이징
+        List<Integer> ids = jpaQueryFactory
+                .select(item.id)
+                .from(item)
+                .orderBy(item.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        if (ids.isEmpty()) return new PageImpl<>(Collections.emptyList(), pageable, 0);
+
+        // 이제 ID 리스트로 실제 Item + 연관관계 fetchJoin
+        List<Item> content = jpaQueryFactory
+                .selectFrom(item)
+                .leftJoin(item.category).fetchJoin()
+                .leftJoin(item.itemDetails).fetchJoin()
+                .where(item.id.in(ids))
+                .orderBy(item.id.desc())
+                .distinct()
+                .fetch();
+
+        // 전체 count
+        Long total = jpaQueryFactory
+                .select(item.count())
+                .from(item)
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, total == null ? 0 : total);
+    }
+
+    public void deleteItem(Integer itemId) {
+        repository.deleteById(itemId);
     }
 }
