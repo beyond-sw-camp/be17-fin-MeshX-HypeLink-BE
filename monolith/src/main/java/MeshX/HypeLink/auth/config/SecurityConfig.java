@@ -87,12 +87,8 @@ public class SecurityConfig {
 
                 // 요청 경로별 권한 설정
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/swagger-ui/**", "/api/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/health/**").permitAll()
-                        .requestMatchers("/api/item/**").permitAll()
-                        .requestMatchers("/ws/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/ws/**").authenticated() // WebSocket은 인증 필요
+                        .anyRequest().permitAll() // 나머지 모든 HTTP 엔드포인트는 허용
                 )
 
                 // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 추가

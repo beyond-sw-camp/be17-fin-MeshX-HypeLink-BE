@@ -25,7 +25,7 @@ public class AuthController {
     @Value("${jwt.refresh-token-expiration-ms}")
     private long refreshTokenExpirationMs;
 
-    private AuthUseCase authUseCase;
+    private final AuthUseCase authUseCase;
 
     @PostMapping("/login")
     public ResponseEntity<BaseResponse<LoginResDto>> login(@RequestBody LoginCommand dto) {

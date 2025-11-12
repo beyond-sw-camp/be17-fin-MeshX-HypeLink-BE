@@ -58,7 +58,7 @@ spring:
             - id: api-auth
               uri: ${AUTH_SERVICE_URI}
               predicates:
-                - Path=/api/auth/**
+                - Path=/api/auth/**, /api/member/**
               filters:
                 - Authentication
 #                - StripPrefix=1     # ?? 1

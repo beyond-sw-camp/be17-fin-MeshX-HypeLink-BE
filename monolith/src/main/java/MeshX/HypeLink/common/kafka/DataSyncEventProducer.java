@@ -1,6 +1,5 @@
-package com.example.apiauth.adapter.out.kafka;
+package MeshX.HypeLink.common.kafka;
 
-import com.example.apiauth.domain.event.CqrsSyncEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -11,20 +10,25 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CqrsSyncEventProducer {
+public class DataSyncEventProducer {
 
     private static final String TOPIC = "cqrs-sync";
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
-    public void publishEvent(CqrsSyncEvent event) {
+    /**
+     * 모놀리식에서 api-auth로 동기화 이벤트 발행
+     * @param event CQRS 동기화 이벤트
+     */
+    public void publishEvent(DataSyncEvent event) {
         try {
             String eventJson = objectMapper.writeValueAsString(event);
             kafkaTemplate.send(TOPIC, event.getEntityType().name(), eventJson);
-            log.info("Published CQRS sync event: operation={}, entityType={}, entityId={}",
+            log.info("Published CQRS sync event to MSA: operation={}, entityType={}, entityId={}",
                     event.getOperation(), event.getEntityType(), event.getEntityId());
         } catch (JsonProcessingException e) {
             log.error("Failed to publish CQRS sync event", e);
+            throw new RuntimeException("Failed to publish CQRS sync event", e);
         }
     }
 }
