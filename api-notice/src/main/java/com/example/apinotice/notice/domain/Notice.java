@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Builder
@@ -17,6 +19,9 @@ public class Notice {
     private Boolean isOpen;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private List<NoticeImage> images;
+
 
 
     public void updateTitle(String title) {
@@ -32,6 +37,20 @@ public class Notice {
     }
     public void changeOpen() {
         this.isOpen = true;
+    }
+
+    public void addImage(NoticeImage image) {
+        if (this.images == null) {
+            this.images = new ArrayList<>();
+        }
+        this.images.add(image);
+    }
+
+    // ✅ 이미지 전체 초기화
+    public void clearImages() {
+        if (this.images != null) {
+            this.images.clear();
+        }
     }
 
 }

@@ -10,6 +10,6 @@ import java.util.List;
 public class NoticeSaveCommand {
     private String title;
     private String contents;
-   // private List<ImageCreateRequest> images;
+    private List<NoticeImageCreateCommand> images;
     private String author;
 }

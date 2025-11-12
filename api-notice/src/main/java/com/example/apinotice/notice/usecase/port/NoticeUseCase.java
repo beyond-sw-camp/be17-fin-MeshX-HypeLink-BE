@@ -3,8 +3,10 @@ package com.example.apinotice.notice.usecase.port;
 import MeshX.common.Page.PageRes;
 import MeshX.common.UseCase;
 import com.example.apinotice.notice.adaptor.out.jpa.NoticeEntity;
+import com.example.apinotice.notice.adaptor.out.jpa.NoticeImageEntity;
 import com.example.apinotice.notice.adaptor.out.mapper.NoticeMapper;
 import com.example.apinotice.notice.domain.Notice;
+import com.example.apinotice.notice.domain.NoticeImage;
 import com.example.apinotice.notice.usecase.port.in.WebPort;
 import com.example.apinotice.notice.usecase.port.in.request.NoticeSaveCommand;
 import com.example.apinotice.notice.usecase.port.in.request.NoticeUpdateCommand;
@@ -26,7 +28,14 @@ public class NoticeUseCase implements WebPort {
     @Override
     public void create(NoticeSaveCommand noticeSaveCommand) {
         Notice notice =  NoticeMapper.toDomain(noticeSaveCommand);
-        noticePersistencePort.create(notice);
+        if (noticeSaveCommand.getImages() != null && !noticeSaveCommand.getImages().isEmpty()) {
+            noticeSaveCommand.getImages().forEach(imgCmd -> {
+                NoticeImage image = imgCmd.toDomain();
+                notice.addImage(image);
+            });
+        }
+
+        noticePersistencePort.create(notice); // 영속화는 여기서 수행
     }
 
     @Override
