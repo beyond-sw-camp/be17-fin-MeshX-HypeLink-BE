@@ -5,6 +5,15 @@ description = 'api-notice'
 repositories {
     mavenCentral()
 }
+ext {
+    set('springCloudVersion', '2025.0.0')
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
 
 dependencies {
     // common
@@ -14,4 +23,7 @@ dependencies {
     // db
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 }
+

@@ -22,8 +22,8 @@ spring:
       server:
         webflux:
           routes:
-            - id: api-notice
-              uri: lb://api-notice
+            - id: API-NOTICE
+              uri: lb://API-NOTICE
               order: 1
               predicates:
                 - Path=/api/notice/**
