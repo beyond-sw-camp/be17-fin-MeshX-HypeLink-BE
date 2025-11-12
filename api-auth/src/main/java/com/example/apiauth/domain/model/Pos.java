@@ -33,6 +33,8 @@ public class Pos {
                 .posCode(this.posCode)
                 .storeId(this.store.getId())
                 .healthCheck(this.healthCheck)
+                .createdAt(this.member != null ? this.member.getCreatedAt() : null)
+                .updatedAt(this.member != null ? this.member.getUpdatedAt() : null)
                 .build();
     }
 

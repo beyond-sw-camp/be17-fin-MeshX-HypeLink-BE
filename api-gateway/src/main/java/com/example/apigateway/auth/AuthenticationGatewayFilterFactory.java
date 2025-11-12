@@ -13,13 +13,13 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 
 @Component
-public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
+public class AuthenticationGatewayFilterFactory extends AbstractGatewayFilterFactory<AuthenticationGatewayFilterFactory.Config> {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final ReactiveRedisTemplate<String, String> redisTemplate;
     private final AuthServiceClient authServiceClient;
 
-    public AuthenticationFilter(
+    public AuthenticationGatewayFilterFactory(
             JwtTokenProvider jwtTokenProvider,
             ReactiveRedisTemplate<String, String> redisTemplate,
             AuthServiceClient authServiceClient) {

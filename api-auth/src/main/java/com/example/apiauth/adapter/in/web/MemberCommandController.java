@@ -6,9 +6,9 @@ import com.example.apiauth.adapter.in.web.dto.StoreInfoResDto;
 import com.example.apiauth.adapter.in.web.dto.StoreStateReqDto;
 import com.example.apiauth.adapter.in.web.dto.UserReadResDto;
 import com.example.apiauth.usecase.port.out.usecase.MemberCommandUseCase;
+import com.example.apiclients.annotation.RequireRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -36,7 +36,7 @@ public class MemberCommandController {
         return ResponseEntity.ok(BaseResponse.of("성공적으로 변경하였습니다."));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @RequireRole({"ADMIN", "MANAGER"})
     @PatchMapping("/user/update/{id}")
     public ResponseEntity<BaseResponse<String>> updateUser(
             @PathVariable Integer id,
@@ -46,7 +46,7 @@ public class MemberCommandController {
         return ResponseEntity.ok(BaseResponse.of("성공적으로 변경하였습니다."));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @RequireRole({"ADMIN"})
     @DeleteMapping("/user/delete/{id}")
     public ResponseEntity<BaseResponse<String>> deleteMember(@PathVariable Integer id) {
         memberCommandUseCase.deleteUser(id);
@@ -54,7 +54,7 @@ public class MemberCommandController {
         return ResponseEntity.ok(BaseResponse.of("사용자가 성공적으로 삭제되었습니다."));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @RequireRole({"ADMIN", "MANAGER"})
     @DeleteMapping("/store/delete/{id}")
     public ResponseEntity<BaseResponse<String>> deleteStore(@PathVariable Integer id) {
         memberCommandUseCase.deleteStore(id);

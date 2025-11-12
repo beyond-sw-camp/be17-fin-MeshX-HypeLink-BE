@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import com.example.apiclients.annotation.RequireRole;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -82,7 +82,7 @@ public class MemberQueryController {
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @RequireRole({"ADMIN", "MANAGER"})
     @GetMapping("/store/list/address")
     public ResponseEntity<BaseResponse<List<StoreAddInfoResDto>>> getStoreAddress() {
         List<StoreAddInfoResDto> result = memberQueryUseCase.getStoreAddress();

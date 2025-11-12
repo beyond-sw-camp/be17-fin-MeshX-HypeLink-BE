@@ -36,10 +36,12 @@ public class AuthService implements AuthUseCase {
 
     private static final Pattern POS_CODE_PATTERN = Pattern.compile("^[A-Z]{3}[0-9]{3}_[0-9]{2}$");
 
-    private final MemberPort memberPort;
-    private final StorePort storePort;
-    private final PosPort posPort;
-    private final DriverPort driverPort;
+    private final MemberQueryPort memberQueryPort;
+    private final MemberCommandPort memberCommandPort;
+    private final StoreQueryPort storeQueryPort;
+    private final StoreCommandPort storeCommandPort;
+    private final PosCommandPort posCommandPort;
+    private final DriverCommandPort driverCommandPort;
     private final GeocodingPort geocodingPort;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
@@ -48,7 +50,7 @@ public class AuthService implements AuthUseCase {
 
     @Override
     public LoginResDto login(LoginCommand dto) {
-        Member member = memberPort.findByEmail(dto.getEmail());
+        Member member = memberQueryPort.findByEmail(dto.getEmail());
 
         if (!passwordEncoder.matches(dto.getPassword(), member.getPassword())) {
             throw new AuthException(INVALID_CREDENTIALS);
@@ -96,7 +98,7 @@ public class AuthService implements AuthUseCase {
 
     @Override
     public void register(RegisterCommand command) {
-        if (memberPort.existsByEmail(command.getEmail())) {
+        if (memberQueryPort.existsByEmail(command.getEmail())) {
             throw new AuthException(EMAIL_ALREADY_EXISTS);
         }
 
@@ -104,7 +106,7 @@ public class AuthService implements AuthUseCase {
 
         Member member = Member.createNew(command.getEmail(), encodePassword, command.getName(), command.getPhone(),
                 command.getAddress(), command.getRole(), command.getRegion());
-        Member savedMember = memberPort.save(member);
+        Member savedMember = memberCommandPort.save(member);
 
         Store savedStore = null;
         Pos savedPos = null;
@@ -137,19 +139,19 @@ public class AuthService implements AuthUseCase {
         GeocodeDto geocodeDto = geocodingPort.getCoordinates(command.getAddress());
         Store store = Store.createNew(member, geocodeDto.getLatAsDouble(), geocodeDto.getLatAsDouble(),
                 command.getStoreNumber());
-        return storePort.save(store);
+        return storeCommandPort.save(store);
     }
 
     private Pos registerPos(RegisterCommand command, Member member) {
         validatePosCode(command.getPosCode());
-        Store store = storePort.findByStoreId(command.getStoreId());
+        Store store = storeQueryPort.findById(command.getStoreId());
 
         store = store.increasePosCount();
-        storePort.save(store);
+        storeCommandPort.save(store);
 
         Pos pos = Pos.createNew(member, store, command.getPosCode());
 
-        return posPort.save(pos);
+        return posCommandPort.save(pos);
     }
 
     private void validatePosCode(String posCode) {
@@ -160,7 +162,7 @@ public class AuthService implements AuthUseCase {
 
     private Driver registerDriver(RegisterCommand command, Member member) {
         Driver driver = Driver.createNew(member, command.getMacAddress(), command.getCarNumber());
-        return driverPort.save(driver);
+        return driverCommandPort.save(driver);
     }
 
 }

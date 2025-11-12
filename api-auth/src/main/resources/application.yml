@@ -51,7 +51,7 @@ spring:
         linger.ms: 5
         max.in.flight.requests.per.connection: 5
         delivery.timeout.ms: 120000
-        spring.json.type.mapping: memberRegisterEvent:com.example.apiauth.domain.kafka.MemberRegisterEvent,cqrsSyncEvent:com.example.apiauth.domain.kafka.CqrsSyncEvent
+        spring.json.type.mapping: memberRegisterEvent:com.example.apiauth.domain.kafka.MemberRegisterEvent,cqrsSyncEvent:com.example.apiauth.domain.event.CqrsSyncEvent
     consumer:
       group-id: api-auth-cqrs-consumer
       auto-offset-reset: earliest
@@ -59,7 +59,7 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
-        spring.json.type.mapping: cqrsSyncEvent:com.example.apiauth.domain.kafka.CqrsSyncEvent
+        spring.json.type.mapping: cqrsSyncEvent:com.example.apiauth.domain.event.CqrsSyncEvent
 
 # JWT 설정
 jwt:
@@ -116,7 +116,7 @@ eureka:
       defaultZone: http://localhost:9090/eureka/
     register-with-eureka: true
     fetch-registry: true
-    enabled: false
+    enabled: true
 
 naver:
   api:

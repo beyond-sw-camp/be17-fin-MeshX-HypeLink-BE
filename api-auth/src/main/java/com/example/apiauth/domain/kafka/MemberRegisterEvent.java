@@ -10,6 +10,8 @@ import com.example.apiauth.domain.model.value.StoreState;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 public class MemberRegisterEvent {
@@ -21,6 +23,8 @@ public class MemberRegisterEvent {
     private String address;
     private MemberRole role;
     private Region region;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     private StoreInfo storeInfo;
     private DriverInfo driverInfo;
@@ -35,6 +39,8 @@ public class MemberRegisterEvent {
         private String storeNumber;
         private StoreState storeState;
         private Integer posCount;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
     }
 
     @Getter
@@ -43,6 +49,8 @@ public class MemberRegisterEvent {
         private Integer driverId;
         private String macAddress;
         private String carNumber;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
     }
 
     @Getter
@@ -52,6 +60,8 @@ public class MemberRegisterEvent {
         private String posCode;
         private Integer storeId;
         private Boolean healthCheck;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
     }
 
     public static MemberRegisterEvent of(Member member, Store store, Driver driver, Pos pos) {
@@ -63,6 +73,8 @@ public class MemberRegisterEvent {
                 .address(member.getAddress())
                 .role(member.getRole())
                 .region(member.getRegion())
+                .createdAt(member.getCreatedAt())
+                .updatedAt(member.getUpdatedAt())
                 .storeInfo(store != null ? store.toEventInfo() : null)
                 .driverInfo(driver != null ? driver.toEventInfo() : null)
                 .posInfo(pos != null ? pos.toEventInfo() : null)

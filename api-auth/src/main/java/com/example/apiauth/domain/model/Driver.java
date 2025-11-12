@@ -30,6 +30,8 @@ public class Driver {
                 .driverId(this.id)
                 .macAddress(this.macAddress)
                 .carNumber(this.carNumber)
+                .createdAt(this.member != null ? this.member.getCreatedAt() : null)
+                .updatedAt(this.member != null ? this.member.getUpdatedAt() : null)
                 .build();
     }
 

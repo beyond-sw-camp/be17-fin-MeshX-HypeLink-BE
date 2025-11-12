@@ -5,6 +5,8 @@ import com.example.apiauth.domain.model.value.Region;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 public class Member {
@@ -18,6 +20,8 @@ public class Member {
     private MemberRole role;
     private Region region;
     private String refreshToken;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public static Member createNew(String email, String password, String name,
                                    String phone, String address, MemberRole role, Region region) {

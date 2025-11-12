@@ -65,6 +65,8 @@ public class Store {
                 .storeNumber(this.storeNumber)
                 .storeState(this.storeState)
                 .posCount(this.posCount)
+                .createdAt(this.member != null ? this.member.getCreatedAt() : null)
+                .updatedAt(this.member != null ? this.member.getUpdatedAt() : null)
                 .build();
     }
 

@@ -14,10 +14,14 @@ import com.example.apiauth.domain.model.Pos;
 import com.example.apiauth.domain.model.Store;
 import com.example.apiauth.domain.model.value.MemberRole;
 import com.example.apiauth.usecase.port.out.external.GeocodingPort;
-import com.example.apiauth.usecase.port.out.persistence.DriverPort;
-import com.example.apiauth.usecase.port.out.persistence.MemberPort;
-import com.example.apiauth.usecase.port.out.persistence.PosPort;
-import com.example.apiauth.usecase.port.out.persistence.StorePort;
+import com.example.apiauth.usecase.port.out.persistence.DriverCommandPort;
+import com.example.apiauth.usecase.port.out.persistence.DriverQueryPort;
+import com.example.apiauth.usecase.port.out.persistence.MemberCommandPort;
+import com.example.apiauth.usecase.port.out.persistence.MemberQueryPort;
+import com.example.apiauth.usecase.port.out.persistence.PosCommandPort;
+import com.example.apiauth.usecase.port.out.persistence.PosQueryPort;
+import com.example.apiauth.usecase.port.out.persistence.StoreCommandPort;
+import com.example.apiauth.usecase.port.out.persistence.StoreQueryPort;
 import com.example.apiauth.usecase.port.out.usecase.MemberCommandUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,17 +34,21 @@ import static com.example.apiauth.common.exception.AuthExceptionMessage.*;
 @RequiredArgsConstructor
 public class MemberCommandService implements MemberCommandUseCase {
 
-    private final MemberPort memberPort;
-    private final StorePort storePort;
-    private final PosPort posPort;
-    private final DriverPort driverPort;
+    private final MemberCommandPort memberCommandPort;
+    private final MemberQueryPort memberQueryPort;
+    private final StoreCommandPort storeCommandPort;
+    private final StoreQueryPort storeQueryPort;
+    private final PosCommandPort posCommandPort;
+    private final PosQueryPort posQueryPort;
+    private final DriverCommandPort driverCommandPort;
+    private final DriverQueryPort driverQueryPort;
     private final GeocodingPort geocodingPort;
     private final ShipmentClient shipmentClient;
 
     @Override
     @Transactional
     public void updateStoreInfo(Integer id, StoreInfoResDto dto) {
-        Store store = storePort.findByStoreId(id);
+        Store store = storeQueryPort.findById(id);
         Member member = store.getMember();
 
         // Member 정보 업데이트
@@ -55,7 +63,7 @@ public class MemberCommandService implements MemberCommandUseCase {
                 .region(dto.getRegion())
                 .build();
 
-        memberPort.save(updatedMember);
+        memberCommandPort.save(updatedMember);
 
         // Geocoding으로 좌표 조회
         GeocodeDto geocodeDto = geocodingPort.getCoordinates(dto.getAddress());
@@ -71,13 +79,13 @@ public class MemberCommandService implements MemberCommandUseCase {
                 .storeState(store.getStoreState())
                 .build();
 
-        storePort.save(updatedStore);
+        storeCommandPort.save(updatedStore);
     }
 
     @Override
     @Transactional
     public void storeStateUpdate(Integer id, StoreStateReqDto dto) {
-        Store store = storePort.findByStoreId(id);
+        Store store = storeQueryPort.findById(id);
 
         Store updatedStore = Store.builder()
                 .id(store.getId())
@@ -89,13 +97,13 @@ public class MemberCommandService implements MemberCommandUseCase {
                 .storeState(dto.getStoreState())
                 .build();
 
-        storePort.save(updatedStore);
+        storeCommandPort.save(updatedStore);
     }
 
     @Override
     @Transactional
     public void updateUser(Integer id, UserReadResDto dto) {
-        Member member = memberPort.findById(id);
+        Member member = memberQueryPort.findById(id);
 
         if (!id.equals(dto.getId())) {
             throw new AuthException(ID_MISMATCH);
@@ -113,22 +121,22 @@ public class MemberCommandService implements MemberCommandUseCase {
                 .region(dto.getRegion())
                 .build();
 
-        memberPort.save(updatedMember);
+        memberCommandPort.save(updatedMember);
 
         // Role에 따른 추가 업데이트
         if (member.getRole() == MemberRole.DRIVER) {
-            Driver driver = driverPort.findByMember_Id(member.getId());
+            Driver driver = driverQueryPort.findByMember_Id(member.getId());
             Driver updatedDriver = Driver.builder()
                     .id(driver.getId())
                     .member(updatedMember)
                     .macAddress(dto.getMacAddress())
                     .carNumber(driver.getCarNumber())
                     .build();
-            driverPort.save(updatedDriver);
+            driverCommandPort.save(updatedDriver);
         }
 
         if (member.getRole() == MemberRole.BRANCH_MANAGER) {
-            Store store = storePort.findByMemberId(member.getId());
+            Store store = storeQueryPort.findByMemberId(member.getId());
 
             GeocodeDto geocodeDto = geocodingPort.getCoordinates(dto.getAddress());
 
@@ -142,38 +150,38 @@ public class MemberCommandService implements MemberCommandUseCase {
                     .storeState(store.getStoreState())
                     .build();
 
-            storePort.save(updatedStore);
+            storeCommandPort.save(updatedStore);
         }
     }
 
     @Override
     @Transactional
     public void deleteUser(Integer id) {
-        Member member = memberPort.findById(id);
+        Member member = memberQueryPort.findById(id);
 
         switch (member.getRole()) {
             case BRANCH_MANAGER:
-                Store store = storePort.findByMemberId(member.getId());
-                List<Pos> posDevices = posPort.findByStoreIdIn(List.of(store.getId()));
+                Store store = storeQueryPort.findByMemberId(member.getId());
+                List<Pos> posDevices = posQueryPort.findByStoreIdIn(List.of(store.getId()));
                 if (!posDevices.isEmpty()) {
                     throw new AuthException(CANNOT_DELETE_STORE_WITH_POS);
                 }
-                storePort.delete(store.getId());
+                storeCommandPort.delete(store.getId());
                 break;
 
             case POS_MEMBER:
-                Pos pos = posPort.findByMember_Id(member.getId());
+                Pos pos = posQueryPort.findByMember_Id(member.getId());
                 Store posStore = pos.getStore();
 
                 // posCount 감소
                 Store decreasedStore = posStore.decreasePosCount();
-                storePort.save(decreasedStore);
+                storeCommandPort.save(decreasedStore);
 
-                posPort.delete(pos.getId());
+                posCommandPort.delete(pos.getId());
                 break;
 
             case DRIVER:
-                Driver driver = driverPort.findByMember_Id(member.getId());
+                Driver driver = driverQueryPort.findByMember_Id(member.getId());
 
                 // Feign으로 진행 중인 배송 확인
                 BaseResponse<Boolean> response = shipmentClient.hasActiveShipments(driver.getId());
@@ -181,12 +189,12 @@ public class MemberCommandService implements MemberCommandUseCase {
                     throw new AuthException(CANNOT_DELETE_DRIVER_WITH_ACTIVE_SHIPMENT);
                 }
 
-                driverPort.delete(driver.getId());
+                driverCommandPort.delete(driver.getId());
                 break;
 
             case ADMIN:
                 // 마지막 관리자인지 확인
-                long adminCount = memberPort.findAll().stream()
+                long adminCount = memberQueryPort.findAll().stream()
                         .filter(m -> m.getRole() == MemberRole.ADMIN)
                         .count();
 
@@ -200,47 +208,47 @@ public class MemberCommandService implements MemberCommandUseCase {
         }
 
         // 사용자 정보 최종 삭제
-        memberPort.delete(member.getId());
+        memberCommandPort.delete(member.getId());
     }
 
     @Override
     @Transactional
     public void deleteStore(Integer id) {
-        Store store = storePort.findByStoreId(id);
+        Store store = storeQueryPort.findById(id);
 
-        List<Pos> posDevices = posPort.findByStoreIdIn(List.of(store.getId()));
+        List<Pos> posDevices = posQueryPort.findByStoreIdIn(List.of(store.getId()));
         for (Pos pos : posDevices) {
             Member posMember = pos.getMember();
-            posPort.delete(pos.getId());
+            posCommandPort.delete(pos.getId());
             if (posMember != null) {
-                memberPort.delete(posMember.getId());
+                memberCommandPort.delete(posMember.getId());
             }
         }
 
         Member branchManager = store.getMember();
-        storePort.delete(store.getId());
+        storeCommandPort.delete(store.getId());
 
         if (branchManager != null) {
-            memberPort.delete(branchManager.getId());
+            memberCommandPort.delete(branchManager.getId());
         }
     }
 
     @Override
     @Transactional
     public void deletePos(Integer id) {
-        Pos pos = posPort.findByPosId(id);
+        Pos pos = posQueryPort.findById(id);
 
         Member posMember = pos.getMember();
-        posPort.delete(pos.getId());
+        posCommandPort.delete(pos.getId());
         if (posMember != null) {
-            memberPort.delete(posMember.getId());
+            memberCommandPort.delete(posMember.getId());
         }
     }
 
     @Override
     @Transactional
     public void deleteDriver(Integer id) {
-        Driver driver = driverPort.findByDriverId(id);
+        Driver driver = driverQueryPort.findById(id);
         Member driverMember = driver.getMember();
 
         // Feign으로 진행 중인 배송 확인
@@ -249,9 +257,9 @@ public class MemberCommandService implements MemberCommandUseCase {
             throw new AuthException(CANNOT_DELETE_DRIVER_WITH_ACTIVE_SHIPMENT);
         }
 
-        driverPort.delete(driver.getId());
+        driverCommandPort.delete(driver.getId());
         if (driverMember != null) {
-            memberPort.delete(driverMember.getId());
+            memberCommandPort.delete(driverMember.getId());
         }
     }
 }
