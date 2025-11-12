@@ -22,6 +22,10 @@ spring:
       server:
         webflux:
           routes:
+            - id: api-notice
+              uri: http://localhost:9000
+              predicates:
+                - Path=/api/notice/**
 #            - id: api-direct
 #              uri: lb://api-direct
 #              predicates:
@@ -38,6 +42,7 @@ spring:
 #              uri: lb://api-auth
 #              predicates:
 #                - Path=/api/auth/**
+
 
 #                - StripPrefix=1     # ?? 1
 #                - RewritePath=/user/(?<remaining>.*), /${remaining} # ?? 2
