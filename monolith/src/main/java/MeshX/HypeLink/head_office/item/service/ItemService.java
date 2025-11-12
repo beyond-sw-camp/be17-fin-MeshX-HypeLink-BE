@@ -47,19 +47,8 @@ public class ItemService {
                 saveItemImage(one, saveItem);
             });
 
-            saveItemDetails(dto, entity);
+            saveItemDetails(dto, saveItem);
         }
-    }
-
-    private void saveItemDetails(CreateItemReq dto, Item entity) {
-        List<ItemDetail> itemDetails = dto.getItemDetailList()
-                .stream().map(one -> {
-            Color findColor = colorRepository.findByName(one.getColor());
-            Size findSize = sizeRepository.findByName(one.getSize());
-            return one.toEntity(findSize, findColor, entity);
-        }).toList();
-
-        itemDetailRepository.saveAll(itemDetails);
     }
 
     public ItemInfoRes findItemById(Integer id) {
@@ -85,8 +74,8 @@ public class ItemService {
 
         return PageRes.toDto(mapped);
     }
-
     // QueryDSL로 업데이트 예정
+
     public ItemInfoListRes findItems() {
         List<Item> items = itemRepository.findItems();
         return ItemInfoListRes.toDto(items, this::exportS3Url);
@@ -111,14 +100,12 @@ public class ItemService {
         Page<ItemInfoRes> mapped = items.map(item -> ItemInfoRes.toDto(item, this::exportS3Url));
         return PageRes.toDto(mapped);
     }
-
     // QueryDSL로 업데이트 예정
     public ItemInfoRes findItemsByItemCode(String itemCode) {
         Item item = itemRepository.findByItemCode(itemCode);
 
         return ItemInfoRes.toDto(item, this::exportS3Url);
     }
-
     @Transactional
     public void updateContents(UpdateItemContentReq dto) {
         Item item = itemRepository.findById(dto.getItemId());
@@ -208,8 +195,43 @@ public class ItemService {
         });
     }
 
+    @Transactional
+    public void saveItem(SaveItemReq dto) {
+        Category category = categoryRepository.findByName(dto.getCategory());
+
+        if(!itemRepository.isExist(dto.getItemCode())) {
+            Item entity = dto.toEntity(category);
+            itemRepository.saveWithId(entity);
+            Item saveItem = itemRepository.findById(entity.getId());
+
+            saveItemDetails(dto, saveItem);
+        }
+    }
+
+    private void saveItemDetails(CreateItemReq dto, Item entity) {
+        List<ItemDetail> itemDetails = dto.getItemDetailList()
+                .stream().map(one -> {
+                    Color findColor = colorRepository.findByName(one.getColor());
+                    Size findSize = sizeRepository.findByName(one.getSize());
+                    return one.toEntity(findSize, findColor, entity);
+                }).toList();
+
+        itemDetailRepository.saveAll(itemDetails);
+    }
+
+    private void saveItemDetails(SaveItemReq dto, Item entity) {
+        List<ItemDetail> itemDetails = dto.getItemDetailList()
+                .stream().map(one -> {
+                    Color findColor = colorRepository.findByName(one.getColor());
+                    Size findSize = sizeRepository.findByName(one.getSize());
+                    return one.toEntity(findSize, findColor, entity);
+                }).toList();
+
+        itemDetailRepository.saveAllWithId(itemDetails);
+    }
+
     private void updateImages(CreateItemImageReq one, Item item) {
-        // ✅ id로 이미지를 찾도록 변경 (originalFilename으로 찾으면 중복 가능)
+        // id로 이미지를 찾도록 변경 (originalFilename으로 찾으면 중복 가능)
         Image image = imageRepository.findById(one.getId());
 
         ItemImage itemImage = itemImageRepository.findByItemAndImage(item, image);
@@ -228,7 +250,16 @@ public class ItemService {
         itemImageRepository.save(itemImage);
     }
 
+    @Transactional
+    public void delete(Integer itemId) {
+        itemRepository.deleteItem(itemId);
+    }
+
     public String exportS3Url(Image image) {
         return s3UrlBuilder.buildPublicUrl(image.getSavedPath());
+    }
+
+    public void validateItem(String itemCode) {
+        itemRepository.findByItemCode(itemCode);
     }
 }

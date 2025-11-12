@@ -124,6 +124,8 @@ public class AuthenticationGatewayFilterFactory extends AbstractGatewayFilterFac
     private boolean isPublicPath(String path) {
         return path.startsWith("/api/auth/login") ||
                 path.startsWith("/api/auth/register") ||
+                path.startsWith("/api/health/health") ||
+                path.startsWith("/api/health/info") ||
                 path.startsWith("/api/auth/refresh");
     }
 

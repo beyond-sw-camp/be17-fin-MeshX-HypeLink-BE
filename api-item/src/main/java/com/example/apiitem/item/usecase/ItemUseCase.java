@@ -1,0 +1,172 @@
+package com.example.apiitem.item.usecase;
+
+import MeshX.common.Page.PageRes;
+import MeshX.common.UseCase;
+import MeshX.common.exception.BaseException;
+import com.example.apiitem.item.domain.*;
+import com.example.apiitem.item.usecase.port.in.ItemWebPort;
+import com.example.apiitem.item.usecase.port.in.request.*;
+import com.example.apiitem.item.usecase.port.out.*;
+import com.example.apiitem.item.usecase.port.out.response.ItemInfoDto;
+import com.example.apiitem.item.usecase.util.S3UrlBuilder;
+import com.example.apiitem.util.ItemDetailMapper;
+import com.example.apiitem.util.ItemImageMapper;
+import com.example.apiitem.util.ItemMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@UseCase
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
+public class ItemUseCase implements ItemWebPort {
+    private final ItemPersistencePort itemPersistencePort;
+    private final CategoryPersistencePort categoryPersistencePort;
+    private final ItemImagePersistencePort itemImagePersistencePort;
+    private final ItemDetailPersistencePort itemDetailPersistencePort;
+
+    private final FeignItemPort feignItemPort;
+    private final KafkaItemOutPort transactionItemPort;
+
+    private final S3UrlBuilder s3UrlBuilder;
+
+    @Override
+    public ItemInfoDto findItemById(Integer id) {
+        Item domain = ItemMapper.toDomain(id);
+        Item item = itemPersistencePort.findById(domain);
+        return ItemMapper.toDto(item, this::exportS3Url);
+    }
+
+    @Override
+    public ItemInfoDto findItemsByItemCode(String code) {
+        Item domain = ItemMapper.toDomain(code);
+        Item item = itemPersistencePort.findByItemCode(domain);
+
+        return ItemMapper.toDto(item, this::exportS3Url);
+    }
+
+    @Override
+    public PageRes<ItemInfoDto> findItemsWithPaging(Pageable pageable, String keyWord, String category) {
+        Page<Item> items = itemPersistencePort.findItemsWithPaging(pageable, keyWord, category);
+        Page<ItemInfoDto> mapped = items.map(item -> ItemMapper.toDto(item, this::exportS3Url));
+        return PageRes.toDto(mapped);
+    }
+
+    @Override
+    @Transactional
+    public void saveItem(CreateItemCommand command) {
+        Item domain = ItemMapper.toDomain(command);
+        if(!itemPersistencePort.isExist(domain)) {
+            itemPersistencePort.save(domain);
+            Item saveItem = itemPersistencePort.findByItemCode(domain);
+
+            command.getItemImages().forEach(one -> {
+                saveItemImage(one, saveItem.getId());
+            });
+
+            List<ItemDetail> itemDetails = saveItemDetails(command, saveItem);
+            // monolith 서버에 저장 로직 실행(ID값도 같게 실행)
+            transactionItemPort.saveItem(saveItem, itemDetails);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void updateContents(UpdateItemContentCommand dto) {
+        itemPersistencePort.updateContents(dto.getItemId(), dto.getContent());
+    }
+
+    @Override
+    @Transactional
+    public void updateEnName(UpdateItemEnNameCommand dto) {
+        itemPersistencePort.updateEnName(dto.getItemId(), dto.getEnName());
+    }
+
+    @Override
+    @Transactional
+    public void updateKoName(UpdateItemKoNameCommand dto) {
+        itemPersistencePort.updateKoName(dto.getItemId(), dto.getKoName());
+    }
+
+    @Override
+    @Transactional
+    public void updateAmount(UpdateItemAmountCommand dto) {
+        itemPersistencePort.updateAmount(dto.getItemId(), dto.getAmount());
+    }
+
+    @Override
+    @Transactional
+    public void updateUnitPrice(UpdateItemUnitPriceCommand dto) {
+        itemPersistencePort.updateUnitPrice(dto.getItemId(), dto.getUnitPrice());
+    }
+
+    @Override
+    @Transactional
+    public void updateCompany(UpdateItemCompanyCommand dto) {
+        itemPersistencePort.updateCompany(dto.getItemId(), dto.getCompany());
+    }
+
+    @Override
+    @Transactional
+    public void updateCategory(UpdateItemCategoryCommand dto) {
+        Category category = categoryPersistencePort.findByName(dto.getCategory());
+        itemPersistencePort.updateCategory(dto.getItemId(), category);
+    }
+
+    @Override
+    @Transactional
+    public void updateImages(UpdateItemImagesCommand dto) {
+        Item domain = ItemMapper.toDomain(dto.getItemId());
+        Item item = itemPersistencePort.findById(domain);
+        List<ItemImage> itemImages = itemImagePersistencePort.findByItem(item);
+
+        // 1. 프론트에서 넘어온 originalFilename 목록 추출
+        Set<String> requestedFilenames = dto.getImages().stream()
+                .map(CreateItemImageCommand::getOriginalFilename)
+                .collect(Collectors.toSet());
+
+        // 2. 기존 DB에 있으나 프론트 요청에는 없는 이미지 삭제
+        itemImages.stream()
+                .filter(itemImage -> !requestedFilenames.contains(itemImage.getOriginalFilename()))
+                .forEach(itemImagePersistencePort::delete);
+
+        dto.getImages().forEach(one -> {
+            try {
+                updateImageIndex(one);
+            } catch (BaseException e) {
+                saveItemImage(one, dto.getItemId());
+            }
+        });
+    }
+
+    @Override
+    public void validate(String itemCode) {
+        feignItemPort.validateItem(itemCode);
+    }
+
+    public String exportS3Url(String imagePath) {
+        return s3UrlBuilder.buildPublicUrl(imagePath);
+    }
+
+    private List<ItemDetail> saveItemDetails(CreateItemCommand dto, Item entity) {
+        List<ItemDetail> itemDetails = dto.getItemDetailList()
+                .stream().map(ItemDetailMapper::toDomain).toList();
+
+        return itemDetailPersistencePort.saveAll(itemDetails, entity);
+    }
+
+    private void updateImageIndex(CreateItemImageCommand one) {
+        // id로 이미지를 찾도록 변경 (originalFilename으로 찾으면 중복 가능)
+        itemImagePersistencePort.updateImageIndex(one);
+    }
+
+    private void saveItemImage(CreateItemImageCommand one, Integer itemId) {
+        ItemImage entity = ItemImageMapper.toDomain(one);
+        itemImagePersistencePort.save(entity, itemId);
+    }
+}

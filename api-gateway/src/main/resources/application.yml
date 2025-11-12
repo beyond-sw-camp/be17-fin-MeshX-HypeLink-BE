@@ -1,7 +1,7 @@
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:9090/eureka/
+      defaultZone: ${API_DISCOVERY_SERVICE}
     registerWithEureka: true
     fetchRegistry: true
 
@@ -23,6 +23,13 @@ resilience4j:
       authService:
         base-config: default
 
+management:
+  endpoints:
+    web:
+      base-path: /api/health    # actuator의 기본 경로를 변경
+      exposure:
+        include: health,info    # 노출시킬 엔드포인트 지정
+
 spring:
   application:
     name: api-gateway
@@ -37,24 +44,22 @@ spring:
       server:
         webflux:
           routes:
-#            - id: api-direct
-#              uri: lb://api-direct
-#              predicates:
-#                - Path=/api/store/**
-#            - id: api-item
-#              uri: lb://api-item
-#              predicates:
-#                - Path=/api/item/**
-#            - id: api-purchase
-#              uri: lb://api-purchase
-#              predicates:
-#                - Path=/api/purchase/**
+            - id: api-item
+              uri: ${ITEM_SERVICE_URI}
+              order: 1
+              predicates:
+                - Path=/api/item/**
+            - id: api-monolith
+              uri: ${MONOLITH_SERVICE_URI}
+              order: 2
+              predicates:
+                - Path=/api/**
+
             - id: api-auth
-              uri: lb://api-auth
+              uri: ${AUTH_SERVICE_URI}
               predicates:
                 - Path=/api/auth/**
               filters:
                 - Authentication
-
 #                - StripPrefix=1     # ?? 1
 #                - RewritePath=/user/(?<remaining>.*), /${remaining} # ?? 2
