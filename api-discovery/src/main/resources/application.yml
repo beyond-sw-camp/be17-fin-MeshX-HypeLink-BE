@@ -5,8 +5,8 @@ eureka:
   client:
     service-url:
       defaultZone: ${API_DISCOVERY_SERVICE}
-    register-with-eureka: false
-    fetch-registry: false
+    register-with-eureka: true
+    fetch-registry: true
   server:
     enable-self-preservation: false
 

@@ -30,27 +30,7 @@ public class PortOneService {
             throw new PaymentException(PORTONE_API_ERROR);
         }
     }
-    // TODO: [심각한 보안 취약점] 결제 취소 시 서버 장애 대응 로직 없음!
-    // TODO: 문제 시나리오:
-    //  1) cancelPayment() 호출 전 서버 다운 → 고객 결제만 되고 주문 없음
-    //  2) cancelPayment() 실행 중 서버 다운 → 취소 성공했는지 알 수 없음
-    //  3) DB 트랜잭션 커밋 전 서버 다운 → PortOne은 결제 완료, DB는 롤백
-    //
-    // TODO: 해결 방안 (실제 배포 시 필수 구현):
-    //  1) 결제 상태 추적 테이블 생성 (payment_reconciliation)
-    //     - paymentId, status(PENDING/COMPLETED/CANCELLED), retryCount, createdAt
-    //  2) 스케줄러로 주기적 정합성 체크 (@Scheduled)
-    //     - PENDING 상태가 10분 이상 된 결제 찾기
-    //     - PortOne에서 실제 상태 조회
-    //     - DB에 주문 없으면 자동 취소 요청
-    //  3) 이벤트 아웃박스 패턴 (Event Outbox Pattern)
-    //     - 취소 이벤트를 먼저 DB에 저장 (트랜잭션 안전)
-    //     - 별도 워커가 이벤트 처리 및 PortOne API 호출
-    //  4) PortOne 웹훅 구현
-    //     - PortOne이 결제 완료 알림 보내면
-    //     - 우리 DB에 주문 있는지 확인
-    //     - 없으면 자동 환불 처리 스케줄링
-    //
+
     // 검증 실패시 포트원 서버에 취소 요청을 내리는 메서드
     public void cancelPayment(String paymentId, String reason) {
         try {
@@ -75,12 +55,7 @@ public class PortOneService {
         } catch (Exception e) {
             log.error("결제 취소 실패 - paymentId: {}, error: {}", paymentId, e.getMessage(), e);
 
-            // TODO: [중요] 취소 실패 시 재시도 로직 또는 알림 발송 필요
-            // TODO: 현재는 예외만 던지고 끝 → 실패한 취소 요청 추적 불가능
-            // TODO: 실제 배포 시:
-            //  - 실패 이벤트 DB 저장
-            //  - 관리자에게 슬랙/이메일 알림
-            //  - 재시도 큐에 추가
+
 
             throw new RuntimeException("결제 취소 실패: " + e.getMessage(), e);
         }

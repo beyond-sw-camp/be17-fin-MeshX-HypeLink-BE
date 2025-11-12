@@ -20,6 +20,10 @@ public interface StoreItemDetailRepository extends JpaRepository<StoreItemDetail
     @Query("SELECT d FROM StoreItemDetailEntity d WHERE d.itemDetailCode = :itemDetailCode")
     Optional<StoreItemDetailEntity> findByItemDetailCodeWithLock(@Param("itemDetailCode") String itemDetailCode);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT d FROM StoreItemDetailEntity d WHERE d.id = :id")
+    Optional<StoreItemDetailEntity> findByIdWithLock(@Param("id") Integer id);
+
     List<StoreItemDetailEntity> findByStockLessThanEqual(Integer stock);
 
     @Query("SELECT d FROM StoreItemDetailEntity d " +

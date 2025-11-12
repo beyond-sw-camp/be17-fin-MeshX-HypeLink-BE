@@ -2,6 +2,7 @@ package org.example.apidirect.payment.adapter.out.persistence;
 
 import MeshX.common.PersistenceAdapter;
 import lombok.RequiredArgsConstructor;
+import org.example.apidirect.payment.adapter.out.entity.PaymentsEntity;
 import org.example.apidirect.payment.adapter.out.mapper.PaymentsMapper;
 import org.example.apidirect.payment.domain.Payments;
 import org.example.apidirect.payment.usecase.port.out.PaymentsPersistencePort;
@@ -16,8 +17,8 @@ public class PaymentsPersistenceAdaptor implements PaymentsPersistencePort {
 
     @Override
     public Payments save(Payments payments) {
-        var entity = PaymentsMapper.toEntity(payments);
-        var saved = paymentsRepository.save(entity);
+        PaymentsEntity entity = PaymentsMapper.toEntity(payments);
+        PaymentsEntity saved = paymentsRepository.save(entity);
         return PaymentsMapper.toDomain(saved);
     }
 

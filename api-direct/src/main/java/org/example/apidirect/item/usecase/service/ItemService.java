@@ -5,9 +5,11 @@ import lombok.RequiredArgsConstructor;
 import org.example.apidirect.common.exception.ItemException;
 import org.example.apidirect.common.exception.ItemExceptionMessage;
 import org.example.apidirect.item.adapter.in.web.dto.response.StoreItemDetailResponse;
+import org.example.apidirect.item.adapter.in.web.mapper.StoreItemDetailResponseMapper;
+import org.example.apidirect.item.domain.StoreItem;
 import org.example.apidirect.item.domain.StoreItemDetail;
-import org.example.apidirect.item.usecase.port.in.ItemCommandUseCase;
-import org.example.apidirect.item.usecase.port.in.ItemQueryUseCase;
+import org.example.apidirect.item.usecase.port.in.ItemCommandPort;
+import org.example.apidirect.item.usecase.port.in.ItemQueryPort;
 import org.example.apidirect.item.usecase.port.out.ItemDetailPersistencePort;
 import org.example.apidirect.item.usecase.port.out.ItemDetailQueryPort;
 import org.example.apidirect.item.usecase.port.out.ItemPersistencePort;
@@ -18,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @UseCase
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class ItemService implements ItemQueryUseCase, ItemCommandUseCase {
+public class ItemService implements ItemQueryPort, ItemCommandPort {
 
     private final ItemDetailQueryPort itemDetailQueryPort;
     private final ItemDetailPersistencePort itemDetailPersistencePort;
@@ -62,6 +64,12 @@ public class ItemService implements ItemQueryUseCase, ItemCommandUseCase {
     }
 
     @Override
+    public StoreItemDetail findByIdWithLock(Integer itemDetailId) {
+        return itemDetailQueryPort.findByIdWithLock(itemDetailId)
+                .orElseThrow(() -> new ItemException(ItemExceptionMessage.NOT_FOUND));
+    }
+
+    @Override
     @Transactional
     public void updateStock(String itemDetailCode, Integer stockChange) {
         StoreItemDetail detail = itemDetailQueryPort.findByItemDetailCodeWithLock(itemDetailCode)
@@ -73,10 +81,10 @@ public class ItemService implements ItemQueryUseCase, ItemCommandUseCase {
 
     private StoreItemDetailResponse toResponse(StoreItemDetail detail) {
         // StoreItem 정보 조회
-        var item = itemPersistencePort.findByItemCode(detail.getItemCode())
+        StoreItem item = itemPersistencePort.findByItemCode(detail.getItemCode())
                 .orElseThrow(() -> new ItemException(ItemExceptionMessage.NOT_FOUND));
 
-        return StoreItemDetailResponse.toResponse(
+        return StoreItemDetailResponseMapper.toResponse(
                 detail,
                 item.getKoName(),
                 item.getCategory(),

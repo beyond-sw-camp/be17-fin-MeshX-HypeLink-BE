@@ -2,6 +2,7 @@ package org.example.apidirect.payment.adapter.out.persistence;
 
 import MeshX.common.PersistenceAdapter;
 import lombok.RequiredArgsConstructor;
+import org.example.apidirect.payment.adapter.out.entity.OrderItemEntity;
 import org.example.apidirect.payment.adapter.out.mapper.OrderItemMapper;
 import org.example.apidirect.payment.domain.OrderItem;
 import org.example.apidirect.payment.usecase.port.out.OrderItemPersistencePort;
@@ -18,8 +19,8 @@ public class OrderItemPersistenceAdaptor implements OrderItemPersistencePort {
 
     @Override
     public OrderItem save(OrderItem orderItem) {
-        var entity = OrderItemMapper.toEntity(orderItem);
-        var saved = orderItemRepository.save(entity);
+        OrderItemEntity entity = OrderItemMapper.toEntity(orderItem);
+        OrderItemEntity saved = orderItemRepository.save(entity);
         return OrderItemMapper.toDomain(saved);
     }
 

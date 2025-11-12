@@ -13,4 +13,5 @@ public interface ItemDetailQueryPort {
     Page<StoreItemDetail> findByLowStock(Integer minStock, Pageable pageable);
     Optional<StoreItemDetail> findByItemDetailCode(String itemDetailCode);
     Optional<StoreItemDetail> findByItemDetailCodeWithLock(String itemDetailCode);
+    Optional<StoreItemDetail> findByIdWithLock(Integer id);
 }

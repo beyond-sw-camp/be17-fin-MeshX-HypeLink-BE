@@ -4,26 +4,25 @@ import MeshX.common.WebAdapter;
 import lombok.RequiredArgsConstructor;
 import org.example.apidirect.item.adapter.in.web.dto.request.UpdateStoreItemDetailRequest;
 import org.example.apidirect.item.adapter.in.web.dto.response.StoreItemDetailResponse;
-import org.example.apidirect.item.usecase.port.in.ItemCommandUseCase;
-import org.example.apidirect.item.usecase.port.in.ItemQueryUseCase;
+import org.example.apidirect.item.usecase.port.in.ItemCommandPort;
+import org.example.apidirect.item.usecase.port.in.ItemQueryPort;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @WebAdapter
 @RequiredArgsConstructor
-@RequestMapping("/api/item")
+@RequestMapping("/api/store/item")
 public class ItemWebAdapter {
 
-    private final ItemQueryUseCase itemQueryUseCase;
-    private final ItemCommandUseCase itemCommandUseCase;
+    private final ItemQueryPort itemQueryPort;
+    private final ItemCommandPort itemCommandPort;
 
 
     @GetMapping("/list")
     public ResponseEntity<Page<StoreItemDetailResponse>> getItemList(Pageable pageable) {
-        Page<StoreItemDetailResponse> result = itemQueryUseCase.findAllItems(pageable);
+        Page<StoreItemDetailResponse> result = itemQueryPort.findAllItems(pageable);
         return ResponseEntity.ok(result);
     }
 
@@ -31,7 +30,7 @@ public class ItemWebAdapter {
     public ResponseEntity<Page<StoreItemDetailResponse>> searchItems(
             @RequestParam(required = false) String keyword,
             Pageable pageable) {
-        Page<StoreItemDetailResponse> result = itemQueryUseCase.searchItems(keyword, pageable);
+        Page<StoreItemDetailResponse> result = itemQueryPort.searchItems(keyword, pageable);
         return ResponseEntity.ok(result);
     }
 
@@ -40,7 +39,7 @@ public class ItemWebAdapter {
     public ResponseEntity<Page<StoreItemDetailResponse>> getItemsByCategory(
             @RequestParam String category,
             Pageable pageable) {
-        Page<StoreItemDetailResponse> result = itemQueryUseCase.findItemsByCategory(category, pageable);
+        Page<StoreItemDetailResponse> result = itemQueryPort.findItemsByCategory(category, pageable);
         return ResponseEntity.ok(result);
     }
 
@@ -49,21 +48,21 @@ public class ItemWebAdapter {
     public ResponseEntity<Page<StoreItemDetailResponse>> getLowStockItems(
             @RequestParam(defaultValue = "10") Integer minStock,
             Pageable pageable) {
-        Page<StoreItemDetailResponse> result = itemQueryUseCase.findLowStockItems(minStock, pageable);
+        Page<StoreItemDetailResponse> result = itemQueryPort.findLowStockItems(minStock, pageable);
         return ResponseEntity.ok(result);
     }
 
 
     @GetMapping("/barcode")
     public ResponseEntity<StoreItemDetailResponse> getItemByBarcode(@RequestParam String code) {
-        StoreItemDetailResponse result = itemQueryUseCase.findItemByBarcode(code);
+        StoreItemDetailResponse result = itemQueryPort.findItemByBarcode(code);
         return ResponseEntity.ok(result);
     }
 
 
     @PatchMapping("/detail/update")
     public ResponseEntity<String> updateItemStock(@RequestBody UpdateStoreItemDetailRequest request) {
-        itemCommandUseCase.updateStock(request.getItemDetailCode(), request.getUpdateStock());
+        itemCommandPort.updateStock(request.getItemDetailCode(), request.getUpdateStock());
         return ResponseEntity.ok("재고 업데이트가 성공했습니다.");
     }
 }

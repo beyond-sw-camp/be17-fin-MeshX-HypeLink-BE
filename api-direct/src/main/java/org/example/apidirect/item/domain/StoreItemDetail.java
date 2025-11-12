@@ -10,6 +10,7 @@ public class StoreItemDetail {
     private String itemDetailCode;
     private String itemCode;
     private Integer storeItemId;
+    private String itemName;  // koName 또는 enName
     private Integer colorId;
     private Integer sizeId;
     private String color;

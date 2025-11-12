@@ -43,4 +43,11 @@ dependencies {
 
     // Spring Kafka
     implementation("org.springframework.kafka:spring-kafka")
+
+    // openfeign
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
+
+    // portone
+    implementation 'io.portone:server-sdk:0.21.0'
 }

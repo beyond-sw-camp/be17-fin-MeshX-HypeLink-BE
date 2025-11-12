@@ -12,24 +12,29 @@ import MeshX.HypeLink.head_office.customer.model.dto.response.ReceiptRes;
 import MeshX.HypeLink.head_office.customer.model.entity.Customer;
 import MeshX.HypeLink.head_office.customer.model.entity.CustomerCoupon;
 import MeshX.HypeLink.head_office.customer.model.entity.CustomerReceipt;
+import MeshX.HypeLink.head_office.customer.repository.CustomerCouponJpaRepositoryVerify;
 import MeshX.HypeLink.head_office.customer.repository.CustomerJpaRepositoryVerify;
 import MeshX.HypeLink.head_office.customer.repository.CustomerReceiptRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class CustomerService {
 
     private final CustomerJpaRepositoryVerify customerRepository;
     private final CouponJpaRepositoryVerify couponRepository;
     private final CustomerReceiptRepository receiptRepository;
+    private final CustomerCouponJpaRepositoryVerify customerCouponJpaRepositoryVerify;
 
     public void signup (CustomerSignupReq dto) {
         customerRepository.saveNewCustomer(dto.toEntity());
@@ -123,5 +128,11 @@ public class CustomerService {
                 .currentPage(customerPage.getNumber())
                 .pageSize(customerPage.getSize())
                 .build();
+    }
+
+    @Transactional
+    public void useCoupon(Integer customerCouponId) {
+        CustomerCoupon customerCoupon = customerCouponJpaRepositoryVerify.findById(customerCouponId);
+        customerCoupon.useCoupon(LocalDateTime.now().toLocalDate());
     }
 }

@@ -32,7 +32,7 @@ public class ItemPersistenceAdaptor implements ItemPersistencePort {
         // 2. ItemDetail 저장
         if (item.getItemDetails() != null && !item.getItemDetails().isEmpty()) {
             List<StoreItemDetailEntity> detailEntities = item.getItemDetails().stream()
-                    .map(detail -> ItemDetailMapper.toEntity(detail, savedItem))
+                    .map(detail -> ItemDetailMapper.toEntityWithIds(detail, detail.getColorId(), detail.getSizeId(), savedItem))
                     .collect(Collectors.toList());
             itemDetailRepository.saveAll(detailEntities);
         }

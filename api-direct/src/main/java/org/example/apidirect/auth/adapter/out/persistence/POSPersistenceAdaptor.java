@@ -2,6 +2,7 @@ package org.example.apidirect.auth.adapter.out.persistence;
 
 import MeshX.common.PersistenceAdapter;
 import lombok.RequiredArgsConstructor;
+import org.example.apidirect.auth.adapter.out.entity.POSEntity;
 import org.example.apidirect.auth.adapter.out.mapper.POSMapper;
 import org.example.apidirect.auth.domain.POS;
 import org.example.apidirect.auth.usecase.port.out.POSPersistencePort;
@@ -16,8 +17,8 @@ public class POSPersistenceAdaptor implements POSPersistencePort {
 
     @Override
     public POS save(POS pos) {
-        var entity = POSMapper.toEntity(pos);
-        var saved = posRepository.save(entity);
+        POSEntity entity = POSMapper.toEntity(pos);
+        POSEntity saved = posRepository.save(entity);
         return POSMapper.toDomain(saved);
     }
 

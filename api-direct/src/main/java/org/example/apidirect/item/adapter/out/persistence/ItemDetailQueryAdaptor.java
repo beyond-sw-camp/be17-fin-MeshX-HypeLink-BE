@@ -51,4 +51,10 @@ public class ItemDetailQueryAdaptor implements ItemDetailQueryPort {
         return repository.findByItemDetailCodeWithLock(itemDetailCode)
                 .map(ItemDetailMapper::toDomain);
     }
+
+    @Override
+    public Optional<StoreItemDetail> findByIdWithLock(Integer id) {
+        return repository.findByIdWithLock(id)
+                .map(ItemDetailMapper::toDomain);
+    }
 }

@@ -11,6 +11,8 @@ public interface ItemDetailPersistencePort {
 
     List<StoreItemDetail> saveAll(List<StoreItemDetail> details);
 
+    Optional<StoreItemDetail> findById(Integer id);
+
     Optional<StoreItemDetail> findByItemDetailCode(String itemDetailCode);
 
     List<StoreItemDetail> findLowStock(Integer threshold);

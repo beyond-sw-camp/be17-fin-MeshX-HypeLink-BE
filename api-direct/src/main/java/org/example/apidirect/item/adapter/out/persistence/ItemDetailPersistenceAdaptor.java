@@ -45,6 +45,12 @@ public class ItemDetailPersistenceAdaptor implements ItemDetailPersistencePort {
     }
 
     @Override
+    public Optional<StoreItemDetail> findById(Integer id) {
+        return itemDetailRepository.findById(id)
+                .map(ItemDetailMapper::toDomain);
+    }
+
+    @Override
     public Optional<StoreItemDetail> findByItemDetailCode(String itemDetailCode) {
         return itemDetailRepository.findByItemDetailCode(itemDetailCode)
                 .map(ItemDetailMapper::toDomain);
