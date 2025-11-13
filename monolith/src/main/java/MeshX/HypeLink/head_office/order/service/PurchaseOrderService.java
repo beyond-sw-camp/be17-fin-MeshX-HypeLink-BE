@@ -33,7 +33,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -143,8 +142,7 @@ public class PurchaseOrderService {
     }
 
     public PageRes<PurchaseOrderInfoDetailRes> searchList(Pageable pageReq, String keyWord, String status,
-                                                          UserDetails userDetails) {
-        String email = userDetails.getUsername();
+                                                          String email) {
         Member member = memberRepository.findByEmail(email);
 
         if(member.getRole().equals(BRANCH_MANAGER)) {

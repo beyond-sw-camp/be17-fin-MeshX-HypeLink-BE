@@ -1,11 +1,10 @@
 package com.example.apiauth.adapter.out.persistence;
 
 import MeshX.common.PersistenceAdapter;
+import com.example.apiauth.adapter.out.external.monolith.dto.DriverSyncDto;
 import com.example.apiauth.adapter.out.kafka.DataSyncEventProducer;
 import com.example.apiauth.adapter.out.persistence.entity.DriverEntity;
 import com.example.apiauth.adapter.out.persistence.mapper.DriverMapper;
-import com.example.apiauth.adapter.out.persistence.read.entity.DriverReadEntity;
-import com.example.apiauth.adapter.out.persistence.read.mapper.DriverReadMapper;
 import com.example.apiauth.domain.event.DataSyncEvent;
 import com.example.apiauth.domain.model.Driver;
 import com.example.apiauth.usecase.port.out.persistence.DriverCommandPort;
@@ -30,12 +29,18 @@ public class DriverJpaAdapter implements DriverCommandPort {
 
         // CQRS 이벤트 발행
         try {
-            DriverReadEntity readEntity = DriverReadMapper.toEntity(savedDriver);
+            DriverSyncDto syncDto = DriverSyncDto.builder()
+                    .id(savedDriver.getId())
+                    .macAddress(savedDriver.getMacAddress())
+                    .carNumber(savedDriver.getCarNumber())
+                    .memberId(savedDriver.getMember() != null ? savedDriver.getMember().getId() : null)
+                    .build();
+
             DataSyncEvent event = DataSyncEvent.builder()
                     .operation(isUpdate ? DataSyncEvent.SyncOperation.UPDATE : DataSyncEvent.SyncOperation.CREATE)
                     .entityType(DataSyncEvent.EntityType.DRIVER)
                     .entityId(savedDriver.getId())
-                    .entityData(objectMapper.writeValueAsString(readEntity))
+                    .entityData(objectMapper.writeValueAsString(syncDto))
                     .timestamp(LocalDateTime.now())
                     .build();
             eventProducer.publishEvent(event);

@@ -44,6 +44,14 @@ spring:
       server:
         webflux:
           routes:
+            - id: websocket-monolith
+              uri: ${MONOLITH_SERVICE_URI}
+              order: 0
+              predicates:
+                - Path=/ws/**
+              filters:
+                - Authentication
+
             - id: api-item
               uri: ${ITEM_SERVICE_URI}
               order: 1
@@ -57,15 +65,17 @@ spring:
               order: 2
               predicates:
                 - Path=/api/**
+              filters:
+                - Authentication
 
-#            - id: api-auth
-#              uri: ${AUTH_SERVICE_URI}
-#              predicates:
-#                - Path=/api/auth/**, /api/member/**
-#              filters:
-#                - Authentication
-#                - StripPrefix=1     # ?? 1
-#                - RewritePath=/user/(?<remaining>.*), /${remaining} # ?? 2
+            - id: api-auth
+              uri: ${AUTH_SERVICE_URI}
+              predicates:
+                - Path=/api/auth/**, /api/member/**
+              filters:
+                - Authentication
+            #                - StripPrefix=1     # ?? 1
+            #                - RewritePath=/user/(?<remaining>.*), /${remaining} # ?? 2
 
 #            - id: api-direct
 #              uri: ${DIRECT_SERVICE_URI}

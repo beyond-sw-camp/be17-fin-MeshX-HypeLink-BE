@@ -1,6 +1,7 @@
 package com.example.apigateway.auth;
 
 import com.example.apigateway.config.JwtTokenProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
@@ -12,6 +13,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 
+@Slf4j
 @Component
 public class AuthenticationGatewayFilterFactory extends AbstractGatewayFilterFactory<AuthenticationGatewayFilterFactory.Config> {
 
@@ -33,6 +35,7 @@ public class AuthenticationGatewayFilterFactory extends AbstractGatewayFilterFac
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
             String path = exchange.getRequest().getPath().value();
+            log.info("path : {}", path);
 
             // 1. Internal API 차단
             if (path.startsWith("/internal/")) {
@@ -40,7 +43,13 @@ public class AuthenticationGatewayFilterFactory extends AbstractGatewayFilterFac
                 return exchange.getResponse().setComplete();
             }
 
-            // 2. 공개 경로
+            // 2. WebSocket 요청 통과 (Upgrade 헤더 확인)
+            String upgrade = exchange.getRequest().getHeaders().getFirst("Upgrade");
+            if ("websocket".equalsIgnoreCase(upgrade)) {
+                return chain.filter(exchange);
+            }
+
+            // 3. 공개 경로
             if (isPublicPath(path)) {
                 return chain.filter(exchange);
             }

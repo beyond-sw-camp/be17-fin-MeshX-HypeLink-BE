@@ -19,10 +19,6 @@ import com.example.apiauth.usecase.port.out.external.GeocodingPort;
 import com.example.apiauth.usecase.port.out.persistence.*;
 import com.example.apiauth.usecase.port.out.usecase.AuthUseCase;
 import com.example.apiauth.usecase.port.out.kafka.EventPublisherPort;
-import com.example.apiauth.adapter.out.kafka.MonolithSyncEventProducer;
-import com.example.apiauth.adapter.out.kafka.DataSyncEventProducer;
-import com.example.apiauth.domain.event.DataSyncEvent;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -51,9 +47,6 @@ public class AuthService implements AuthUseCase {
     private final PasswordEncoder passwordEncoder;
     private final TokenStorePort tokenStorePort;
     private final EventPublisherPort eventPublisherPort;
-    private final MonolithSyncEventProducer monolithSyncEventProducer;
-    private final DataSyncEventProducer dataSyncEventProducer;
-    private final ObjectMapper objectMapper;
 
     @Override
     public LoginResDto login(LoginCommand dto) {
@@ -131,111 +124,11 @@ public class AuthService implements AuthUseCase {
                 break;
         }
 
-        MemberRegisterEvent temp = MemberRegisterEvent.of(savedMember, savedStore, savedDriver, savedPos);
-        eventPublisherPort.publishMemberRegistered(temp);
-
-        // CQRS Read DB 동기화
-        publishCqrsEvent(savedMember, savedStore, savedPos, savedDriver);
-
-        // 모놀리식 동기화
-        publishMonolithSyncEvent(savedMember, savedStore, savedPos, savedDriver);
+        // MemberRegisterEvent 하나로 Read DB, Monolith, 다른 서비스 모두 동기화
+        MemberRegisterEvent event = MemberRegisterEvent.of(savedMember, savedStore, savedDriver, savedPos);
+        eventPublisherPort.publishMemberRegistered(event);
     }
 
-    private void publishCqrsEvent(Member member, Store store, Pos pos, Driver driver) {
-        try {
-            // Member CQRS 이벤트
-            DataSyncEvent memberEvent = DataSyncEvent.builder()
-                    .operation(DataSyncEvent.SyncOperation.CREATE)
-                    .entityType(DataSyncEvent.EntityType.MEMBER)
-                    .entityId(member.getId())
-                    .entityData(objectMapper.writeValueAsString(member))
-                    .build();
-            dataSyncEventProducer.publishEvent(memberEvent);
-
-            // Store CQRS 이벤트
-            if (store != null) {
-                DataSyncEvent storeEvent = DataSyncEvent.builder()
-                        .operation(DataSyncEvent.SyncOperation.CREATE)
-                        .entityType(DataSyncEvent.EntityType.STORE)
-                        .entityId(store.getId())
-                        .entityData(objectMapper.writeValueAsString(store))
-                        .build();
-                dataSyncEventProducer.publishEvent(storeEvent);
-            }
-
-            // Pos CQRS 이벤트
-            if (pos != null) {
-                DataSyncEvent posEvent = DataSyncEvent.builder()
-                        .operation(DataSyncEvent.SyncOperation.CREATE)
-                        .entityType(DataSyncEvent.EntityType.POS)
-                        .entityId(pos.getId())
-                        .entityData(objectMapper.writeValueAsString(pos))
-                        .build();
-                dataSyncEventProducer.publishEvent(posEvent);
-            }
-
-            // Driver CQRS 이벤트
-            if (driver != null) {
-                DataSyncEvent driverEvent = DataSyncEvent.builder()
-                        .operation(DataSyncEvent.SyncOperation.CREATE)
-                        .entityType(DataSyncEvent.EntityType.DRIVER)
-                        .entityId(driver.getId())
-                        .entityData(objectMapper.writeValueAsString(driver))
-                        .build();
-                dataSyncEventProducer.publishEvent(driverEvent);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to publish CQRS event", e);
-        }
-    }
-
-    private void publishMonolithSyncEvent(Member member, Store store, Pos pos, Driver driver) {
-        try {
-            // Member → 모놀리식 동기화
-            DataSyncEvent memberEvent = DataSyncEvent.builder()
-                    .operation(DataSyncEvent.SyncOperation.CREATE)
-                    .entityType(DataSyncEvent.EntityType.MEMBER)
-                    .entityId(member.getId())
-                    .entityData(objectMapper.writeValueAsString(member))
-                    .build();
-            monolithSyncEventProducer.publishToMonolith(memberEvent);
-
-            // Store → 모놀리식 동기화
-            if (store != null) {
-                DataSyncEvent storeEvent = DataSyncEvent.builder()
-                        .operation(DataSyncEvent.SyncOperation.CREATE)
-                        .entityType(DataSyncEvent.EntityType.STORE)
-                        .entityId(store.getId())
-                        .entityData(objectMapper.writeValueAsString(store))
-                        .build();
-                monolithSyncEventProducer.publishToMonolith(storeEvent);
-            }
-
-            // Pos → 모놀리식 동기화
-            if (pos != null) {
-                DataSyncEvent posEvent = DataSyncEvent.builder()
-                        .operation(DataSyncEvent.SyncOperation.CREATE)
-                        .entityType(DataSyncEvent.EntityType.POS)
-                        .entityId(pos.getId())
-                        .entityData(objectMapper.writeValueAsString(pos))
-                        .build();
-                monolithSyncEventProducer.publishToMonolith(posEvent);
-            }
-
-            // Driver → 모놀리식 동기화
-            if (driver != null) {
-                DataSyncEvent driverEvent = DataSyncEvent.builder()
-                        .operation(DataSyncEvent.SyncOperation.CREATE)
-                        .entityType(DataSyncEvent.EntityType.DRIVER)
-                        .entityId(driver.getId())
-                        .entityData(objectMapper.writeValueAsString(driver))
-                        .build();
-                monolithSyncEventProducer.publishToMonolith(driverEvent);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to publish monolith sync event", e);
-        }
-    }
 
     private AuthTokens issueTokens(String email, String role) {
         AuthTokens tokens = jwtTokenProvider.generateTokens(email, role);
