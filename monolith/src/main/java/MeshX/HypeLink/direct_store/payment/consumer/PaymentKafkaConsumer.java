@@ -20,7 +20,7 @@ public class PaymentKafkaConsumer {
     @KafkaListener(
             topics = "payment.sync",
             groupId = "monolith-payment-sync",
-            containerFactory = "kafkaListenerContainerFactory"
+            containerFactory = "stringKafkaListenerFactory"
     )
     public void consumePaymentSync(String rawMessage) {
         try {
