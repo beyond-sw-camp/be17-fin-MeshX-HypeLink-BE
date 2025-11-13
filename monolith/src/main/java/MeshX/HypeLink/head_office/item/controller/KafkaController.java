@@ -1,11 +1,11 @@
 package MeshX.HypeLink.head_office.item.controller;
 
+import MeshX.HypeLink.common.TryCatchTemplate;
 import MeshX.HypeLink.head_office.item.model.dto.request.SaveItemDetailsReq;
 import MeshX.HypeLink.head_office.item.model.dto.request.SaveItemReq;
 import MeshX.HypeLink.head_office.item.service.ItemDetailService;
 import MeshX.HypeLink.head_office.item.service.ItemService;
 import MeshX.HypeLink.head_office.item.service.kafka.KafkaEnvelope;
-import MeshX.common.TryCatchTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +32,8 @@ public class KafkaController {
     private final ItemService itemService;
     private final ItemDetailService itemDetailService;
 
-    @KafkaListener(topics = "${kafka.topic.transaction.item.save}")
+    @KafkaListener(topics = "${kafka.topic.transaction.item.save}",
+            containerFactory = "stringKafkaListenerFactory")
     public void saveNewItem(String rawMessage) {
         TryCatchTemplate.parse(() -> {
             JsonNode root = objectMapper.readTree(rawMessage);
@@ -63,7 +64,8 @@ public class KafkaController {
         });
     }
 
-    @KafkaListener(topics = "${kafka.topic.transaction.itemDetail.save}")
+    @KafkaListener(topics = "${kafka.topic.transaction.itemDetail.save}",
+            containerFactory = "stringKafkaListenerFactory")
     public void saveNewItemDetails(String rawMessage) {
         TryCatchTemplate.parse(() -> {
             JsonNode root = objectMapper.readTree(rawMessage);
