@@ -1,6 +1,5 @@
 package com.example.apinotice.notice.usecase.port.out.response;
 
-import com.example.apinotice.notice.config.NoticeS3Config;
 import com.example.apinotice.notice.domain.NoticeImage;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,7 +16,7 @@ public class NoticeImageInfoDto {
         return NoticeImageInfoDto.builder()
                 .id(img.getId())
                 .originalName(img.getOriginalFilename())
-                .imageUrl(NoticeS3Config.BASE_URL + img.getS3Key()) // ⭐ URL 생성
+                .imageUrl("/" + img.getS3Key()) //  URL 생성
                 .build();
     }
 }
