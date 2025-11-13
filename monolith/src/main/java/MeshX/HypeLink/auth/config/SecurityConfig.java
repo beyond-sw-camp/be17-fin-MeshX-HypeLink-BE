@@ -58,6 +58,7 @@ public class SecurityConfig {
         configuration.setAllowCredentials(true);
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
+                "http://localhost:5174",
                 allowedOrigin
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
@@ -87,11 +88,8 @@ public class SecurityConfig {
 
                 // 요청 경로별 권한 설정
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/swagger-ui/**", "/api/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/health/**").permitAll()
-                        .requestMatchers("/ws/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/ws/**").permitAll() // WebSocket handshake는 JwtHandShakeInterceptor에서 처리
+                        .anyRequest().permitAll() // 나머지 모든 HTTP 엔드포인트는 허용
                 )
 
                 // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 추가

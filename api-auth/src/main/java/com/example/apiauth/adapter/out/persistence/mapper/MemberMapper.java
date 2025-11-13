@@ -18,6 +18,8 @@ public class MemberMapper {
                 .role(memberEntity.getRole())
                 .region(memberEntity.getRegion())
                 .refreshToken(memberEntity.getRefreshToken())
+                .createdAt(memberEntity.getCreatedAt())
+                .updatedAt(memberEntity.getUpdatedAt())
                 .build();
     }
 

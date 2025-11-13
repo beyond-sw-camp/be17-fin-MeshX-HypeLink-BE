@@ -1,48 +1,68 @@
 package com.example.apiauth.adapter.out.persistence;
 
 import MeshX.common.PersistenceAdapter;
-import com.example.apiauth.adapter.out.persistence.entity.MemberEntity;
+import com.example.apiauth.adapter.out.external.monolith.dto.PosSyncDto;
+import com.example.apiauth.adapter.out.kafka.DataSyncEventProducer;
 import com.example.apiauth.adapter.out.persistence.entity.PosEntity;
 import com.example.apiauth.adapter.out.persistence.mapper.PosMapper;
-import com.example.apiauth.common.exception.AuthException;
-import com.example.apiauth.common.exception.AuthExceptionMessage;
+import com.example.apiauth.domain.event.DataSyncEvent;
 import com.example.apiauth.domain.model.Pos;
-import com.example.apiauth.usecase.port.out.persistence.PosPort;
+import com.example.apiauth.usecase.port.out.persistence.PosCommandPort;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
-public class PosJpaAdapter implements PosPort {
+public class PosJpaAdapter implements PosCommandPort {
 
     private final PosJpaRepository posJpaRepository;
+    private final DataSyncEventProducer eventProducer;
+    private final ObjectMapper objectMapper;
 
     @Override
-    public List<Pos> findByStoreIdIn(List<Integer> storeIds) {
-        return List.of();
+    public Pos save(Pos pos) {
+        boolean isUpdate = pos.getId() != null;
+        PosEntity posEntity = posJpaRepository.save(PosMapper.toEntity(pos));
+        Pos savedPos = PosMapper.toDomain(posEntity);
+
+        // CQRS 이벤트 발행
+        try {
+            PosSyncDto syncDto = PosSyncDto.builder()
+                    .id(savedPos.getId())
+                    .posCode(savedPos.getPosCode())
+                    .healthCheck(savedPos.getHealthCheck())
+                    .storeId(savedPos.getStore() != null ? savedPos.getStore().getId() : null)
+                    .memberId(savedPos.getMember() != null ? savedPos.getMember().getId() : null)
+                    .build();
+
+            DataSyncEvent event = DataSyncEvent.builder()
+                    .operation(isUpdate ? DataSyncEvent.SyncOperation.UPDATE : DataSyncEvent.SyncOperation.CREATE)
+                    .entityType(DataSyncEvent.EntityType.POS)
+                    .entityId(savedPos.getId())
+                    .entityData(objectMapper.writeValueAsString(syncDto))
+                    .timestamp(LocalDateTime.now())
+                    .build();
+            eventProducer.publishEvent(event);
+        } catch (Exception e) {
+            // 이벤트 발행 실패 시 로깅만 수행
+        }
+
+        return savedPos;
     }
 
     @Override
-    public Pos findByMember(MemberEntity member) {
-        return null;
-    }
+    public void delete(Integer id) {
+        posJpaRepository.deleteById(id);
 
-    @Override
-    public Pos findByMember_Id(Integer memberId) {
-        return null;
-    }
-
-    @Override
-    public Pos findByPosId(Integer posid) {
-        return null;
-    }
-
-    @Override
-    public Pos findByMember_Email(String email) {
-        PosEntity pos = posJpaRepository.findByMember_Email(email)
-                .orElseThrow( () -> new AuthException(AuthExceptionMessage.USER_NAME_NOT_FOUND));
-
-        return PosMapper.toDomain(pos);
+        // CQRS 이벤트 발행
+        DataSyncEvent event = DataSyncEvent.builder()
+                .operation(DataSyncEvent.SyncOperation.DELETE)
+                .entityType(DataSyncEvent.EntityType.POS)
+                .entityId(id)
+                .timestamp(LocalDateTime.now())
+                .build();
+        eventProducer.publishEvent(event);
     }
 }

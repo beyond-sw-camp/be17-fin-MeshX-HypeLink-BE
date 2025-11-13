@@ -1,0 +1,69 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: api-direct
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+  kafka:
+    bootstrap-servers: ${KAFKA_IP}
+    producer:
+      retries: 5
+      acks: all
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+    consumer:
+      group-id: ${KAFKA_GROUP_ID}
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    properties:
+      retry.backoff.ms: 1000
+      max.in.flight.requests.per.connection: 1
+
+eureka:
+  instance:
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: ${API_DISCOVERY_SERVICE}
+    register-with-eureka: true
+    fetch-registry: true
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        sliding-window-size: 10
+        sliding-window-type: COUNT_BASED
+    instances:
+      geocoding:
+        base-config: default
+      storeService:
+        base-config: default
+
+portone:
+  api:
+    secret: ${PORTONE_API_SECRET}
+  store-id: ${PORTONE_STORE_ID}
+
+head-office:
+  service:
+    url: ${HEAD_OFFICE_URL}

@@ -8,12 +8,10 @@ import MeshX.HypeLink.head_office.as.model.dto.res.AsDetailRes;
 import MeshX.HypeLink.head_office.as.model.dto.res.AsListPagingRes;
 import MeshX.HypeLink.head_office.as.model.dto.res.AsListRes;
 import MeshX.HypeLink.head_office.as.service.AsService;
+import com.example.apiclients.annotation.GetMemberEmail;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,8 +47,8 @@ public class AsController {
     public ResponseEntity<BaseResponse<AsDetailRes>> updateStatus(
             @PathVariable Integer id,
             @RequestBody AsStatusUpdateReq req,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        asService.getMemberByUserNameAndValidate(userDetails.getUsername());
+            @GetMemberEmail String email) {
+        asService.getMemberByUserNameAndValidate(email);
         AsDetailRes response = asService.updateAsStatus(id, req);
         return ResponseEntity.ok(BaseResponse.of(response));
     }
@@ -59,8 +57,8 @@ public class AsController {
     public ResponseEntity<BaseResponse<AsDetailRes>> createComment(
             @PathVariable Integer id,
             @RequestBody CommentCreateReq req,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        Member member = asService.getMemberByUserNameAndValidate(userDetails.getUsername());
+            @GetMemberEmail String email) {
+        Member member = asService.getMemberByUserNameAndValidate(email);
         AsDetailRes response = asService.createComment(id, req, member);
         return ResponseEntity.ok(BaseResponse.of(response));
     }

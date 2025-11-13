@@ -20,8 +20,8 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    // 이 필터를 거치지 않을 경로 목록
-    private static final String[] EXCLUDE_PATHS = {"/api/auth/", "/api/swagger-ui/", "/api/v3/api-docs/", "/favicon.ico"};
+    // 이 필터를 거칠 경로 목록 (WebSocket만)
+    private static final String[] INCLUDE_PATHS = {"/ws/"};
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String BEARER_PREFIX = "Bearer ";
@@ -31,7 +31,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
-        boolean shouldNotFilter = Arrays.stream(EXCLUDE_PATHS).anyMatch(path::startsWith);
+        boolean shouldFilter = Arrays.stream(INCLUDE_PATHS).anyMatch(path::startsWith);
+        boolean shouldNotFilter = !shouldFilter;
         logger.info("JwtAuthenticationFilter: Path '" + path + "' shouldNotFilter = " + shouldNotFilter);
         return shouldNotFilter;
     }

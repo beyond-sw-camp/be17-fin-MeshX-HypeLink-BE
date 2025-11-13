@@ -1,41 +1,67 @@
 package com.example.apiauth.adapter.out.persistence;
 
 import MeshX.common.PersistenceAdapter;
+import com.example.apiauth.adapter.out.external.monolith.dto.DriverSyncDto;
+import com.example.apiauth.adapter.out.kafka.DataSyncEventProducer;
 import com.example.apiauth.adapter.out.persistence.entity.DriverEntity;
-import com.example.apiauth.adapter.out.persistence.entity.MemberEntity;
 import com.example.apiauth.adapter.out.persistence.mapper.DriverMapper;
-import com.example.apiauth.common.exception.AuthException;
-import com.example.apiauth.common.exception.AuthExceptionMessage;
+import com.example.apiauth.domain.event.DataSyncEvent;
 import com.example.apiauth.domain.model.Driver;
-import com.example.apiauth.usecase.port.out.persistence.DriverPort;
+import com.example.apiauth.usecase.port.out.persistence.DriverCommandPort;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
-public class DriverJpaAdapter implements DriverPort {
+public class DriverJpaAdapter implements DriverCommandPort {
 
     private final DriverJpaRepository driverJpaRepository;
+    private final DataSyncEventProducer eventProducer;
+    private final ObjectMapper objectMapper;
 
     @Override
-    public Driver findByMember_Email(String email) {
-        DriverEntity driverEntity = driverJpaRepository.findByMember_Email(email)
-                .orElseThrow(() -> new AuthException(AuthExceptionMessage.USER_NAME_NOT_FOUND));
+    public Driver save(Driver driver) {
+        boolean isUpdate = driver.getId() != null;
+        DriverEntity driverEntity = driverJpaRepository.save(DriverMapper.toEntity(driver));
+        Driver savedDriver = DriverMapper.toDomain(driverEntity);
 
-        return DriverMapper.toDomain(driverEntity);
+        // CQRS 이벤트 발행
+        try {
+            DriverSyncDto syncDto = DriverSyncDto.builder()
+                    .id(savedDriver.getId())
+                    .macAddress(savedDriver.getMacAddress())
+                    .carNumber(savedDriver.getCarNumber())
+                    .memberId(savedDriver.getMember() != null ? savedDriver.getMember().getId() : null)
+                    .build();
+
+            DataSyncEvent event = DataSyncEvent.builder()
+                    .operation(isUpdate ? DataSyncEvent.SyncOperation.UPDATE : DataSyncEvent.SyncOperation.CREATE)
+                    .entityType(DataSyncEvent.EntityType.DRIVER)
+                    .entityId(savedDriver.getId())
+                    .entityData(objectMapper.writeValueAsString(syncDto))
+                    .timestamp(LocalDateTime.now())
+                    .build();
+            eventProducer.publishEvent(event);
+        } catch (Exception e) {
+            // 이벤트 발행 실패 시 로깅만 수행
+        }
+
+        return savedDriver;
     }
 
     @Override
-    public Driver findByDriverId(Integer driverId) {
-        return null;
-    }
+    public void delete(Integer id) {
+        driverJpaRepository.deleteById(id);
 
-    @Override
-    public Driver findByMember(MemberEntity member) {
-        return null;
-    }
-
-    @Override
-    public Driver findByMember_Id(Integer memberId) {
-        return null;
+        // CQRS 이벤트 발행
+        DataSyncEvent event = DataSyncEvent.builder()
+                .operation(DataSyncEvent.SyncOperation.DELETE)
+                .entityType(DataSyncEvent.EntityType.DRIVER)
+                .entityId(id)
+                .timestamp(LocalDateTime.now())
+                .build();
+        eventProducer.publishEvent(event);
     }
 }

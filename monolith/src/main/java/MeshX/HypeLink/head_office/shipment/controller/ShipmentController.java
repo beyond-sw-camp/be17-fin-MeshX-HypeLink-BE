@@ -37,4 +37,10 @@ public class ShipmentController {
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 
+    @GetMapping("/driver/{driverId}/has-active")
+    public ResponseEntity<BaseResponse<Boolean>> hasActiveShipments(@PathVariable Integer driverId) {
+        boolean hasActive = shipmentService.hasActiveShipmentsByDriver(driverId);
+        return ResponseEntity.ok(BaseResponse.of(hasActive));
+    }
+
 }

@@ -3,6 +3,7 @@ package MeshX.HypeLink.head_office.item.controller;
 import MeshX.HypeLink.common.BaseResponse;
 import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.head_office.item.model.dto.request.CreateItemDetailsReq;
+import MeshX.HypeLink.head_office.item.model.dto.request.SaveItemDetailsReq;
 import MeshX.HypeLink.head_office.item.model.dto.response.ItemDetailsInfoListRes;
 import MeshX.HypeLink.head_office.item.model.dto.response.ItemAndItemDetailInfoRes;
 import MeshX.HypeLink.head_office.item.service.ItemDetailService;
@@ -46,7 +47,13 @@ public class ItemDetailController {
     }
 
     @PostMapping("/creates")
-    public ResponseEntity<BaseResponse<String>> saveDetails(@RequestBody CreateItemDetailsReq dto) {
+    public ResponseEntity<BaseResponse<String>> createDetails(@RequestBody CreateItemDetailsReq dto) {
+        itemDetailService.createItemDetails(dto);
+        return ResponseEntity.status(200).body(BaseResponse.of("수정이 완료되었습니다."));
+    }
+
+    @PostMapping("/saves")
+    public ResponseEntity<BaseResponse<String>> saveDetails(@RequestBody SaveItemDetailsReq dto) {
         itemDetailService.saveItemDetails(dto);
         return ResponseEntity.status(200).body(BaseResponse.of("수정이 완료되었습니다."));
     }

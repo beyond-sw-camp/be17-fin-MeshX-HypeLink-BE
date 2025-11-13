@@ -9,13 +9,11 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 
-
 @Component
 public class JwtTokenProvider {
 
     private final Key key;
     private static final String AUTHORITIES_KEY = "role";
-    private static final String MEMBER_ID_KEY = "memberId";
 
     public JwtTokenProvider(@Value("${jwt.secret-key}") String secretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
@@ -36,10 +34,6 @@ public class JwtTokenProvider {
 
     public String getEmailFromToken(String token) {
         return parseClaims(token).getSubject();
-    }
-
-    public Integer getMemberIdFromToken(String token) {
-        return parseClaims(token).get(MEMBER_ID_KEY, Integer.class);
     }
 
     public String getRoleFromToken(String token) {

@@ -1,0 +1,68 @@
+#spring:
+#  application:
+#    name: api-auth
+#
+#  # Database 설정 (실제 DB 사용)
+#  datasource:
+#    driver-class-name: org.mariadb.jdbc.Driver
+#    url: ${AUTH_DB_URL}
+#    username: ${AUTH_DB_USERNAME}
+#    password: ${AUTH_DB_PASSWORD}
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: true
+#
+#  # Redis 설정 (실제 Redis 사용)
+#  data:
+#    redis:
+#      host: ${AUTH_REDIS_URL}
+#      port: ${AUTH_REDIS_PORT}
+#
+#  # Kafka 설정 (실제 Kafka 사용)
+#  kafka:
+#    bootstrap-servers: ${KAFKA_IP}
+#    producer:
+#      acks: all
+#      retries: 10
+#      batch-size: 32768
+#      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+#      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+#      properties:
+#        enable.idempotence: true
+#        linger.ms: 5
+#        max.in.flight.requests.per.connection: 5
+#        delivery.timeout.ms: 120000
+#        spring.json.type.mapping: memberRegisterEvent:com.example.apiauth.domain.kafka.MemberRegisterEvent
+#
+## JWT 설정
+#jwt:
+#  secret-key: ${JWT_KEY}
+#  access-token-expiration-ms: ${JWT_ACCESS}
+#  refresh-token-expiration-ms: ${JWT_REFRESH}
+#
+## Circuit Breaker 설정
+#resilience4j:
+#  circuitbreaker:
+#    configs:
+#      default:
+#        failure-rate-threshold: 50
+#        minimum-number-of-calls: 5
+#        wait-duration-in-open-state: 10s
+#        permitted-number-of-calls-in-half-open-state: 3
+#        sliding-window-size: 10
+#        sliding-window-type: COUNT_BASED
+#    instances:
+#      geocoding:
+#        base-config: default
+#
+## Naver API 설정
+#naver:
+#  api:
+#    client-id: ${NAVER_MAP_CLIENT}
+#    client-secret: ${NAVER_MAP_SECRET}
+#
+## Eureka 비활성화 (테스트 환경)
+#eureka:
+#  client:
+#    enabled: false

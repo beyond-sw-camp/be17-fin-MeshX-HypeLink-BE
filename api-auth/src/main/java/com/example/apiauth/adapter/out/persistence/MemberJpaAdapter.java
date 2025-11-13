@@ -1,45 +1,74 @@
 package com.example.apiauth.adapter.out.persistence;
 
 import MeshX.common.PersistenceAdapter;
+import com.example.apiauth.adapter.out.external.monolith.dto.MemberSyncDto;
+import com.example.apiauth.adapter.out.kafka.DataSyncEventProducer;
 import com.example.apiauth.adapter.out.persistence.entity.MemberEntity;
 import com.example.apiauth.adapter.out.persistence.mapper.MemberMapper;
-import com.example.apiauth.common.exception.AuthException;
+import com.example.apiauth.domain.event.DataSyncEvent;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import com.example.apiauth.domain.model.Member;
-import com.example.apiauth.usecase.port.out.persistence.MemberPort;
+import com.example.apiauth.usecase.port.out.persistence.MemberCommandPort;
 
-import java.util.Optional;
-
-import static com.example.apiauth.common.exception.AuthExceptionMessage.USER_NAME_NOT_FOUND;
+import java.time.LocalDateTime;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
-public class MemberJpaAdapter implements MemberPort {
+public class MemberJpaAdapter implements MemberCommandPort {
 
     private final MemberJpaRepository memberJpaRepository;
+    private final DataSyncEventProducer eventProducer;
+    private final ObjectMapper objectMapper;
 
     @Override
-    public Member findByEmail(String email) {
-        MemberEntity member = memberJpaRepository.findByEmail(email)
-                .orElseThrow(() -> new AuthException(USER_NAME_NOT_FOUND));
-        return MemberMapper.toDomain(member);
+    public Member save(Member member) {
+        boolean isUpdate = member.getId() != null;
+        MemberEntity memberEntity = memberJpaRepository.save(MemberMapper.toEntity(member));
+        Member savedMember = MemberMapper.toDomain(memberEntity);
+
+        // CQRS 이벤트 발행
+        try {
+            MemberSyncDto syncDto = MemberSyncDto.builder()
+                    .id(savedMember.getId())
+                    .email(savedMember.getEmail())
+                    .password(savedMember.getPassword())
+                    .name(savedMember.getName())
+                    .phone(savedMember.getPhone())
+                    .address(savedMember.getAddress())
+                    .role(savedMember.getRole())
+                    .region(savedMember.getRegion())
+                    .refreshToken(savedMember.getRefreshToken())
+                    .createdAt(savedMember.getCreatedAt())
+                    .updatedAt(savedMember.getUpdatedAt())
+                    .build();
+
+            DataSyncEvent event = DataSyncEvent.builder()
+                    .operation(isUpdate ? DataSyncEvent.SyncOperation.UPDATE : DataSyncEvent.SyncOperation.CREATE)
+                    .entityType(DataSyncEvent.EntityType.MEMBER)
+                    .entityId(savedMember.getId())
+                    .entityData(objectMapper.writeValueAsString(syncDto))
+                    .timestamp(LocalDateTime.now())
+                    .build();
+            eventProducer.publishEvent(event);
+        } catch (Exception e) {
+            // 이벤트 발행 실패 시 로깅만 수행 (Write DB는 이미 저장됨)
+        }
+
+        return savedMember;
     }
 
     @Override
-    public Member findById(Integer id) {
-        MemberEntity member = memberJpaRepository.findById(id)
-                .orElseThrow(() -> new AuthException(USER_NAME_NOT_FOUND));
+    public void delete(Integer id) {
+        memberJpaRepository.deleteById(id);
 
-        return MemberMapper.toDomain(member);
-    }
-
-    @Override
-    public void save(Member member) {
-        memberJpaRepository.save(MemberMapper.toEntity(member));
-    }
-
-    @Override
-    public boolean existsByEmail(String email) {
-        return false;
+        // CQRS 이벤트 발행
+        DataSyncEvent event = DataSyncEvent.builder()
+                .operation(DataSyncEvent.SyncOperation.DELETE)
+                .entityType(DataSyncEvent.EntityType.MEMBER)
+                .entityId(id)
+                .timestamp(LocalDateTime.now())
+                .build();
+        eventProducer.publishEvent(event);
     }
 }

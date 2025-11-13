@@ -1,11 +1,23 @@
+group = 'MeshX'
+version = '0.0.1-SNAPSHOT'
+description = 'api-monolith'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+}
+
 ext {
-	set('springCloudVersion', '2025.0.0')
+    set('springCloudVersion', '2025.0.0')
 }
 
 dependencyManagement {
-	imports {
-		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-	}
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+repositories {
+    mavenCentral()
 }
 
 dependencies {
@@ -61,6 +73,9 @@ dependencies {
 	// actuator
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+    // Spring Kafka
+    implementation("org.springframework.kafka:spring-kafka")
+
 	// Spring Cloud
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
@@ -68,4 +83,11 @@ dependencies {
 	// Internal Modules
 	implementation project(':api-clients')
 	implementation project(':common')
+
+    // Redis 설정 (Redisson)
+    implementation 'org.redisson:redisson-spring-boot-starter:3.27.2'
+
+    // Test Log
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 }

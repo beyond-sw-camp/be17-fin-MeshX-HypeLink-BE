@@ -16,15 +16,13 @@ import MeshX.HypeLink.head_office.as.repository.AsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static MeshX.HypeLink.head_office.as.exception.AsExceptionMessage.*;
+import static MeshX.HypeLink.head_office.as.exception.AsExceptionMessage.NO_PERMISSION;
 
 @Service
 @Transactional(readOnly = true)
@@ -74,8 +72,8 @@ public class AsService {
     }
 
     // 전체 AS 목록 조회
-    public AsListPagingRes getAllAsRequests(UserDetails userDetails, Pageable pageable, String keyWord, String status) {
-        Member member = memberJpaRepositoryVerify.findByEmail(userDetails.getUsername());
+    public AsListPagingRes getAllAsRequests(String  email, Pageable pageable, String keyWord, String status) {
+        Member member = memberJpaRepositoryVerify.findByEmail(email);
         Page<As> asPage = asJpaRepositoryVerify.findAll(member, pageable, keyWord, status);
         List<AsListRes> asListResList = AsListRes.fromList(asPage.getContent());
 

@@ -7,6 +7,7 @@ import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
 import MeshX.HypeLink.auth.utils.JwtUtils;
 import MeshX.HypeLink.common.BaseResponse;
 import MeshX.HypeLink.common.Page.PageRes;
+import MeshX.HypeLink.common.TryCatchTemplate;
 import MeshX.HypeLink.common.exception.BaseException;
 import MeshX.HypeLink.head_office.item.model.entity.ItemDetail;
 import MeshX.HypeLink.head_office.item.repository.ItemDetailJpaRepositoryVerify;
@@ -19,33 +20,40 @@ import MeshX.HypeLink.head_office.order.model.entity.PurchaseDetailStatus;
 import MeshX.HypeLink.head_office.order.model.entity.PurchaseOrder;
 import MeshX.HypeLink.head_office.order.model.entity.PurchaseOrderState;
 import MeshX.HypeLink.head_office.order.repository.PurchaseOrderJpaRepositoryVerify;
-import MeshX.HypeLink.head_office.order.service.dto.StoreItemDetailInfoRes;
+import MeshX.HypeLink.head_office.order.service.dto.ItemDetailUpdateDto;
 import MeshX.HypeLink.head_office.order.service.dto.UpdateStoreItemDetailReq;
 import jakarta.persistence.LockTimeoutException;
 import jakarta.persistence.PessimisticLockException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static MeshX.HypeLink.auth.model.entity.MemberRole.*;
 import static MeshX.HypeLink.head_office.order.exception.PurchaseOrderExceptionMessage.UNDER_ZERO;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class PurchaseOrderService {
     private static final int MAX_RETRY = 3;
+
+    private final KafkaPurchaseService kafkaPurchaseService;
+    private final RedisRaceConditionService redisRaceConditionService;
 
     private final PurchaseOrderJpaRepositoryVerify orderRepository;
     private final ItemDetailJpaRepositoryVerify itemDetailRepository;
@@ -74,16 +82,20 @@ public class PurchaseOrderService {
         ItemDetail itemDetail = itemDetailRepository.findByItemDetailCodeWithLock(dto.getItemDetailCode());
 
         if(dto.getSupplierStoreId() == 0) {
+            // Redis 이용 Lock
+            redisRaceConditionService.decreaseHeadItemDetailStock(dto);
             supplier = memberRepository.findByEmail("hq@company.com");
-            if(itemDetail.getStock() - dto.getQuantity() < 0) {
-                throw new PurchaseOrderException(UNDER_ZERO);
-            }
-            itemDetail.updateStock(-1 * dto.getQuantity());
+//            if(itemDetail.getStock() - dto.getQuantity() < 0) {
+//                throw new PurchaseOrderException(UNDER_ZERO);
+//            }
+//            itemDetail.updateStock(-1 * dto.getQuantity());
+//            kafkaPurchaseService.syncItemDetailStockMinus(itemDetail, dto.getQuantity());
         } else {
             String itemCode = itemDetail.getItem().getItemCode();
             supplier = verifyStoreItemStock(dto, itemCode);
             Store store = storeRepository.findByMember(supplier);
-            updateStoreItemStock(store, itemCode, dto.getItemDetailCode(), -1 * dto.getQuantity());
+//            updateStoreItemStock(store, itemCode, dto.getItemDetailCode(), -1 * dto.getQuantity());
+            kafkaPurchaseService.syncDirectItemDetailStock(store, itemDetail.getId(), -1 * dto.getQuantity());
         }
 
         orderRepository.createOrder(dto.toEntity(itemDetail, requester, supplier));
@@ -99,7 +111,7 @@ public class PurchaseOrderService {
                 .baseUrl("http://localhost:8080") // 실제 서버 주소로 변경
                 .build();
 
-        BaseResponse<StoreItemDetailInfoRes> response = webClient.get()
+        BaseResponse<ItemDetailUpdateDto> response = webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/api/store/item/detail/code")
                         .queryParam("itemDetailCode", dto.getItemDetailCode())
@@ -107,7 +119,7 @@ public class PurchaseOrderService {
                         .queryParam("itemCode", itemCode)
                         .build())
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<BaseResponse<StoreItemDetailInfoRes>>() {})
+                .bodyToMono(new ParameterizedTypeReference<BaseResponse<ItemDetailUpdateDto>>() {})
                 .block(); // 동기식 호출 (트랜잭션 내에서 즉시 대기)
 
         if(response == null) {
@@ -130,8 +142,7 @@ public class PurchaseOrderService {
     }
 
     public PageRes<PurchaseOrderInfoDetailRes> searchList(Pageable pageReq, String keyWord, String status,
-                                                          UserDetails userDetails) {
-        String email = userDetails.getUsername();
+                                                          String email) {
         Member member = memberRepository.findByEmail(email);
 
         if(member.getRole().equals(BRANCH_MANAGER)) {
@@ -175,28 +186,41 @@ public class PurchaseOrderService {
                 .build();
     }
 
-    // 비관적 락을 못 얻었을 때 재시도 로직
-    @Transactional(rollbackFor = Exception.class)
+    // Redis 이용 Lock
+    @Transactional
     public PurchaseOrderInfoDetailRes update(PurchaseOrderUpdateReq dto) {
-        int attempt = 0;
+        PurchaseOrder purchaseOrder = orderRepository.findById(dto.getOrderId());
+        redisRaceConditionService.increaseHeadItemDetailStock(purchaseOrder);
 
-        while (true) {
-            try {
-                return processOrderUpdate(dto); // 핵심 처리 메서드
-            } catch (LockTimeoutException | PessimisticLockException e) {
-                attempt++;
-                if (attempt >= MAX_RETRY) {
-                    throw new BaseException(null); // 커스텀 예외
-                }
-                try {
-                    Thread.sleep(200L * attempt); // 점진적 backoff
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    throw new BaseException(null);
-                }
-            }
-        }
+        PurchaseOrderState state = PurchaseOrderState.valueOf(dto.getOrderState());
+        purchaseOrder.updateOrderState(state);
+
+        PurchaseOrder update = orderRepository.update(purchaseOrder);
+        return PurchaseOrderInfoDetailRes.toDto(update);
     }
+
+    // 비관적 락을 못 얻었을 때 재시도 로직
+//    @Transactional(rollbackFor = Exception.class)
+//    public PurchaseOrderInfoDetailRes update(PurchaseOrderUpdateReq dto) {
+//        int attempt = 0;
+//
+//        while (true) {
+//            try {
+//                return processOrderUpdate(dto); // 핵심 처리 메서드
+//            } catch (LockTimeoutException | PessimisticLockException e) {
+//                attempt++;
+//                if (attempt >= MAX_RETRY) {
+//                    throw new BaseException(null); // 커스텀 예외
+//                }
+//                try {
+//                    Thread.sleep(200L * attempt); // 점진적 backoff
+//                } catch (InterruptedException ie) {
+//                    Thread.currentThread().interrupt();
+//                    throw new BaseException(null);
+//                }
+//            }
+//        }
+//    }
 
     // 비관적 락으로 업데이트 로직
     private PurchaseOrderInfoDetailRes processOrderUpdate(PurchaseOrderUpdateReq dto) {
@@ -212,13 +236,16 @@ public class PurchaseOrderService {
                     throw new PurchaseOrderException(UNDER_ZERO);
                 }
                 itemDetailRepository.merge(itemDetail);
+                kafkaPurchaseService.syncItemDetailStock(itemDetail, purchaseOrder.getQuantity());
             } else {
                 Store store = storeRepository.findByMember(purchaseOrder.getRequester());
                 String itemCode = purchaseOrder.getItemDetail().getItem().getItemCode();
+                Integer itemDetailId = purchaseOrder.getItemDetail().getId();
                 String itemDetailCode = purchaseOrder.getItemDetail().getItemDetailCode();
                 Integer quantity = purchaseOrder.getQuantity();
 
-                updateStoreItemStock(store, itemCode, itemDetailCode, quantity);
+//                updateStoreItemStock(store, itemCode, itemDetailCode, quantity); // HTTP 통신 대신 Kafka에 적용
+                kafkaPurchaseService.syncDirectItemDetailStock(store, itemDetailId, quantity);
             }
         } else {
             purchaseOrder.updateOrderDetailStatus(PurchaseDetailStatus.OTHER_CANCELLATION);

@@ -8,6 +8,7 @@ import MeshX.HypeLink.direct_store.item.model.dto.response.StoreItemDetailInfoRe
 import MeshX.HypeLink.direct_store.item.model.dto.response.StoreItemDetailsInfoRes;
 import MeshX.HypeLink.direct_store.item.model.dto.response.StoreItemDetailRes;
 import MeshX.HypeLink.direct_store.item.service.StoreItemService;
+import com.example.apiclients.annotation.GetMemberEmail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -56,44 +57,44 @@ public class StoreItemController {
 
     @GetMapping("/list")
     public ResponseEntity<BaseResponse<PageRes<StoreItemDetailRes>>> getItemList(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @GetMemberEmail String email,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        PageRes<StoreItemDetailRes> result = storeItemService.findItemDetailsByStoreId(userDetails, pageable);
+        PageRes<StoreItemDetailRes> result = storeItemService.findItemDetailsByStoreId(email, pageable);
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 
     @GetMapping("/search")
     public ResponseEntity<BaseResponse<PageRes<StoreItemDetailRes>>> searchItems(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @GetMemberEmail String email,
             @RequestParam String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        PageRes<StoreItemDetailRes> result = storeItemService.findItemDetailsByStoreIdAndSearch(userDetails, keyword, pageable);
+        PageRes<StoreItemDetailRes> result = storeItemService.findItemDetailsByStoreIdAndSearch(email, keyword, pageable);
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 
     @GetMapping("/category")
     public ResponseEntity<BaseResponse<PageRes<StoreItemDetailRes>>> getItemsByCategory(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @GetMemberEmail String email,
             @RequestParam String category,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        PageRes<StoreItemDetailRes> result = storeItemService.findItemDetailsByStoreIdAndCategory(userDetails, category, pageable);
+        PageRes<StoreItemDetailRes> result = storeItemService.findItemDetailsByStoreIdAndCategory(email, category, pageable);
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 
     @GetMapping("/low-stock")
     public ResponseEntity<BaseResponse<PageRes<StoreItemDetailRes>>> getLowStockItems(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @GetMemberEmail String email,
             @RequestParam(defaultValue = "10") Integer minStock,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        PageRes<StoreItemDetailRes> result = storeItemService.findItemDetailsByStoreIdAndLowStock(userDetails, minStock, pageable);
+        PageRes<StoreItemDetailRes> result = storeItemService.findItemDetailsByStoreIdAndLowStock(email, minStock, pageable);
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 

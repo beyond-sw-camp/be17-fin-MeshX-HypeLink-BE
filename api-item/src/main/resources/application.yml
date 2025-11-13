@@ -1,5 +1,5 @@
-server:
-  port: 9080
+#server:
+#  port: 9080
 
 spring:
   application:
@@ -16,3 +16,67 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: false
+
+  kafka:
+    bootstrap-servers: ${KAFKA_IP}
+
+    producer:
+      acks: all
+      retries: 10
+      batch-size: 32768
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        enable.idempotence: true
+        linger.ms: 5
+        max.in.flight.requests.per.connection: 5
+        delivery.timeout.ms: 120000
+
+    consumer:
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      group-id: ${KAFKA_GROUP_ID}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        isolation.level: read_committed
+        spring.json.trusted.packages: "*"
+
+    listener:
+      ack-mode: record
+
+eureka:
+#  instance:
+#    prefer-ip-address: false
+#    hostname: hypelink          # ✅ K8s Service 이름
+  client:
+    service-url:
+      defaultZone: ${API_DISCOVERY_SERVICE}
+    registerWithEureka: true
+    fetchRegistry: true
+
+feign:
+  item: ${FEIGN_MONOLITH_ITEM_URL}
+  item_detail: ${FEIGN_MONOLITH_ITEM_DETAIL_URL}
+
+kafka:
+  topic:
+    item: ${KAFKA_ITEM_TOPIC}
+    itemDetail: ${KAFKA_ITEM_DETAIL_TOPIC}
+    category: ${KAFKA_CATEGORY_TOPIC}
+    size: ${KAFKA_SIZE_TOPIC}
+    color: ${KAFKA_COLOR_TOPIC}
+    transaction:
+      item:
+        save: ${KAFKA_ITEM_TRANSACTION_SAVE_TOPIC}
+        rollback: ${KAFKA_ITEM_TRANSACTION_ROLLBACK_TOPIC}
+      itemDetail:
+        save: ${KAFKA_ITEM_DETAIL_TRANSACTION_SAVE_TOPIC}
+        rollback: ${KAFKA_ITEM_DETAIL_TRANSACTION_ROLLBACK_TOPIC}
+
+management:
+  endpoints:
+    web:
+      base-path: /api/health    # actuator의 기본 경로를 변경
+      exposure:
+        include: health,info    # 노출시킬 엔드포인트 지정

@@ -1,2 +1,18 @@
 server:
   port: 9090
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${API_DISCOVERY_SERVICE}
+    register-with-eureka: true
+    fetch-registry: true
+  server:
+    enable-self-preservation: false
+
+management:
+  endpoints:
+    web:
+      base-path: /api/health    # actuator의 기본 경로를 변경
+      exposure:
+        include: health,info    # 노출시킬 엔드포인트 지정

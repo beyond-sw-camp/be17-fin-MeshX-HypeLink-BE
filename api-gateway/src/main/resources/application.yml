@@ -1,12 +1,34 @@
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:9090/eureka/
+      defaultZone: ${API_DISCOVERY_SERVICE}
     registerWithEureka: true
     fetchRegistry: true
 
 jwt:
   secret-key: ${JWT_KEY}
+
+# Circuit Breaker 설정 (Resilience4j)
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        sliding-window-size: 10
+        sliding-window-type: COUNT_BASED
+    instances:
+      authService:
+        base-config: default
+
+management:
+  endpoints:
+    web:
+      base-path: /api/health    # actuator의 기본 경로를 변경
+      exposure:
+        include: health,info    # 노출시킬 엔드포인트 지정
 
 spring:
   application:
@@ -27,28 +49,44 @@ spring:
               order: 1
               predicates:
                 - Path=/api/notice/**
-            - id: HYPELINK
-              uri: lb://HYPELINK
+                
+            - id: websocket-monolith
+              uri: ${MONOLITH_SERVICE_URI}
+              order: 0
+              predicates:
+                - Path=/ws/**
+              filters:
+                - Authentication
+
+            - id: api-item
+              uri: ${ITEM_SERVICE_URI}
+              order: 1
+              predicates:
+                - Path=/api/item/**
+                - Path=/api/category/**
+                - Path=/api/color/**
+                - Path=/api/size/**
+            - id: api-monolith
+              uri: ${MONOLITH_SERVICE_URI}
               order: 2
               predicates:
                 - Path=/api/**
+              filters:
+                - Authentication
+
+            - id: api-auth
+              uri: ${AUTH_SERVICE_URI}
+              predicates:
+                - Path=/api/auth/**, /api/member/**
+              filters:
+                - Authentication
+            #                - StripPrefix=1     # ?? 1
+            #                - RewritePath=/user/(?<remaining>.*), /${remaining} # ?? 2
+
 #            - id: api-direct
-#              uri: lb://api-direct
+#              uri: ${DIRECT_SERVICE_URI}
+#              order: 1
 #              predicates:
-#                - Path=/api/store/**
-#            - id: api-item
-#              uri: lb://api-item
-#              predicates:
-#                - Path=/api/item/**
-#            - id: api-purchase
-#              uri: lb://api-purchase
-#              predicates:
-#                - Path=/api/purchase/**
-#            - id: api-auth
-#              uri: lb://api-auth
-#              predicates:
-#                - Path=/api/auth/**
-
-
-#                - StripPrefix=1     # ?? 1
-#                - RewritePath=/user/(?<remaining>.*), /${remaining} # ?? 2
+#                - Path=/api/customer/**, /api/payments/**, /api/store/**
+#              filters:
+#                - Authentication

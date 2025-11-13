@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: HypeLink
+    name: api-monolith
 
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
@@ -14,7 +14,6 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: false
-
 
   data:
     redis:
@@ -31,6 +30,27 @@ spring:
         secret-key: ${S3_SECRET_KEY}
       region:
         static: ${S3_REGION}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_IP}
+    producer:
+      acks: all
+      retries: 10
+      batch-size: 32768
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        enable.idempotence: true
+        linger.ms: 5
+        max.in.flight.requests.per.connection: 5
+        delivery.timeout.ms: 120000
+    consumer:
+      group-id: ${KAFKA_GROUP_ID}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.type.mapping: memberRegisterEvent:MeshX.HypeLink.common.kafka.MemberRegisterEvent,dataSyncEvent:MeshX.HypeLink.common.kafka.DataSyncEvent
 
 jwt:
   secret-key: ${JWT_KEY}
@@ -85,8 +105,34 @@ springdoc:
     config-url: /api/v3/api-docs/swagger-config
 
 eureka:
+#  instance:
+#    prefer-ip-address: false
+#    hostname: api-monolith # hypelink-monolith-svc          # K8s Service 이름
   client:
     service-url:
-      defaultZone: http://localhost:9090/eureka/
+      defaultZone: ${API_DISCOVERY_SERVICE}
     registerWithEureka: true
     fetchRegistry: true
+
+kafka:
+  topic:
+    item: ${KAFKA_ITEM_TOPIC}
+    itemDetail: ${KAFKA_ITEM_DETAIL_TOPIC}
+    category: ${KAFKA_CATEGORY_TOPIC}
+    size: ${KAFKA_SIZE_TOPIC}
+    color: ${KAFKA_COLOR_TOPIC}
+    transaction:
+      item:
+        save: ${KAFKA_ITEM_TRANSACTION_SAVE_TOPIC}
+        rollback: ${KAFKA_ITEM_TRANSACTION_ROLLBACK_TOPIC}
+      itemDetail:
+        save: ${KAFKA_ITEM_DETAIL_TRANSACTION_SAVE_TOPIC}
+        rollback: ${KAFKA_ITEM_DETAIL_TRANSACTION_ROLLBACK_TOPIC}
+
+redisson:
+  cluster:
+    nodes:
+      - ${REDIS_IP_1}
+      - ${REDIS_IP_2}
+      - ${REDIS_IP_3}
+  password: ${REDIS_PASSWORD}
