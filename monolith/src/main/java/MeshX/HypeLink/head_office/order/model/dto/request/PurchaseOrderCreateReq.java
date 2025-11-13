@@ -5,9 +5,11 @@ import MeshX.HypeLink.head_office.item.model.entity.ItemDetail;
 import MeshX.HypeLink.head_office.order.model.entity.PurchaseDetailStatus;
 import MeshX.HypeLink.head_office.order.model.entity.PurchaseOrder;
 import MeshX.HypeLink.head_office.order.model.entity.PurchaseOrderState;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@Builder
 public class PurchaseOrderCreateReq {
     private String itemDetailCode;         // 상품 Code
     private String description;

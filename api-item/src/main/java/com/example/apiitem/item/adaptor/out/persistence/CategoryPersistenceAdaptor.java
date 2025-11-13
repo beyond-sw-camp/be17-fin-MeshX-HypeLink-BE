@@ -33,6 +33,18 @@ public class CategoryPersistenceAdaptor implements CategoryPersistencePort {
         entities.forEach(categoryRepository::upsert);
     }
 
+    @Override
+    public List<Category> findAll() {
+        List<CategoryEntity> all = categoryRepository.findAll();
+        if(all.isEmpty()) {
+            throw new BaseException(null);
+        }
+
+        return all.stream()
+                .map(CategoryMapper::toDomain)
+                .toList();
+    }
+
     private CategoryEntity findCategoryByCategoryName(String category) {
         Optional<CategoryEntity> optional = categoryRepository.findByCategory(category);
         if(optional.isPresent()) {

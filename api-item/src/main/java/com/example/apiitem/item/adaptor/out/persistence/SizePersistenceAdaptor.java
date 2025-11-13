@@ -1,10 +1,12 @@
 package com.example.apiitem.item.adaptor.out.persistence;
 
 import MeshX.common.PersistenceAdapter;
+import MeshX.common.exception.BaseException;
 import com.example.apiitem.item.adaptor.out.jpa.SizeEntity;
 import com.example.apiitem.item.adaptor.out.jpa.SizeRepository;
 import com.example.apiitem.item.domain.Size;
 import com.example.apiitem.item.usecase.port.out.SizePersistencePort;
+import com.example.apiitem.util.ColorMapper;
 import com.example.apiitem.util.SizeMapper;
 import lombok.RequiredArgsConstructor;
 
@@ -19,5 +21,17 @@ public class SizePersistenceAdaptor implements SizePersistencePort {
     public void saveAllWithId(List<Size> sizes) {
         List<SizeEntity> list = sizes.stream().map(SizeMapper::toEntity).toList();
         list.forEach(sizeRepository::upsert);
+    }
+
+    @Override
+    public List<Size> findAll() {
+        List<SizeEntity> all = sizeRepository.findAll();
+        if(all.isEmpty()) {
+            throw new BaseException(null);
+        }
+
+        return all.stream()
+                .map(SizeMapper::toDomain)
+                .toList();
     }
 }

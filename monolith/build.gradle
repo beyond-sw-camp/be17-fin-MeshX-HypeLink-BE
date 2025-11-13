@@ -1,3 +1,11 @@
+group = 'MeshX'
+version = '0.0.1-SNAPSHOT'
+description = 'api-monolith'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+}
+
 ext {
     set('springCloudVersion', '2025.0.0')
 }
@@ -75,4 +83,11 @@ dependencies {
 	// Internal Modules
 	implementation project(':api-clients')
 	implementation project(':common')
+
+    // Redis 설정 (Redisson)
+    implementation 'org.redisson:redisson-spring-boot-starter:3.27.2'
+
+    // Test Log
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 }
