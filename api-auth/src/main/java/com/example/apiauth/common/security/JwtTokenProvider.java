@@ -1,4 +1,4 @@
-package com.example.apiauth.adapter.out.security;
+package com.example.apiauth.common.security;
 
 import com.example.apiauth.common.exception.TokenException;
 import com.example.apiauth.common.exception.TokenExceptionMessage;

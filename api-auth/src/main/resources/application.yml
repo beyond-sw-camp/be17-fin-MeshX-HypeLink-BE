@@ -93,6 +93,30 @@ resilience4j:
         base-config: default
       storeService:
         base-config: default
+      monolithSync:
+        base-config: default
+        failure-rate-threshold: 60  # Monolith는 좀 더 관대하게
+      shipmentService:
+        base-config: default
+
+  # Retry 설정
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 2s
+        retry-exceptions:
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+          - feign.RetryableException
+    instances:
+      monolithSync:
+        base-config: default
+      geocoding:
+        base-config: default
+        max-attempts: 2  # 외부 API는 재시도 적게
+      shipmentService:
+        base-config: default
 
 # Actuator 설정
 management:
