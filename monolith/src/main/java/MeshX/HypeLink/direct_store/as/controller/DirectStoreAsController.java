@@ -7,10 +7,9 @@ import MeshX.HypeLink.direct_store.as.model.dto.AsUpdateReq;
 import MeshX.HypeLink.direct_store.as.model.dto.MyAsDetailRes;
 import MeshX.HypeLink.direct_store.as.model.dto.MyAsListRes;
 import MeshX.HypeLink.direct_store.as.service.DirectStoreAsService;
+import com.example.apiclients.annotation.GetMemberEmail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,15 +23,15 @@ public class DirectStoreAsController {
     @PostMapping("/create")
     public ResponseEntity<BaseResponse<String>> create(
             @RequestBody AsCreateReq dto,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        Member member = directStoreAsService.getMemberByUserName(userDetails.getUsername());
+            @GetMemberEmail String email) {
+        Member member = directStoreAsService.getMemberByUserName(email);
         directStoreAsService.create(member,dto);
         return ResponseEntity.ok(BaseResponse.of("AS 신청이 완료되었습니다."));
     }
 
     @GetMapping("/list")
-    public ResponseEntity<BaseResponse<List<MyAsListRes>>> list(@AuthenticationPrincipal UserDetails userDetails) {
-        Member member = directStoreAsService.getMemberByUserName(userDetails.getUsername());
+    public ResponseEntity<BaseResponse<List<MyAsListRes>>> list(@GetMemberEmail String email) {
+        Member member = directStoreAsService.getMemberByUserName(email);
         List<MyAsListRes> result = directStoreAsService.getMyAsList(member);
         return ResponseEntity.ok(BaseResponse.of(result));
     }
@@ -40,8 +39,8 @@ public class DirectStoreAsController {
     @GetMapping("/read/{id}")
     public ResponseEntity<BaseResponse<MyAsDetailRes>> read(
             @PathVariable Integer id,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        Member member = directStoreAsService.getMemberByUserName(userDetails.getUsername());
+            @GetMemberEmail String email) {
+        Member member = directStoreAsService.getMemberByUserName(email);
         MyAsDetailRes response = directStoreAsService.getMyAsDetail(id, member);
         return ResponseEntity.ok(BaseResponse.of(response));
     }
@@ -50,8 +49,8 @@ public class DirectStoreAsController {
     public ResponseEntity<BaseResponse<MyAsDetailRes>> update(
             @PathVariable Integer id,
             @RequestBody AsUpdateReq dto,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        Member member = directStoreAsService.getMemberByUserName(userDetails.getUsername());
+            @GetMemberEmail String email) {
+        Member member = directStoreAsService.getMemberByUserName(email);
         MyAsDetailRes response = directStoreAsService.updateAsRequest(id, dto, member);
         return ResponseEntity.ok(BaseResponse.of(response));
     }
@@ -59,8 +58,8 @@ public class DirectStoreAsController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<BaseResponse<String>> delete(
             @PathVariable Integer id,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        Member member = directStoreAsService.getMemberByUserName(userDetails.getUsername());
+            @GetMemberEmail String email) {
+        Member member = directStoreAsService.getMemberByUserName(email);
         directStoreAsService.deleteAsRequest(id, member);
         return ResponseEntity.ok(BaseResponse.of("AS 요청이 삭제되었습니다."));
     }

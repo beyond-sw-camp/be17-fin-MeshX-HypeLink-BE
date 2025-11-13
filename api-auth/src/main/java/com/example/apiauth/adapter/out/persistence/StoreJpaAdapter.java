@@ -1,11 +1,10 @@
 package com.example.apiauth.adapter.out.persistence;
 
 import MeshX.common.PersistenceAdapter;
+import com.example.apiauth.adapter.out.external.monolith.dto.StoreSyncDto;
 import com.example.apiauth.adapter.out.kafka.DataSyncEventProducer;
 import com.example.apiauth.adapter.out.persistence.entity.StoreEntity;
 import com.example.apiauth.adapter.out.persistence.mapper.StoreMapper;
-import com.example.apiauth.adapter.out.persistence.read.entity.StoreReadEntity;
-import com.example.apiauth.adapter.out.persistence.read.mapper.StoreReadMapper;
 import com.example.apiauth.domain.event.DataSyncEvent;
 import com.example.apiauth.domain.model.Store;
 import com.example.apiauth.usecase.port.out.persistence.StoreCommandPort;
@@ -30,16 +29,34 @@ public class StoreJpaAdapter implements StoreCommandPort {
 
         // CQRS 이벤트 발행
         try {
-            StoreReadEntity readEntity = StoreReadMapper.toEntity(savedStore);
+            Integer memberId = savedStore.getMember() != null ? savedStore.getMember().getId() : null;
+
+            StoreSyncDto syncDto = StoreSyncDto.builder()
+                    .id(savedStore.getId())
+                    .lat(savedStore.getLat())
+                    .lon(savedStore.getLon())
+                    .posCount(savedStore.getPosCount())
+                    .storeNumber(savedStore.getStoreNumber())
+                    .storeState(savedStore.getStoreState())
+                    .memberId(memberId)
+                    .build();
+
+            System.out.println("===== StoreJpaAdapter.save() =====");
+            System.out.println("Store ID: " + savedStore.getId());
+            System.out.println("Member ID: " + memberId);
+            System.out.println("Store Number: " + savedStore.getStoreNumber());
+            System.out.println("SyncDto JSON: " + objectMapper.writeValueAsString(syncDto));
+
             DataSyncEvent event = DataSyncEvent.builder()
                     .operation(isUpdate ? DataSyncEvent.SyncOperation.UPDATE : DataSyncEvent.SyncOperation.CREATE)
                     .entityType(DataSyncEvent.EntityType.STORE)
                     .entityId(savedStore.getId())
-                    .entityData(objectMapper.writeValueAsString(readEntity))
+                    .entityData(objectMapper.writeValueAsString(syncDto))
                     .timestamp(LocalDateTime.now())
                     .build();
             eventProducer.publishEvent(event);
         } catch (Exception e) {
+            e.printStackTrace();
             // 이벤트 발행 실패 시 로깅만 수행
         }
 

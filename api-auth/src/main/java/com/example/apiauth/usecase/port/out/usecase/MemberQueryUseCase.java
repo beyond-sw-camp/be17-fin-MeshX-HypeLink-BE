@@ -29,5 +29,5 @@ public interface MemberQueryUseCase {
 
     UserReadResDto userRead(Integer id);
 
-    List<StoreAddInfoResDto> getStoreAddress();
+    StoreAddInfoListRes getStoreAddress();
 }

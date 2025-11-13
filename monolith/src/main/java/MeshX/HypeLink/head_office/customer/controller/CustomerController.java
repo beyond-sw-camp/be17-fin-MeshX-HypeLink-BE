@@ -11,12 +11,11 @@ import MeshX.HypeLink.head_office.customer.model.dto.response.CustomerInfoRes;
 import MeshX.HypeLink.head_office.customer.model.dto.response.ReceiptListPagingRes;
 import MeshX.HypeLink.head_office.customer.model.dto.response.ReceiptListRes;
 import MeshX.HypeLink.head_office.customer.service.CustomerService;
+import com.example.apiclients.annotation.GetMemberEmail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -80,8 +79,8 @@ public class CustomerController {
     }
 
     @GetMapping("/receipts")
-    public ResponseEntity<BaseResponse<ReceiptListRes>> getReceipts(@AuthenticationPrincipal UserDetails userDetails) {
-        Member member = memberService.findMember(userDetails.getUsername());
+    public ResponseEntity<BaseResponse<ReceiptListRes>> getReceipts(@GetMemberEmail String email) {
+        Member member = memberService.findMember(email);
         StoreWithPosResDto dto = memberService.readMyStore(member);
         ReceiptListRes result = customerService.getReceiptsByStoreId(dto.getId());
         return ResponseEntity.ok(BaseResponse.of(result));
@@ -89,9 +88,9 @@ public class CustomerController {
 
     @GetMapping("/receipts/paging")
     public ResponseEntity<BaseResponse<ReceiptListPagingRes>> getReceiptsPaging(
-            @AuthenticationPrincipal UserDetails userDetails,
+           @GetMemberEmail String email,
             Pageable pageable) {
-        Member member = memberService.findMember(userDetails.getUsername());
+        Member member = memberService.findMember(email);
         StoreWithPosResDto dto = memberService.readMyStore(member);
         ReceiptListPagingRes result = customerService.getReceiptsByStoreId(dto.getId(), pageable);
         return ResponseEntity.ok(BaseResponse.of(result));

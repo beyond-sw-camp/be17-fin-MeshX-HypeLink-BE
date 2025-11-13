@@ -1,11 +1,10 @@
 package com.example.apiauth.adapter.out.persistence;
 
 import MeshX.common.PersistenceAdapter;
+import com.example.apiauth.adapter.out.external.monolith.dto.PosSyncDto;
 import com.example.apiauth.adapter.out.kafka.DataSyncEventProducer;
 import com.example.apiauth.adapter.out.persistence.entity.PosEntity;
 import com.example.apiauth.adapter.out.persistence.mapper.PosMapper;
-import com.example.apiauth.adapter.out.persistence.read.entity.PosReadEntity;
-import com.example.apiauth.adapter.out.persistence.read.mapper.PosReadMapper;
 import com.example.apiauth.domain.event.DataSyncEvent;
 import com.example.apiauth.domain.model.Pos;
 import com.example.apiauth.usecase.port.out.persistence.PosCommandPort;
@@ -30,12 +29,19 @@ public class PosJpaAdapter implements PosCommandPort {
 
         // CQRS 이벤트 발행
         try {
-            PosReadEntity readEntity = PosReadMapper.toEntity(savedPos);
+            PosSyncDto syncDto = PosSyncDto.builder()
+                    .id(savedPos.getId())
+                    .posCode(savedPos.getPosCode())
+                    .healthCheck(savedPos.getHealthCheck())
+                    .storeId(savedPos.getStore() != null ? savedPos.getStore().getId() : null)
+                    .memberId(savedPos.getMember() != null ? savedPos.getMember().getId() : null)
+                    .build();
+
             DataSyncEvent event = DataSyncEvent.builder()
                     .operation(isUpdate ? DataSyncEvent.SyncOperation.UPDATE : DataSyncEvent.SyncOperation.CREATE)
                     .entityType(DataSyncEvent.EntityType.POS)
                     .entityId(savedPos.getId())
-                    .entityData(objectMapper.writeValueAsString(readEntity))
+                    .entityData(objectMapper.writeValueAsString(syncDto))
                     .timestamp(LocalDateTime.now())
                     .build();
             eventProducer.publishEvent(event);

@@ -6,6 +6,7 @@ import MeshX.HypeLink.auth.model.dto.res.*;
 import MeshX.HypeLink.auth.model.entity.Member;
 import MeshX.HypeLink.auth.service.MemberService;
 import MeshX.HypeLink.common.BaseResponse;
+import com.example.apiclients.annotation.GetMemberEmail;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -14,8 +15,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -58,8 +57,8 @@ public class UserController {
     }
 
     @GetMapping("/mystore/read")
-    public ResponseEntity<BaseResponse<StoreWithPosResDto>> readMyStore(@AuthenticationPrincipal UserDetails userDetails) {
-        Member member = memberService.findMember( userDetails.getUsername());
+    public ResponseEntity<BaseResponse<StoreWithPosResDto>> readMyStore(@GetMemberEmail String email) {
+        Member member = memberService.findMember(email);
         StoreWithPosResDto result = memberService.readMyStore(member);
         return ResponseEntity.ok(BaseResponse.of(result));
     }
@@ -71,8 +70,8 @@ public class UserController {
     }
 
     @GetMapping("/mystoreid")
-    public ResponseEntity<BaseResponse<Integer>> getMyStoreId(@AuthenticationPrincipal UserDetails userDetails) {
-        Integer result = memberService.getMyStoreId(userDetails);
+    public ResponseEntity<BaseResponse<Integer>> getMyStoreId(@GetMemberEmail String email) {
+        Integer result = memberService.getMyStoreId(email);
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 
@@ -94,7 +93,7 @@ public class UserController {
     public ResponseEntity<BaseResponse<String>> readStoreState(
             @PathVariable Integer id,
             @RequestBody StoreStateReqDto dto) {
-        memberService.storeStateUpdate(id,dto);
+        memberService.storeStateUpdate(id, dto);
 
         return ResponseEntity.ok(BaseResponse.of("성공적으로 변경하였습니다."));
     }
@@ -111,7 +110,7 @@ public class UserController {
     public ResponseEntity<BaseResponse<String>> updateUser(
             @PathVariable Integer id,
             @RequestBody UserReadResDto dto) {
-        memberService.updateUser(id,dto);
+        memberService.updateUser(id, dto);
 
         return ResponseEntity.ok(BaseResponse.of("성공적으로 변경하였습니다."));
     }
