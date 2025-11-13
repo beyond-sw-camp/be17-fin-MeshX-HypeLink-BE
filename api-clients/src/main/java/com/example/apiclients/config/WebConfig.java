@@ -1,9 +1,7 @@
 package com.example.apiclients.config;
 
-import com.example.apiclients.client.AuthApiClient;
-import com.example.apiclients.resolver.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import com.example.apiclients.resolver.GetMemberEmailResolver;
+import com.example.apiclients.resolver.GetMemberIdResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;

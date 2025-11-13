@@ -1,54 +1,62 @@
 package com.example.apiauth.adapter.out.persistence;
 
 import MeshX.common.PersistenceAdapter;
-import com.example.apiauth.adapter.out.persistence.entity.MemberEntity;
+import com.example.apiauth.adapter.out.kafka.DataSyncEventProducer;
 import com.example.apiauth.adapter.out.persistence.entity.StoreEntity;
 import com.example.apiauth.adapter.out.persistence.mapper.StoreMapper;
-import com.example.apiauth.common.exception.AuthException;
+import com.example.apiauth.adapter.out.persistence.read.entity.StoreReadEntity;
+import com.example.apiauth.adapter.out.persistence.read.mapper.StoreReadMapper;
+import com.example.apiauth.domain.event.DataSyncEvent;
 import com.example.apiauth.domain.model.Store;
-import com.example.apiauth.usecase.port.out.persistence.StorePort;
+import com.example.apiauth.usecase.port.out.persistence.StoreCommandPort;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
-
-import static com.example.apiauth.common.exception.AuthExceptionMessage.USER_NAME_NOT_FOUND;
+import java.time.LocalDateTime;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
-public class StoreJpaAdapter implements StorePort {
-
+public class StoreJpaAdapter implements StoreCommandPort {
 
     private final StoreJpaRepository storeJpaRepository;
+    private final DataSyncEventProducer eventProducer;
+    private final ObjectMapper objectMapper;
 
     @Override
-    public Store findByMemberId(Integer memberId) {
-        StoreEntity storeEntity= storeJpaRepository.findByMember_Id(memberId)
-                .orElseThrow(() -> new AuthException(USER_NAME_NOT_FOUND));
+    public Store save(Store store) {
+        boolean isUpdate = store.getId() != null;
+        StoreEntity storeEntity = storeJpaRepository.save(StoreMapper.toEntity(store));
+        Store savedStore = StoreMapper.toDomain(storeEntity);
 
+        // CQRS 이벤트 발행
+        try {
+            StoreReadEntity readEntity = StoreReadMapper.toEntity(savedStore);
+            DataSyncEvent event = DataSyncEvent.builder()
+                    .operation(isUpdate ? DataSyncEvent.SyncOperation.UPDATE : DataSyncEvent.SyncOperation.CREATE)
+                    .entityType(DataSyncEvent.EntityType.STORE)
+                    .entityId(savedStore.getId())
+                    .entityData(objectMapper.writeValueAsString(readEntity))
+                    .timestamp(LocalDateTime.now())
+                    .build();
+            eventProducer.publishEvent(event);
+        } catch (Exception e) {
+            // 이벤트 발행 실패 시 로깅만 수행
+        }
 
-        return StoreMapper.toDomain(storeEntity);
+        return savedStore;
     }
 
     @Override
-    public Store findByMember_Email(String memberEmail) {
-        StoreEntity storeEntity = storeJpaRepository.findByMember_Email(memberEmail)
-                .orElseThrow(() -> new AuthException(USER_NAME_NOT_FOUND));
+    public void delete(Integer id) {
+        storeJpaRepository.deleteById(id);
 
-        return StoreMapper.toDomain(storeEntity);
-    }
-
-    @Override
-    public Store findByMember(MemberEntity member) {
-        return null;
-    }
-
-    @Override
-    public Store findByStoreId(Integer storeId) {
-        return null;
-    }
-
-    @Override
-    public List<Store> findAllWithMember() {
-        return List.of();
+        // CQRS 이벤트 발행
+        DataSyncEvent event = DataSyncEvent.builder()
+                .operation(DataSyncEvent.SyncOperation.DELETE)
+                .entityType(DataSyncEvent.EntityType.STORE)
+                .entityId(id)
+                .timestamp(LocalDateTime.now())
+                .build();
+        eventProducer.publishEvent(event);
     }
 }

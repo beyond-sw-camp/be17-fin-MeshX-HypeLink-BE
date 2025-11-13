@@ -107,4 +107,9 @@ public class CustomerController {
         CustomerInfoListRes result = customerService.searchCustomers(keyword, ageGroup, pageable);
         return ResponseEntity.ok(BaseResponse.of(result));
     }
+    @PatchMapping("/coupons/{customerCouponId}/use")
+    public ResponseEntity<BaseResponse<String>> useCoupon( @PathVariable Integer customerCouponId){
+        customerService.useCoupon(customerCouponId);
+        return ResponseEntity.ok(BaseResponse.of("쿠폰 사용 완료"));
+    }
 }

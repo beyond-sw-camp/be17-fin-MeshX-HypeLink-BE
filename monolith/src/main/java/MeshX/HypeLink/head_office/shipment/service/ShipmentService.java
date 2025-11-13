@@ -53,4 +53,17 @@ public class ShipmentService {
                 .map(ShipmentInfoDto::fromEntity)
                 .collect(Collectors.toList());
     }
+
+    public boolean hasActiveShipmentsByDriver(Integer driverId) {
+        Driver driver = driverJpaRepositoryVerify.findById(driverId);
+
+        List<ShipmentStatus> activeStatuses = Arrays.asList(
+                ShipmentStatus.DRIVER_ASSIGNED,
+                ShipmentStatus.IN_PROGRESS
+        );
+
+        List<Shipment> activeShipments = shipmentJpaRepositoryVerify.findByShipmentStatusIn(driver, activeStatuses);
+
+        return !activeShipments.isEmpty();
+    }
 }
