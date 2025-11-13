@@ -8,4 +8,6 @@ public interface CategoryPersistencePort {
     Category findByName(String category);
 
     void saveAllWithId(List<Category> categories);
+
+    List<Category> findAll();
 }

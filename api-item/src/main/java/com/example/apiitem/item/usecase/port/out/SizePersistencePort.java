@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface SizePersistencePort {
     void saveAllWithId(List<Size> sizes);
+
+    List<Size> findAll();
 }
