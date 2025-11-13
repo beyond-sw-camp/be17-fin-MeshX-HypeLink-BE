@@ -1,11 +1,10 @@
 package com.example.apiauth.adapter.out.persistence;
 
 import MeshX.common.PersistenceAdapter;
+import com.example.apiauth.adapter.out.external.monolith.dto.MemberSyncDto;
 import com.example.apiauth.adapter.out.kafka.DataSyncEventProducer;
 import com.example.apiauth.adapter.out.persistence.entity.MemberEntity;
 import com.example.apiauth.adapter.out.persistence.mapper.MemberMapper;
-import com.example.apiauth.adapter.out.persistence.read.entity.MemberReadEntity;
-import com.example.apiauth.adapter.out.persistence.read.mapper.MemberReadMapper;
 import com.example.apiauth.domain.event.DataSyncEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -30,12 +29,25 @@ public class MemberJpaAdapter implements MemberCommandPort {
 
         // CQRS 이벤트 발행
         try {
-            MemberReadEntity readEntity = MemberReadMapper.toEntity(savedMember);
+            MemberSyncDto syncDto = MemberSyncDto.builder()
+                    .id(savedMember.getId())
+                    .email(savedMember.getEmail())
+                    .password(savedMember.getPassword())
+                    .name(savedMember.getName())
+                    .phone(savedMember.getPhone())
+                    .address(savedMember.getAddress())
+                    .role(savedMember.getRole())
+                    .region(savedMember.getRegion())
+                    .refreshToken(savedMember.getRefreshToken())
+                    .createdAt(savedMember.getCreatedAt())
+                    .updatedAt(savedMember.getUpdatedAt())
+                    .build();
+
             DataSyncEvent event = DataSyncEvent.builder()
                     .operation(isUpdate ? DataSyncEvent.SyncOperation.UPDATE : DataSyncEvent.SyncOperation.CREATE)
                     .entityType(DataSyncEvent.EntityType.MEMBER)
                     .entityId(savedMember.getId())
-                    .entityData(objectMapper.writeValueAsString(readEntity))
+                    .entityData(objectMapper.writeValueAsString(syncDto))
                     .timestamp(LocalDateTime.now())
                     .build();
             eventProducer.publishEvent(event);

@@ -214,20 +214,37 @@ public class MemberCommandService implements MemberCommandUseCase {
     @Override
     @Transactional
     public void deleteStore(Integer id) {
-        Store store = storeQueryPort.findById(id);
+        // Read DB에서 Store 조회 시도 (연관 데이터 삭제용)
+        Store store = null;
+        try {
+            store = storeQueryPort.findById(id);
+        } catch (AuthException e) {
+            // Read DB에 없으면 Write DB에서 바로 삭제
+            storeCommandPort.delete(id);
+            return;
+        }
 
+        // 연관된 POS와 Branch Manager 정보 먼저 수집
         List<Pos> posDevices = posQueryPort.findByStoreIdIn(List.of(store.getId()));
+        Member branchManager = store.getMember();
+
+        // 1. POS 삭제
+        for (Pos pos : posDevices) {
+            posCommandPort.delete(pos.getId());
+        }
+
+        // 2. Store 삭제 (외래키 참조 해제)
+        storeCommandPort.delete(store.getId());
+
+        // 3. POS Member 삭제
         for (Pos pos : posDevices) {
             Member posMember = pos.getMember();
-            posCommandPort.delete(pos.getId());
             if (posMember != null) {
                 memberCommandPort.delete(posMember.getId());
             }
         }
 
-        Member branchManager = store.getMember();
-        storeCommandPort.delete(store.getId());
-
+        // 4. Branch Manager 삭제
         if (branchManager != null) {
             memberCommandPort.delete(branchManager.getId());
         }
@@ -236,10 +253,22 @@ public class MemberCommandService implements MemberCommandUseCase {
     @Override
     @Transactional
     public void deletePos(Integer id) {
-        Pos pos = posQueryPort.findById(id);
+        Pos pos = null;
+        try {
+            pos = posQueryPort.findById(id);
+        } catch (AuthException e) {
+            // Read DB에 없으면 Write DB에서 바로 삭제
+            posCommandPort.delete(id);
+            return;
+        }
 
+        // Member 정보 먼저 수집
         Member posMember = pos.getMember();
+
+        // 1. POS 삭제 (외래키 참조 해제)
         posCommandPort.delete(pos.getId());
+
+        // 2. POS Member 삭제
         if (posMember != null) {
             memberCommandPort.delete(posMember.getId());
         }
@@ -248,7 +277,16 @@ public class MemberCommandService implements MemberCommandUseCase {
     @Override
     @Transactional
     public void deleteDriver(Integer id) {
-        Driver driver = driverQueryPort.findById(id);
+        Driver driver = null;
+        try {
+            driver = driverQueryPort.findById(id);
+        } catch (AuthException e) {
+            // Read DB에 없으면 Write DB에서 바로 삭제
+            driverCommandPort.delete(id);
+            return;
+        }
+
+        // Member 정보 먼저 수집
         Member driverMember = driver.getMember();
 
         // Feign으로 진행 중인 배송 확인
@@ -257,7 +295,10 @@ public class MemberCommandService implements MemberCommandUseCase {
             throw new AuthException(CANNOT_DELETE_DRIVER_WITH_ACTIVE_SHIPMENT);
         }
 
+        // 1. Driver 삭제 (외래키 참조 해제)
         driverCommandPort.delete(driver.getId());
+
+        // 2. Driver Member 삭제
         if (driverMember != null) {
             memberCommandPort.delete(driverMember.getId());
         }

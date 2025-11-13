@@ -50,7 +50,7 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
-        spring.json.type.mapping: dataSyncEvent:MeshX.HypeLink.common.kafka.DataSyncEvent
+        spring.json.type.mapping: memberRegisterEvent:MeshX.HypeLink.common.kafka.MemberRegisterEvent,dataSyncEvent:MeshX.HypeLink.common.kafka.DataSyncEvent
 
 jwt:
   secret-key: ${JWT_KEY}

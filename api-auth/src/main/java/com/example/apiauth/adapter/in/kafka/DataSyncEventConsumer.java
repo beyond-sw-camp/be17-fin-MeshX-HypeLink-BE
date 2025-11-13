@@ -31,10 +31,8 @@ public class DataSyncEventConsumer {
 
     @KafkaListener(topics = "cqrs-sync", groupId = "api-auth-cqrs-consumer")
     @Transactional
-    public void consumeEvent(String eventJson) {
+    public void consumeEvent(DataSyncEvent event) {
         try {
-            DataSyncEvent event = objectMapper.readValue(eventJson, DataSyncEvent.class);
-
             log.info("Received CQRS sync event: operation={}, entityType={}, entityId={}",
                     event.getOperation(), event.getEntityType(), event.getEntityId());
 
@@ -111,6 +109,8 @@ public class DataSyncEventConsumer {
             case UPDATE:
                 StoreSyncDto dto = objectMapper.readValue(
                         event.getEntityData(), StoreSyncDto.class);
+                log.info("Store CQRS Sync - id={}, memberId={}, storeNumber={}",
+                        dto.getId(), dto.getMemberId(), dto.getStoreNumber());
                 upsertStore(dto);
                 log.info("Upserted Store to Read DB: id={}", dto.getId());
                 break;

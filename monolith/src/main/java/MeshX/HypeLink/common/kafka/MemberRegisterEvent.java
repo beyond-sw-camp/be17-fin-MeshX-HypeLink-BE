@@ -1,12 +1,8 @@
-package com.example.apiauth.domain.kafka;
+package MeshX.HypeLink.common.kafka;
 
-import com.example.apiauth.domain.model.Driver;
-import com.example.apiauth.domain.model.Member;
-import com.example.apiauth.domain.model.Pos;
-import com.example.apiauth.domain.model.Store;
-import com.example.apiauth.domain.model.value.MemberRole;
-import com.example.apiauth.domain.model.value.Region;
-import com.example.apiauth.domain.model.value.StoreState;
+import MeshX.HypeLink.auth.model.entity.MemberRole;
+import MeshX.HypeLink.auth.model.entity.Region;
+import MeshX.HypeLink.auth.model.entity.StoreState;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -72,22 +68,5 @@ public class MemberRegisterEvent {
         private Boolean healthCheck;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
-    }
-
-    public static MemberRegisterEvent of(Member member, Store store, Driver driver, Pos pos) {
-        return MemberRegisterEvent.builder()
-                .memberId(member.getId())
-                .email(member.getEmail())
-                .name(member.getName())
-                .phone(member.getPhone())
-                .address(member.getAddress())
-                .role(member.getRole())
-                .region(member.getRegion())
-                .createdAt(member.getCreatedAt())
-                .updatedAt(member.getUpdatedAt())
-                .storeInfo(store != null ? store.toEventInfo() : null)
-                .driverInfo(driver != null ? driver.toEventInfo() : null)
-                .posInfo(pos != null ? pos.toEventInfo() : null)
-                .build();
     }
 }
