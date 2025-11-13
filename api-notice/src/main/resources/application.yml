@@ -22,3 +22,7 @@ eureka:
       defaultZone: http://localhost:9090/eureka/
     registerWithEureka: true
     fetchRegistry: true
+
+notice:
+  s3:
+    base-url: ${NOTICE_S3_BASE_URL}

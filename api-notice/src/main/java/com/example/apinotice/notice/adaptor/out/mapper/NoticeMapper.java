@@ -32,6 +32,19 @@ public class NoticeMapper {
                 .isOpen(noticeEntity.getIsOpen())
                 .createdAt(noticeEntity.getCreatedAt())   // BaseEntity 에서 상속
                 .updatedAt(noticeEntity.getUpdatedAt())   // BaseEntity 에서 상속
+                .images(
+                        noticeEntity.getImages() == null ? null :
+                                noticeEntity.getImages().stream()
+                                        .map(img -> NoticeImage.builder()
+                                                .id(img.getId())
+                                                .originalFilename(img.getOriginalFilename())
+                                                .s3Key(img.getS3Key())
+                                                .contentType(img.getContentType())
+                                                .fileSize(img.getFileSize())
+                                                .build()
+                                        )
+                                        .toList()
+                )
                 .build();
     }
 

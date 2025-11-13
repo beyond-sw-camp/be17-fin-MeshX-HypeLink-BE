@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Builder
@@ -15,6 +16,7 @@ public class NoticeInfoDto {
     private String author;
     private Boolean isOpen;
     private LocalDateTime date;
+    private List<NoticeImageInfoDto> images;
 
 
     public static NoticeInfoDto toDto(Notice notice) {
@@ -26,6 +28,12 @@ public class NoticeInfoDto {
                 .author(notice.getAuthor())
                 .isOpen(notice.getIsOpen())
                 .date(displayDate)
+                .images(
+                        notice.getImages() == null ? null :
+                                notice.getImages().stream()
+                                        .map(NoticeImageInfoDto::toDto)
+                                        .toList()
+                )
                 .build();
     }
 }
