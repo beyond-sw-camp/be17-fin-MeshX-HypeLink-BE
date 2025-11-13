@@ -208,17 +208,10 @@ public class MemberQueryService implements MemberQueryUseCase {
     }
 
     @Override
-    public List<StoreAddInfoResDto> getStoreAddress() {
+    public StoreAddInfoListRes getStoreAddress() {
         List<Store> stores = storeQueryPort.findAll();
 
-        return stores.stream()
-                .map(store -> StoreAddInfoResDto.builder()
-                        .id(store.getId())
-                        .storeName(store.getMember().getName())
-                        .lat(store.getLat())
-                        .lon(store.getLon())
-                        .build())
-                .collect(Collectors.toList());
+        return StoreAddInfoListRes.toDto(stores);
     }
 
 }

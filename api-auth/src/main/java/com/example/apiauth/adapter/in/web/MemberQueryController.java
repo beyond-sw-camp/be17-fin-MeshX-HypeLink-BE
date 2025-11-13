@@ -84,8 +84,8 @@ public class MemberQueryController {
 
     @RequireRole({"ADMIN", "MANAGER"})
     @GetMapping("/store/list/address")
-    public ResponseEntity<BaseResponse<List<StoreAddInfoResDto>>> getStoreAddress() {
-        List<StoreAddInfoResDto> result = memberQueryUseCase.getStoreAddress();
+    public ResponseEntity<BaseResponse<StoreAddInfoListRes>> getStoreAddress() {
+        StoreAddInfoListRes result = memberQueryUseCase.getStoreAddress();
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 

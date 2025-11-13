@@ -88,7 +88,7 @@ public class SecurityConfig {
 
                 // 요청 경로별 권한 설정
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/ws/**").authenticated() // WebSocket은 인증 필요
+                        .requestMatchers("/ws/**").permitAll() // WebSocket handshake는 JwtHandShakeInterceptor에서 처리
                         .anyRequest().permitAll() // 나머지 모든 HTTP 엔드포인트는 허용
                 )
 
