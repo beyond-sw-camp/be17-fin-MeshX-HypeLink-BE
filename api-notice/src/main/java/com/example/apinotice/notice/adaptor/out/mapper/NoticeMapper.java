@@ -43,7 +43,7 @@ public class NoticeMapper {
                                                 .fileSize(img.getFileSize())
                                                 .build()
                                         )
-                                        .toList()
+                                        .collect(Collectors.toCollection(ArrayList::new))
                 )
                 .build();
     }

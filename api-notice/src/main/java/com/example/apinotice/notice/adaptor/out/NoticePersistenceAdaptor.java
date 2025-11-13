@@ -67,7 +67,25 @@ public class NoticePersistenceAdaptor implements NoticePersistencePort {
 
     @Override
     public Notice update(Notice notice) {
-        NoticeEntity entity = NoticeMapper.toEntity(notice);
+        NoticeEntity entity = noticeRepository.findById(notice.getId())
+                .orElseThrow(() -> new NoticeException(NOTICE_NOT_FOUND));
+
+        entity.updateFields(notice.getTitle(), notice.getContents(), notice.getAuthor(), notice.getIsOpen());
+
+        entity.clearImages();
+        if (notice.getImages() != null) {
+            for (NoticeImage img : notice.getImages()) {
+                NoticeImageEntity imgEntity = NoticeImageEntity.builder()
+                        .originalFilename(img.getOriginalFilename())
+                        .s3Key(img.getS3Key())
+                        .contentType(img.getContentType())
+                        .fileSize(img.getFileSize())
+                        .build();
+
+                entity.addImageEntity(imgEntity);
+            }
+        }
+
         NoticeEntity saved = noticeRepository.save(entity);
         return NoticeMapper.toDomain(saved);
     }

@@ -68,6 +68,14 @@ public class NoticeUseCase implements WebPort {
             notice.changeOpen();
         }
 
+        // 이미지 업데이트 로직 추가
+        notice.clearImages();
+        if (noticeUpdateCommand.getImages() != null && !noticeUpdateCommand.getImages().isEmpty()) {
+            noticeUpdateCommand.getImages().forEach(imageCommand -> {
+                NoticeImage noticeImage = NoticeMapper.toDomain(imageCommand);
+                notice.addImage(noticeImage);
+            });
+        }
 
         Notice updated = noticePersistencePort.update(notice);
         return NoticeInfoDto.toDto(updated);
