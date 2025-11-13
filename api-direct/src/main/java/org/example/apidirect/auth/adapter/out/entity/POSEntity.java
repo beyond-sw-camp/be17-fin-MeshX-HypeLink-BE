@@ -1,5 +1,6 @@
 package org.example.apidirect.auth.adapter.out.entity;
 
+import MeshX.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "pos")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class POSEntity {
+public class POSEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

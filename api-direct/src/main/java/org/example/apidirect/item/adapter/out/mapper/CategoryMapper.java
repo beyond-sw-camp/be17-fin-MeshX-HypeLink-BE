@@ -11,6 +11,8 @@ public class CategoryMapper {
         return Category.builder()
                 .id(entity.getId())
                 .category(entity.getCategory())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 
@@ -18,6 +20,7 @@ public class CategoryMapper {
         if (domain == null) return null;
 
         return CategoryEntity.builder()
+                .id(domain.getId())
                 .category(domain.getCategory())
                 .build();
     }

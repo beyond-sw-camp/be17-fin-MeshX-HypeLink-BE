@@ -69,5 +69,5 @@ spring:
               order: 1
               predicates:
                 - Path=/api/customer/**, /api/payments/**, /api/store/**
-              filters:
-                - Authentication
+#              filters:
+#                - Authentication

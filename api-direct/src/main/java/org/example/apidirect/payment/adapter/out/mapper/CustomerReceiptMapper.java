@@ -30,6 +30,8 @@ public class CustomerReceiptMapper {
                 .orderItems(entity.getOrderItems().stream()
                         .map(OrderItemMapper::toDomain)
                         .collect(Collectors.toList()))
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 

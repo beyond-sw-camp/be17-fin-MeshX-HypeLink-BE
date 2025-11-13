@@ -19,6 +19,8 @@ public class PaymentsMapper {
                 .status(entity.getStatus())
                 .paidAt(entity.getPaidAt())
                 .failureReason(entity.getFailureReason())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 

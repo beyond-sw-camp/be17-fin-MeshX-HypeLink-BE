@@ -39,9 +39,10 @@ public class StoreItemEntity extends BaseEntity {
     private List<StoreItemImageEntity> itemImages = new ArrayList<>();
 
     @Builder
-    private StoreItemEntity(String itemCode, Integer unitPrice,
+    private StoreItemEntity(Integer id, String itemCode, Integer unitPrice,
                            Integer amount, String enName, String koName,
                            String content, String company, String category) {
+        this.id = id;
         this.itemCode = itemCode;
         this.unitPrice = unitPrice;
         this.amount = amount;

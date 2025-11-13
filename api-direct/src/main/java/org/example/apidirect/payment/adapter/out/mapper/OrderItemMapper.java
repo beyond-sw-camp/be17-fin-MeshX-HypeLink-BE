@@ -16,6 +16,8 @@ public class OrderItemMapper {
                 .quantity(entity.getQuantity())
                 .unitPrice(entity.getUnitPrice())
                 .totalPrice(entity.getTotalPrice())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 

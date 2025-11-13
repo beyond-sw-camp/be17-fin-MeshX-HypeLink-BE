@@ -13,12 +13,14 @@ import org.example.apidirect.item.usecase.port.out.CategoryPersistencePort;
 import org.example.apidirect.item.usecase.port.out.ColorPersistencePort;
 import org.example.apidirect.item.usecase.port.out.ItemPersistencePort;
 import org.example.apidirect.item.usecase.port.out.SizePersistencePort;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
 @UseCase
+@Transactional
 @RequiredArgsConstructor
 public class KafkaService implements KafkaPort {
 
@@ -29,22 +31,23 @@ public class KafkaService implements KafkaPort {
 
     @Override
     public void saveItem(KafkaItemCommand command) {
-        // Kafka Command → Domain (Mapper 사용)
         StoreItem item = ItemMapper.toDomain(command);
 
-        // 저장 (upsert)
         itemPersistencePort.save(item);
     }
 
     @Override
     public void saveCategories(KafkaCategoryListCommand command) {
         // Kafka Command → Domain
-        List<String> categories = command.getCategories().stream()
-                .map(KafkaCategoryCommand::getCategory)
+        List<org.example.apidirect.item.domain.Category> categories = command.getCategories().stream()
+                .map(categoryCommand -> org.example.apidirect.item.domain.Category.builder()
+                        .id(categoryCommand.getId())
+                        .category(categoryCommand.getCategory())
+                        .build())
                 .collect(Collectors.toList());
 
         // 저장
-        categoryPersistencePort.saveAll(categories);
+        categoryPersistencePort.saveAllWithId(categories);
     }
 
     @Override

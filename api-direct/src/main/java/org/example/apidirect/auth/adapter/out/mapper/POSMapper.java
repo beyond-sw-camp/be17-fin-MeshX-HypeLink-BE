@@ -14,6 +14,8 @@ public class POSMapper {
                 .storeId(entity.getStoreId())
                 .healthCheck(entity.getHealthCheck())
                 .memberId(entity.getMemberId())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 

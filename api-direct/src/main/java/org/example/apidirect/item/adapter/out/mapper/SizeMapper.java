@@ -11,6 +11,8 @@ public class SizeMapper {
         return Size.builder()
                 .id(entity.getId())
                 .size(entity.getSize())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 
