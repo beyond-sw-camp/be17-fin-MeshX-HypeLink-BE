@@ -1,0 +1,28 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: API-NOTICE
+
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:9090/eureka/
+    registerWithEureka: true
+    fetchRegistry: true
+
+notice:
+  s3:
+    base-url: ${NOTICE_S3_BASE_URL}

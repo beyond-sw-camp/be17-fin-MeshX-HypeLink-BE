@@ -44,6 +44,12 @@ spring:
       server:
         webflux:
           routes:
+            - id: API-NOTICE
+              uri: lb://API-NOTICE
+              order: 1
+              predicates:
+                - Path=/api/notice/**
+                
             - id: websocket-monolith
               uri: ${MONOLITH_SERVICE_URI}
               order: 0

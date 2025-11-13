@@ -1,0 +1,84 @@
+package com.example.apinotice.notice.usecase.port;
+
+import MeshX.common.Page.PageRes;
+import MeshX.common.UseCase;
+import com.example.apinotice.notice.adaptor.out.jpa.NoticeEntity;
+import com.example.apinotice.notice.adaptor.out.jpa.NoticeImageEntity;
+import com.example.apinotice.notice.adaptor.out.mapper.NoticeMapper;
+import com.example.apinotice.notice.domain.Notice;
+import com.example.apinotice.notice.domain.NoticeImage;
+import com.example.apinotice.notice.usecase.port.in.WebPort;
+import com.example.apinotice.notice.usecase.port.in.request.NoticeSaveCommand;
+import com.example.apinotice.notice.usecase.port.in.request.NoticeUpdateCommand;
+import com.example.apinotice.notice.usecase.port.out.NoticePersistencePort;
+import com.example.apinotice.notice.usecase.port.out.response.NoticeInfoDto;
+import com.example.apinotice.notice.usecase.port.out.response.NoticeListInfoDto;
+import com.example.apinotice.notice.usecase.port.out.response.NoticePageListInfoDto;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import java.util.List;
+
+@UseCase
+@RequiredArgsConstructor
+public class NoticeUseCase implements WebPort {
+    private final NoticePersistencePort noticePersistencePort;
+
+
+    @Override
+    public void create(NoticeSaveCommand noticeSaveCommand) {
+        Notice notice = NoticeMapper.toDomain(noticeSaveCommand);
+        noticePersistencePort.create(notice);
+    }
+
+    @Override
+    public NoticeInfoDto read(Integer id) {
+        Notice notice = noticePersistencePort.findById(id);
+        return NoticeInfoDto.toDto(notice);
+    }
+
+    @Override
+    public PageRes<NoticePageListInfoDto> readList(Pageable pageable) {
+        Page<Notice> noticePage = noticePersistencePort.findAll(pageable);
+        Page<NoticePageListInfoDto> dtoPage = NoticePageListInfoDto.toDtoPage(noticePage);
+        return PageRes.toDto(dtoPage);
+    }
+
+    @Override
+    public NoticeListInfoDto readList(){
+        List<Notice> noticeList = noticePersistencePort.findAll();
+        return NoticeListInfoDto.toDto(noticeList);
+    }
+
+    @Override
+    public NoticeInfoDto update(Integer id, NoticeUpdateCommand  noticeUpdateCommand) {
+        Notice notice = noticePersistencePort.findById(id);
+        if (noticeUpdateCommand.getTitle() != null && !noticeUpdateCommand.getTitle().isBlank()) {
+            notice.updateTitle(noticeUpdateCommand.getTitle());
+        }
+        if (noticeUpdateCommand.getContents() != null && !noticeUpdateCommand.getContents().isBlank()) {
+            notice.updateContents(noticeUpdateCommand.getContents());
+        }
+        if (noticeUpdateCommand.getAuthor() != null && !noticeUpdateCommand.getAuthor().isBlank()) {
+            notice.updateAuthor(noticeUpdateCommand.getAuthor());
+        }
+
+        if (noticeUpdateCommand.getIsOpen() != null) {
+            notice.changeOpen();
+        }
+
+        // 이미지 업데이트 로직 추가
+        notice.clearImages();
+        if (noticeUpdateCommand.getImages() != null && !noticeUpdateCommand.getImages().isEmpty()) {
+            noticeUpdateCommand.getImages().forEach(imageCommand -> {
+                NoticeImage noticeImage = NoticeMapper.toDomain(imageCommand);
+                notice.addImage(noticeImage);
+            });
+        }
+
+        Notice updated = noticePersistencePort.update(notice);
+        return NoticeInfoDto.toDto(updated);
+    }
+
+}
