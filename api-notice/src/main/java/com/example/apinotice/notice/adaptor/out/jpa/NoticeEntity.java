@@ -37,4 +37,11 @@ public class NoticeEntity extends BaseEntity {
     public void clearImages() {
         this.images.clear();
     }
+
+    public void updateFields(String title, String contents, String author, Boolean isOpen) {
+        this.title = title;
+        this.contents = contents;
+        this.author = author;
+        this.isOpen = isOpen;
+    }
 }
