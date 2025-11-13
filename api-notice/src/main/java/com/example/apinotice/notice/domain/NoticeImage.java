@@ -8,7 +8,7 @@ import lombok.Getter;
 public class NoticeImage {
     private Integer id;
     private String originalFilename;
-    private String savedPath;
+    private String s3Key;
     private String contentType;
     private Long fileSize;
 }

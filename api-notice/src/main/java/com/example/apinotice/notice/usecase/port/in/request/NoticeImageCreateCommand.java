@@ -9,16 +9,8 @@ import lombok.Getter;
 @Builder
 public class NoticeImageCreateCommand {
     private String originalFilename;
-    private String savedPath;
+    private String s3Key;
     private String contentType;
     private Long fileSize;
 
-    public NoticeImage toDomain() {
-        return NoticeImage.builder()
-                .originalFilename(originalFilename)
-                .savedPath(savedPath)
-                .contentType(contentType)
-                .fileSize(fileSize)
-                .build();
-    }
 }

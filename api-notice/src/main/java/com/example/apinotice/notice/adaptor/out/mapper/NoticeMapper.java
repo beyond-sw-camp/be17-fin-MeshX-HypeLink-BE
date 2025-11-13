@@ -2,7 +2,13 @@ package com.example.apinotice.notice.adaptor.out.mapper;
 
 import com.example.apinotice.notice.adaptor.out.jpa.NoticeEntity;
 import com.example.apinotice.notice.domain.Notice;
+import com.example.apinotice.notice.domain.NoticeImage;
+import com.example.apinotice.notice.usecase.port.in.request.NoticeImageCreateCommand;
 import com.example.apinotice.notice.usecase.port.in.request.NoticeSaveCommand;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class NoticeMapper {
     private NoticeMapper(){}
@@ -30,11 +36,29 @@ public class NoticeMapper {
     }
 
     public static Notice toDomain(NoticeSaveCommand command){
+
+        List<NoticeImage> imageList = new ArrayList<>();
+
+        if (command.getImages() != null && !command.getImages().isEmpty()) {
+            imageList = command.getImages().stream()
+                    .map(NoticeMapper::toDomain)
+                    .collect(Collectors.toList());
+        }
+
         return Notice.builder()
                 .title(command.getTitle())
-                .contents((command.getContents()))
+                .contents(command.getContents())
                 .author(command.getAuthor())
                 .isOpen(false)
+                .images(imageList) // 항상 빈 리스트라도 들어감
+                .build();
+    }
+    public static NoticeImage toDomain(NoticeImageCreateCommand cmd) {
+        return NoticeImage.builder()
+                .originalFilename(cmd.getOriginalFilename())
+                .s3Key(cmd.getS3Key())
+                .contentType(cmd.getContentType())
+                .fileSize(cmd.getFileSize())
                 .build();
     }
 }

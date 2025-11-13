@@ -28,15 +28,8 @@ public class NoticeUseCase implements WebPort {
 
     @Override
     public void create(NoticeSaveCommand noticeSaveCommand) {
-        Notice notice =  NoticeMapper.toDomain(noticeSaveCommand);
-        if (noticeSaveCommand.getImages() != null && !noticeSaveCommand.getImages().isEmpty()) {
-            noticeSaveCommand.getImages().forEach(imgCmd -> {
-                NoticeImage image = imgCmd.toDomain();
-                notice.addImage(image);
-            });
-        }
-
-        noticePersistencePort.create(notice); // 영속화는 여기서 수행
+        Notice notice = NoticeMapper.toDomain(noticeSaveCommand);
+        noticePersistencePort.create(notice);
     }
 
     @Override

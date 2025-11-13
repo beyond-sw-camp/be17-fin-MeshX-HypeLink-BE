@@ -26,10 +26,11 @@ public class NoticeEntity extends BaseEntity {
     private Boolean isOpen;
 
     @OneToMany(mappedBy = "notice", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<NoticeImageEntity> images = new ArrayList<>();
 
     public void addImageEntity(NoticeImageEntity image) {
-        this.images.add(image);
+        images.add(image);
         image.connectNotice(this);
     }
 
