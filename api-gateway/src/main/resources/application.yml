@@ -49,25 +49,28 @@ spring:
               order: 1
               predicates:
                 - Path=/api/item/**
+                - Path=/api/category/**
+                - Path=/api/color/**
+                - Path=/api/size/**
             - id: api-monolith
               uri: ${MONOLITH_SERVICE_URI}
               order: 2
               predicates:
                 - Path=/api/**
 
-            - id: api-auth
-              uri: ${AUTH_SERVICE_URI}
-              predicates:
-                - Path=/api/auth/**, /api/member/**
-              filters:
-                - Authentication
+#            - id: api-auth
+#              uri: ${AUTH_SERVICE_URI}
+#              predicates:
+#                - Path=/api/auth/**, /api/member/**
+#              filters:
+#                - Authentication
 #                - StripPrefix=1     # ?? 1
 #                - RewritePath=/user/(?<remaining>.*), /${remaining} # ?? 2
 
-            - id: api-direct
-              uri: ${DIRECT_SERVICE_URI}
-              order: 1
-              predicates:
-                - Path=/api/customer/**, /api/payments/**, /api/store/**
-              filters:
-                - Authentication
+#            - id: api-direct
+#              uri: ${DIRECT_SERVICE_URI}
+#              order: 1
+#              predicates:
+#                - Path=/api/customer/**, /api/payments/**, /api/store/**
+#              filters:
+#                - Authentication

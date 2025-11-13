@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface ColorPersistencePort {
     void saveAllWithId(List<Color> colors);
+
+    List<Color> findAll();
 }
