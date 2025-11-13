@@ -4,6 +4,7 @@ import MeshX.HypeLink.auth.model.entity.Member;
 import MeshX.HypeLink.common.BaseResponse;
 import MeshX.HypeLink.direct_store.payment.model.dto.request.PaymentValidationReq;
 import MeshX.HypeLink.direct_store.payment.service.PaymentService;
+import com.example.apiclients.annotation.GetMemberEmail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,8 +24,8 @@ public class PaymentController {
     @PostMapping("/validate")
     public ResponseEntity<BaseResponse<String>> validatePayment(
             @RequestBody PaymentValidationReq req,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        Member member = paymentService.getMember(userDetails.getUsername());
+            @GetMemberEmail String email) {
+        Member member = paymentService.getMember(email);
         paymentService.validatePayment(req,member);
         return ResponseEntity.status(200).body(BaseResponse.of("검증 성공 "));
     }

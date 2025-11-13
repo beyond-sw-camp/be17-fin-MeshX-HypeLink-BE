@@ -40,7 +40,13 @@ public class AuthenticationGatewayFilterFactory extends AbstractGatewayFilterFac
                 return exchange.getResponse().setComplete();
             }
 
-            // 2. 공개 경로
+            // 2. WebSocket 요청 통과 (Upgrade 헤더 확인)
+            String upgrade = exchange.getRequest().getHeaders().getFirst("Upgrade");
+            if ("websocket".equalsIgnoreCase(upgrade)) {
+                return chain.filter(exchange);
+            }
+
+            // 3. 공개 경로
             if (isPublicPath(path)) {
                 return chain.filter(exchange);
             }

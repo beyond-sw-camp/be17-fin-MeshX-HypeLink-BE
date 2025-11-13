@@ -7,11 +7,10 @@ import MeshX.HypeLink.head_office.order.model.dto.request.PurchaseOrderCreateReq
 import MeshX.HypeLink.head_office.order.model.dto.request.PurchaseOrderUpdateReq;
 import MeshX.HypeLink.head_office.order.model.dto.response.*;
 import MeshX.HypeLink.head_office.order.service.PurchaseOrderService;
+import com.example.apiclients.annotation.GetMemberEmail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -49,8 +48,8 @@ public class PurchaseOrderController {
             Pageable pageReq,
             @RequestParam String keyWord,
             @RequestParam String status,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        PageRes<PurchaseOrderInfoDetailRes> pageRes = headPurchaseOrderService.searchList(pageReq, keyWord, status, userDetails);
+            @GetMemberEmail String email) {
+        PageRes<PurchaseOrderInfoDetailRes> pageRes = headPurchaseOrderService.searchList(pageReq, keyWord, status, email);
         return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
     }
 
