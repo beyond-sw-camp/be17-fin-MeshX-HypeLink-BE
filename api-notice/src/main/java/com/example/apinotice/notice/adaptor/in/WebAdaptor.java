@@ -8,6 +8,7 @@ import com.example.apinotice.notice.usecase.port.in.request.NoticeSaveCommand;
 import com.example.apinotice.notice.usecase.port.in.request.NoticeUpdateCommand;
 import com.example.apinotice.notice.usecase.port.out.response.NoticeInfoDto;
 import com.example.apinotice.notice.usecase.port.out.response.NoticeListInfoDto;
+import com.example.apinotice.notice.usecase.port.out.response.NoticePageListInfoDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -34,8 +35,8 @@ public class WebAdaptor {
     }
 
     @GetMapping("/read/page/all")
-    public ResponseEntity<BaseResponse<PageRes<NoticeListInfoDto>>> readNotices(Pageable pageable) {
-        PageRes<NoticeListInfoDto> pageRes = webPort.readList(pageable);
+    public ResponseEntity<BaseResponse<PageRes<NoticePageListInfoDto>>> readNotices(Pageable pageable) {
+        PageRes<NoticePageListInfoDto> pageRes = webPort.readList(pageable);
         return ResponseEntity.status(200).body(BaseResponse.of(pageRes));
     }
 

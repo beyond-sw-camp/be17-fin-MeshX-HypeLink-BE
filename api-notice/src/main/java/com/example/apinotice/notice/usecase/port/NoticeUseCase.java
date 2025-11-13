@@ -13,6 +13,7 @@ import com.example.apinotice.notice.usecase.port.in.request.NoticeUpdateCommand;
 import com.example.apinotice.notice.usecase.port.out.NoticePersistencePort;
 import com.example.apinotice.notice.usecase.port.out.response.NoticeInfoDto;
 import com.example.apinotice.notice.usecase.port.out.response.NoticeListInfoDto;
+import com.example.apinotice.notice.usecase.port.out.response.NoticePageListInfoDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -45,15 +46,9 @@ public class NoticeUseCase implements WebPort {
     }
 
     @Override
-    public PageRes<NoticeListInfoDto> readList(Pageable pageable) {
+    public PageRes<NoticePageListInfoDto> readList(Pageable pageable) {
         Page<Notice> noticePage = noticePersistencePort.findAll(pageable);
-        // 람다 변환: Notice → NoticeListInfoDto
-        Page<NoticeListInfoDto> dtoPage = noticePage.map(notice ->
-                NoticeListInfoDto.builder()
-                        .notices(List.of(NoticeInfoDto.toDto(notice))) // 한 건짜리 리스트로 래핑
-                        .build()
-        );
-        // PageRes로 변환
+        Page<NoticePageListInfoDto> dtoPage = NoticePageListInfoDto.toDtoPage(noticePage);
         return PageRes.toDto(dtoPage);
     }
 

@@ -5,6 +5,7 @@ import com.example.apinotice.notice.usecase.port.in.request.NoticeSaveCommand;
 import com.example.apinotice.notice.usecase.port.in.request.NoticeUpdateCommand;
 import com.example.apinotice.notice.usecase.port.out.response.NoticeInfoDto;
 import com.example.apinotice.notice.usecase.port.out.response.NoticeListInfoDto;
+import com.example.apinotice.notice.usecase.port.out.response.NoticePageListInfoDto;
 import org.springframework.data.domain.Pageable;
 
 public interface WebPort {
@@ -12,7 +13,7 @@ public interface WebPort {
 
     NoticeInfoDto read(Integer id);
 
-    PageRes<NoticeListInfoDto> readList(Pageable pageable);
+    PageRes<NoticePageListInfoDto> readList(Pageable pageable);
 
     NoticeListInfoDto readList();
 
