@@ -2,8 +2,11 @@ package com.example.apiauth.adapter.out.persistence.read.entity;
 
 import MeshX.common.BaseEntity;
 import com.example.apiauth.domain.model.value.StoreState;
+import com.example.apiauth.domain.model.value.SyncStatus;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -26,5 +29,8 @@ public class StoreReadEntity {
     private String storeNumber;
     private StoreState storeState;
 
-    // Read 전용 - 업데이트 메서드 없음
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private SyncStatus syncStatus = SyncStatus.NEW;
+
 }

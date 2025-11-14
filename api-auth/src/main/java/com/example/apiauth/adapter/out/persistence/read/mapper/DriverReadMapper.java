@@ -11,6 +11,7 @@ public class DriverReadMapper {
                 .member(entity.getMember() != null ? MemberReadMapper.toDomain(entity.getMember()) : null)
                 .macAddress(entity.getMacAddress())
                 .carNumber(entity.getCarNumber())
+                .syncStatus(entity.getSyncStatus())
                 .build();
     }
 
@@ -20,6 +21,7 @@ public class DriverReadMapper {
                 .member(domain.getMember() != null ? MemberReadMapper.toEntity(domain.getMember()) : null)
                 .macAddress(domain.getMacAddress())
                 .carNumber(domain.getCarNumber())
+                .syncStatus(domain.getSyncStatus())
                 .build();
     }
 }

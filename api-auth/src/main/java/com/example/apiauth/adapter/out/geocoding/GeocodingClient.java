@@ -1,11 +1,10 @@
-package com.example.apiauth.adapter.out.external.geocoding;
+package com.example.apiauth.adapter.out.geocoding;
 
-import com.example.apiauth.adapter.out.external.geocoding.dto.NaverGeocodeResponseDto;
+import com.example.apiauth.adapter.out.geocoding.dto.NaverGeocodeResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 

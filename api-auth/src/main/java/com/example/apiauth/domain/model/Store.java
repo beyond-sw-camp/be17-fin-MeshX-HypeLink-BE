@@ -2,8 +2,11 @@ package com.example.apiauth.domain.model;
 
 import com.example.apiauth.domain.kafka.MemberRegisterEvent;
 import com.example.apiauth.domain.model.value.StoreState;
+import com.example.apiauth.domain.model.value.SyncStatus;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -16,6 +19,8 @@ public class Store {
     private String storeNumber;
     private StoreState storeState;
     private Member member;
+
+    private SyncStatus syncStatus;
 
     public static Store createNew(
             Member member,
@@ -30,6 +35,7 @@ public class Store {
                 .storeNumber(storeNumber)
                 .posCount(0)
                 .storeState(StoreState.TEMP_CLOSED)
+                .syncStatus(SyncStatus.NEW)
                 .build();
     }
 
@@ -42,6 +48,7 @@ public class Store {
                 .storeNumber(this.storeNumber)
                 .posCount(this.posCount + 1)
                 .storeState(this.storeState)
+                .syncStatus(this.syncStatus)
                 .build();
     }
 
@@ -54,6 +61,7 @@ public class Store {
                 .storeNumber(this.storeNumber)
                 .posCount(this.posCount - 1)
                 .storeState(this.storeState)
+                .syncStatus(this.syncStatus)
                 .build();
     }
 

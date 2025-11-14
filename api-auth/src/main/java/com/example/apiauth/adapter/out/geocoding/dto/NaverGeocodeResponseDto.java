@@ -1,4 +1,4 @@
-package com.example.apiauth.adapter.out.external.geocoding.dto;
+package com.example.apiauth.adapter.out.geocoding.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

@@ -1,6 +1,6 @@
 package com.example.apiauth.usecase;
 
-import com.example.apiauth.adapter.out.external.monolith.MonolithSyncClient;
+import com.example.apiauth.adapter.out.external.monolith.MonolithSyncAdapter;
 import com.example.apiauth.adapter.out.external.monolith.dto.DriverSyncDto;
 import com.example.apiauth.adapter.out.external.monolith.dto.MemberSyncDto;
 import com.example.apiauth.adapter.out.external.monolith.dto.PosSyncDto;
@@ -24,7 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class InitialSyncService {
 
-    private final MonolithSyncClient monolithSyncClient;
+    private final MonolithSyncAdapter monolithSyncAdapter;
     private final InitialSyncRepository initialSyncRepository;
     private final SyncStatusRepository syncStatusRepository;
 
@@ -58,7 +58,7 @@ public class InitialSyncService {
         }
 
         log.info("Syncing members from monolith...");
-        List<MemberSyncDto> members = monolithSyncClient.getAllMembers();
+        List<MemberSyncDto> members = monolithSyncAdapter.getAllMembers();
 
         if (members.isEmpty()) {
             log.warn("No members to sync");
@@ -93,7 +93,7 @@ public class InitialSyncService {
         }
 
         log.info("Syncing stores from monolith...");
-        List<StoreSyncDto> stores = monolithSyncClient.getAllStores();
+        List<StoreSyncDto> stores = monolithSyncAdapter.getAllStores();
 
         if (stores.isEmpty()) {
             log.warn("No stores to sync");
@@ -128,7 +128,7 @@ public class InitialSyncService {
         }
 
         log.info("Syncing POS from monolith...");
-        List<PosSyncDto> posList = monolithSyncClient.getAllPos();
+        List<PosSyncDto> posList = monolithSyncAdapter.getAllPos();
 
         if (posList.isEmpty()) {
             log.warn("No pos to sync");
@@ -163,7 +163,7 @@ public class InitialSyncService {
         }
 
         log.info("Syncing drivers from monolith...");
-        List<DriverSyncDto> drivers = monolithSyncClient.getAllDrivers();
+        List<DriverSyncDto> drivers = monolithSyncAdapter.getAllDrivers();
 
         if (drivers.isEmpty()) {
             log.warn("No drivers to sync");

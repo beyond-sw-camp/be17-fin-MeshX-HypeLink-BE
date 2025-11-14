@@ -1,7 +1,7 @@
-package com.example.apiauth.adapter.out.external.geocoding;
+package com.example.apiauth.adapter.out.geocoding;
 
-import com.example.apiauth.adapter.out.external.geocoding.dto.GeocodeDto;
-import com.example.apiauth.adapter.out.external.geocoding.dto.NaverGeocodeResponseDto;
+import com.example.apiauth.adapter.out.geocoding.dto.GeocodeDto;
+import com.example.apiauth.adapter.out.geocoding.dto.NaverGeocodeResponseDto;
 import com.example.apiauth.common.exception.GeocodingException;
 import com.example.apiauth.common.exception.GeocodingExceptionMessage;
 import com.example.apiauth.common.utils.AddressCleaner;

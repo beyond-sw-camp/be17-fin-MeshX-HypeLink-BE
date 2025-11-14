@@ -1,8 +1,11 @@
 package com.example.apiauth.domain.model;
 
 import com.example.apiauth.domain.kafka.MemberRegisterEvent;
+import com.example.apiauth.domain.model.value.SyncStatus;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -13,6 +16,8 @@ public class Driver {
     private String carNumber;
     private Member member;
 
+    private SyncStatus syncStatus;
+
     public static Driver createNew(
             Member member,
             String macAddress,
@@ -22,6 +27,7 @@ public class Driver {
                 .member(member)
                 .macAddress(macAddress)
                 .carNumber(carNumber)
+                .syncStatus(SyncStatus.NEW)
                 .build();
     }
 

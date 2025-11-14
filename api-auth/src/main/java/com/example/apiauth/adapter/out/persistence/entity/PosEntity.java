@@ -1,7 +1,10 @@
 package com.example.apiauth.adapter.out.persistence.entity;
 
+import com.example.apiauth.domain.model.value.SyncStatus;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -26,6 +29,10 @@ public class PosEntity {
     @OneToOne
     @JoinColumn(name = "member_id")
     private MemberEntity member;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private SyncStatus syncStatus = SyncStatus.NEW;
 
     @Builder
     private PosEntity(String posCode, StoreEntity store, Boolean healthCheck, MemberEntity member) {
