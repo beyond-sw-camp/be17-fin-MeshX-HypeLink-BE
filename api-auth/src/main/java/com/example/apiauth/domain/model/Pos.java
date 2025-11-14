@@ -1,8 +1,11 @@
 package com.example.apiauth.domain.model;
 
 import com.example.apiauth.domain.kafka.MemberRegisterEvent;
+import com.example.apiauth.domain.model.value.SyncStatus;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -14,6 +17,8 @@ public class Pos {
     private Store store;
     private Member member;
 
+    private SyncStatus syncStatus;
+
     public static Pos createNew(
             Member member,
             Store store,
@@ -24,6 +29,7 @@ public class Pos {
                 .store(store)
                 .posCode(posCode)
                 .healthCheck(true)
+                .syncStatus(SyncStatus.NEW)
                 .build();
     }
 

@@ -1,5 +1,6 @@
 package com.example.apiauth.adapter.in.kafka;
 
+import MeshX.common.exception.BaseException;
 import com.example.apiauth.adapter.out.external.monolith.dto.DriverSyncDto;
 import com.example.apiauth.adapter.out.external.monolith.dto.MemberSyncDto;
 import com.example.apiauth.adapter.out.external.monolith.dto.PosSyncDto;
@@ -29,7 +30,7 @@ public class DataSyncEventConsumer {
         this.readJdbcTemplate = new JdbcTemplate(readDataSource);
     }
 
-    @KafkaListener(topics = "cqrs-sync", groupId = "api-auth-cqrs-consumer")
+    @KafkaListener(topics = "cqrs-sync", groupId = "api-auth-cqrs-consumer", containerFactory = "cqrsKafkaListenerContainerFactory")
     @Transactional
     public void consumeEvent(DataSyncEvent event) {
         try {
@@ -50,8 +51,13 @@ public class DataSyncEventConsumer {
                     handleDriverEvent(event);
                     break;
             }
+        } catch (IllegalStateException e) {
+            // Member/Store not found 에러는 재시도를 위해 throw
+            log.warn("CQRS sync 순서 문제 발생, Kafka 재시도 예정: {}", e.getMessage());
+            throw e;
         } catch (Exception e) {
             log.error("Failed to process CQRS sync event", e);
+            throw new BaseException(null);
         }
     }
 
@@ -122,6 +128,19 @@ public class DataSyncEventConsumer {
     }
 
     private void upsertStore(StoreSyncDto dto) {
+        // Member 존재 확인
+        Integer memberExists = readJdbcTemplate.queryForObject(
+            "SELECT COUNT(*) FROM member WHERE id = ?",
+            Integer.class,
+            dto.getMemberId()
+        );
+
+        if (memberExists == null || memberExists == 0) {
+            log.warn("Member not found for Store, retrying... memberId={}, storeId={}",
+                    dto.getMemberId(), dto.getId());
+            throw new IllegalStateException("Member not found: " + dto.getMemberId());
+        }
+
         String sql = """
             INSERT INTO store (id, lat, lon, posCount, storeNumber, storeState, member_id)
             VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -162,6 +181,31 @@ public class DataSyncEventConsumer {
     }
 
     private void upsertPos(PosSyncDto dto) {
+        // Member와 Store 존재 확인
+        Integer memberExists = readJdbcTemplate.queryForObject(
+            "SELECT COUNT(*) FROM member WHERE id = ?",
+            Integer.class,
+            dto.getMemberId()
+        );
+
+        Integer storeExists = readJdbcTemplate.queryForObject(
+            "SELECT COUNT(*) FROM store WHERE id = ?",
+            Integer.class,
+            dto.getStoreId()
+        );
+
+        if (memberExists == null || memberExists == 0) {
+            log.warn("Member not found for Pos, retrying... memberId={}, posId={}",
+                    dto.getMemberId(), dto.getId());
+            throw new IllegalStateException("Member not found: " + dto.getMemberId());
+        }
+
+        if (storeExists == null || storeExists == 0) {
+            log.warn("Store not found for Pos, retrying... storeId={}, posId={}",
+                    dto.getStoreId(), dto.getId());
+            throw new IllegalStateException("Store not found: " + dto.getStoreId());
+        }
+
         String sql = """
             INSERT INTO pos (id, healthCheck, posCode, member_id, store_id)
             VALUES (?, ?, ?, ?, ?)
@@ -198,6 +242,19 @@ public class DataSyncEventConsumer {
     }
 
     private void upsertDriver(DriverSyncDto dto) {
+        // Member 존재 확인
+        Integer memberExists = readJdbcTemplate.queryForObject(
+            "SELECT COUNT(*) FROM member WHERE id = ?",
+            Integer.class,
+            dto.getMemberId()
+        );
+
+        if (memberExists == null || memberExists == 0) {
+            log.warn("Member not found for Driver, retrying... memberId={}, driverId={}",
+                    dto.getMemberId(), dto.getId());
+            throw new IllegalStateException("Member not found: " + dto.getMemberId());
+        }
+
         String sql = """
             INSERT INTO driver (id, carNumber, macAddress, member_id)
             VALUES (?, ?, ?, ?)

@@ -50,7 +50,8 @@ spring:
         linger.ms: 5
         max.in.flight.requests.per.connection: 5
         delivery.timeout.ms: 120000
-        spring.json.type.mapping: memberRegisterEvent:com.example.apiauth.domain.kafka.MemberRegisterEvent,dataSyncEvent:com.example.apiauth.domain.event.DataSyncEvent
+        spring.json.add.type.headers: true
+        spring.json.type.mapping: memberRegisterEvent:com.example.apiauth.domain.kafka.MemberRegisterEvent,dataSyncEvent:com.example.apiauth.domain.event.DataSyncEvent,sagaSuccessEvent:com.example.apiauth.domain.kafka.SagaSuccessEvent,sagaFailedEvent:com.example.apiauth.domain.kafka.SagaFailedEvent
     consumer:
       group-id: api-auth-cqrs-consumer
       auto-offset-reset: earliest
@@ -58,7 +59,8 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
-        spring.json.type.mapping: memberRegisterEvent:com.example.apiauth.domain.kafka.MemberRegisterEvent,dataSyncEvent:com.example.apiauth.domain.event.DataSyncEvent
+        spring.json.type.mapping: memberRegisterEvent:com.example.apiauth.domain.kafka.MemberRegisterEvent,dataSyncEvent:com.example.apiauth.domain.event.DataSyncEvent,sagaSuccessEvent:com.example.apiauth.domain.kafka.SagaSuccessEvent,sagaFailedEvent:com.example.apiauth.domain.kafka.SagaFailedEvent
+
 
 # JWT 설정
 jwt:
@@ -92,6 +94,30 @@ resilience4j:
       geocoding:
         base-config: default
       storeService:
+        base-config: default
+      monolithSync:
+        base-config: default
+        failure-rate-threshold: 60  # Monolith는 좀 더 관대하게
+      shipmentService:
+        base-config: default
+
+  # Retry 설정
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 2s
+        retry-exceptions:
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+          - feign.RetryableException
+    instances:
+      monolithSync:
+        base-config: default
+      geocoding:
+        base-config: default
+        max-attempts: 2  # 외부 API는 재시도 적게
+      shipmentService:
         base-config: default
 
 # Actuator 설정

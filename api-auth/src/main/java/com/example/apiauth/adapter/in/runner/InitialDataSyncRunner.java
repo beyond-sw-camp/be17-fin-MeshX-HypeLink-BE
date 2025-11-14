@@ -34,6 +34,18 @@ public class InitialDataSyncRunner implements CommandLineRunner {
             // 초기 동기화 실행
             Map<String, Integer> syncResults = initialSyncService.syncAll();
 
+            // 동기화된 데이터가 하나도 없으면 실패로 간주
+            int totalSynced = syncResults.values().stream().mapToInt(Integer::intValue).sum();
+            if (totalSynced == 0) {
+                log.error("=".repeat(80));
+                log.error("FATAL: Initial data sync FAILED!");
+                log.error("No data was synced from Monolith.");
+                log.error("api-auth cannot start without initial data.");
+                log.error("Please check if Monolith service is running at: {}", System.getenv("MONOLITH_URL"));
+                log.error("=".repeat(80));
+                throw new RuntimeException("Initial data sync failed - no data received from Monolith");
+            }
+
             log.info("=".repeat(80));
             log.info("Initial data sync completed successfully!");
             log.info("Sync results: {}", syncResults);
@@ -45,10 +57,12 @@ public class InitialDataSyncRunner implements CommandLineRunner {
 
         } catch (Exception e) {
             log.error("=".repeat(80));
-            log.error("Failed to perform initial data sync", e);
-            log.error("Server will continue to run, but data may be incomplete!");
-            log.error("You can manually trigger sync by calling: POST /admin/sync/trigger-all");
+            log.error("FATAL: Initial data sync failed!", e);
+            log.error("api-auth service cannot start without initial data.");
+            log.error("Shutting down application...");
             log.error("=".repeat(80));
+            // 애플리케이션 종료
+            System.exit(1);
         }
     }
 }
