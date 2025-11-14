@@ -74,15 +74,17 @@ public class MemberQueryService implements MemberQueryUseCase {
         List<Driver> drivers = driverQueryPort.findAll();
 
         return drivers.stream()
-                .map(driver -> DriverListResDto.builder()
-                        .id(driver.getId())
-                        .name(driver.getMember().getName())
-                        .phone(driver.getMember().getPhone())
-                        .region(driver.getMember().getRegion())
-                        .macAddress(driver.getMacAddress())
-                        .carNumber(driver.getCarNumber())
-                        .build())
-
+                .map(driver -> {
+                    Member member = driver.getMember();
+                    return DriverListResDto.builder()
+                            .id(driver.getId())
+                            .name(member != null ? member.getName() : "동기화 중")
+                            .phone(member != null ? member.getPhone() : "동기화 중")
+                            .region(member != null ? member.getRegion() : null)
+                            .macAddress(driver.getMacAddress())
+                            .carNumber(driver.getCarNumber())
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 
@@ -105,19 +107,23 @@ public class MemberQueryService implements MemberQueryUseCase {
     }
 
     private StoreWithPosResDto createStoreWithPosResDto(Store store, List<Pos> posList) {
+        Member storeMember = store.getMember();
         return StoreWithPosResDto.builder()
                 .id(store.getId())
-                .name(store.getMember().getName())
-                .address(store.getMember().getAddress())
-                .region(store.getMember().getRegion())
+                .name(storeMember != null ? storeMember.getName() : "동기화 중")
+                .address(storeMember != null ? storeMember.getAddress() : "동기화 중")
+                .region(storeMember != null ? storeMember.getRegion() : null)
                 .storeState(store.getStoreState())
                 .posDevices(posList.stream()
-                        .map(pos -> PosInfoDto.builder()
-                                .id(pos.getId())
-                                .name(pos.getMember().getName())
-                                .email(pos.getMember().getEmail())
-                                .posCode(pos.getPosCode())
-                                .build())
+                        .map(pos -> {
+                            Member posMember = pos.getMember();
+                            return PosInfoDto.builder()
+                                    .id(pos.getId())
+                                    .name(posMember != null ? posMember.getName() : "동기화 중")
+                                    .email(posMember != null ? posMember.getEmail() : "동기화 중")
+                                    .posCode(pos.getPosCode())
+                                    .build();
+                        })
                         .collect(Collectors.toList()))
                 .build();
     }
@@ -130,9 +136,9 @@ public class MemberQueryService implements MemberQueryUseCase {
             Member member = store.getMember();
             return StoreListResDto.builder()
                     .storeId(store.getId())
-                    .storeName(member != null ? member.getName() : "Unknown")
-                    .storeAddress(member != null ? member.getAddress() : "Unknown")
-                    .storePhone(member != null ? member.getPhone() : "Unknown")
+                    .storeName(member != null ? member.getName() : "동기화 중")
+                    .storeAddress(member != null ? member.getAddress() : "동기화 중")
+                    .storePhone(member != null ? member.getPhone() : "동기화 중")
                     .storeState(store.getStoreState())
                     .build();
         });
@@ -169,13 +175,14 @@ public class MemberQueryService implements MemberQueryUseCase {
     @Override
     public StoreInfoResDto readStoreInfo(Integer id) {
         Store store = storeQueryPort.findById(id);
+        Member member = store.getMember();
 
         return StoreInfoResDto.builder()
-                .name(store.getMember().getName())
-                .email(store.getMember().getEmail())
-                .phone(store.getMember().getPhone())
-                .address(store.getMember().getAddress())
-                .region(store.getMember().getRegion())
+                .name(member != null ? member.getName() : "동기화 중")
+                .email(member != null ? member.getEmail() : "동기화 중")
+                .phone(member != null ? member.getPhone() : "동기화 중")
+                .address(member != null ? member.getAddress() : "동기화 중")
+                .region(member != null ? member.getRegion() : null)
                 .storeNumber(store.getStoreNumber())
                 .build();
     }

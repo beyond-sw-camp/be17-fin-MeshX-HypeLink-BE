@@ -45,26 +45,20 @@ public class KafkaConsumerConfig {
     }
 
     /**
-     * Saga (sync-failed, sync-success) Consumer용 - Type Header 사용
+     * Saga (sync-failed, sync-success) Consumer용 - String으로 받아서 수동 파싱
      */
     @Bean(name = "sagaKafkaListenerContainerFactory")
-    public ConcurrentKafkaListenerContainerFactory<String, Object> sagaKafkaListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, String> sagaKafkaListenerContainerFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap);
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.GROUP_ID_CONFIG, "api-auth-sync-status");
 
-        config.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-        config.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, true);  // Type Header 사용
-        config.put(JsonDeserializer.TYPE_MAPPINGS,
-                "sagaFailedEvent:com.example.apiauth.domain.kafka.SagaFailedEvent," +
-                "sagaSuccessEvent:com.example.apiauth.domain.kafka.SagaSuccessEvent");
-
-        DefaultKafkaConsumerFactory<String, Object> consumerFactory =
+        DefaultKafkaConsumerFactory<String, String> consumerFactory =
                 new DefaultKafkaConsumerFactory<>(config);
 
-        ConcurrentKafkaListenerContainerFactory<String, Object> factory =
+        ConcurrentKafkaListenerContainerFactory<String, String> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
 

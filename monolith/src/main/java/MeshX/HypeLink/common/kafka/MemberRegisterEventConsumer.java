@@ -1,7 +1,5 @@
 package MeshX.HypeLink.common.kafka;
 
-import MeshX.HypeLink.auth.exception.AuthException;
-import MeshX.HypeLink.common.exception.BaseException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -10,8 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.time.LocalDateTime;
-
-import static MeshX.HypeLink.auth.exception.AuthExceptionMessage.UNAUTHORIZED;
 
 @Slf4j
 @Component
@@ -56,10 +52,7 @@ public class MemberRegisterEventConsumer {
 
             log.info("Successfully synced Member to Monolith: memberId={}, role={}",
                     event.getMemberId(), event.getRole());
-//            syncSuccessEvents(event);
-            String test = "Test faile";
-            syncFailedEvents(event, test);
-
+            syncSuccessEvents(event);
         } catch (Exception e) {
             log.error("Failed to process MemberRegisterEvent from MSA", e);
             syncFailedEvents(event, e.getMessage());
