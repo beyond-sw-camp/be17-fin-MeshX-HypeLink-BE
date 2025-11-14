@@ -26,6 +26,8 @@ public class CustomerReceipt {
     private PaymentStatus status;
     private LocalDateTime paidAt;
     private LocalDateTime cancelledAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     @Builder.Default
     private List<OrderItem> orderItems = new ArrayList<>();

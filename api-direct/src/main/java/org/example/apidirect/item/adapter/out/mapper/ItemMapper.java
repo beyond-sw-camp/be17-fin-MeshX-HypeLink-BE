@@ -28,6 +28,8 @@ public class ItemMapper {
                 .itemImages(entity.getItemImages().stream()
                         .map(ItemImageMapper::toDomain)
                         .collect(Collectors.toList()))
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 
@@ -35,6 +37,7 @@ public class ItemMapper {
         if (command == null) return null;
 
         return StoreItem.builder()
+                .id(command.getId())
                 .itemCode(command.getItemCode())
                 .unitPrice(command.getUnitPrice())
                 .amount(command.getAmount())
@@ -49,6 +52,8 @@ public class ItemMapper {
                 .itemImages(command.getItemImages() != null ? command.getItemImages().stream()
                         .map(ItemImageMapper::toDomain)
                         .collect(Collectors.toList()) : List.of())
+//                .createdAt(command.getCreatedAt())
+//                .updatedAt(command.getUpdatedAt())
                 .build();
     }
 
@@ -56,6 +61,7 @@ public class ItemMapper {
         if (domain == null) return null;
 
         return StoreItemEntity.builder()
+                .id(domain.getId())
                 .itemCode(domain.getItemCode())
                 .unitPrice(domain.getUnitPrice())
                 .amount(domain.getAmount())

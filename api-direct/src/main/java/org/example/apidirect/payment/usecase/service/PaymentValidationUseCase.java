@@ -96,6 +96,11 @@ public class PaymentValidationUseCase implements PaymentValidationWebPort {
         }
     }
 
+    @Override
+    public void testPaymentKafka(ReceiptCreateCommand command, Integer memberId) {
+
+    }
+
     /**
      * PortOne에서 결제 정보 조회 및 상태 검증
      */
@@ -244,7 +249,7 @@ public class PaymentValidationUseCase implements PaymentValidationWebPort {
             }
 
             // 재고 차감
-            storeItemDetail.updateStock(itemDto.getQuantity());
+            storeItemDetail.decreaseStock(itemDto.getQuantity());
             itemDetailPersistencePort.save(storeItemDetail);
             log.info("재고 차감 완료. 남은 재고: {}", storeItemDetail.getStock());
 

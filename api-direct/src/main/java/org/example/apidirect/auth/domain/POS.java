@@ -3,6 +3,8 @@ package org.example.apidirect.auth.domain;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 public class POS {
@@ -11,6 +13,8 @@ public class POS {
     private Integer storeId;
     private Boolean healthCheck;
     private Integer memberId;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public void updateHealthCheck(Boolean status) {
         this.healthCheck = status;

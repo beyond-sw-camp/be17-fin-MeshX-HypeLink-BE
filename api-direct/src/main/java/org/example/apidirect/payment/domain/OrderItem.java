@@ -3,6 +3,8 @@ package org.example.apidirect.payment.domain;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 public class OrderItem {
@@ -12,6 +14,8 @@ public class OrderItem {
     private Integer quantity;
     private Integer unitPrice;
     private Integer totalPrice;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public void validateQuantity() {
         if (this.quantity == null || this.quantity <= 0) {

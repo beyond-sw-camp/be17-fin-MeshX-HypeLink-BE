@@ -1,5 +1,6 @@
 package org.example.apidirect.payment.adapter.out.entity;
 
+import MeshX.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -15,7 +16,7 @@ import java.util.List;
 @Table(name = "customer_receipt")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CustomerReceiptEntity {
+public class CustomerReceiptEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -6,6 +6,7 @@ import org.example.apidirect.item.adapter.out.entity.SizeEntity;
 import org.example.apidirect.item.adapter.out.mapper.SizeMapper;
 import org.example.apidirect.item.domain.Size;
 import org.example.apidirect.item.usecase.port.out.SizePersistencePort;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,12 +19,13 @@ public class SizePersistenceAdaptor implements SizePersistencePort {
     private final SizeRepository sizeRepository;
 
     @Override
+    @Transactional
     public void saveAll(List<Size> sizes) {
         List<SizeEntity> entities = sizes.stream()
                 .map(SizeMapper::toEntity)
                 .collect(Collectors.toList());
 
-        sizeRepository.saveAll(entities);
+        entities.forEach(sizeRepository::upsert);
     }
 
     @Override

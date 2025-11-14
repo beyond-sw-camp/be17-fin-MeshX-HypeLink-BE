@@ -20,7 +20,8 @@ public class ItemKafkaConsumer {
     private final ObjectMapper objectMapper;
     private final KafkaPort kafkaPort;
 
-    @KafkaListener(topics = "items.sync.1", groupId = "${spring.kafka.consumer.group-id}")
+    @KafkaListener(topics = "items.sync.1", groupId = "${spring.kafka.consumer.group-id}",
+            containerFactory = "stringKafkaListenerFactory")
     public void consumeItem(String rawMessage) {
         try {
             JsonNode root = objectMapper.readTree(rawMessage);

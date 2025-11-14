@@ -1,5 +1,6 @@
 package org.example.apidirect.payment.adapter.out.entity;
 
+import MeshX.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "order_item")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class OrderItemEntity {
+public class OrderItemEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,7 +43,7 @@ public class OrderItemEntity {
         this.totalPrice = totalPrice;
     }
 
-    protected void setCustomerReceipt(CustomerReceiptEntity customerReceipt) {
+    public void setCustomerReceipt(CustomerReceiptEntity customerReceipt) {
         this.customerReceipt = customerReceipt;
     }
 }
