@@ -18,6 +18,7 @@ public class MemberReadMapper {
                 .refreshToken(entity.getRefreshToken())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
+                .syncStatus(entity.getSyncStatus())
                 .build();
     }
 
@@ -32,6 +33,7 @@ public class MemberReadMapper {
                 .role(domain.getRole())
                 .region(domain.getRegion())
                 .refreshToken(domain.getRefreshToken())
+                .syncStatus(domain.getSyncStatus())
                 .build();
     }
 }

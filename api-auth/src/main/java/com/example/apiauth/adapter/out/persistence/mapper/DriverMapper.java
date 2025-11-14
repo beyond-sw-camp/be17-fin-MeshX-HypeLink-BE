@@ -14,6 +14,7 @@ public class DriverMapper {
                 .member(MemberMapper.toEntity(driver.getMember()))
                 .carNumber(driver.getCarNumber())
                 .macAddress(driver.getMacAddress())
+                .syncStatus(driver.getSyncStatus())
                 .build();
     }
 
@@ -24,6 +25,7 @@ public class DriverMapper {
                 .member(memberEntity)  // 영속화된 MemberEntity 직접 설정
                 .carNumber(driver.getCarNumber())
                 .macAddress(driver.getMacAddress())
+                .syncStatus(driver.getSyncStatus())
                 .build();
     }
 
@@ -33,6 +35,7 @@ public class DriverMapper {
                 .member(MemberMapper.toDomain(driverEntity.getMember()))
                 .carNumber(driverEntity.getCarNumber())
                 .macAddress(driverEntity.getMacAddress())
+                .syncStatus(driverEntity.getSyncStatus())
                 .build();
     }
 }

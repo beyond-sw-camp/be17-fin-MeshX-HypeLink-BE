@@ -3,8 +3,11 @@ package com.example.apiauth.adapter.out.persistence.entity;
 import MeshX.common.BaseEntity;
 import com.example.apiauth.domain.model.value.MemberRole;
 import com.example.apiauth.domain.model.value.Region;
+import com.example.apiauth.domain.model.value.SyncStatus;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -35,6 +38,10 @@ public class MemberEntity extends BaseEntity {
 
     @Column(nullable = true)
     private String refreshToken;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private SyncStatus syncStatus = SyncStatus.NEW;
 
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;

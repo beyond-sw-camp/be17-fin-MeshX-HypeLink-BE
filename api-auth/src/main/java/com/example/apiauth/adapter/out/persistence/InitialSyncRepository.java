@@ -32,8 +32,8 @@ public class InitialSyncRepository {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(writeDataSource);
 
         String sql = """
-            INSERT INTO member (id, createdAt, updatedAt, address, email, name, password, phone, refreshToken, region, role)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO member (id, createdAt, updatedAt, address, email, name, password, phone, refreshToken, region, role, syncStatus)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'SYNCED')
             """;
 
         jdbcTemplate.batchUpdate(sql, members, 1000, (ps, dto) -> {
@@ -46,8 +46,8 @@ public class InitialSyncRepository {
             ps.setString(7, dto.getPassword());
             ps.setString(8, dto.getPhone());
             ps.setString(9, dto.getRefreshToken());
-            ps.setString(10, dto.getRegion().name());
-            ps.setString(11, dto.getRole().name());
+            ps.setString(10, dto.getRegion() != null ? dto.getRegion().name() : null);
+            ps.setString(11, dto.getRole() != null ? dto.getRole().name() : null);
         });
 
         log.info("Batch inserted {} members", members.size());
@@ -58,8 +58,8 @@ public class InitialSyncRepository {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(writeDataSource);
 
         String sql = """
-            INSERT INTO store (id, lat, lon, posCount, storeNumber, storeState, member_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO store (id, lat, lon, posCount, storeNumber, storeState, member_id, syncStatus)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'SYNCED')
             """;
 
         jdbcTemplate.batchUpdate(sql, stores, 1000, (ps, dto) -> {
@@ -80,8 +80,8 @@ public class InitialSyncRepository {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(writeDataSource);
 
         String sql = """
-            INSERT INTO pos (id, healthCheck, posCode, member_id, store_id)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO pos (id, healthCheck, posCode, member_id, store_id, syncStatus)
+            VALUES (?, ?, ?, ?, ?, 'SYNCED')
             """;
 
         jdbcTemplate.batchUpdate(sql, posList, 1000, (ps, dto) -> {
@@ -100,8 +100,8 @@ public class InitialSyncRepository {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(writeDataSource);
 
         String sql = """
-            INSERT INTO driver (id, carNumber, macAddress, member_id)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO driver (id, carNumber, macAddress, member_id, syncStatus)
+            VALUES (?, ?, ?, ?, 'SYNCED')
             """;
 
         jdbcTemplate.batchUpdate(sql, drivers, 1000, (ps, dto) -> {
@@ -121,8 +121,8 @@ public class InitialSyncRepository {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(readDataSource);
 
         String sql = """
-            INSERT INTO member (id, createdAt, updatedAt, address, email, name, password, phone, refreshToken, region, role)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO member (id, createdAt, updatedAt, address, email, name, password, phone, refreshToken, region, role, syncStatus)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'SYNCED')
             """;
 
         jdbcTemplate.batchUpdate(sql, members, 1000, (ps, dto) -> {
@@ -135,8 +135,8 @@ public class InitialSyncRepository {
             ps.setString(7, dto.getPassword());
             ps.setString(8, dto.getPhone());
             ps.setString(9, dto.getRefreshToken());
-            ps.setString(10, dto.getRegion().name());
-            ps.setString(11, dto.getRole().name());
+            ps.setString(10, dto.getRegion() != null ? dto.getRegion().name() : null);
+            ps.setString(11, dto.getRole() != null ? dto.getRole().name() : null);
         });
 
         log.info("Batch inserted {} members to Read DB", members.size());
@@ -147,8 +147,8 @@ public class InitialSyncRepository {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(readDataSource);
 
         String sql = """
-            INSERT INTO store (id, lat, lon, posCount, storeNumber, storeState, member_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO store (id, lat, lon, posCount, storeNumber, storeState, member_id, syncStatus)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'SYNCED')
             """;
 
         jdbcTemplate.batchUpdate(sql, stores, 1000, (ps, dto) -> {
@@ -169,8 +169,8 @@ public class InitialSyncRepository {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(readDataSource);
 
         String sql = """
-            INSERT INTO pos (id, healthCheck, posCode, member_id, store_id)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO pos (id, healthCheck, posCode, member_id, store_id, syncStatus)
+            VALUES (?, ?, ?, ?, ?, 'SYNCED')
             """;
 
         jdbcTemplate.batchUpdate(sql, posList, 1000, (ps, dto) -> {
@@ -189,8 +189,8 @@ public class InitialSyncRepository {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(readDataSource);
 
         String sql = """
-            INSERT INTO driver (id, carNumber, macAddress, member_id)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO driver (id, carNumber, macAddress, member_id, syncStatus)
+            VALUES (?, ?, ?, ?, 'SYNCED')
             """;
 
         jdbcTemplate.batchUpdate(sql, drivers, 1000, (ps, dto) -> {

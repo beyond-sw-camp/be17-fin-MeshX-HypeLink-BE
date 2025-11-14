@@ -3,8 +3,11 @@ package com.example.apiauth.adapter.out.persistence.read.entity;
 import MeshX.common.BaseEntity;
 import com.example.apiauth.domain.model.value.MemberRole;
 import com.example.apiauth.domain.model.value.Region;
+import com.example.apiauth.domain.model.value.SyncStatus;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -35,5 +38,8 @@ public class MemberReadEntity extends BaseEntity {
     @Column(nullable = true)
     private String refreshToken;
 
-    // Read 전용 - 업데이트 메서드 없음
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private SyncStatus syncStatus = SyncStatus.NEW;
+
 }

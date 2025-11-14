@@ -17,6 +17,7 @@ public class StoreMapper {
                 .posCount(store.getPosCount())
                 .storeNumber(store.getStoreNumber())
                 .storeState(store.getStoreState())
+                .syncStatus(store.getSyncStatus())
                 .build();
     }
 
@@ -29,6 +30,7 @@ public class StoreMapper {
                 .posCount(storeEntity.getPosCount())
                 .storeNumber(storeEntity.getStoreNumber())
                 .storeState(storeEntity.getStoreState())
+                .syncStatus(storeEntity.getSyncStatus())
                 .build();
     }
 

@@ -20,6 +20,7 @@ public class MemberMapper {
                 .refreshToken(memberEntity.getRefreshToken())
                 .createdAt(memberEntity.getCreatedAt())
                 .updatedAt(memberEntity.getUpdatedAt())
+                .syncStatus(memberEntity.getSyncStatus())
                 .build();
     }
 
@@ -34,6 +35,7 @@ public class MemberMapper {
                 .role(member.getRole())
                 .region(member.getRegion())
                 .refreshToken(member.getRefreshToken())
+                .syncStatus(member.getSyncStatus())
                 .build();
     }
 }

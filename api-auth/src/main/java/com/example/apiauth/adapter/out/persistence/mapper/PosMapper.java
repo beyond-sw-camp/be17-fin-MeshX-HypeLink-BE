@@ -14,6 +14,7 @@ public class PosMapper {
                 .store(StoreMapper.toEntity(pos.getStore()))
                 .posCode(pos.getPosCode())
                 .healthCheck(pos.getHealthCheck())
+                .syncStatus(pos.getSyncStatus())
                 .build();
     }
 
@@ -24,6 +25,7 @@ public class PosMapper {
                 .store(StoreMapper.toDomain(posEntity.getStore()))
                 .posCode(posEntity.getPosCode())
                 .healthCheck(posEntity.getHealthCheck())
+                .syncStatus(posEntity.getSyncStatus())
                 .build();
     }
 

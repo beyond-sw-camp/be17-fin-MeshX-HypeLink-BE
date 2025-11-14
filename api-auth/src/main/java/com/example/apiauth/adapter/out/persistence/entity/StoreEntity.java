@@ -1,8 +1,11 @@
 package com.example.apiauth.adapter.out.persistence.entity;
 
 import com.example.apiauth.domain.model.value.StoreState;
+import com.example.apiauth.domain.model.value.SyncStatus;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -27,6 +30,10 @@ public class StoreEntity {
     @OneToOne
     @JoinColumn(name = "member_id")
     private MemberEntity member;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private SyncStatus syncStatus = SyncStatus.NEW;
 
 //    @Builder
 //    private StoreEntity(Double lat, Double lon, String address, Integer posCount,

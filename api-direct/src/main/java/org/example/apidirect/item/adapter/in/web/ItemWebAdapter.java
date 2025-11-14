@@ -1,6 +1,7 @@
 package org.example.apidirect.item.adapter.in.web;
 
 import MeshX.common.WebAdapter;
+import com.example.apiclients.annotation.GetMemberEmail;
 import lombok.RequiredArgsConstructor;
 import org.example.apidirect.item.adapter.in.web.dto.request.UpdateStoreItemDetailRequest;
 import org.example.apidirect.item.adapter.in.web.dto.response.StoreItemDetailResponse;
@@ -21,7 +22,12 @@ public class ItemWebAdapter {
 
 
     @GetMapping("/list")
-    public ResponseEntity<Page<StoreItemDetailResponse>> getItemList(Pageable pageable) {
+    public ResponseEntity<Page<StoreItemDetailResponse>> getItemList(Pageable pageable,
+                                                                     @GetMemberEmail String email) {
+        for (int i = 0; i < 10; i++) {
+
+            System.out.println(email);
+        }
         Page<StoreItemDetailResponse> result = itemQueryPort.findAllItems(pageable);
         return ResponseEntity.ok(result);
     }

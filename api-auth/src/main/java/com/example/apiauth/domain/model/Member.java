@@ -2,6 +2,7 @@ package com.example.apiauth.domain.model;
 
 import com.example.apiauth.domain.model.value.MemberRole;
 import com.example.apiauth.domain.model.value.Region;
+import com.example.apiauth.domain.model.value.SyncStatus;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -23,6 +24,8 @@ public class Member {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    private SyncStatus syncStatus;
+
     public static Member createNew(String email, String password, String name,
                                    String phone, String address, MemberRole role, Region region) {
         return Member.builder()
@@ -34,6 +37,7 @@ public class Member {
                 .role(role)
                 .region(region)
                 .refreshToken(null)
+                .syncStatus(SyncStatus.NEW)
                 .build();
     }
 
@@ -50,6 +54,7 @@ public class Member {
                 .role(MemberRole.POS_MEMBER)
                 .region(storeMember.getRegion())
                 .refreshToken(null)
+                .syncStatus(SyncStatus.NEW)
                 .build();
     }
 
