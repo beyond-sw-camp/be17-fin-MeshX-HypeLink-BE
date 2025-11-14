@@ -13,6 +13,8 @@ public class CustomerMapper {
                 .name(entity.getName())
                 .phone(entity.getPhone())
                 .birthDate(entity.getBirthDate())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 

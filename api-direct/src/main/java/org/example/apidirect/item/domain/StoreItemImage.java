@@ -3,6 +3,8 @@ package org.example.apidirect.item.domain;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 public class StoreItemImage {
@@ -12,4 +14,6 @@ public class StoreItemImage {
     private String savedPath;
     private String contentType;
     private Long fileSize;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

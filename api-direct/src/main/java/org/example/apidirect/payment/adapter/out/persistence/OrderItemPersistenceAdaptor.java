@@ -2,6 +2,7 @@ package org.example.apidirect.payment.adapter.out.persistence;
 
 import MeshX.common.PersistenceAdapter;
 import lombok.RequiredArgsConstructor;
+import org.example.apidirect.payment.adapter.out.entity.CustomerReceiptEntity;
 import org.example.apidirect.payment.adapter.out.entity.OrderItemEntity;
 import org.example.apidirect.payment.adapter.out.mapper.OrderItemMapper;
 import org.example.apidirect.payment.domain.OrderItem;
@@ -16,10 +17,19 @@ import java.util.stream.Collectors;
 public class OrderItemPersistenceAdaptor implements OrderItemPersistencePort {
 
     private final OrderItemRepository orderItemRepository;
+    private final CustomerReceiptRepository customerReceiptRepository;
 
     @Override
     public OrderItem save(OrderItem orderItem) {
         OrderItemEntity entity = OrderItemMapper.toEntity(orderItem);
+
+        // CustomerReceipt 설정
+        if (orderItem.getCustomerReceiptId() != null) {
+            CustomerReceiptEntity receipt = customerReceiptRepository.findById(orderItem.getCustomerReceiptId())
+                    .orElseThrow(() -> new RuntimeException("CustomerReceipt not found"));
+            entity.setCustomerReceipt(receipt);
+        }
+
         OrderItemEntity saved = orderItemRepository.save(entity);
         return OrderItemMapper.toDomain(saved);
     }

@@ -3,6 +3,7 @@ package org.example.apidirect.item.domain;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -20,4 +21,7 @@ public class StoreItem {
 
     private List<StoreItemDetail> itemDetails;
     private List<StoreItemImage> itemImages;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

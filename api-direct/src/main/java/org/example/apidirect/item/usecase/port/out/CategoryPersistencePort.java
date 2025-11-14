@@ -11,6 +11,8 @@ public interface CategoryPersistencePort {
 
     List<Category> saveAll(List<String> categories);
 
+    void saveAllWithId(List<Category> categories);
+
     Optional<Category> findByName(String category);
 
     List<Category> findAll();

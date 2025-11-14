@@ -6,6 +6,7 @@ import org.example.apidirect.item.adapter.out.entity.CategoryEntity;
 import org.example.apidirect.item.adapter.out.mapper.CategoryMapper;
 import org.example.apidirect.item.domain.Category;
 import org.example.apidirect.item.usecase.port.out.CategoryPersistencePort;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +35,16 @@ public class CategoryPersistenceAdaptor implements CategoryPersistencePort {
         return saved.stream()
                 .map(CategoryMapper::toDomain)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void saveAllWithId(List<Category> categories) {
+        List<CategoryEntity> entities = categories.stream()
+                .map(CategoryMapper::toEntity)
+                .collect(Collectors.toList());
+
+        entities.forEach(categoryRepository::upsert);
     }
 
     @Override

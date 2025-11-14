@@ -55,13 +55,26 @@ public class PaymentSyncService {
         // 3. CustomerReceipt 생성 및 저장
         CustomerReceipt receipt = toCustomerReceipt(event.getReceipt(), store, customer);
 
-        // 4. OrderItem 생성 및 추가
+        // 4. OrderItem 생성 및 추가 (FK 검증 포함)
         for (OrderItemData itemData : event.getOrderItems()) {
-            StoreItemDetail storeItemDetail = storeItemDetailRepositoryVerify.findById(itemData.getStoreItemDetailId());
+            // StoreItemDetail 존재 확인
+            StoreItemDetail storeItemDetail = findStoreItemDetail(itemData.getStoreItemDetailId());
+
+            if (storeItemDetail == null) {
+                log.warn("[SYNC] OrderItem 스킵 - StoreItemDetail 미존재: storeItemDetailId={}, merchantUid={}",
+                        itemData.getStoreItemDetailId(), event.getReceipt().getMerchantUid());
+                continue;
+            }
 
             OrderItem orderItem = toOrderItem(itemData, storeItemDetail);
             receipt.addOrderItem(orderItem);
             log.info("[SYNC] OrderItem 추가 - storeItemDetailId: {}", itemData.getStoreItemDetailId());
+        }
+
+        // OrderItem이 하나도 없으면 저장 스킵
+        if (receipt.getOrderItems().isEmpty()) {
+            log.warn("[SYNC] OrderItem이 없어서 Payment 동기화 스킵 - merchantUid: {}", event.getReceipt().getMerchantUid());
+            return;
         }
 
         // CustomerReceipt 저장 (OrderItem cascade로 함께 저장)
@@ -74,6 +87,15 @@ public class PaymentSyncService {
         log.info("[SYNC] Payments 저장 완료 - paymentId: {}", payment.getPaymentId());
 
         log.info("[SYNC] Payment 동기화 완료 - merchantUid: {}", event.getReceipt().getMerchantUid());
+    }
+
+    private StoreItemDetail findStoreItemDetail(Integer storeItemDetailId) {
+        try {
+            return storeItemDetailRepositoryVerify.findById(storeItemDetailId);
+        } catch (Exception e) {
+            log.warn("[SYNC] StoreItemDetail 조회 실패 - id: {}, error: {}", storeItemDetailId, e.getMessage());
+            return null;
+        }
     }
 
     private CustomerReceipt toCustomerReceipt(CustomerReceiptData data, Store store, Customer customer) {

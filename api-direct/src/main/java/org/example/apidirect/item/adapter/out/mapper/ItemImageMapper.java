@@ -17,6 +17,8 @@ public class ItemImageMapper {
                 .savedPath(entity.getSavedPath())
                 .contentType(entity.getContentType())
                 .fileSize(entity.getFileSize())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 
@@ -24,11 +26,14 @@ public class ItemImageMapper {
         if (command == null) return null;
 
         return StoreItemImage.builder()
+                .id(command.getId())
                 .sortIndex(command.getSortIndex())
                 .originalFilename(command.getOriginalFilename())
                 .savedPath(command.getSavedPath())
                 .contentType(command.getContentType())
                 .fileSize(command.getFileSize())
+//                .createdAt(command.getCreatedAt())
+//                .updatedAt(command.getUpdatedAt())
                 .build();
     }
 
@@ -36,6 +41,7 @@ public class ItemImageMapper {
         if (domain == null) return null;
 
         return StoreItemImageEntity.builder()
+                .id(domain.getId())
                 .sortIndex(domain.getSortIndex())
                 .originalFilename(domain.getOriginalFilename())
                 .savedPath(domain.getSavedPath())

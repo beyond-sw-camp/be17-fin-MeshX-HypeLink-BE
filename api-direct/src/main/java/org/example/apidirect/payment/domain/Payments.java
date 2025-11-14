@@ -18,6 +18,8 @@ public class Payments {
     private PaymentStatus status;
     private LocalDateTime paidAt;
     private String failureReason;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public void cancel(String reason) {
         if (this.status == PaymentStatus.CANCELLED || this.status == PaymentStatus.REFUNDED) {
