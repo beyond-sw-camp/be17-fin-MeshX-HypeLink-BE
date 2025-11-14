@@ -231,7 +231,7 @@ public class PurchaseOrderService {
         Member headMember = memberRepository.findByEmail("hq@company.com");
         PurchaseOrderState state = PurchaseOrderState.valueOf(dto.getOrderState());
 
-        if(state.equals(PurchaseOrderState.COMPLETED)) {
+        if(state.equals(PurchaseOrderState.COMPLETED) && purchaseOrder.getPurchaseOrderState().equals(PurchaseOrderState.REQUESTED)) {
             if(purchaseOrder.getRequester().equals(headMember)) {
                 ItemDetail itemDetail = itemDetailRepository.findByIdWithLock(purchaseOrder.getItemDetail().getId());
 //                itemDetail.updateStock(purchaseOrder.getQuantity());
@@ -252,6 +252,9 @@ public class PurchaseOrderService {
                 kafkaPurchaseService.syncDirectItemDetailStock(store, itemDetailId, quantity);
             }
         } else {
+            if(purchaseOrder.getPurchaseOrderState().equals(PurchaseOrderState.COMPLETED)) {
+                return PurchaseOrderInfoDetailRes.toDto(purchaseOrder);
+            }
             purchaseOrder.updateOrderDetailStatus(PurchaseDetailStatus.OTHER_CANCELLATION);
         }
 
