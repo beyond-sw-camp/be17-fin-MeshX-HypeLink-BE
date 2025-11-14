@@ -51,7 +51,7 @@ public class ItemSyncService {
     /**
      * 매일 00시 실행 (오늘 수정된 상품만 직영점에 전송)
      */
-    @Scheduled(cron = "0 0 0 * * *") // 00시 00분에 실행
+    @Scheduled(cron = "0 55 17 * * *") // 00시 00분에 실행
 //    @Scheduled(cron = "0 * * * * *")
     public void syncNewItemsToStores() {
         LocalDate today = LocalDate.now();
