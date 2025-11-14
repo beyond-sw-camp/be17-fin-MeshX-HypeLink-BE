@@ -1,12 +1,11 @@
 package com.example.apiauth.adapter.out.persistence.read.entity;
 
-import MeshX.common.BaseEntity;
 import com.example.apiauth.domain.model.value.StoreState;
 import com.example.apiauth.domain.model.value.SyncStatus;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 @Entity
 @Getter
@@ -20,7 +19,8 @@ public class StoreReadEntity {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @NotFound(action = NotFoundAction.IGNORE)
     private MemberReadEntity member;
 
     private Double lat;

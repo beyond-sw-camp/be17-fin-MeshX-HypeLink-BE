@@ -17,7 +17,7 @@ public class StoreAddInfoResDto {
                 .id(store.getId())
                 .lat(store.getLat())
                 .lon(store.getLon())
-                .storeName(store.getMember().getName())
+                .storeName(store.getMember() != null ? store.getMember().getName() : "동기화 중")
                 .build();
     }
 

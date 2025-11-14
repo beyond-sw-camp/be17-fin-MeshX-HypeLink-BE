@@ -51,7 +51,7 @@ spring:
         max.in.flight.requests.per.connection: 5
         delivery.timeout.ms: 120000
         spring.json.add.type.headers: true
-        spring.json.type.mapping: memberRegisterEvent:com.example.apiauth.domain.kafka.MemberRegisterEvent,dataSyncEvent:com.example.apiauth.domain.event.DataSyncEvent,sagaSuccessEvent:com.example.apiauth.domain.kafka.SagaSuccessEvent,sagaFailedEvent:com.example.apiauth.domain.kafka.SagaFailedEvent
+        spring.json.type.mapping: memberRegisterEvent:com.example.apiauth.domain.kafka.MemberRegisterEvent,dataSyncEvent:com.example.apiauth.domain.event.DataSyncEvent
     consumer:
       group-id: api-auth-cqrs-consumer
       auto-offset-reset: earliest
@@ -59,7 +59,7 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
-        spring.json.type.mapping: memberRegisterEvent:com.example.apiauth.domain.kafka.MemberRegisterEvent,dataSyncEvent:com.example.apiauth.domain.event.DataSyncEvent,sagaSuccessEvent:com.example.apiauth.domain.kafka.SagaSuccessEvent,sagaFailedEvent:com.example.apiauth.domain.kafka.SagaFailedEvent
+        spring.json.type.mapping: memberRegisterEvent:com.example.apiauth.domain.kafka.MemberRegisterEvent,dataSyncEvent:com.example.apiauth.domain.event.DataSyncEvent
 
 
 # JWT 설정
