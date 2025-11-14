@@ -9,13 +9,11 @@ import feign.Response;
 import feign.Util;
 import feign.codec.Decoder;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 
-@Configuration
 @RequiredArgsConstructor
 public class FeignCustomDecoder implements Decoder {
     private final ObjectMapper objectMapper;

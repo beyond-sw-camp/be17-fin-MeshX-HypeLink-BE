@@ -12,8 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class POSEntity extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id  // @GeneratedValue 제거 - api-auth에서 ID 받아서 사용
     private Integer id;
 
     @Column(unique = true, nullable = false)

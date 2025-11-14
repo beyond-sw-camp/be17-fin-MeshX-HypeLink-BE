@@ -28,10 +28,11 @@ spring:
       enable-auto-commit: false
       group-id: ${KAFKA_GROUP_ID}
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         isolation.level: read_committed
         spring.json.trusted.packages: "*"
+        spring.json.type.mapping: memberRegisterEvent:MeshX.HypeLink.common.kafka.MemberRegisterEvent,dataSyncEvent:MeshX.HypeLink.common.kafka.DataSyncEvent
     listener:
       ack-mode: record
     properties:
