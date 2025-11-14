@@ -12,6 +12,8 @@ public class ColorMapper {
                 .id(entity.getId())
                 .colorName(entity.getColorName())
                 .colorCode(entity.getColorCode())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 

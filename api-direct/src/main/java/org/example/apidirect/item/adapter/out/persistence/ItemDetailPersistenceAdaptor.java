@@ -22,7 +22,7 @@ public class ItemDetailPersistenceAdaptor implements ItemDetailPersistencePort {
     @Override
     public StoreItemDetail save(StoreItemDetail detail) {
         // ItemCode에서 Item 조회
-        StoreItemEntity item = itemRepository.findByItemCode(detail.getItemDetailCode())
+        StoreItemEntity item = itemRepository.findByItemCode(detail.getItemCode())
                 .orElseThrow(() -> new RuntimeException("Item not found"));
 
         // ID만 사용해서 Entity 생성 (다른 도메인 Repository 접근 제거)

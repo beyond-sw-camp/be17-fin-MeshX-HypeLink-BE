@@ -24,6 +24,8 @@ public class ItemDetailMapper {
                 .colorCode(entity.getColor() != null ? entity.getColor().getColorCode() : null)
                 .size(entity.getSize() != null ? entity.getSize().getSize() : null)
                 .stock(entity.getStock())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 
@@ -31,10 +33,13 @@ public class ItemDetailMapper {
         if (command == null) return null;
 
         return StoreItemDetail.builder()
+                .id(command.getId())
                 .itemDetailCode(command.getItemDetailCode())
                 .colorId(command.getColorId())
                 .sizeId(command.getSizeId())
                 .stock(0)  // 가맹점 재고는 항상 0으로 초기화
+//                .createdAt(command.getCreatedAt())
+//                .updatedAt(command.getUpdatedAt())
                 .build();
     }
 
@@ -42,6 +47,7 @@ public class ItemDetailMapper {
         if (domain == null) return null;
 
         return StoreItemDetailEntity.builder()
+                .id(domain.getId())
                 .itemDetailCode(domain.getItemDetailCode())
                 .color(color)
                 .size(size)
@@ -58,6 +64,7 @@ public class ItemDetailMapper {
         SizeEntity sizeRef = sizeId != null ? SizeEntity.builder().id(sizeId).build() : null;
 
         return StoreItemDetailEntity.builder()
+                .id(domain.getId())
                 .itemDetailCode(domain.getItemDetailCode())
                 .color(colorRef)
                 .size(sizeRef)

@@ -27,10 +27,11 @@ public class StoreItemImageEntity extends BaseEntity {
     private StoreItemEntity item;
 
     @Builder
-    private StoreItemImageEntity(Integer sortIndex,
+    private StoreItemImageEntity(Integer id, Integer sortIndex,
                                 String originalFilename, String savedPath,
                                 String contentType, Long fileSize,
                                 StoreItemEntity item) {
+        this.id = id;
         this.sortIndex = sortIndex;
         this.originalFilename = originalFilename;
         this.savedPath = savedPath;

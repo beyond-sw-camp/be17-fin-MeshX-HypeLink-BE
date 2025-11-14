@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -12,6 +13,8 @@ public class Customer {
     private String name;
     private String phone;
     private LocalDate birthDate;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public void updatePhone(String phone) {
         if (phone == null || phone.isBlank()) {

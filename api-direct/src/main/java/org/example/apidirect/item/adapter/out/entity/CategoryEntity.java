@@ -20,7 +20,8 @@ public class CategoryEntity extends BaseEntity {
     private String category;
 
     @Builder
-    private CategoryEntity(String category) {
+    private CategoryEntity(Integer id, String category) {
+        this.id = id;
         this.category = category;
     }
 }

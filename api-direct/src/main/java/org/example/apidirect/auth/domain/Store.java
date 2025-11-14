@@ -3,6 +3,8 @@ package org.example.apidirect.auth.domain;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 public class Store {
@@ -13,6 +15,8 @@ public class Store {
     private String storeNumber;
     private String storeState;
     private Integer memberId;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public void increasePosCount() {
         this.posCount++;

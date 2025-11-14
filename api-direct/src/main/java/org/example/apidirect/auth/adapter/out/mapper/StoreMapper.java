@@ -16,6 +16,8 @@ public class StoreMapper {
                 .storeNumber(entity.getStoreNumber())
                 .storeState(entity.getStoreState())
                 .memberId(entity.getMemberId())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 

@@ -3,6 +3,8 @@ package org.example.apidirect.item.domain;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 public class StoreItemDetail {
@@ -17,6 +19,8 @@ public class StoreItemDetail {
     private String colorCode;
     private String size;
     private Integer stock;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public void updateStock(Integer stockChange) {
         if (this.stock + stockChange < 0) {

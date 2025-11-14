@@ -1,5 +1,6 @@
 package org.example.apidirect.customer.adapter.out.entity;
 
+import MeshX.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -12,7 +13,7 @@ import java.time.LocalDate;
 @Table(name = "customer")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CustomerEntity {
+public class CustomerEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
