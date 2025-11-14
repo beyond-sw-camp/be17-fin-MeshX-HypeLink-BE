@@ -34,14 +34,14 @@ spec:
                 name: hypelink-auth-config
           resources:
             limits:
-              cpu: "500m"
+              cpu: "1000m"
               memory: "1Gi"
             requests:
-              cpu: "250m"
+              cpu: "500m"
               memory: "512Mi"
           livenessProbe:
             httpGet:
-              path: /api/health/health
+              path: /actuator/health
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 10
@@ -51,7 +51,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: /api/health/test
+              path: /actuator/health
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 10

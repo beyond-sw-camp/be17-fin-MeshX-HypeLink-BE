@@ -1,0 +1,24 @@
+auth:
+  rootPassword: qwer1234
+  username: meshx
+  password: qwer1234
+  database: auth   # 기본 생성 DB (무시되도 상관없음)
+
+primary:
+  persistence:
+    enabled: true
+    size: 8Gi
+    storageClass: longhorn
+  service:
+    type: ClusterIP
+    port: 3306
+
+secondary:
+  replicaCount: 0
+
+initdbScripts:
+  create-extra-databases.sql: |
+    CREATE DATABASE IF NOT EXISTS auth;
+    CREATE DATABASE IF NOT EXISTS auth_read;
+    GRANT ALL PRIVILEGES ON auth_read.* TO 'meshx'@'%';
+    FLUSH PRIVILEGES;

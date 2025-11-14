@@ -36,8 +36,12 @@ spring:
 
   data:
     redis:
-      host: ${AUTH_REDIS_URL}
-      port: ${AUTH_REDIS_PORT}
+      cluster:
+        nodes:
+          - ${REDIS_IP_1}
+          - ${REDIS_IP_2}
+          - ${REDIS_IP_3}
+      password: ${REDIS_PASSWORD}
 
   cloud:
     gateway:
@@ -45,7 +49,7 @@ spring:
         webflux:
           routes:
             - id: API-NOTICE
-              uri: lb://API-NOTICE
+              uri: ${NOTICE_SERVICE_URI}
               order: 1
               predicates:
                 - Path=/api/notice/**
@@ -62,10 +66,8 @@ spring:
               uri: ${ITEM_SERVICE_URI}
               order: 1
               predicates:
-                - Path=/api/item/**
-                - Path=/api/category/**
-                - Path=/api/color/**
-                - Path=/api/size/**
+                - Path=/api/item/**, /api/category/**, /api/color/**, /api/size/**
+
             - id: api-monolith
               uri: ${MONOLITH_SERVICE_URI}
               order: 2
