@@ -190,7 +190,7 @@ public class ItemService implements ItemQueryPort, ItemCommandPort {
 
     private StoreItemDetailResponse toResponse(StoreItemDetail detail) {
         // StoreItem 정보 조회
-        StoreItem item = itemPersistencePort.findByItemCode(detail.getItemCode())
+        StoreItem item = itemPersistencePort.findByItemCodeAndStoreId(detail.getItemCode(), detail.getStoreId())
                 .orElseThrow(() -> new ItemException(ItemExceptionMessage.NOT_FOUND));
 
         return StoreItemDetailResponseMapper.toResponse(

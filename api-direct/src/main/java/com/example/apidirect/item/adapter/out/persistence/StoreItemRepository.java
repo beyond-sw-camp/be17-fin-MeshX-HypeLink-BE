@@ -12,11 +12,17 @@ public interface StoreItemRepository extends JpaRepository<StoreItemEntity, Inte
 
     Optional<StoreItemEntity> findByItemCode(String itemCode);
 
+    Optional<StoreItemEntity> findByItemCodeAndStoreId(String itemCode, Integer storeId);
+
     boolean existsByItemCode(String itemCode);
 
     @Query("SELECT i FROM StoreItemEntity i " +
            "WHERE i.itemCode = :itemCode")
     Optional<StoreItemEntity> findByItemCodeWithDetails(@Param("itemCode") String itemCode);
+
+    @Query("SELECT i FROM StoreItemEntity i " +
+           "WHERE i.itemCode = :itemCode AND i.storeId = :storeId")
+    Optional<StoreItemEntity> findByItemCodeAndStoreIdWithDetails(@Param("itemCode") String itemCode, @Param("storeId") Integer storeId);
 
     @Modifying
     @Query(value = """

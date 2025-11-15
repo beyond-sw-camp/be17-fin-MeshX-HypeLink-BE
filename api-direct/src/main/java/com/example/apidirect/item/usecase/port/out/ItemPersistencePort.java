@@ -10,6 +10,8 @@ public interface ItemPersistencePort {
     StoreItem save(StoreItem item);
 
     Optional<StoreItem> findByItemCode(String itemCode);
+    Optional<StoreItem> findByItemCodeAndStoreId(String itemCode, Integer storeId);
+
 
     List<StoreItem> findAll();
 

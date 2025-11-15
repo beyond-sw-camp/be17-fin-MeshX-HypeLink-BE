@@ -33,6 +33,7 @@ public class InitialSyncService {
         try {
             syncResults.put("stores", syncStores());
             syncResults.put("pos", syncPos());
+            syncResults.put("storeItems", syncAllStoresItems());
 
             syncStatusService.markAsSynced();
             log.info("[SYNC] Initial data synchronization completed: {}", syncResults);
@@ -89,6 +90,28 @@ public class InitialSyncService {
 
         log.info("[SYNC] Successfully saved {} POS", posList.size());
         return posList.size();
+    }
+
+    @Transactional
+    public int syncAllStoresItems() {
+        log.info("[SYNC] Fetching all stores and syncing items for each...");
+        List<StoreSyncDto> stores = monolithSyncClient.getAllStores();
+
+        int totalStoresSynced = 0;
+        for (StoreSyncDto store : stores) {
+            try {
+                log.info("[SYNC] Syncing items for store ID: {}", store.getId());
+                monolithSyncClient.syncStoreItems(store.getId());
+                totalStoresSynced++;
+                log.info("[SYNC] Successfully synced items for store ID: {}", store.getId());
+            } catch (Exception e) {
+                log.error("[SYNC] Failed to sync items for store ID: {}", store.getId(), e);
+                throw new RuntimeException("Failed to sync items for store ID: " + store.getId(), e);
+            }
+        }
+
+        log.info("[SYNC] Successfully synced items for {} stores", totalStoresSynced);
+        return totalStoresSynced;
     }
 
     public boolean isAlreadySynced() {

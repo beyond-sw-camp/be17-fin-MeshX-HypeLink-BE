@@ -24,17 +24,39 @@ public class ItemPersistenceAdaptor implements ItemPersistencePort {
     @Transactional
     public StoreItem save(StoreItem item) {
         StoreItemEntity itemEntity = ItemMapper.toEntity(item);
-        itemRepository.upsert(itemEntity);
 
-        StoreItemEntity savedItem = itemRepository.findByItemCode(itemEntity.getItemCode())
-                .orElseThrow(() -> new RuntimeException("Item not found after upsert"));
+        // 기존 아이템 확인
+        Optional<StoreItemEntity> existing = itemRepository.findByItemCodeAndStoreId(
+                itemEntity.getItemCode(), itemEntity.getStoreId());
 
-        return ItemMapper.toDomain(savedItem);
+        if (existing.isPresent()) {
+            // 기존 아이템 업데이트
+            StoreItemEntity existingEntity = existing.get();
+            existingEntity.updateUnitPrice(itemEntity.getUnitPrice());
+            existingEntity.updateAmount(itemEntity.getAmount());
+            existingEntity.updateEnName(itemEntity.getEnName());
+            existingEntity.updateKoName(itemEntity.getKoName());
+            existingEntity.updateContent(itemEntity.getContent());
+            existingEntity.updateCompany(itemEntity.getCompany());
+            existingEntity.updateCategory(itemEntity.getCategory());
+            StoreItemEntity updated = itemRepository.save(existingEntity);
+            return ItemMapper.toDomain(updated);
+        } else {
+            // 신규 저장
+            StoreItemEntity saved = itemRepository.save(itemEntity);
+            return ItemMapper.toDomain(saved);
+        }
     }
 
     @Override
     public Optional<StoreItem> findByItemCode(String itemCode) {
         return itemRepository.findByItemCodeWithDetails(itemCode)
+                .map(ItemMapper::toDomain);
+    }
+
+    @Override
+    public Optional<StoreItem> findByItemCodeAndStoreId(String itemCode, Integer storeId) {
+        return itemRepository.findByItemCodeAndStoreIdWithDetails(itemCode, storeId)
                 .map(ItemMapper::toDomain);
     }
 

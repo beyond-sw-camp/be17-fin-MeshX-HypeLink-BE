@@ -14,6 +14,7 @@ public class ItemDetailMapper {
                 .itemDetailCode(entity.getItemDetailCode())
                 .itemCode(entity.getItem() != null ? entity.getItem().getItemCode() : null)
                 .storeItemId(entity.getItem() != null ? entity.getItem().getId() : null)
+                .storeId(entity.getItem() != null ? entity.getItem().getStoreId() : null)
                 .itemName(entity.getItem() != null ? entity.getItem().getKoName() : null)
                 .colorName(entity.getColor())
                 .colorCode(entity.getColorCode())
