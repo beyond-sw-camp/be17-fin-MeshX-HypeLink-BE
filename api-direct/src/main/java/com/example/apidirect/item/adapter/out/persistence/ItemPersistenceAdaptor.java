@@ -3,6 +3,9 @@ package com.example.apidirect.item.adapter.out.persistence;
 import MeshX.common.PersistenceAdapter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import com.example.apidirect.auth.adapter.out.entity.StoreEntity;
+import com.example.apidirect.auth.adapter.out.persistence.StoreRepository;
+import com.example.apidirect.item.adapter.out.entity.StoreCategoryEntity;
 import com.example.apidirect.item.adapter.out.entity.StoreItemEntity;
 import com.example.apidirect.item.adapter.out.mapper.ItemMapper;
 import com.example.apidirect.item.domain.StoreItem;
@@ -19,15 +22,31 @@ import java.util.stream.Collectors;
 public class ItemPersistenceAdaptor implements ItemPersistencePort {
 
     private final StoreItemRepository itemRepository;
+    private final StoreRepository storeRepository;
+    private final CategoryRepository categoryRepository;
 
     @Override
     @Transactional
     public StoreItem save(StoreItem item) {
-        StoreItemEntity itemEntity = ItemMapper.toEntity(item);
+        // ✅ StoreEntity 조회
+        StoreEntity store = storeRepository.findById(item.getStoreId())
+                .orElseThrow(() -> new RuntimeException("Store not found: " + item.getStoreId()));
+
+        // ✅ CategoryEntity 조회 또는 생성
+        StoreCategoryEntity category = categoryRepository.findByCategoryAndStoreId(item.getCategory(), item.getStoreId())
+                .orElseGet(() -> {
+                    StoreCategoryEntity newCategory = StoreCategoryEntity.builder()
+                            .category(item.getCategory())
+                            .store(store)
+                            .build();
+                    return categoryRepository.save(newCategory);
+                });
+
+        StoreItemEntity itemEntity = ItemMapper.toEntity(item, store, category);
 
         // 기존 아이템 확인
         Optional<StoreItemEntity> existing = itemRepository.findByItemCodeAndStoreId(
-                itemEntity.getItemCode(), itemEntity.getStoreId());
+                itemEntity.getItemCode(), itemEntity.getStore().getId());
 
         if (existing.isPresent()) {
             // 기존 아이템 업데이트
@@ -38,7 +57,7 @@ public class ItemPersistenceAdaptor implements ItemPersistencePort {
             existingEntity.updateKoName(itemEntity.getKoName());
             existingEntity.updateContent(itemEntity.getContent());
             existingEntity.updateCompany(itemEntity.getCompany());
-            existingEntity.updateCategory(itemEntity.getCategory());
+            existingEntity.updateCategory(category);
             StoreItemEntity updated = itemRepository.save(existingEntity);
             return ItemMapper.toDomain(updated);
         } else {

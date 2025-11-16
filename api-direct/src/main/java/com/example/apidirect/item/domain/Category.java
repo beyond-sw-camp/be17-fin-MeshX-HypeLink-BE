@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public class Category {
     private Integer id;
     private String category;
+    private Integer storeId;  // ✅ Store 연관관계 추가
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

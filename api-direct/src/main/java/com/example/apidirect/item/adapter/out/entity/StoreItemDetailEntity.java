@@ -39,8 +39,8 @@ public class StoreItemDetailEntity extends BaseEntity {
 
     @Transient
     public String getCompositeKey() {
-        if (item == null || item.getStoreId() == null) return null;
-        return item.getStoreId() + "-" + itemDetailCode;
+        if (item == null || item.getStore() == null) return null;
+        return item.getStore().getId() + "-" + itemDetailCode;
     }
 
     public void updateStock(Integer stockChange) {

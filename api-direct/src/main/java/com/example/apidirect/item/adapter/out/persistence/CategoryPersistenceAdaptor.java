@@ -2,7 +2,9 @@ package com.example.apidirect.item.adapter.out.persistence;
 
 import MeshX.common.PersistenceAdapter;
 import lombok.RequiredArgsConstructor;
-import com.example.apidirect.item.adapter.out.entity.CategoryEntity;
+import com.example.apidirect.auth.adapter.out.entity.StoreEntity;
+import com.example.apidirect.auth.adapter.out.persistence.StoreRepository;
+import com.example.apidirect.item.adapter.out.entity.StoreCategoryEntity;
 import com.example.apidirect.item.adapter.out.mapper.CategoryMapper;
 import com.example.apidirect.item.domain.Category;
 import com.example.apidirect.item.usecase.port.out.CategoryPersistencePort;
@@ -17,21 +19,28 @@ import java.util.stream.Collectors;
 public class CategoryPersistenceAdaptor implements CategoryPersistencePort {
 
     private final CategoryRepository categoryRepository;
+    private final StoreRepository storeRepository;
 
     @Override
-    public Category save(String category) {
-        CategoryEntity entity = CategoryMapper.toEntity(category);
-        CategoryEntity saved = categoryRepository.save(entity);
+    public Category save(String category, Integer storeId) {
+        StoreEntity store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new RuntimeException("Store not found: " + storeId));
+
+        StoreCategoryEntity entity = CategoryMapper.toEntity(category, store);
+        StoreCategoryEntity saved = categoryRepository.save(entity);
         return CategoryMapper.toDomain(saved);
     }
 
     @Override
-    public List<Category> saveAll(List<String> categories) {
-        List<CategoryEntity> entities = categories.stream()
-                .map(CategoryMapper::toEntity)
+    public List<Category> saveAll(List<String> categories, Integer storeId) {
+        StoreEntity store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new RuntimeException("Store not found: " + storeId));
+
+        List<StoreCategoryEntity> entities = categories.stream()
+                .map(cat -> CategoryMapper.toEntity(cat, store))
                 .collect(Collectors.toList());
 
-        List<CategoryEntity> saved = categoryRepository.saveAll(entities);
+        List<StoreCategoryEntity> saved = categoryRepository.saveAll(entities);
         return saved.stream()
                 .map(CategoryMapper::toDomain)
                 .collect(Collectors.toList());
@@ -39,17 +48,20 @@ public class CategoryPersistenceAdaptor implements CategoryPersistencePort {
 
     @Override
     @Transactional
-    public void saveAllWithId(List<Category> categories) {
-        List<CategoryEntity> entities = categories.stream()
-                .map(CategoryMapper::toEntity)
+    public void saveAllWithId(List<Category> categories, Integer storeId) {
+        StoreEntity store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new RuntimeException("Store not found: " + storeId));
+
+        List<StoreCategoryEntity> entities = categories.stream()
+                .map(cat -> CategoryMapper.toEntity(cat, store))
                 .collect(Collectors.toList());
 
         entities.forEach(categoryRepository::upsert);
     }
 
     @Override
-    public Optional<Category> findByName(String category) {
-        return categoryRepository.findByCategory(category)
+    public Optional<Category> findByName(String category, Integer storeId) {
+        return categoryRepository.findByCategoryAndStoreId(category, storeId)
                 .map(CategoryMapper::toDomain);
     }
 
@@ -61,7 +73,7 @@ public class CategoryPersistenceAdaptor implements CategoryPersistencePort {
     }
 
     @Override
-    public boolean exists(String category) {
-        return categoryRepository.existsByCategory(category);
+    public boolean exists(String category, Integer storeId) {
+        return categoryRepository.existsByCategoryAndStoreId(category, storeId);
     }
 }

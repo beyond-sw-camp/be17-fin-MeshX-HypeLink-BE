@@ -40,8 +40,8 @@ public class StoreItemImageEntity extends BaseEntity {
 
     @Transient
     public String getCompositeKey() {
-        if (item == null || item.getStoreId() == null) return null;
-        return item.getStoreId() + "-" + originalFilename;
+        if (item == null || item.getStore() == null) return null;
+        return item.getStore() + "-" + originalFilename;
     }
 
     public void updateIndex(Integer index) {

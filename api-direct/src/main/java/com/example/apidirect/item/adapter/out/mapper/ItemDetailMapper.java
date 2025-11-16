@@ -9,19 +9,35 @@ public class ItemDetailMapper {
     public static StoreItemDetail toDomain(StoreItemDetailEntity entity) {
         if (entity == null) return null;
 
+        StoreItemEntity item = entity.getItem();
+        System.out.println("=== ItemDetailMapper.toDomain ===");
+        System.out.println("entity.getId(): " + entity.getId());
+        System.out.println("entity.getItemDetailCode(): " + entity.getItemDetailCode());
+        System.out.println("item is null: " + (item == null));
+        if (item != null) {
+            System.out.println("item.getItemCode(): " + item.getItemCode());
+            System.out.println("item.getKoName(): " + item.getKoName());
+            System.out.println("item.getCategory(): " + item.getCategory().getCategory());
+            System.out.println("item.getAmount(): " + item.getAmount());
+        }
+
         return StoreItemDetail.builder()
                 .id(entity.getId())
                 .itemDetailCode(entity.getItemDetailCode())
-                .itemCode(entity.getItem() != null ? entity.getItem().getItemCode() : null)
-                .storeItemId(entity.getItem() != null ? entity.getItem().getId() : null)
-                .storeId(entity.getItem() != null ? entity.getItem().getStoreId() : null)
-                .itemName(entity.getItem() != null ? entity.getItem().getKoName() : null)
+                .itemCode(item != null ? item.getItemCode() : null)
+                .storeItemId(item != null ? item.getId() : null)
+                .storeId(item != null ? item.getStore().getId() : null)
+                .itemName(item != null ? item.getKoName() : null)
                 .colorName(entity.getColor())
                 .colorCode(entity.getColorCode())
                 .sizeName(entity.getSize())
                 .stock(entity.getStock())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
+                // StoreItem 정보 추가
+                .koName(item != null ? item.getKoName() : null)
+                .category(item != null ? item.getCategory().getCategory() : null)
+                .amount(item != null ? item.getAmount() : null)
                 .build();
     }
 

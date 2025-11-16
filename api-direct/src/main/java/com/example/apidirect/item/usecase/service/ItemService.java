@@ -2,6 +2,7 @@ package com.example.apidirect.item.usecase.service;
 
 import MeshX.common.UseCase;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import com.example.apidirect.auth.domain.POS;
 import com.example.apidirect.auth.domain.Store;
 import com.example.apidirect.auth.usecase.port.in.POSQueryPort;
@@ -15,6 +16,7 @@ import com.example.apidirect.item.adapter.out.entity.StoreItemDetailEntity;
 import com.example.apidirect.item.adapter.out.entity.StoreItemEntity;
 import com.example.apidirect.item.adapter.out.mapper.ItemDetailMapper;
 import com.example.apidirect.item.adapter.out.persistence.StoreItemDetailBatchRepository;
+import com.example.apidirect.item.adapter.out.persistence.StoreItemRepository;
 import com.example.apidirect.item.domain.Category;
 import com.example.apidirect.item.domain.StoreItem;
 import com.example.apidirect.item.domain.StoreItemDetail;
@@ -32,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -44,11 +47,23 @@ public class ItemService implements ItemQueryPort, ItemCommandPort {
     private final StoreQueryPort storeQueryPort;
     private final CategoryPersistencePort categoryPersistencePort;
     private final StoreItemDetailBatchRepository storeItemDetailBatchRepository;
+    private final StoreItemRepository itemRepository;
 
     @Override
     public Page<StoreItemDetailResponse> findAllItems(Integer memberId, Pageable pageable) {
         Integer storeId = getStoreId(memberId);
+        log.info("=== findAllItems - memberId: {}, storeId: {}", memberId, storeId);
+
         Page<StoreItemDetail> details = itemDetailQueryPort.findAll(storeId, pageable);
+        log.info("=== findAllItems - totalElements: {}, size: {}",
+                 details.getTotalElements(), details.getContent().size());
+
+        if (!details.isEmpty()) {
+            StoreItemDetail first = details.getContent().get(0);
+            log.info("=== first item - id: {}, itemCode: {}, koName: {}, category: {}, amount: {}",
+                     first.getId(), first.getItemCode(), first.getKoName(), first.getCategory(), first.getAmount());
+        }
+
         return details.map(this::toResponse);
     }
 
@@ -118,6 +133,7 @@ public class ItemService implements ItemQueryPort, ItemCommandPort {
     @Transactional
     public void saveAllItemsFromHeadOffice(SaveStoreItemListRequest request) {
         Integer storeId = request.getStoreId();
+        log.info("=== saveAllItemsFromHeadOffice - storeId: {}, items: {}", storeId, request.getItems().size());
 
         List<StoreItemDetailEntity> allDetailEntities = new ArrayList<>();
 
@@ -139,18 +155,10 @@ public class ItemService implements ItemQueryPort, ItemCommandPort {
 
             // 2. StoreItemDetail 엔티티 생성 (배치 저장을 위해 수집)
             if (itemReq.getItemDetails() != null && !itemReq.getItemDetails().isEmpty()) {
-                StoreItemEntity itemEntity = StoreItemEntity.builder()
-                        .id(savedItem.getId())
-                        .itemCode(savedItem.getItemCode())
-                        .storeId(savedItem.getStoreId())
-                        .unitPrice(savedItem.getUnitPrice())
-                        .amount(savedItem.getAmount())
-                        .enName(savedItem.getEnName())
-                        .koName(savedItem.getKoName())
-                        .content(savedItem.getContent())
-                        .company(savedItem.getCompany())
-                        .category(savedItem.getCategory())
-                        .build();
+                // ✅ DB에서 실제 영속성 Entity 조회
+                StoreItemEntity itemEntity = itemRepository.findByItemCodeAndStoreId(
+                        savedItem.getItemCode(), savedItem.getStoreId())
+                        .orElseThrow(() -> new RuntimeException("저장된 Item을 찾을 수 없습니다: " + savedItem.getItemCode()));
 
                 List<StoreItemDetailEntity> detailEntities = itemReq.getItemDetails().stream()
                         .map(detailReq -> StoreItemDetailEntity.builder()
@@ -159,7 +167,7 @@ public class ItemService implements ItemQueryPort, ItemCommandPort {
                                 .colorCode(detailReq.getColorCode())
                                 .size(detailReq.getSize())
                                 .stock(detailReq.getStock())
-                                .item(itemEntity)
+                                .item(itemEntity)  // ← 이제 영속성 Entity!
                                 .build())
                         .toList();
 
@@ -170,10 +178,12 @@ public class ItemService implements ItemQueryPort, ItemCommandPort {
             // itemReq.getImages()로 저장
         });
 
+        log.info("=== Total details to save: {}", allDetailEntities.size());
         // 모든 StoreItemDetail을 배치로 저장 (중복 자동 스킵)
         if (!allDetailEntities.isEmpty()) {
             storeItemDetailBatchRepository.saveAllSkipDuplicate(allDetailEntities);
         }
+        log.info("=== saveAllItemsFromHeadOffice completed");
     }
 
     @Override
@@ -184,20 +194,17 @@ public class ItemService implements ItemQueryPort, ItemCommandPort {
             List<String> categoryNames = request.getCategories().stream()
                     .map(SaveStoreCategoryRequest::getCategory)
                     .toList();
-            categoryPersistencePort.saveAll(categoryNames);
+            categoryPersistencePort.saveAll(categoryNames, request.getStoreId());
         }
     }
 
     private StoreItemDetailResponse toResponse(StoreItemDetail detail) {
-        // StoreItem 정보 조회
-        StoreItem item = itemPersistencePort.findByItemCodeAndStoreId(detail.getItemCode(), detail.getStoreId())
-                .orElseThrow(() -> new ItemException(ItemExceptionMessage.NOT_FOUND));
-
+        // StoreItem 정보는 이미 detail 도메인 객체에 포함되어 있음 (별도 조회 불필요)
         return StoreItemDetailResponseMapper.toResponse(
                 detail,
-                item.getKoName(),
-                item.getCategory(),
-                item.getAmount()
+                detail.getKoName(),
+                detail.getCategory(),
+                detail.getAmount()
         );
     }
 }

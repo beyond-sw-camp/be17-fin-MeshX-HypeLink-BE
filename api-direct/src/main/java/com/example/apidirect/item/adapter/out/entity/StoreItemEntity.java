@@ -1,14 +1,12 @@
 package com.example.apidirect.item.adapter.out.entity;
 
 import MeshX.common.BaseEntity;
+import com.example.apidirect.auth.adapter.out.entity.StoreEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "store_item")
@@ -21,8 +19,9 @@ public class StoreItemEntity extends BaseEntity {
 
     private String itemCode;
 
-    @Column(nullable = false)
-    private Integer storeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", nullable = false)
+    private StoreEntity store;
 
     private Integer unitPrice;
     private Integer amount;
@@ -30,15 +29,18 @@ public class StoreItemEntity extends BaseEntity {
     private String koName;
     private String content;
     private String company;
-    private String category;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private StoreCategoryEntity category;
 
     @Builder
-    private StoreItemEntity(Integer id, String itemCode, Integer storeId,
+    private StoreItemEntity(Integer id, String itemCode, StoreEntity store,
                            Integer unitPrice, Integer amount, String enName,
-                           String koName, String content, String company, String category) {
+                           String koName, String content, String company, StoreCategoryEntity category) {
         this.id = id;
         this.itemCode = itemCode;
-        this.storeId = storeId;
+        this.store = store;
         this.unitPrice = unitPrice;
         this.amount = amount;
         this.enName = enName;
@@ -60,7 +62,7 @@ public class StoreItemEntity extends BaseEntity {
         this.unitPrice = unitPrice;
     }
 
-    public void updateCategory(String category) {
+    public void updateCategory(StoreCategoryEntity category) {
         this.category = category;
     }
 

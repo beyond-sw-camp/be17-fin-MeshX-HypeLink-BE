@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StoreEntity extends BaseEntity {
-    @Id  // @GeneratedValue 제거 - api-auth에서 ID 받아서 사용
+    @Id
     private Integer id;
 
     private Double lat;

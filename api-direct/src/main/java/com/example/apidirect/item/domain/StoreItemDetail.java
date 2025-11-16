@@ -21,6 +21,11 @@ public class StoreItemDetail {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+
+    private String koName;
+    private String category;
+    private Integer amount;
+
     public void updateStock(Integer stockChange) {
         if (this.stock + stockChange < 0) {
             throw new IllegalStateException("재고가 0보다 작을 수 없습니다");
