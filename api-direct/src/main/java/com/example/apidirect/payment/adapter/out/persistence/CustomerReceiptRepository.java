@@ -11,4 +11,6 @@ public interface CustomerReceiptRepository extends JpaRepository<CustomerReceipt
     Optional<CustomerReceiptEntity> findByMerchantUid(String merchantUid);
 
     Page<CustomerReceiptEntity> findAllByOrderByPaidAtDesc(Pageable pageable);
+
+    Page<CustomerReceiptEntity> findByStoreIdOrderByPaidAtDesc(Integer storeId, Pageable pageable);
 }

@@ -23,6 +23,7 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
         spring.json.add.type.headers: false
+        max.block.ms: 5000  # metadata 조회 timeout 5초 (빠른 실패)
     consumer:
       auto-offset-reset: earliest
       enable-auto-commit: false
@@ -74,3 +75,13 @@ portone:
 head-office:
   service:
     url: ${HEAD_OFFICE_URL}
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 300000  # 5분 (300초)
+      monolith-sync:  # MonolithSyncClient 전용 설정
+        connectTimeout: 5000
+        readTimeout: 600000  # 10분 (600초) - 대용량 동기화용

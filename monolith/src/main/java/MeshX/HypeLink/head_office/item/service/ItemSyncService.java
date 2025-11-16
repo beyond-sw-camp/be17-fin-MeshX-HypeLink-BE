@@ -20,8 +20,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -44,7 +47,13 @@ public class ItemSyncService {
 
     private final WebClient webClient = WebClient.builder()
             .clientConnector(new ReactorClientHttpConnector(
-                    HttpClient.create().responseTimeout(Duration.ofSeconds(10))
+                    HttpClient.create()
+                            .option(io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)  // 10초 (연결)
+                            .doOnConnected(conn -> conn
+                                    .addHandlerLast(new ReadTimeoutHandler(600, TimeUnit.SECONDS))   // 10분 (읽기)
+                                    .addHandlerLast(new WriteTimeoutHandler(600, TimeUnit.SECONDS))  // 10분 (쓰기)
+                            )
+                            .responseTimeout(Duration.ofMinutes(10))  // 10분 (전체 응답)
             ))
             .build();
 

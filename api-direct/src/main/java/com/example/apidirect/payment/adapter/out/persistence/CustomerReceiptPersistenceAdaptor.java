@@ -50,4 +50,10 @@ public class CustomerReceiptPersistenceAdaptor implements CustomerReceiptPersist
         return customerReceiptRepository.findAllByOrderByPaidAtDesc(pageable)
                 .map(CustomerReceiptMapper::toDomain);
     }
+
+    @Override
+    public Page<CustomerReceipt> findByStoreIdOrderByPaidAtDesc(Integer storeId, Pageable pageable) {
+        return customerReceiptRepository.findByStoreIdOrderByPaidAtDesc(storeId, pageable)
+                .map(CustomerReceiptMapper::toDomain);
+    }
 }

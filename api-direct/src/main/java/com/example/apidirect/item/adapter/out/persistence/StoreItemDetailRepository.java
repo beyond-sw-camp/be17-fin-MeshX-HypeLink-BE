@@ -29,11 +29,13 @@ public interface StoreItemDetailRepository extends JpaRepository<StoreItemDetail
 
     @Query("SELECT d FROM StoreItemDetailEntity d " +
            "JOIN FETCH d.item i " +
+           "LEFT JOIN FETCH i.category " +
            "WHERE i.store.id = :storeId")
     Page<StoreItemDetailEntity> findAllByStoreId(@Param("storeId") Integer storeId, Pageable pageable);
 
     @Query("SELECT d FROM StoreItemDetailEntity d " +
            "JOIN FETCH d.item i " +
+           "LEFT JOIN FETCH i.category " +
            "WHERE i.store.id = :storeId " +
            "AND (i.koName LIKE %:keyword% OR i.enName LIKE %:keyword% OR d.itemDetailCode LIKE %:keyword%)")
     Page<StoreItemDetailEntity> findByStoreIdAndKeyword(@Param("storeId") Integer storeId,
@@ -42,6 +44,7 @@ public interface StoreItemDetailRepository extends JpaRepository<StoreItemDetail
 
     @Query("SELECT d FROM StoreItemDetailEntity d " +
            "JOIN FETCH d.item i " +
+           "LEFT JOIN FETCH i.category " +
            "WHERE i.store.id = :storeId " +
            "AND i.category.category = :category")
     Page<StoreItemDetailEntity> findByStoreIdAndCategory(@Param("storeId") Integer storeId,
@@ -50,6 +53,7 @@ public interface StoreItemDetailRepository extends JpaRepository<StoreItemDetail
 
     @Query("SELECT d FROM StoreItemDetailEntity d " +
            "JOIN FETCH d.item i " +
+           "LEFT JOIN FETCH i.category " +
            "WHERE i.store.id = :storeId " +
            "AND d.stock <= :minStock")
     Page<StoreItemDetailEntity> findByStoreIdAndLowStock(@Param("storeId") Integer storeId,
@@ -58,6 +62,7 @@ public interface StoreItemDetailRepository extends JpaRepository<StoreItemDetail
 
     @Query("SELECT d FROM StoreItemDetailEntity d " +
            "JOIN FETCH d.item i " +
+           "LEFT JOIN FETCH i.category " +
            "WHERE d.itemDetailCode = :itemDetailCode " +
            "AND i.store.id = :storeId")
     Optional<StoreItemDetailEntity> findByItemDetailCodeAndStoreId(@Param("itemDetailCode") String itemDetailCode,
@@ -65,6 +70,7 @@ public interface StoreItemDetailRepository extends JpaRepository<StoreItemDetail
 
     @Query("SELECT d FROM StoreItemDetailEntity d " +
            "JOIN FETCH d.item i " +
+           "LEFT JOIN FETCH i.category " +
            "WHERE i.itemCode = :itemCode " +
            "AND d.itemDetailCode = :itemDetailCode " +
            "AND i.store.id = :storeId")

@@ -14,7 +14,9 @@ public class StoreItemDetailBatchRepository extends AbstractBatchSaveRepository<
 
     @Override
     protected String extractKey(StoreItemDetailEntity entity) {
-        return entity.getItemDetailCode();
+        // ✅ storeId + itemDetailCode 조합으로 중복 체크
+        // 같은 itemDetailCode라도 store가 다르면 별도 저장 (각 store마다 독립적인 재고 관리)
+        return entity.getCompositeKey();  // "storeId-itemDetailCode"
     }
 
     @Override

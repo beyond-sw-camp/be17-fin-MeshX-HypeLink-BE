@@ -11,4 +11,5 @@ public interface CustomerReceiptPersistencePort {
     Optional<CustomerReceipt> findByMerchantUid(String merchantUid);
     Optional<CustomerReceipt> findById(Integer id);
     Page<CustomerReceipt> findAllByOrderByPaidAtDesc(Pageable pageable);
+    Page<CustomerReceipt> findByStoreIdOrderByPaidAtDesc(Integer storeId, Pageable pageable);
 }

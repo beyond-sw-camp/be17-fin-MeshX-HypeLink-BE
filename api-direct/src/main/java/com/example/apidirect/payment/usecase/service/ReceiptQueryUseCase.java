@@ -33,7 +33,7 @@ public class ReceiptQueryUseCase implements ReceiptQueryPort {
 
     @Override
     public ReceiptListPagingResponse getReceipts(Pageable pageable) {
-        log.info("영수증 목록 조회 시작 - page: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
+        log.info("영수증 목록 조회 시작 (전체) - page: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
 
         // 1. CustomerReceipt 페이징 조회
         Page<CustomerReceipt> receiptPage = customerReceiptPersistencePort.findAllByOrderByPaidAtDesc(pageable);
@@ -44,6 +44,28 @@ public class ReceiptQueryUseCase implements ReceiptQueryPort {
                 .collect(Collectors.toList());
 
         log.info("영수증 목록 조회 완료 - 총 {}건", receiptResponses.size());
+
+        return ReceiptListPagingResponse.builder()
+                .receipts(receiptResponses)
+                .totalPages(receiptPage.getTotalPages())
+                .totalElements(receiptPage.getTotalElements())
+                .currentPage(receiptPage.getNumber())
+                .pageSize(receiptPage.getSize())
+                .build();
+    }
+
+    public ReceiptListPagingResponse getReceiptsByStoreId(Integer storeId, Pageable pageable) {
+        log.info("영수증 목록 조회 시작 (storeId: {}) - page: {}, size: {}", storeId, pageable.getPageNumber(), pageable.getPageSize());
+
+        // 1. CustomerReceipt 페이징 조회 (storeId 필터)
+        Page<CustomerReceipt> receiptPage = customerReceiptPersistencePort.findByStoreIdOrderByPaidAtDesc(storeId, pageable);
+
+        // 2. 각 Receipt에 대해 OrderItem + 상품 정보 조회
+        List<ReceiptResponse> receiptResponses = receiptPage.getContent().stream()
+                .map(this::toReceiptResponse)
+                .collect(Collectors.toList());
+
+        log.info("영수증 목록 조회 완료 (storeId: {}) - 총 {}건", storeId, receiptResponses.size());
 
         return ReceiptListPagingResponse.builder()
                 .receipts(receiptResponses)

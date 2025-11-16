@@ -10,16 +10,6 @@ public class ItemDetailMapper {
         if (entity == null) return null;
 
         StoreItemEntity item = entity.getItem();
-        System.out.println("=== ItemDetailMapper.toDomain ===");
-        System.out.println("entity.getId(): " + entity.getId());
-        System.out.println("entity.getItemDetailCode(): " + entity.getItemDetailCode());
-        System.out.println("item is null: " + (item == null));
-        if (item != null) {
-            System.out.println("item.getItemCode(): " + item.getItemCode());
-            System.out.println("item.getKoName(): " + item.getKoName());
-            System.out.println("item.getCategory(): " + item.getCategory().getCategory());
-            System.out.println("item.getAmount(): " + item.getAmount());
-        }
 
         return StoreItemDetail.builder()
                 .id(entity.getId())
@@ -36,7 +26,7 @@ public class ItemDetailMapper {
                 .updatedAt(entity.getUpdatedAt())
                 // StoreItem 정보 추가
                 .koName(item != null ? item.getKoName() : null)
-                .category(item != null ? item.getCategory().getCategory() : null)
+                .category(item != null && item.getCategory() != null ? item.getCategory().getCategory() : null)
                 .amount(item != null ? item.getAmount() : null)
                 .build();
     }
@@ -52,5 +42,13 @@ public class ItemDetailMapper {
                 .itemDetailCode(domain.getItemDetailCode())
                 .item(item)
                 .build();
+    }
+
+    /**
+     * 기존 Entity를 업데이트 (재고 차감용)
+     */
+    public static void updateEntity(StoreItemDetailEntity entity, StoreItemDetail domain) {
+        if (entity == null || domain == null) return;
+        entity.updateStock(domain.getStock() - entity.getStock());
     }
 }

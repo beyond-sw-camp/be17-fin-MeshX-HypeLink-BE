@@ -7,6 +7,8 @@ import com.example.apidirect.auth.adapter.out.external.dto.PosSyncDto;
 import com.example.apidirect.auth.adapter.out.external.dto.StoreSyncDto;
 import com.example.apidirect.auth.adapter.out.persistence.POSRepository;
 import com.example.apidirect.auth.adapter.out.persistence.StoreRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,23 +26,47 @@ public class InitialSyncService {
     private final POSRepository posRepository;
     private final SyncStatusService syncStatusService;
 
-    @Transactional
+    // ✅ Self-injection: 프록시를 통해 @Transactional 적용하기 위함
+    @Autowired
+    @Lazy
+    private InitialSyncService self;
+
     public Map<String, Integer> syncAll() {
         log.info("[SYNC] Starting initial data synchronization from Monolith...");
 
         Map<String, Integer> syncResults = new LinkedHashMap<>();
 
+        // ✅ self를 통해 호출하여 프록시를 거쳐 @Transactional 적용
         try {
-            syncResults.put("stores", syncStores());
-            syncResults.put("pos", syncPos());
-            syncResults.put("storeItems", syncAllStoresItems());
+            syncResults.put("stores", self.syncStores());
+            log.info("[SYNC] Store synchronization completed");
+        } catch (Exception e) {
+            log.error("[SYNC] Store synchronization failed", e);
+            syncResults.put("stores", 0);
+        }
 
+        try {
+            syncResults.put("pos", self.syncPos());
+            log.info("[SYNC] POS synchronization completed");
+        } catch (Exception e) {
+            log.error("[SYNC] POS synchronization failed", e);
+            syncResults.put("pos", 0);
+        }
+
+        try {
+            syncResults.put("storeItems", self.syncAllStoresItems());
+            log.info("[SYNC] Store items synchronization completed");
+        } catch (Exception e) {
+            log.error("[SYNC] Store items synchronization failed", e);
+            syncResults.put("storeItems", 0);
+        }
+
+        // ✅ Store와 POS가 성공했으면 동기화 완료로 표시
+        if (syncResults.get("stores") > 0 && syncResults.get("pos") > 0) {
             syncStatusService.markAsSynced();
             log.info("[SYNC] Initial data synchronization completed: {}", syncResults);
-
-        } catch (Exception e) {
-            log.error("[SYNC] Initial data synchronization failed", e);
-            throw new RuntimeException("Failed to sync initial data from Monolith", e);
+        } else {
+            log.warn("[SYNC] Initial data synchronization partially completed: {}", syncResults);
         }
 
         return syncResults;

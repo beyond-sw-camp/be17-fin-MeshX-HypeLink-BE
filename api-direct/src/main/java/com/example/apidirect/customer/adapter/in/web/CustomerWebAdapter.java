@@ -1,7 +1,11 @@
 package com.example.apidirect.customer.adapter.in.web;
 
 import MeshX.common.BaseResponse;
+import com.example.apiclients.annotation.GetMemberId;
+import com.example.apidirect.payment.usecase.service.ReceiptQueryUseCase;
 import lombok.RequiredArgsConstructor;
+import com.example.apidirect.auth.domain.POS;
+import com.example.apidirect.auth.usecase.port.in.POSQueryPort;
 import com.example.apidirect.customer.usecase.port.in.CustomerCommandPort;
 import com.example.apidirect.customer.usecase.port.in.CustomerQueryPort;
 import com.example.apidirect.customer.usecase.port.in.request.CustomerSignupCommand;
@@ -23,6 +27,7 @@ public class CustomerWebAdapter {
     private final CustomerCommandPort customerCommandPort;
     private final CustomerQueryPort customerQueryPort;
     private final ReceiptQueryPort receiptQueryPort;
+    private final POSQueryPort posQueryPort;
 
     @PostMapping("/signup")
     public ResponseEntity<BaseResponse<CustomerResponse>> signup(@RequestBody CustomerSignupCommand command) {
@@ -76,10 +81,15 @@ public class CustomerWebAdapter {
 
     @GetMapping("/receipts/paging")
     public ResponseEntity<BaseResponse<ReceiptListPagingResponse>> getReceiptsPaging(
+            @GetMemberId Integer memberId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
+        // 로그인한 POS의 storeId 조회
+        POS pos = posQueryPort.findByMemberId(memberId);
+        Integer storeId = pos.getStoreId();
+
         Pageable pageable = PageRequest.of(page, size);
-        ReceiptListPagingResponse result = receiptQueryPort.getReceipts(pageable);
+        ReceiptListPagingResponse result = ((ReceiptQueryUseCase) receiptQueryPort).getReceiptsByStoreId(storeId, pageable);
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 }
