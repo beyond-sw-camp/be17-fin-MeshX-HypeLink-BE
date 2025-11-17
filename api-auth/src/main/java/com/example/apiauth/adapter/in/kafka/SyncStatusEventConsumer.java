@@ -41,16 +41,23 @@ public class SyncStatusEventConsumer {
     }
 
     @KafkaListener(topics = "sync-success", groupId = "api-auth-sync-status", containerFactory = "sagaKafkaListenerContainerFactory")
-    public void SyncSuccess(SyncSuccessEvent event) {
+    public void SyncSuccess(String message) {
+        try {
+            SyncSuccessEvent event = objectMapper.readValue(message, SyncSuccessEvent.class);
 
-        String sql = "UPDATE " + getTableName(event.getEntityType()) +
-                " SET syncStatus = 'SYNCED' WHERE id = ?";
+            String sql = "UPDATE " + getTableName(event.getEntityType()) +
+                    " SET syncStatus = 'SYNCED' WHERE id = ?";
 
-        writeJdbcTemplate.update(sql, event.getEntityId());
-        readJdbcTemplate.update(sql, event.getEntityId());
+            writeJdbcTemplate.update(sql, event.getEntityId());
+            readJdbcTemplate.update(sql, event.getEntityId());
 
-        // sync_retry 테이블에서 삭제
-        deleteSyncRetry(event.getEntityType(), event.getEntityId());
+            // sync_retry 테이블에서 삭제
+            deleteSyncRetry(event.getEntityType(), event.getEntityId());
+
+            log.info("Processed SyncSuccess: entityType={}, entityId={}", event.getEntityType(), event.getEntityId());
+        } catch (JsonProcessingException e) {
+            log.error("Failed to parse SyncSuccessEvent: {}", message, e);
+        }
     }
 
     private void deleteSyncRetry(String entityType, Integer entityId) {
@@ -63,14 +70,22 @@ public class SyncStatusEventConsumer {
     }
 
     @KafkaListener(topics = "sync-failed", groupId = "api-auth-sync-status", containerFactory = "sagaKafkaListenerContainerFactory")
-    public void SyncFailed(SyncFailedEvent event) {
-        String sql = "UPDATE " + getTableName(event.getEntityType()) +
-                " SET syncStatus = 'SYNC_FAILED' WHERE id = ?";
+    public void SyncFailed(String message) {
+        try {
+            SyncFailedEvent event = objectMapper.readValue(message, SyncFailedEvent.class);
 
-        writeJdbcTemplate.update(sql, event.getEntityId());
-        readJdbcTemplate.update(sql, event.getEntityId());
+            String sql = "UPDATE " + getTableName(event.getEntityType()) +
+                    " SET syncStatus = 'SYNC_FAILED' WHERE id = ?";
 
-        saveSyncRetry(event);
+            writeJdbcTemplate.update(sql, event.getEntityId());
+            readJdbcTemplate.update(sql, event.getEntityId());
+
+            saveSyncRetry(event);
+
+            log.info("Processed SyncFailed: entityType={}, entityId={}", event.getEntityType(), event.getEntityId());
+        } catch (JsonProcessingException e) {
+            log.error("Failed to parse SyncFailedEvent: {}", message, e);
+        }
     }
 
     private void saveSyncRetry(SyncFailedEvent event) {

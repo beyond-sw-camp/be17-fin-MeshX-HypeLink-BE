@@ -128,19 +128,6 @@ public class DataSyncEventConsumer {
     }
 
     private void upsertStore(StoreSyncDto dto) {
-        // Member 존재 확인
-        Integer memberExists = readJdbcTemplate.queryForObject(
-            "SELECT COUNT(*) FROM member WHERE id = ?",
-            Integer.class,
-            dto.getMemberId()
-        );
-
-        if (memberExists == null || memberExists == 0) {
-            log.warn("Member not found for Store, retrying... memberId={}, storeId={}",
-                    dto.getMemberId(), dto.getId());
-            throw new IllegalStateException("Member not found: " + dto.getMemberId());
-        }
-
         String sql = """
             INSERT INTO store (id, lat, lon, posCount, storeNumber, storeState, member_id)
             VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -181,31 +168,6 @@ public class DataSyncEventConsumer {
     }
 
     private void upsertPos(PosSyncDto dto) {
-        // Member와 Store 존재 확인
-        Integer memberExists = readJdbcTemplate.queryForObject(
-            "SELECT COUNT(*) FROM member WHERE id = ?",
-            Integer.class,
-            dto.getMemberId()
-        );
-
-        Integer storeExists = readJdbcTemplate.queryForObject(
-            "SELECT COUNT(*) FROM store WHERE id = ?",
-            Integer.class,
-            dto.getStoreId()
-        );
-
-        if (memberExists == null || memberExists == 0) {
-            log.warn("Member not found for Pos, retrying... memberId={}, posId={}",
-                    dto.getMemberId(), dto.getId());
-            throw new IllegalStateException("Member not found: " + dto.getMemberId());
-        }
-
-        if (storeExists == null || storeExists == 0) {
-            log.warn("Store not found for Pos, retrying... storeId={}, posId={}",
-                    dto.getStoreId(), dto.getId());
-            throw new IllegalStateException("Store not found: " + dto.getStoreId());
-        }
-
         String sql = """
             INSERT INTO pos (id, healthCheck, posCode, member_id, store_id)
             VALUES (?, ?, ?, ?, ?)
@@ -242,19 +204,6 @@ public class DataSyncEventConsumer {
     }
 
     private void upsertDriver(DriverSyncDto dto) {
-        // Member 존재 확인
-        Integer memberExists = readJdbcTemplate.queryForObject(
-            "SELECT COUNT(*) FROM member WHERE id = ?",
-            Integer.class,
-            dto.getMemberId()
-        );
-
-        if (memberExists == null || memberExists == 0) {
-            log.warn("Member not found for Driver, retrying... memberId={}, driverId={}",
-                    dto.getMemberId(), dto.getId());
-            throw new IllegalStateException("Member not found: " + dto.getMemberId());
-        }
-
         String sql = """
             INSERT INTO driver (id, carNumber, macAddress, member_id)
             VALUES (?, ?, ?, ?)
