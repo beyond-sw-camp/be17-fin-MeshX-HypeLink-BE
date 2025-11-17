@@ -2,6 +2,8 @@ package com.example.apidirect.customer.usecase.port.out.mapper;
 
 import com.example.apidirect.customer.domain.Customer;
 import com.example.apidirect.customer.usecase.port.out.response.CustomerResponse;
+import com.example.apidirect.customer.usecase.port.out.response.CustomerListResponse;
+import org.springframework.data.domain.Page;
 
 public class CustomerResponseMapper {
 
@@ -24,6 +26,18 @@ public class CustomerResponseMapper {
                 .name(response.getName())
                 .phone(response.getPhone())
                 .birthDate(response.getBirthDate())
+                .build();
+    }
+
+    public static CustomerListResponse toListResponse(Page<CustomerResponse> page) {
+        if (page == null) return null;
+
+        return CustomerListResponse.builder()
+                .customerInfoResList(page.getContent())
+                .totalPages(page.getTotalPages())
+                .totalElements(page.getTotalElements())
+                .currentPage(page.getNumber())
+                .pageSize(page.getSize())
                 .build();
     }
 }

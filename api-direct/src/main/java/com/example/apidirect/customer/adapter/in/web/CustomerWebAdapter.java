@@ -11,6 +11,8 @@ import com.example.apidirect.customer.usecase.port.in.CustomerQueryPort;
 import com.example.apidirect.customer.usecase.port.in.request.CustomerSignupCommand;
 import com.example.apidirect.customer.usecase.port.in.request.CustomerUpdateCommand;
 import com.example.apidirect.customer.usecase.port.out.response.CustomerResponse;
+import com.example.apidirect.customer.usecase.port.out.response.CustomerListResponse;
+import com.example.apidirect.customer.usecase.port.out.mapper.CustomerResponseMapper;
 import com.example.apidirect.payment.adapter.in.web.dto.response.ReceiptListPagingResponse;
 import com.example.apidirect.payment.usecase.port.in.ReceiptQueryPort;
 import org.springframework.data.domain.Page;
@@ -54,22 +56,24 @@ public class CustomerWebAdapter {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<BaseResponse<Page<CustomerResponse>>> getCustomerList(
+    public ResponseEntity<BaseResponse<CustomerListResponse>> getCustomerList(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<CustomerResponse> result = customerQueryPort.findAll(pageable);
+        Page<CustomerResponse> pageResult = customerQueryPort.findAll(pageable);
+        CustomerListResponse result = CustomerResponseMapper.toListResponse(pageResult);
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<BaseResponse<Page<CustomerResponse>>> searchCustomers(
+    public ResponseEntity<BaseResponse<CustomerListResponse>> searchCustomers(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false, defaultValue = "all") String ageGroup,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<CustomerResponse> result = customerQueryPort.searchCustomers(keyword, ageGroup, pageable);
+        Page<CustomerResponse> pageResult = customerQueryPort.searchCustomers(keyword, ageGroup, pageable);
+        CustomerListResponse result = CustomerResponseMapper.toListResponse(pageResult);
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 
