@@ -54,10 +54,10 @@ public class MemberQueryService implements MemberQueryUseCase {
     }
 
     @Override
-    public List<MemberListNotPosResDto> memberlistNotPos() {
+    public UserListResDto memberlistNotPos() {
         List<Member> members = memberQueryPort.findAll();
 
-        return members.stream()
+        List<MemberListNotPosResDto> userList = members.stream()
                 .filter(member -> member.getRole() != MemberRole.POS_MEMBER)
                 .map(member -> MemberListNotPosResDto.builder()
                         .id(member.getId())
@@ -67,6 +67,10 @@ public class MemberQueryService implements MemberQueryUseCase {
                         .region(member.getRegion())
                         .build())
                 .collect(Collectors.toList());
+
+        return UserListResDto.builder()
+                .users(userList)
+                .build();
     }
 
     @Override

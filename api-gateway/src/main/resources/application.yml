@@ -58,7 +58,7 @@ spring:
                 - Path=/api/notice/**
               filters:
                 - Authentication
-                
+
             - id: websocket-monolith
               uri: ${MONOLITH_SERVICE_URI}
               order: 0
@@ -89,6 +89,8 @@ spring:
                 - Path=/api/auth/**, /api/member/**
               filters:
                 - Authentication
+            #                - StripPrefix=1     # ?? 1
+            #                - RewritePath=/user/(?<remaining>.*), /${remaining} # ?? 2
 
             - id: api-monolith
               uri: ${MONOLITH_SERVICE_URI}
@@ -97,6 +99,3 @@ spring:
                 - Path=/api/**
               filters:
                 - Authentication
-            #                - StripPrefix=1     # ?? 1
-
-            #                - RewritePath=/user/(?<remaining>.*), /${remaining} # ?? 2
