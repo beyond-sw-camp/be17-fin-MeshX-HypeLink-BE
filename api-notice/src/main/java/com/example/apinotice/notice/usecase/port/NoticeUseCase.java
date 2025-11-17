@@ -2,8 +2,6 @@ package com.example.apinotice.notice.usecase.port;
 
 import MeshX.common.Page.PageRes;
 import MeshX.common.UseCase;
-import com.example.apinotice.notice.adaptor.out.jpa.NoticeEntity;
-import com.example.apinotice.notice.adaptor.out.jpa.NoticeImageEntity;
 import com.example.apinotice.notice.adaptor.out.mapper.NoticeMapper;
 import com.example.apinotice.notice.domain.Notice;
 import com.example.apinotice.notice.domain.NoticeImage;
