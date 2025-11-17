@@ -1,62 +1,62 @@
-//package MeshX.HypeLink.common;
-//
-//import MeshX.HypeLink.auth.model.entity.*;
-//import MeshX.HypeLink.auth.repository.DriverJpaRepositoryVerify;
-//import MeshX.HypeLink.auth.repository.MemberJpaRepositoryVerify;
-//import MeshX.HypeLink.auth.repository.PosJpaRepositoryVerify;
-//import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
-//import MeshX.HypeLink.common.exception.BaseException;
-//import MeshX.HypeLink.head_office.customer.repository.CustomerJpaRepositoryVerify;
-//import jakarta.annotation.PostConstruct;
-//import jakarta.transaction.Transactional;
-//import lombok.RequiredArgsConstructor;
-//import lombok.extern.slf4j.Slf4j;
-//import org.springframework.security.crypto.password.PasswordEncoder;
-//import org.springframework.stereotype.Component;
-//
-//@Slf4j
-//@Component
-//@RequiredArgsConstructor
-//public class BaseMember {
-//    private final MemberJpaRepositoryVerify memberRepository;
-//    private final StoreJpaRepositoryVerify storeRepository;
-//    private final PosJpaRepositoryVerify posRepository;
-//    private final DriverJpaRepositoryVerify driverRepository;
-//    private final CustomerJpaRepositoryVerify customerRepository; // Add CustomerJpaRepositoryVerify
-//    private final PasswordEncoder encoder;
-//
-//    @PostConstruct
-//    @Transactional
-//    public void init() {
-//        boolean check = initMembers();
-//        if(!check) {
+package MeshX.HypeLink.common;
+
+import MeshX.HypeLink.auth.model.entity.*;
+import MeshX.HypeLink.auth.repository.DriverJpaRepositoryVerify;
+import MeshX.HypeLink.auth.repository.MemberJpaRepositoryVerify;
+import MeshX.HypeLink.auth.repository.PosJpaRepositoryVerify;
+import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
+import MeshX.HypeLink.common.exception.BaseException;
+import MeshX.HypeLink.head_office.customer.repository.CustomerJpaRepositoryVerify;
+import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class BaseMember {
+    private final MemberJpaRepositoryVerify memberRepository;
+    private final StoreJpaRepositoryVerify storeRepository;
+    private final PosJpaRepositoryVerify posRepository;
+    private final DriverJpaRepositoryVerify driverRepository;
+    private final CustomerJpaRepositoryVerify customerRepository; // Add CustomerJpaRepositoryVerify
+    private final PasswordEncoder encoder;
+
+    @PostConstruct
+    @Transactional
+    public void init() {
+        boolean check = initMembers();
+        if(!check) {
 //            initStoresAndPoses();
 //            initDrivers();
-//        }
-//
-//    }
-//
-//    private boolean initMembers() {
-//        try {
-//            memberRepository.findByEmail("hq@company.com");
-//            log.info("베이스 데이터 이미 존재");
-//            return true;
-//        } catch (BaseException e) {
-//            log.info("데이터 미 존재");
-//        }
-//
-//        // Admin and Manager
-//        Member hq = Member.builder()
-//                .email("hq@company.com")
-//                .password(encoder.encode("1234"))
-//                .name("본사관리자")
-//                .phone("010-1111-1111")
-//                .address("서울특별시 강남구 테헤란로 1")
-//                .role(MemberRole.ADMIN)
-//                .region(Region.SEOUL_GYEONGGI)
-//                .refreshToken(null)
-//                .build();
-//
+        }
+
+    }
+
+    private boolean initMembers() {
+        try {
+            memberRepository.findByEmail("hq@company.com");
+            log.info("베이스 데이터 이미 존재");
+            return true;
+        } catch (BaseException e) {
+            log.info("데이터 미 존재");
+        }
+
+        // Admin and Manager
+        Member hq = Member.builder()
+                .email("hq@company.com")
+                .password(encoder.encode("1234"))
+                .name("본사관리자")
+                .phone("010-1111-1111")
+                .address("서울특별시 강남구 테헤란로 1")
+                .role(MemberRole.ADMIN)
+                .region(Region.SEOUL_GYEONGGI)
+                .refreshToken(null)
+                .build();
+
 //        Member manager = Member.builder()
 //                .email("manager@company.com")
 //                .password(encoder.encode("1234"))
@@ -132,32 +132,12 @@
 //                .refreshToken(null)
 //                .build();
 //
-//        memberRepository.save(hq);
-//        memberRepository.save(manager);
-//        memberRepository.save(manager2);
-//        memberRepository.save(manager3);
-//        memberRepository.save(owner1);
-//        memberRepository.save(owner2);
-//        memberRepository.save(owner3);
-//        memberRepository.save(owner4);
-//        memberRepository.save(owner5);
-//        memberRepository.save(pos1_1);
-//        memberRepository.save(pos1_2);
-//        memberRepository.save(pos2_1);
-//        memberRepository.save(pos2_2);
-//        memberRepository.save(pos3_1);
-//        memberRepository.save(pos3_2);
-//        memberRepository.save(pos4_1);
-//        memberRepository.save(pos4_2);
-//        memberRepository.save(pos5_1);
-//        memberRepository.save(pos5_2);
-//        memberRepository.save(driver1);
-//        memberRepository.save(driver2);
-//
-//        log.info("✅ Member 기본 데이터 생성 완료");
-//        return false;
-//    }
-//
+        memberRepository.save(hq);
+
+        log.info("✅ Member 기본 데이터 생성 완료 (hq@company.com)");
+        return false;
+    }
+
 //    private void initStoresAndPoses() {
 //        Member owner1 = memberRepository.findByEmail("owner1@store.com");
 //        Member owner2 = memberRepository.findByEmail("owner2@store.com");
@@ -234,5 +214,5 @@
 //
 //        log.info("✅ Driver 기본 데이터 생성 완료");
 //    }
-//
-//}
+
+}
