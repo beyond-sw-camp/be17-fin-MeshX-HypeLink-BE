@@ -267,7 +267,7 @@ public class PurchaseOrderService {
                 .build();
 
         BaseResponse<String> response = webClient.patch()
-                .uri("/api/store/item/detail/update")
+                .uri("/api/direct/store/item/detail/update")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(UpdateStoreItemDetailReq.builder()
                         .storeId(store.getId())
