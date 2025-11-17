@@ -3,7 +3,6 @@ package com.example.apidirect.item.adapter.in.web;
 import MeshX.common.BaseResponse;
 import MeshX.common.WebAdapter;
 import com.example.apiclients.annotation.GetMemberId;
-import com.example.apidirect.item.adapter.in.web.dto.request.SaveStoreCategoriesRequest;
 import com.example.apidirect.item.adapter.in.web.dto.request.SaveStoreItemListRequest;
 import com.example.apidirect.item.adapter.in.web.dto.request.UpdateStoreItemDetailRequest;
 import com.example.apidirect.item.adapter.in.web.dto.response.StoreItemDetailResponse;
@@ -17,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @WebAdapter
 @RequiredArgsConstructor
-@RequestMapping("/api/store/item")
+@RequestMapping("/api/direct/store/item")
 public class ItemWebAdapter {
 
     private final ItemQueryPort itemQueryPort;
