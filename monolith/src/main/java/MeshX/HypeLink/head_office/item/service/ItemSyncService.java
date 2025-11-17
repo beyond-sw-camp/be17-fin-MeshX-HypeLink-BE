@@ -20,8 +20,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -44,14 +47,20 @@ public class ItemSyncService {
 
     private final WebClient webClient = WebClient.builder()
             .clientConnector(new ReactorClientHttpConnector(
-                    HttpClient.create().responseTimeout(Duration.ofSeconds(10))
+                    HttpClient.create()
+                            .option(io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)  // 10초 (연결)
+                            .doOnConnected(conn -> conn
+                                    .addHandlerLast(new ReadTimeoutHandler(600, TimeUnit.SECONDS))   // 10분 (읽기)
+                                    .addHandlerLast(new WriteTimeoutHandler(600, TimeUnit.SECONDS))  // 10분 (쓰기)
+                            )
+                            .responseTimeout(Duration.ofMinutes(10))  // 10분 (전체 응답)
             ))
             .build();
 
     /**
      * 매일 00시 실행 (오늘 수정된 상품만 직영점에 전송)
      */
-    @Scheduled(cron = "0 0 0 * * *") // 00시 00분에 실행
+      @Scheduled(cron = "0 0 0 * * *") // 00시 00분에 실행
 //    @Scheduled(cron = "0 * * * * *")
     public void syncNewItemsToStores() {
         LocalDate today = LocalDate.now();
@@ -236,6 +245,6 @@ public class ItemSyncService {
     private String resolveStoreApiUrl(Store store) {
         Member member = store.getMember();
 
-        return "http://localhost:8080";
+        return "http://localhost:8081";
     }
 }

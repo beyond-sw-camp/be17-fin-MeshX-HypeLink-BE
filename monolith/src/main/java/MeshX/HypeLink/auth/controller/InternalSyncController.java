@@ -8,8 +8,10 @@ import MeshX.HypeLink.auth.repository.DriverRepository;
 import MeshX.HypeLink.auth.repository.MemberRepository;
 import MeshX.HypeLink.auth.repository.PosRepository;
 import MeshX.HypeLink.auth.repository.StoreRepository;
+import MeshX.HypeLink.head_office.item.service.ItemSyncService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +29,7 @@ public class InternalSyncController {
     private final StoreRepository storeRepository;
     private final PosRepository posRepository;
     private final DriverRepository driverRepository;
+    private final ItemSyncService itemSyncService;
 
     @GetMapping("/members")
     public List<MemberSyncDto> getAllMembers() {
@@ -59,4 +62,11 @@ public class InternalSyncController {
                 .map(DriverSyncDto::from)
                 .collect(Collectors.toList());
     }
+
+    @PostMapping("/store/{storeId}/items")
+    public void syncAllItemsToStore(@PathVariable Integer storeId) {
+        log.info("Syncing all items to store ID: {}", storeId);
+        itemSyncService.syncAllItemsForNewStore(storeId);
+    }
+
 }
