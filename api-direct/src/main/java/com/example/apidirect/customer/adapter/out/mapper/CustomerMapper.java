@@ -1,0 +1,31 @@
+package com.example.apidirect.customer.adapter.out.mapper;
+
+import com.example.apidirect.customer.adapter.out.entity.CustomerEntity;
+import com.example.apidirect.customer.domain.Customer;
+
+public class CustomerMapper {
+
+    public static Customer toDomain(CustomerEntity entity) {
+        if (entity == null) return null;
+
+        return Customer.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .phone(entity.getPhone())
+                .birthDate(entity.getBirthDate())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .build();
+    }
+
+    public static CustomerEntity toEntity(Customer domain) {
+        if (domain == null) return null;
+
+        return CustomerEntity.builder()
+                .id(domain.getId())
+                .name(domain.getName())
+                .phone(domain.getPhone())
+                .birthDate(domain.getBirthDate())
+                .build();
+    }
+}

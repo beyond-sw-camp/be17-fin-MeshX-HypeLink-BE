@@ -16,8 +16,6 @@ import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
 import MeshX.HypeLink.auth.utils.JwtUtils;
 import MeshX.HypeLink.utils.geocode.model.dto.GeocodeDto;
 import MeshX.HypeLink.utils.geocode.service.GeocodingService;
-import MeshX.HypeLink.common.kafka.DataSyncEvent;
-import MeshX.HypeLink.common.kafka.DataSyncEventProducer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,7 +40,6 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final TokenStore tokenStore;
     private final GeocodingService geocodingService;
-    private final DataSyncEventProducer dataSyncEventProducer;
     private final ObjectMapper objectMapper;
 
     private static final Pattern POS_CODE_PATTERN = Pattern.compile("^[A-Z]{3}[0-9]{3}_[0-9]{2}$");
@@ -76,8 +73,6 @@ public class AuthService {
             memberJpaRepositoryVerify.save(member);
             posJpaRepositoryVerify.save(pos);
 
-            // MSA 동기화
-            publishToMsa(member, null, pos, null);
             return;
         }
 
@@ -106,57 +101,8 @@ public class AuthService {
                 break;
         }
 
-        // MSA 동기화
-        publishToMsa(member, store, null, driver);
     }
 
-    private void publishToMsa(Member member, Store store, POS pos, Driver driver) {
-        try {
-            // Member 동기화
-            DataSyncEvent memberEvent = DataSyncEvent.builder()
-                    .operation(DataSyncEvent.SyncOperation.CREATE)
-                    .entityType(DataSyncEvent.EntityType.MEMBER)
-                    .entityId(member.getId())
-                    .entityData(objectMapper.writeValueAsString(member))
-                    .build();
-            dataSyncEventProducer.publishEvent(memberEvent);
-
-            // Store 동기화
-            if (store != null) {
-                DataSyncEvent storeEvent = DataSyncEvent.builder()
-                        .operation(DataSyncEvent.SyncOperation.CREATE)
-                        .entityType(DataSyncEvent.EntityType.STORE)
-                        .entityId(store.getId())
-                        .entityData(objectMapper.writeValueAsString(store))
-                        .build();
-                dataSyncEventProducer.publishEvent(storeEvent);
-            }
-
-            // POS 동기화
-            if (pos != null) {
-                DataSyncEvent posEvent = DataSyncEvent.builder()
-                        .operation(DataSyncEvent.SyncOperation.CREATE)
-                        .entityType(DataSyncEvent.EntityType.POS)
-                        .entityId(pos.getId())
-                        .entityData(objectMapper.writeValueAsString(pos))
-                        .build();
-                dataSyncEventProducer.publishEvent(posEvent);
-            }
-
-            // Driver 동기화
-            if (driver != null) {
-                DataSyncEvent driverEvent = DataSyncEvent.builder()
-                        .operation(DataSyncEvent.SyncOperation.CREATE)
-                        .entityType(DataSyncEvent.EntityType.DRIVER)
-                        .entityId(driver.getId())
-                        .entityData(objectMapper.writeValueAsString(driver))
-                        .build();
-                dataSyncEventProducer.publishEvent(driverEvent);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to publish sync event to MSA", e);
-        }
-    }
 
     private void validatePosCode(String posCode) {
         if (posCode == null || !POS_CODE_PATTERN.matcher(posCode).matches()) {

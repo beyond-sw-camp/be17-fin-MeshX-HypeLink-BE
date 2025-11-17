@@ -12,6 +12,7 @@ public class PosReadMapper {
                 .store(entity.getStore() != null ? StoreReadMapper.toDomain(entity.getStore()) : null)
                 .member(entity.getMember() != null ? MemberReadMapper.toDomain(entity.getMember()) : null)
                 .healthCheck(entity.getHealthCheck())
+                .syncStatus(entity.getSyncStatus())
                 .build();
     }
 
@@ -22,6 +23,7 @@ public class PosReadMapper {
                 .store(domain.getStore() != null ? StoreReadMapper.toEntity(domain.getStore()) : null)
                 .member(domain.getMember() != null ? MemberReadMapper.toEntity(domain.getMember()) : null)
                 .healthCheck(domain.getHealthCheck())
+                .syncStatus(domain.getSyncStatus())
                 .build();
     }
 }

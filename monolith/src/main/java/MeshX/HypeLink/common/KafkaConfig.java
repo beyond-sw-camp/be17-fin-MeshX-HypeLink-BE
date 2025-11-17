@@ -26,7 +26,7 @@ public class KafkaConfig {
     public ConcurrentKafkaListenerContainerFactory<String, Object> jsonKafkaListenerFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap);
-        config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, org.apache.kafka.common.serialization.StringDeserializer.class);
+        config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
 
         config.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
@@ -60,6 +60,31 @@ public class KafkaConfig {
                 new DefaultKafkaConsumerFactory<>(config);
 
         ConcurrentKafkaListenerContainerFactory<String, String> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory);
+
+        return factory;
+    }
+
+    /**
+     * MemberRegisterEvent 전용 - Type Header 사용
+     */
+    @Bean(name = "memberRegisterKafkaListenerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, Object> memberRegisterKafkaListenerFactory() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap);
+        config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+
+        config.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
+        config.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, true);  // Type Header 사용
+        config.put(JsonDeserializer.TYPE_MAPPINGS, "memberRegisterEvent:MeshX.HypeLink.common.kafka.MemberRegisterEvent");
+
+        DefaultKafkaConsumerFactory<String, Object> consumerFactory =
+                new DefaultKafkaConsumerFactory<>(config);
+
+        ConcurrentKafkaListenerContainerFactory<String, Object> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
 

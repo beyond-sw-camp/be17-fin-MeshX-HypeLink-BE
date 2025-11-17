@@ -1,7 +1,10 @@
 package com.example.apiauth.adapter.out.persistence.entity;
 
+import com.example.apiauth.domain.model.value.SyncStatus;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -20,6 +23,10 @@ public class DriverEntity {
     @OneToOne
     @JoinColumn(name = "member_id")
     private MemberEntity member;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private SyncStatus syncStatus = SyncStatus.NEW;
 
 //    private DriverEntity(String macAddress, String carNumber, MemberEntity member) {
 //        this.macAddress = macAddress;

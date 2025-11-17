@@ -1,9 +1,11 @@
 package com.example.apiauth.adapter.out.persistence.read.entity;
 
-import MeshX.common.BaseEntity;
 import com.example.apiauth.domain.model.value.StoreState;
+import com.example.apiauth.domain.model.value.SyncStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 @Entity
 @Getter
@@ -17,7 +19,8 @@ public class StoreReadEntity {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @NotFound(action = NotFoundAction.IGNORE)
     private MemberReadEntity member;
 
     private Double lat;
@@ -26,5 +29,8 @@ public class StoreReadEntity {
     private String storeNumber;
     private StoreState storeState;
 
-    // Read 전용 - 업데이트 메서드 없음
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private SyncStatus syncStatus = SyncStatus.NEW;
+
 }

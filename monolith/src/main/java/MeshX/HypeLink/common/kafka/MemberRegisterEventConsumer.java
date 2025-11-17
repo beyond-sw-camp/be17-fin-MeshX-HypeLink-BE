@@ -14,12 +14,14 @@ import java.time.LocalDateTime;
 public class MemberRegisterEventConsumer {
 
     private final JdbcTemplate jdbcTemplate;
+    private final SagaPublisher sagaPublisher;
 
-    public MemberRegisterEventConsumer(DataSource dataSource) {
+    public MemberRegisterEventConsumer(DataSource dataSource, SagaPublisher sagaPublisher) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.sagaPublisher = sagaPublisher;
     }
 
-    @KafkaListener(topics = "member-registered", groupId = "monolith-member-consumer")
+    @KafkaListener(topics = "member-registered", groupId = "monolith-member-consumer", containerFactory = "memberRegisterKafkaListenerFactory")
     @Transactional
     public void consumeMemberRegisterEvent(MemberRegisterEvent event) {
         try {
@@ -28,7 +30,6 @@ public class MemberRegisterEventConsumer {
 
             // 1. Member 저장 (모든 Role 공통)
             upsertMember(event);
-
             // 2. Role별 추가 데이터 저장
             switch (event.getRole()) {
                 case BRANCH_MANAGER:
@@ -46,34 +47,32 @@ public class MemberRegisterEventConsumer {
                         upsertDriver(event);
                     }
                     break;
-                case ADMIN:
-                case MANAGER:
-                    // Member만 저장
-                    break;
             }
+
 
             log.info("Successfully synced Member to Monolith: memberId={}, role={}",
                     event.getMemberId(), event.getRole());
+            syncSuccessEvents(event);
         } catch (Exception e) {
             log.error("Failed to process MemberRegisterEvent from MSA", e);
+            syncFailedEvents(event, e.getMessage());
         }
     }
 
     private void upsertMember(MemberRegisterEvent event) {
         LocalDateTime now = LocalDateTime.now();
         String sql = """
-            INSERT INTO member (id, created_at, updated_at, address, email, name, password, phone, refresh_token, region, role, is_deleted)
-            VALUES (?, ?, ?, ?, ?, ?, '', null, ?, ?, ?, false)
-            ON DUPLICATE KEY UPDATE
-                created_at = VALUES(created_at),
-                updated_at = VALUES(updated_at),
-                address = VALUES(address),
-                email = VALUES(email),
-                name = VALUES(name),
-                phone = VALUES(phone),
-                region = VALUES(region),
-                role = VALUES(role)
-            """;
+                INSERT INTO member (id, created_at, updated_at, address, email, name, password, phone, refresh_token, region, role)
+                VALUES (?, ?, ?, ?, ?, ?, '', null, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    updated_at = VALUES(updated_at),
+                    address = VALUES(address),
+                    email = VALUES(email),
+                    name = VALUES(name),
+                    phone = VALUES(phone),
+                    region = VALUES(region),
+                    role = VALUES(role)
+                """;
 
         jdbcTemplate.update(sql,
                 event.getMemberId(),
@@ -92,16 +91,16 @@ public class MemberRegisterEventConsumer {
     private void upsertStore(MemberRegisterEvent event) {
         MemberRegisterEvent.StoreInfo storeInfo = event.getStoreInfo();
         String sql = """
-            INSERT INTO store (id, lat, lon, pos_count, store_number, store_state, member_id, is_deleted)
-            VALUES (?, ?, ?, ?, ?, ?, ?, false)
-            ON DUPLICATE KEY UPDATE
-                lat = VALUES(lat),
-                lon = VALUES(lon),
-                pos_count = VALUES(pos_count),
-                store_number = VALUES(store_number),
-                store_state = VALUES(store_state),
-                member_id = VALUES(member_id)
-            """;
+                INSERT INTO store (id, lat, lon, pos_count, store_number, store_state, member_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    lat = VALUES(lat),
+                    lon = VALUES(lon),
+                    pos_count = VALUES(pos_count),
+                    store_number = VALUES(store_number),
+                    store_state = VALUES(store_state),
+                    member_id = VALUES(member_id)
+                """;
 
         jdbcTemplate.update(sql,
                 storeInfo.getStoreId(),
@@ -109,7 +108,7 @@ public class MemberRegisterEventConsumer {
                 storeInfo.getLon() != null ? storeInfo.getLon() : 0.0,
                 storeInfo.getPosCount() != null ? storeInfo.getPosCount() : 0,
                 storeInfo.getStoreNumber(),
-                storeInfo.getStoreState() != null ? storeInfo.getStoreState().name() : null,
+                storeInfo.getStoreState() != null ? storeInfo.getStoreState().ordinal() : 2,
                 event.getMemberId()
         );
         log.info("Upserted Store to Monolith: id={}, memberId={}", storeInfo.getStoreId(), event.getMemberId());
@@ -118,14 +117,14 @@ public class MemberRegisterEventConsumer {
     private void upsertPos(MemberRegisterEvent event) {
         MemberRegisterEvent.PosInfo posInfo = event.getPosInfo();
         String sql = """
-            INSERT INTO pos (id, health_check, pos_code, member_id, store_id, is_deleted)
-            VALUES (?, ?, ?, ?, ?, false)
-            ON DUPLICATE KEY UPDATE
-                health_check = VALUES(health_check),
-                pos_code = VALUES(pos_code),
-                member_id = VALUES(member_id),
-                store_id = VALUES(store_id)
-            """;
+                INSERT INTO pos (id, health_check, pos_code, member_id, store_id)
+                VALUES (?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    health_check = VALUES(health_check),
+                    pos_code = VALUES(pos_code),
+                    member_id = VALUES(member_id),
+                    store_id = VALUES(store_id)
+                """;
 
         jdbcTemplate.update(sql,
                 posInfo.getPosId(),
@@ -140,13 +139,13 @@ public class MemberRegisterEventConsumer {
     private void upsertDriver(MemberRegisterEvent event) {
         MemberRegisterEvent.DriverInfo driverInfo = event.getDriverInfo();
         String sql = """
-            INSERT INTO driver (id, car_number, mac_address, member_id, is_deleted)
-            VALUES (?, ?, ?, ?, false)
-            ON DUPLICATE KEY UPDATE
-                car_number = VALUES(car_number),
-                mac_address = VALUES(mac_address),
-                member_id = VALUES(member_id)
-            """;
+                INSERT INTO driver (id, car_number, mac_address, member_id)
+                VALUES (?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    car_number = VALUES(car_number),
+                    mac_address = VALUES(mac_address),
+                    member_id = VALUES(member_id)
+                """;
 
         jdbcTemplate.update(sql,
                 driverInfo.getDriverId(),
@@ -156,4 +155,50 @@ public class MemberRegisterEventConsumer {
         );
         log.info("Upserted Driver to Monolith: id={}, memberId={}", driverInfo.getDriverId(), event.getMemberId());
     }
+
+    private void syncSuccessEvents(MemberRegisterEvent event) {
+        sagaPublisher.syncSuccess(SagaSuccessEvent.of("MEMBER", event.getMemberId()));
+
+        switch (event.getRole()) {
+            case BRANCH_MANAGER:
+                if (event.getStoreInfo() != null) {
+                    sagaPublisher.syncSuccess(SagaSuccessEvent.of("STORE", event.getStoreInfo().getStoreId()));
+                }
+                break;
+            case POS_MEMBER:
+                if (event.getPosInfo() != null) {
+                    sagaPublisher.syncSuccess(SagaSuccessEvent.of("POS", event.getPosInfo().getPosId()));
+                }
+                break;
+            case DRIVER:
+                if (event.getDriverInfo() != null) {
+                    sagaPublisher.syncSuccess(SagaSuccessEvent.of("DRIVER", event.getDriverInfo().getDriverId()));
+                }
+                break;
+        }
+
+    }
+
+    private void syncFailedEvents(MemberRegisterEvent event, String errorMessage) {
+        sagaPublisher.syncFailed(SagaFailedEvent.of("MEMBER", event.getMemberId(), errorMessage, event));
+
+        switch (event.getRole()) {
+            case BRANCH_MANAGER:
+                if (event.getStoreInfo() != null) {
+                    sagaPublisher.syncFailed(SagaFailedEvent.of("STORE", event.getStoreInfo().getStoreId(), errorMessage, event));
+                }
+                break;
+            case POS_MEMBER:
+                if (event.getPosInfo() != null) {
+                    sagaPublisher.syncFailed(SagaFailedEvent.of("POS", event.getPosInfo().getPosId(), errorMessage, event));
+                }
+                break;
+            case DRIVER:
+                if (event.getDriverInfo() != null) {
+                    sagaPublisher.syncFailed(SagaFailedEvent.of("DRIVER", event.getDriverInfo().getDriverId(), errorMessage, event));
+                }
+                break;
+        }
+    }
+
 }

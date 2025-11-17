@@ -21,7 +21,7 @@ public class MemberRegisterEventConsumer {
         this.readJdbcTemplate = new JdbcTemplate(readDataSource);
     }
 
-    @KafkaListener(topics = "member-registered", groupId = "api-auth-read-consumer")
+    @KafkaListener(topics = "member-registered", groupId = "api-auth-read-consumer", containerFactory = "memberRegisterKafkaListenerContainerFactory")
     @Transactional
     public void consumeMemberRegisterEvent(MemberRegisterEvent event) {
         try {

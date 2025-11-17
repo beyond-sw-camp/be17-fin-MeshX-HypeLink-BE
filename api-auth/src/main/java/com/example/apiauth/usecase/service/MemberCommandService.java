@@ -5,7 +5,7 @@ import MeshX.common.UseCase;
 import com.example.apiauth.adapter.in.web.dto.StoreInfoResDto;
 import com.example.apiauth.adapter.in.web.dto.StoreStateReqDto;
 import com.example.apiauth.adapter.in.web.dto.UserReadResDto;
-import com.example.apiauth.adapter.out.external.geocoding.dto.GeocodeDto;
+import com.example.apiauth.adapter.out.geocoding.dto.GeocodeDto;
 import com.example.apiauth.adapter.out.external.shipment.ShipmentClient;
 import com.example.apiauth.common.exception.AuthException;
 import com.example.apiauth.domain.model.Driver;

@@ -1,5 +1,6 @@
 package com.example.apiauth.adapter.in.kafka;
 
+import MeshX.common.exception.BaseException;
 import com.example.apiauth.adapter.out.external.monolith.dto.DriverSyncDto;
 import com.example.apiauth.adapter.out.external.monolith.dto.MemberSyncDto;
 import com.example.apiauth.adapter.out.external.monolith.dto.PosSyncDto;
@@ -29,7 +30,7 @@ public class DataSyncEventConsumer {
         this.readJdbcTemplate = new JdbcTemplate(readDataSource);
     }
 
-    @KafkaListener(topics = "cqrs-sync", groupId = "api-auth-cqrs-consumer")
+    @KafkaListener(topics = "cqrs-sync", groupId = "api-auth-cqrs-consumer", containerFactory = "cqrsKafkaListenerContainerFactory")
     @Transactional
     public void consumeEvent(DataSyncEvent event) {
         try {
@@ -50,8 +51,13 @@ public class DataSyncEventConsumer {
                     handleDriverEvent(event);
                     break;
             }
+        } catch (IllegalStateException e) {
+            // Member/Store not found 에러는 재시도를 위해 throw
+            log.warn("CQRS sync 순서 문제 발생, Kafka 재시도 예정: {}", e.getMessage());
+            throw e;
         } catch (Exception e) {
             log.error("Failed to process CQRS sync event", e);
+            throw new BaseException(null);
         }
     }
 

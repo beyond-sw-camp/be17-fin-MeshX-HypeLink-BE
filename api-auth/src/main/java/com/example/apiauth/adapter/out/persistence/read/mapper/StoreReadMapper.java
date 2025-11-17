@@ -14,6 +14,7 @@ public class StoreReadMapper {
                 .posCount(entity.getPosCount())
                 .storeNumber(entity.getStoreNumber())
                 .storeState(entity.getStoreState())
+                .syncStatus(entity.getSyncStatus())
                 .build();
     }
 
@@ -26,6 +27,7 @@ public class StoreReadMapper {
                 .posCount(domain.getPosCount())
                 .storeNumber(domain.getStoreNumber())
                 .storeState(domain.getStoreState())
+                .syncStatus(domain.getSyncStatus())
                 .build();
     }
 }

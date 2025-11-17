@@ -47,6 +47,10 @@ public class CustomerJpaRepositoryVerify {
                 .orElseThrow(() -> new CustomerException(NOT_FOUND));
     }
 
+    public Optional<Customer> findByPhoneOptional(String phone) {
+        return repository.findByPhone(phone);
+    }
+
     public Customer findByPhoneWithCoupons(String phone) {
         return repository.findByPhoneWithCoupons(phone)
                 .orElseThrow(() -> new CustomerException(NOT_FOUND));
@@ -91,5 +95,9 @@ public class CustomerJpaRepositoryVerify {
 
     public Page<Customer> searchCustomersPaged(String keyword, String ageGroup, Pageable pageable) {
         return repository.searchCustomersPaged(keyword, ageGroup, pageable);
+    }
+
+    public boolean existsByIdOrPhone(Integer id, String phone) {
+        return repository.existsById(id) || repository.findByPhone(phone).isPresent();
     }
 }

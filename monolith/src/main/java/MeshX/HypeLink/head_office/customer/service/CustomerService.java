@@ -2,6 +2,8 @@ package MeshX.HypeLink.head_office.customer.service;
 
 import MeshX.HypeLink.head_office.coupon.model.entity.Coupon;
 import MeshX.HypeLink.head_office.coupon.repository.CouponJpaRepositoryVerify;
+import MeshX.HypeLink.head_office.customer.kafka.dto.CustomerSyncEvent;
+import MeshX.HypeLink.head_office.customer.kafka.producer.CustomerSyncProducer;
 import MeshX.HypeLink.head_office.customer.model.dto.request.CustomerSignupReq;
 import MeshX.HypeLink.head_office.customer.model.dto.request.CustomerUpdateReq;
 import MeshX.HypeLink.head_office.customer.model.dto.response.CustomerInfoListRes;
@@ -15,6 +17,7 @@ import MeshX.HypeLink.head_office.customer.model.entity.CustomerReceipt;
 import MeshX.HypeLink.head_office.customer.repository.CustomerCouponJpaRepositoryVerify;
 import MeshX.HypeLink.head_office.customer.repository.CustomerJpaRepositoryVerify;
 import MeshX.HypeLink.head_office.customer.repository.CustomerReceiptRepository;
+import MeshX.HypeLink.head_office.customer.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,9 +35,11 @@ import java.util.stream.Collectors;
 public class CustomerService {
 
     private final CustomerJpaRepositoryVerify customerRepository;
+    private final CustomerRepository customerJpaRepository;
     private final CouponJpaRepositoryVerify couponRepository;
     private final CustomerReceiptRepository receiptRepository;
     private final CustomerCouponJpaRepositoryVerify customerCouponJpaRepositoryVerify;
+    private final CustomerSyncProducer customerSyncProducer;
 
     public void signup (CustomerSignupReq dto) {
         customerRepository.saveNewCustomer(dto.toEntity());
@@ -134,5 +139,28 @@ public class CustomerService {
     public void useCoupon(Integer customerCouponId) {
         CustomerCoupon customerCoupon = customerCouponJpaRepositoryVerify.findById(customerCouponId);
         customerCoupon.useCoupon(LocalDateTime.now().toLocalDate());
+    }
+
+    /**
+     * 전체 Customer 정보를 Kafka로 동기화
+     * 직영점 서버 시작 시 또는 필요 시 호출
+     */
+    public void syncAllCustomersToKafka() {
+
+        List<Customer> customers = customerJpaRepository.findAll();
+
+        List<CustomerSyncEvent> events = customers.stream()
+                .map(customer -> CustomerSyncEvent.builder()
+                        .id(customer.getId())
+                        .name(customer.getName())
+                        .phone(customer.getPhone())
+                        .birthDate(customer.getBirthDate())
+                        .createdAt(customer.getCreatedAt())
+                        .updatedAt(customer.getUpdatedAt())
+                        .build())
+                .collect(Collectors.toList());
+
+        customerSyncProducer.sendBulkCustomerSync(events);
+
     }
 }

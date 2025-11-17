@@ -2,8 +2,8 @@ package com.example.apiauth.usecase.service;
 
 import MeshX.common.UseCase;
 import com.example.apiauth.adapter.in.web.dto.LoginResDto;
-import com.example.apiauth.adapter.out.external.geocoding.dto.GeocodeDto;
-import com.example.apiauth.adapter.out.security.JwtTokenProvider;
+import com.example.apiauth.adapter.out.geocoding.dto.GeocodeDto;
+import com.example.apiauth.common.security.JwtTokenProvider;
 import com.example.apiauth.common.exception.AuthException;
 import com.example.apiauth.common.exception.TokenException;
 import com.example.apiauth.domain.kafka.MemberRegisterEvent;
