@@ -28,8 +28,8 @@ public class MemberQueryController {
 
     // member중 POS 제외
     @GetMapping("/member/list")
-    public ResponseEntity<BaseResponse<List<MemberListNotPosResDto>>> list() {
-        List<MemberListNotPosResDto> result = memberQueryUseCase.memberlistNotPos();
+    public ResponseEntity<BaseResponse<UserListResDto>> list() {
+        UserListResDto result = memberQueryUseCase.memberlistNotPos();
         return ResponseEntity.ok(BaseResponse.of(result));
     }
 
