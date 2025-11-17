@@ -1,5 +1,5 @@
-server:
-  port: 9000
+#server:
+#  port: 9000
 
 spring:
   application:
@@ -22,3 +22,13 @@ eureka:
       defaultZone: ${API_DISCOVERY_SERVICE}
     registerWithEureka: true
     fetchRegistry: true
+  instance:
+    prefer-ip-address: true
+    ip-address: ${POD_IP:}    # POD_IP 없으면 자동 탐색
+
+management:
+  endpoints:
+    web:
+      base-path: /api/health    # actuator의 기본 경로를 변경
+      exposure:
+        include: health,info    # 노출시킬 엔드포인트 지정

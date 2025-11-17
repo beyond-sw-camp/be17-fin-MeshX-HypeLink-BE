@@ -21,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -76,6 +78,8 @@ public class PaymentSyncService {
             log.warn("[SYNC] OrderItem이 없어서 Payment 동기화 스킵 - merchantUid: {}", event.getReceipt().getMerchantUid());
             return;
         }
+        // Store 재고 차감
+        decreaseStoreItem(receipt);
 
         // CustomerReceipt 저장 (OrderItem cascade로 함께 저장)
         receiptRepositoryVerify.save(receipt);
@@ -87,6 +91,17 @@ public class PaymentSyncService {
         log.info("[SYNC] Payments 저장 완료 - paymentId: {}", payment.getPaymentId());
 
         log.info("[SYNC] Payment 동기화 완료 - merchantUid: {}", event.getReceipt().getMerchantUid());
+    }
+
+    // Store 재고 차감
+    private void decreaseStoreItem(CustomerReceipt receipt) {
+        receipt.getOrderItems().forEach(one -> {
+            StoreItemDetail storeItemDetail = one.getStoreItemDetail();
+
+            storeItemDetail.updateStock(-1 * one.getQuantity());
+
+            storeItemDetailRepositoryVerify.mergeItemDetail(storeItemDetail);
+        });
     }
 
     private StoreItemDetail findStoreItemDetail(Integer storeItemDetailId) {

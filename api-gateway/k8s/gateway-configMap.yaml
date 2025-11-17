@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hypelink-gateway-config
+data:
+  SSH: 'false' ## ENV 파일 내용을 적기.
+  User: dev

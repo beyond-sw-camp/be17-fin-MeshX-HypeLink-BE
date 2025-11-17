@@ -1,5 +1,5 @@
-server:
-  port: 8081
+#server:
+#  port: 8081
 
 spring:
   application:
@@ -42,9 +42,8 @@ spring:
 
 eureka:
   instance:
-    lease-renewal-interval-in-seconds: 10
-    lease-expiration-duration-in-seconds: 30
     prefer-ip-address: true
+    ip-address: ${POD_IP:}    # POD_IP 없으면 자동 탐색
   client:
     service-url:
       defaultZone: ${API_DISCOVERY_SERVICE}
@@ -85,3 +84,10 @@ feign:
       monolith-sync:  # MonolithSyncClient 전용 설정
         connectTimeout: 5000
         readTimeout: 600000  # 10분 (600초) - 대용량 동기화용
+
+management:
+  endpoints:
+    web:
+      base-path: /api/health    # actuator의 기본 경로를 변경
+      exposure:
+        include: health,info    # 노출시킬 엔드포인트 지정

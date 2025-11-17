@@ -1,5 +1,9 @@
-server:
-  port: 9090
+#server:
+#  port: 9090
+
+spring:
+  application:
+    name: api-eureka
 
 eureka:
   client:
@@ -9,6 +13,9 @@ eureka:
     fetch-registry: true
   server:
     enable-self-preservation: false
+  instance:
+    prefer-ip-address: true
+    ip-address: ${POD_IP:}    # POD_IP 없으면 자동 탐색
 
 management:
   endpoints:

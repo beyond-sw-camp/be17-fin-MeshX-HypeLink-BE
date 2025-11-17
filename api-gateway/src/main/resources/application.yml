@@ -4,6 +4,9 @@ eureka:
       defaultZone: ${API_DISCOVERY_SERVICE}
     registerWithEureka: true
     fetchRegistry: true
+  instance:
+    prefer-ip-address: true
+    ip-address: ${POD_IP:}    # POD_IP 없으면 자동 탐색
 
 jwt:
   secret-key: ${JWT_KEY}
@@ -36,8 +39,12 @@ spring:
 
   data:
     redis:
-      host: ${AUTH_REDIS_URL}
-      port: ${AUTH_REDIS_PORT}
+      cluster:
+        nodes:
+          - ${REDIS_IP_1}
+          - ${REDIS_IP_2}
+          - ${REDIS_IP_3}
+      password: ${REDIS_PASSWORD}
 
   cloud:
     gateway:
@@ -45,11 +52,13 @@ spring:
         webflux:
           routes:
             - id: API-NOTICE
-              uri: lb://API-NOTICE
+              uri: ${NOTICE_SERVICE_URI}
               order: 1
               predicates:
                 - Path=/api/notice/**
-                
+              filters:
+                - Authentication
+
             - id: websocket-monolith
               uri: ${MONOLITH_SERVICE_URI}
               order: 0
@@ -62,15 +71,15 @@ spring:
               uri: ${ITEM_SERVICE_URI}
               order: 1
               predicates:
-                - Path=/api/item/**
-                - Path=/api/category/**
-                - Path=/api/color/**
-                - Path=/api/size/**
-            - id: api-monolith
-              uri: ${MONOLITH_SERVICE_URI}
-              order: 2
+                - Path=/api/item/**, /api/category/**, /api/color/**, /api/size/**
+              filters:
+                - Authentication
+
+            - id: api-direct
+              uri: ${DIRECT_SERVICE_URI}
+              order: 1
               predicates:
-                - Path=/api/**
+                - Path=/api/customer/**, /api/payments/**, /api/direct/store/**
               filters:
                 - Authentication
 
@@ -83,10 +92,10 @@ spring:
             #                - StripPrefix=1     # ?? 1
             #                - RewritePath=/user/(?<remaining>.*), /${remaining} # ?? 2
 
-            - id: api-direct
-              uri: ${DIRECT_SERVICE_URI}
-              order: 1
+            - id: api-monolith
+              uri: ${MONOLITH_SERVICE_URI}
+              order: 2
               predicates:
-                - Path=/api/customer/**, /api/payments/**, /api/direct/store/**
+                - Path=/api/**
               filters:
                 - Authentication

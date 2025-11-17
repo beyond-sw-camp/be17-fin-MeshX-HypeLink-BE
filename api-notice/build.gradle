@@ -25,5 +25,7 @@ dependencies {
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    // actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 }
 

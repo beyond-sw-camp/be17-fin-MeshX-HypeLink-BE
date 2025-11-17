@@ -1,5 +1,5 @@
-server:
-  port: 8079
+#server:
+#  port: 8079
 
 spring:
   application:
@@ -17,9 +17,12 @@ spring:
 
   data:
     redis:
-      host: ${REDIS_URL}
-      port: ${REDIS_PORT}
-
+      cluster:
+        nodes:
+          - ${REDIS_IP_1}
+          - ${REDIS_IP_2}
+          - ${REDIS_IP_3}
+      password: ${REDIS_PASSWORD}
   cloud:
     aws:
       s3:
@@ -114,6 +117,9 @@ eureka:
       defaultZone: ${API_DISCOVERY_SERVICE}
     registerWithEureka: true
     fetchRegistry: true
+  instance:
+    prefer-ip-address: true
+    ip-address: ${POD_IP:}    # POD_IP 없으면 자동 탐색
 
 kafka:
   topic:
@@ -137,3 +143,7 @@ redisson:
       - ${REDIS_IP_2}
       - ${REDIS_IP_3}
   password: ${REDIS_PASSWORD}
+
+store:
+  direct:
+    uri: ${DIRECT_STORE_URI}

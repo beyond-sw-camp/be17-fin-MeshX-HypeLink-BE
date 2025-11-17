@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: spring-monolith-deployment-green
+  name: spring-notice-deployment-green
   namespace: hypelink
   annotations: {}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      type: monolith
+      type: notice
       ver: green
   strategy:
     type: RollingUpdate
@@ -18,12 +18,12 @@ spec:
   template:
     metadata:
       labels:
-        type: monolith
+        type: notice
         ver: green
     spec:
       containers:
         - name: container
-          image: raccoon98/hypelink-api-monolith:latest
+          image: raccoon98/hypelink-api-notice:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -36,7 +36,7 @@ spec:
                   fieldPath: status.podIP
           envFrom:
             - configMapRef:
-                name: hypelink-monolith-config
+                name: hypelink-notice-config
           resources:
             limits:
               cpu: "500m"
@@ -56,7 +56,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: /api/health/test
+              path: /api/health/info
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 10

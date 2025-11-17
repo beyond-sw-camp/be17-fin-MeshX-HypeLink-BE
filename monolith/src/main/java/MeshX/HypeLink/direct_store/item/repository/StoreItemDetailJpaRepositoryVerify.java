@@ -54,6 +54,10 @@ public class StoreItemDetailJpaRepositoryVerify extends AbstractBatchSaveReposit
         throw new BaseException(null);
     }
 
+    public void mergeItemDetail(StoreItemDetail storeItemDetail) {
+        repository.save(storeItemDetail);
+    }
+
     public StoreItemDetail findByStoreItemAndItemDetailCodeWithLock(StoreItem item, String itemDetailCode) {
         Optional<StoreItemDetail> optional = repository.findByItemAndItemDetailCodeForUpdateWithLock(
                 item, itemDetailCode);

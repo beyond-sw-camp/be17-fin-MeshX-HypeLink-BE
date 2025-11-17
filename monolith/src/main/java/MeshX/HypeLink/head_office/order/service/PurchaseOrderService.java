@@ -28,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,6 +52,8 @@ import static MeshX.HypeLink.head_office.order.exception.PurchaseOrderExceptionM
 @RequiredArgsConstructor
 public class PurchaseOrderService {
     private static final int MAX_RETRY = 3;
+    @Value("${store.direct.uri}")
+    private String directServerUri;
 
     private final KafkaPurchaseService kafkaPurchaseService;
     private final RedisRaceConditionService redisRaceConditionService;
@@ -108,7 +111,7 @@ public class PurchaseOrderService {
         // --- HTTP GET 호출 ---
         WebClient webClient = WebClient.builder()
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + at)
-                .baseUrl("http://localhost:8080") // 실제 서버 주소로 변경
+                .baseUrl(directServerUri) // 실제 서버 주소로 변경
                 .build();
 
         BaseResponse<ItemDetailUpdateDto> response = webClient.get()
@@ -190,7 +193,7 @@ public class PurchaseOrderService {
     @Transactional
     public PurchaseOrderInfoDetailRes update(PurchaseOrderUpdateReq dto) {
         PurchaseOrder purchaseOrder = orderRepository.findById(dto.getOrderId());
-        redisRaceConditionService.increaseHeadItemDetailStock(purchaseOrder);
+        processOrderUpdate(dto);
 
         PurchaseOrderState state = PurchaseOrderState.valueOf(dto.getOrderState());
         purchaseOrder.updateOrderState(state);
@@ -228,14 +231,15 @@ public class PurchaseOrderService {
         Member headMember = memberRepository.findByEmail("hq@company.com");
         PurchaseOrderState state = PurchaseOrderState.valueOf(dto.getOrderState());
 
-        if(state.equals(PurchaseOrderState.COMPLETED)) {
+        if(state.equals(PurchaseOrderState.COMPLETED) && purchaseOrder.getPurchaseOrderState().equals(PurchaseOrderState.REQUESTED)) {
             if(purchaseOrder.getRequester().equals(headMember)) {
-                ItemDetail itemDetail = itemDetailRepository.findByIdWithLock(purchaseOrder.getItemDetail().getId());
-                itemDetail.updateStock(purchaseOrder.getQuantity());
-                if(itemDetail.getStock() < 0) {
-                    throw new PurchaseOrderException(UNDER_ZERO);
-                }
-                itemDetailRepository.merge(itemDetail);
+                ItemDetail itemDetail = itemDetailRepository.findById(purchaseOrder.getItemDetail().getId());
+//                itemDetail.updateStock(purchaseOrder.getQuantity());
+//                if(itemDetail.getStock() < 0) {
+//                    throw new PurchaseOrderException(UNDER_ZERO);
+//                }
+//                itemDetailRepository.merge(itemDetail);
+                redisRaceConditionService.increaseHeadItemDetailStock(purchaseOrder);
                 kafkaPurchaseService.syncItemDetailStock(itemDetail, purchaseOrder.getQuantity());
             } else {
                 Store store = storeRepository.findByMember(purchaseOrder.getRequester());
@@ -244,10 +248,13 @@ public class PurchaseOrderService {
                 String itemDetailCode = purchaseOrder.getItemDetail().getItemDetailCode();
                 Integer quantity = purchaseOrder.getQuantity();
 
-//                updateStoreItemStock(store, itemCode, itemDetailCode, quantity); // HTTP 통신 대신 Kafka에 적용
+                updateStoreItemStock(store, itemCode, itemDetailCode, quantity);
                 kafkaPurchaseService.syncDirectItemDetailStock(store, itemDetailId, quantity);
             }
         } else {
+            if(purchaseOrder.getPurchaseOrderState().equals(PurchaseOrderState.COMPLETED)) {
+                return PurchaseOrderInfoDetailRes.toDto(purchaseOrder);
+            }
             purchaseOrder.updateOrderDetailStatus(PurchaseDetailStatus.OTHER_CANCELLATION);
         }
 
@@ -262,7 +269,7 @@ public class PurchaseOrderService {
 
         // --- HTTP Patch 호출 ---
         WebClient webClient = WebClient.builder()
-                .baseUrl("http://localhost:8080") // 실제 서버 주소로 변경
+                .baseUrl(directServerUri) // 실제 서버 주소로 변경
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + at)
                 .build();
 
