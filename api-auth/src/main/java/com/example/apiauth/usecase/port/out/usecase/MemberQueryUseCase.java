@@ -13,7 +13,7 @@ public interface MemberQueryUseCase {
     Integer getDriverIdByEmail(String email);
 
 
-    List<MemberListNotPosResDto> memberlistNotPos();
+    UserListResDto memberlistNotPos();
 
     List<DriverListResDto> dirverList();
 
