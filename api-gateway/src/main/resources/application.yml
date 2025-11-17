@@ -33,6 +33,22 @@ management:
       exposure:
         include: health,info    # 노출시킬 엔드포인트 지정
 
+springdoc:
+  swagger-ui:
+    disable-swagger-default-url: true
+    urls:
+      - name: auth
+        url: /api/swagger/auth/v3/api-docs
+      - name: item
+        url: /api/swagger/item/v3/api-docs
+      - name: notice
+        url: /api/swagger/notice/v3/api-docs
+      - name: direct
+        url: /api/swagger/direct/v3/api-docs
+      - name: monolith
+        url: /api/swagger/monolith/v3/api-docs
+    urls-primary-name: auth
+
 spring:
   application:
     name: api-gateway
@@ -51,6 +67,29 @@ spring:
       server:
         webflux:
           routes:
+            # Swagger UI resources
+            - id: swagger-ui
+              uri: no://op
+              predicates:
+              - Path=/api/swagger-ui/**
+              filters:
+              - RewritePath=/api/swagger-ui/?(?<segment>.*), /swagger-ui/${segment}
+
+            # Swagger docs
+            - id: swagger-monolith
+              uri: ${MONOLITH_SERVICE_URI}
+              predicates:
+              - Path=/api/swagger/monolith/**
+              filters:
+              - RewritePath=/api/swagger/monolith/?(?<segment>.*), /api/${segment}
+
+            - id: swagger-item
+              uri: ${ITEM_SERVICE_URI}
+              predicates:
+                - Path=/api/swagger/item/**
+              filters:
+                - RewritePath=/api/swagger/item/?(?<segment>.*), /api/${segment}
+
             - id: API-NOTICE
               uri: ${NOTICE_SERVICE_URI}
               order: 1
@@ -89,8 +128,6 @@ spring:
                 - Path=/api/auth/**, /api/member/**
               filters:
                 - Authentication
-            #                - StripPrefix=1     # ?? 1
-            #                - RewritePath=/user/(?<remaining>.*), /${remaining} # ?? 2
 
             - id: api-monolith
               uri: ${MONOLITH_SERVICE_URI}
