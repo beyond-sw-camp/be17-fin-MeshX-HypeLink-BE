@@ -21,7 +21,6 @@ spec:
         type: gateway
         ver: green
     spec:
-      hostname: hypelink-gateway-svc
       containers:
         - name: container
           image: raccoon98/hypelink-api-gateway:latest
@@ -29,6 +28,12 @@ spec:
           ports:
             - containerPort: 8080
               protocol: TCP
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
           envFrom:
             - configMapRef:
                 name: hypelink-gateway-config

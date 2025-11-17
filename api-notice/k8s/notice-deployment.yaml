@@ -21,7 +21,6 @@ spec:
         type: notice
         ver: green
     spec:
-      hostname: hypelink-notice-svc
       containers:
         - name: container
           image: raccoon98/hypelink-api-notice:latest
@@ -29,6 +28,12 @@ spec:
           ports:
             - containerPort: 8080
               protocol: TCP
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
           envFrom:
             - configMapRef:
                 name: hypelink-notice-config

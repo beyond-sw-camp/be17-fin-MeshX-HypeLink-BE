@@ -1,6 +1,8 @@
 package com.example.apigateway.auth;
 
 import com.example.apigateway.config.JwtTokenProvider;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -10,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 
@@ -24,7 +27,8 @@ public class AuthenticationGatewayFilterFactory extends AbstractGatewayFilterFac
     public AuthenticationGatewayFilterFactory(
             JwtTokenProvider jwtTokenProvider,
             ReactiveRedisTemplate<String, String> redisTemplate,
-            AuthServiceClient authServiceClient) {
+            AuthServiceClient authServiceClient
+    ) {
         super(Config.class);
         this.jwtTokenProvider = jwtTokenProvider;
         this.redisTemplate = redisTemplate;
@@ -34,6 +38,7 @@ public class AuthenticationGatewayFilterFactory extends AbstractGatewayFilterFac
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
+
             String path = exchange.getRequest().getPath().value();
             log.info("path : {}", path);
 
@@ -54,50 +59,61 @@ public class AuthenticationGatewayFilterFactory extends AbstractGatewayFilterFac
                 return chain.filter(exchange);
             }
 
-            // 3. JWT 토큰 추출
+            // 4. JWT 토큰 추출
             String token = extractToken(exchange.getRequest());
             if (token == null) {
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 return exchange.getResponse().setComplete();
             }
 
-            // 4. JWT 검증
-            if (!jwtTokenProvider.validateToken(token)) {
-                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                return exchange.getResponse().setComplete();
-            }
+            // === 여기부터 전부 "비동기 + 이벤트루프 offload" ===
+            return parseJwtAsync(token)               // [boundedElastic]에서 JWT 검증 + 이메일/롤 추출
+                    .flatMap(payload ->               // JWT 정상
+                            isTokenBlacklisted(token) // Redis로 블랙리스트 확인 (비동기)
+                                    .flatMap(isBlacklisted -> {
+                                        if (isBlacklisted) {
+                                            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                                            return exchange.getResponse().setComplete();
+                                        }
 
-            // 5. 블랙리스트 체크
-            return isTokenBlacklisted(token)
-                    .flatMap(isBlacklisted -> {
-                        if (isBlacklisted) {
-                            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                            return exchange.getResponse().setComplete();
-                        }
+                                        // email → memberId 조회 (Redis 캐시 or Auth 서비스)
+                                        return getMemberIdFromEmail(payload.getEmail())
+                                                .flatMap(memberId -> {
+                                                    // 헤더 추가
+                                                    ServerHttpRequest request = exchange.getRequest().mutate()
+                                                            .header("Member-Id", memberId.toString())
+                                                            .header("Member-Email", payload.getEmail())
+                                                            .header("Member-Role", payload.getRole())
+                                                            .build();
 
-                        // 6. JWT에서 email, role 추출
-                        String email = jwtTokenProvider.getEmailFromToken(token);
-                        String role = jwtTokenProvider.getRoleFromToken(token);
-
-                        // 7. Redis 캐시 or Feign으로 memberId 조회
-                        return getMemberIdFromEmail(email)
-                                .flatMap(memberId -> {
-                                    // 8. 헤더 추가
-                                    ServerHttpRequest request = exchange.getRequest().mutate()
-                                            .header("Member-Id", memberId.toString())
-                                            .header("Member-Email", email)
-                                            .header("Member-Role", role)
-                                            .build();
-
-                                    return chain.filter(exchange.mutate().request(request).build());
-                                });
-                    })
+                                                    return chain.filter(exchange.mutate().request(request).build());
+                                                });
+                                    })
+                    )
                     .onErrorResume(e -> {
+                        log.error("Authentication filter error", e);
                         exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
                         return exchange.getResponse().setComplete();
                     });
         };
+    }
 
+    /**
+     * JWT 검증 + email/role 추출을 boundedElastic 스레드풀로 오프로드
+     * (Netty event-loop 블로킹 방지)
+     */
+    private Mono<JwtPayload> parseJwtAsync(String token) {
+        return Mono.fromCallable(() -> {
+                    // 여기 안은 순수 동기 코드지만 boundedElastic에서 돌아감
+                    if (!jwtTokenProvider.validateToken(token)) {
+                        throw new InvalidTokenException("Invalid JWT token");
+                    }
+
+                    String email = jwtTokenProvider.getEmailFromToken(token);
+                    String role = jwtTokenProvider.getRoleFromToken(token);
+                    return new JwtPayload(email, role);
+                })
+                .subscribeOn(Schedulers.boundedElastic()); // CPU-heavy 작업 offload
     }
 
     private Mono<Boolean> isTokenBlacklisted(String token) {
@@ -111,7 +127,7 @@ public class AuthenticationGatewayFilterFactory extends AbstractGatewayFilterFac
         String redisKey = "email:" + email;
 
         return redisTemplate.opsForValue().get(redisKey)
-                .flatMap(cachedMemberId -> Mono.just(Integer.parseInt(cachedMemberId)))
+                .flatMap(cachedMemberId -> Mono.fromCallable(() -> Integer.parseInt(cachedMemberId)))
                 .switchIfEmpty(
                         authServiceClient.getMemberIdByEmail(email)
                                 .flatMap(memberId ->
@@ -140,5 +156,17 @@ public class AuthenticationGatewayFilterFactory extends AbstractGatewayFilterFac
 
     public static class Config {
     }
-}
 
+    @Getter
+    @AllArgsConstructor
+    private static class JwtPayload {
+        private final String email;
+        private final String role;
+    }
+
+    private static class InvalidTokenException extends RuntimeException {
+        public InvalidTokenException(String message) {
+            super(message);
+        }
+    }
+}

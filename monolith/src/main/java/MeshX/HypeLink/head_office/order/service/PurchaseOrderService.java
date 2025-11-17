@@ -193,10 +193,10 @@ public class PurchaseOrderService {
     @Transactional
     public PurchaseOrderInfoDetailRes update(PurchaseOrderUpdateReq dto) {
         PurchaseOrder purchaseOrder = orderRepository.findById(dto.getOrderId());
+        processOrderUpdate(dto);
+
         PurchaseOrderState state = PurchaseOrderState.valueOf(dto.getOrderState());
         purchaseOrder.updateOrderState(state);
-
-        processOrderUpdate(dto);
 
         PurchaseOrder update = orderRepository.update(purchaseOrder);
         return PurchaseOrderInfoDetailRes.toDto(update);
@@ -233,7 +233,7 @@ public class PurchaseOrderService {
 
         if(state.equals(PurchaseOrderState.COMPLETED) && purchaseOrder.getPurchaseOrderState().equals(PurchaseOrderState.REQUESTED)) {
             if(purchaseOrder.getRequester().equals(headMember)) {
-                ItemDetail itemDetail = itemDetailRepository.findByIdWithLock(purchaseOrder.getItemDetail().getId());
+                ItemDetail itemDetail = itemDetailRepository.findById(purchaseOrder.getItemDetail().getId());
 //                itemDetail.updateStock(purchaseOrder.getQuantity());
 //                if(itemDetail.getStock() < 0) {
 //                    throw new PurchaseOrderException(UNDER_ZERO);

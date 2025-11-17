@@ -21,7 +21,6 @@ spec:
         type: monolith
         ver: green
     spec:
-      hostname: hypelink-monolith-svc
       containers:
         - name: container
           image: raccoon98/hypelink-api-monolith:latest
@@ -29,6 +28,12 @@ spec:
           ports:
             - containerPort: 8080
               protocol: TCP
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
           envFrom:
             - configMapRef:
                 name: hypelink-monolith-config

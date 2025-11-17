@@ -49,4 +49,7 @@ dependencies {
 
     // portone
     implementation 'io.portone:server-sdk:0.21.0'
+
+    // actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 }

@@ -137,9 +137,8 @@ management:
 # Eureka 설정
 eureka:
   instance:
-    lease-renewal-interval-in-seconds: 10
-    lease-expiration-duration-in-seconds: 30
     prefer-ip-address: true
+    ip-address: ${POD_IP:}    # POD_IP 없으면 자동 탐색
   client:
     service-url:
       defaultZone: ${API_DISCOVERY_SERVICE}

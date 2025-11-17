@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: spring-auth-deployment-green
+  name: spring-direct-deployment-green
   namespace: hypelink
   annotations: {}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      type: auth
+      type: direct
       ver: green
   strategy:
     type: RollingUpdate
@@ -18,20 +18,25 @@ spec:
   template:
     metadata:
       labels:
-        type: auth
+        type: direct
         ver: green
     spec:
-      hostname: hypelink-direct-svc
       containers:
         - name: container
-          image: raccoon98/hypelink-api-auth:latest
+          image: raccoon98/hypelink-api-direct:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
               protocol: TCP
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
           envFrom:
             - configMapRef:
-                name: hypelink-auth-config
+                name: hypelink-direct-config
           resources:
             limits:
               cpu: "500m"
@@ -51,7 +56,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: /api/health/test
+              path: /api/health/health
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 10

@@ -22,6 +22,9 @@ eureka:
       defaultZone: ${API_DISCOVERY_SERVICE}
     registerWithEureka: true
     fetchRegistry: true
+  instance:
+    prefer-ip-address: true
+    ip-address: ${POD_IP:}    # POD_IP 없으면 자동 탐색
 
 management:
   endpoints:

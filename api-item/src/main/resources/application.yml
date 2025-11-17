@@ -1,5 +1,5 @@
-server:
-  port: 9080
+#server:
+#  port: 9080
 
 spring:
   application:
@@ -54,6 +54,9 @@ eureka:
       defaultZone: ${API_DISCOVERY_SERVICE}
     registerWithEureka: true
     fetchRegistry: true
+  instance:
+    prefer-ip-address: true
+    ip-address: ${POD_IP:}    # POD_IP 없으면 자동 탐색
 
 feign:
   item: ${FEIGN_MONOLITH_ITEM_URL}

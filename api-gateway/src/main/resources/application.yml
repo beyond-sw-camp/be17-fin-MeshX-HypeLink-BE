@@ -4,6 +4,9 @@ eureka:
       defaultZone: ${API_DISCOVERY_SERVICE}
     registerWithEureka: true
     fetchRegistry: true
+  instance:
+    prefer-ip-address: true
+    ip-address: ${POD_IP:}    # POD_IP 없으면 자동 탐색
 
 jwt:
   secret-key: ${JWT_KEY}
@@ -53,6 +56,8 @@ spring:
               order: 1
               predicates:
                 - Path=/api/notice/**
+              filters:
+                - Authentication
                 
             - id: websocket-monolith
               uri: ${MONOLITH_SERVICE_URI}
@@ -67,12 +72,14 @@ spring:
               order: 1
               predicates:
                 - Path=/api/item/**, /api/category/**, /api/color/**, /api/size/**
+              filters:
+                - Authentication
 
-            - id: api-monolith
-              uri: ${MONOLITH_SERVICE_URI}
-              order: 2
+            - id: api-direct
+              uri: ${DIRECT_SERVICE_URI}
+              order: 1
               predicates:
-                - Path=/api/**
+                - Path=/api/customer/**, /api/payments/**, /api/store/**
               filters:
                 - Authentication
 
@@ -82,13 +89,14 @@ spring:
                 - Path=/api/auth/**, /api/member/**
               filters:
                 - Authentication
-            #                - StripPrefix=1     # ?? 1
-            #                - RewritePath=/user/(?<remaining>.*), /${remaining} # ?? 2
 
-            - id: api-direct
-              uri: ${DIRECT_SERVICE_URI}
-              order: 1
+            - id: api-monolith
+              uri: ${MONOLITH_SERVICE_URI}
+              order: 2
               predicates:
-                - Path=/api/customer/**, /api/payments/**, /api/store/**
+                - Path=/api/**
               filters:
                 - Authentication
+            #                - StripPrefix=1     # ?? 1
+
+            #                - RewritePath=/user/(?<remaining>.*), /${remaining} # ?? 2

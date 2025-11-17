@@ -1,0 +1,17 @@
+auth:
+  rootPassword: qwer1234
+  username: meshx
+  password: qwer1234
+  database: direct
+
+primary:
+  persistence:
+    enabled: true
+    size: 8Gi
+    storageClass: longhorn
+  service:
+    type: ClusterIP
+    port: 3306
+
+secondary:
+  replicaCount: 0
