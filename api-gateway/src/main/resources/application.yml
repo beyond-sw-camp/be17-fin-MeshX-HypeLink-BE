@@ -79,7 +79,7 @@ spring:
               uri: ${DIRECT_SERVICE_URI}
               order: 1
               predicates:
-                - Path=/api/customer/**, /api/payments/**, /api/store/**
+                - Path=/api/customer/**, /api/payments/**, /api/direct/store/**
               filters:
                 - Authentication
 
