@@ -91,21 +91,21 @@ spring:
                 - RewritePath=/api/swagger/item/?(?<segment>.*), /api/${segment}
 
             - id: swagger-auth
-              uri: ${ITEM_SERVICE_URI}
+              uri: ${AUTH_SERVICE_URI}
               predicates:
                 - Path=/api/swagger/auth/**
               filters:
                 - RewritePath=/api/swagger/auth/?(?<segment>.*), /api/${segment}
 
             - id: swagger-notice
-              uri: ${ITEM_SERVICE_URI}
+              uri: ${NOTICE_SERVICE_URI}
               predicates:
                 - Path=/api/swagger/notice/**
               filters:
                 - RewritePath=/api/swagger/notice/?(?<segment>.*), /api/${segment}
 
             - id: swagger-direct
-              uri: ${ITEM_SERVICE_URI}
+              uri: ${DIRECT_SERVICE_URI}
               predicates:
                 - Path=/api/swagger/direct/**
               filters:
