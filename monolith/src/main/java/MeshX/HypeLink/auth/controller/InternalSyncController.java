@@ -74,6 +74,7 @@ public class InternalSyncController {
         // 비동기로 실행하여 즉시 응답 반환
         java.util.concurrent.CompletableFuture.runAsync(() -> {
             try {
+
                 itemSyncService.syncAllItemsForNewStore(storeId);
             } catch (Exception e) {
                 log.error("Failed to sync items for store ID: {}", storeId, e);
