@@ -1,4 +1,4 @@
-package com.example.apinotice.constants;
+package com.example.apinotice.notice.constants;
 
 public class NoticeSwaggerConstants {
     // Notice Create API Examples

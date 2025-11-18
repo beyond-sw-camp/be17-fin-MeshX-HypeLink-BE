@@ -3,7 +3,7 @@ package com.example.apinotice.notice.adaptor.in;
 import MeshX.common.BaseResponse;
 import MeshX.common.Page.PageRes;
 import MeshX.common.WebAdapter;
-import com.example.apinotice.constants.NoticeSwaggerConstants;
+import com.example.apinotice.notice.constants.NoticeSwaggerConstants;
 import com.example.apinotice.notice.usecase.port.in.WebPort;
 import com.example.apinotice.notice.usecase.port.in.request.NoticeSaveCommand;
 import com.example.apinotice.notice.usecase.port.in.request.NoticeUpdateCommand;
