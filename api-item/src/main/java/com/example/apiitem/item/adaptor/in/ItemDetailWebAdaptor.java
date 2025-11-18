@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @WebAdapter
 @RequestMapping("/api/item/detail")
 @RequiredArgsConstructor
-@Tag(name = "상품 상세 관리 (본사)", description = "본사의 상품 상세 (색상/사이즈 조합) 관리 API")
+@Tag(name = "상품 상세 관리", description = "본사의 상품 상세 (색상/사이즈 조합) 관리 API")
 public class ItemDetailWebAdaptor {
     private final ItemDetailWebPort itemDetailWebPort;
 

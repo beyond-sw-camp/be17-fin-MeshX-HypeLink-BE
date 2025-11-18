@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @WebAdapter
 @RequestMapping("/api/color")
 @RequiredArgsConstructor
-@Tag(name = "색상 조회 (본사)", description = "의류 색상 목록 조회 API")
+@Tag(name = "색상 조회", description = "의류 색상 목록 조회 API")
 public class ColorWebAdaptor {
     private final ColorWebPort colorWebPort;
 

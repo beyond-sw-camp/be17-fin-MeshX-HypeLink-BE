@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @WebAdapter
 @RequestMapping("/api/size")
 @RequiredArgsConstructor
-@Tag(name = "사이즈 조회 (본사)", description = "의류 사이즈 목록 조회 API")
+@Tag(name = "사이즈 조회", description = "의류 사이즈 목록 조회 API")
 public class SizeWebAdaptor {
     private final SizeWebPort sizeWebPort;
 

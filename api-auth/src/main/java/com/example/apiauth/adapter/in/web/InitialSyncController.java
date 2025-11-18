@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Tag(name = "초기 동기화", description = "데이터베이스 간 초기 동기화 관리 API")
+@Tag(name = "동기화", description = "데이터베이스 간 초기 동기화 관리 API")
 @Slf4j
 @WebAdapter
 @RestController

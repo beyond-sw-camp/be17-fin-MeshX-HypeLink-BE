@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @WebAdapter
 @RequestMapping("/api/category")
 @RequiredArgsConstructor
-@Tag(name = "카테고리 조회 (본사)", description = "의류 카테고리 목록 조회 API")
+@Tag(name = "카테고리 조회", description = "의류 카테고리 목록 조회 API")
 public class CategoryWebAdaptor {
     private final CategoryWebPort categoryWebPort;
 
