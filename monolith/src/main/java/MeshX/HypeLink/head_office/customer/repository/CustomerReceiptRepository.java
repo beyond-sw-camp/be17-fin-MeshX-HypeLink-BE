@@ -18,4 +18,7 @@ public interface CustomerReceiptRepository extends JpaRepository<CustomerReceipt
 
     @Query("SELECT cr FROM CustomerReceipt cr WHERE cr.store.id = :storeId ORDER BY cr.paidAt DESC")
     Page<CustomerReceipt> findByStoreIdOrderByPaidAtDesc(@Param("storeId") Integer storeId, Pageable pageable);
+
+    @Query("SELECT cr FROM CustomerReceipt cr ORDER BY cr.id ASC")
+    Page<CustomerReceipt> findAllByPage(Pageable pageable);
 }
