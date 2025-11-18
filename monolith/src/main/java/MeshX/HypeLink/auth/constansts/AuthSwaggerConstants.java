@@ -210,4 +210,81 @@ public class AuthSwaggerConstants {
               ]
             }
             """;
+
+    // InternalSyncController Examples
+    public static final String MEMBER_SYNC_LIST_RES_EXAMPLE = """
+            [
+              {
+                "memberId": 1,
+                "email": "user1@example.com",
+                "name": "User One",
+                "role": "USER",
+                "phone": "010-1234-5678"
+              },
+              {
+                "memberId": 2,
+                "email": "user2@example.com",
+                "name": "User Two",
+                "role": "MANAGER",
+                "phone": "010-2345-6789"
+              }
+            ]
+            """;
+
+    public static final String STORE_SYNC_LIST_RES_EXAMPLE = """
+            [
+              {
+                "storeId": 1,
+                "storeName": "Store A",
+                "address": "Seoul",
+                "phone": "02-1111-2222",
+                "ownerName": "Owner A"
+              },
+              {
+                "storeId": 2,
+                "storeName": "Store B",
+                "address": "Busan",
+                "phone": "051-3333-4444",
+                "ownerName": "Owner B"
+              }
+            ]
+            """;
+
+    public static final String POS_SYNC_LIST_RES_EXAMPLE = """
+            [
+              {
+                "posId": 101,
+                "posName": "POS A-1",
+                "storeId": 1
+              },
+              {
+                "posId": 102,
+                "posName": "POS A-2",
+                "storeId": 1
+              }
+            ]
+            """;
+
+    public static final String DRIVER_SYNC_LIST_RES_EXAMPLE = """
+            [
+              {
+                "driverId": 1,
+                "name": "Driver One",
+                "phone": "010-1111-2222",
+                "vehicleNumber": "12가3456"
+              },
+              {
+                "driverId": 2,
+                "name": "Driver Two",
+                "phone": "010-3333-4444",
+                "vehicleNumber": "78나9012"
+              }
+            ]
+            """;
+
+    public static final String SYNC_SUCCESS_RES_EXAMPLE = """
+            {
+              "message": "Successfully synced all items to store"
+            }
+            """;
 }
