@@ -56,7 +56,7 @@ public class CustomerJpaRepositoryVerify {
     }
 
     public Customer findByPhoneWithAvailableCoupons(String phone) {
-        return repository.findByPhoneWithAvailableCoupons(phone)
+        return repository.findByPhoneWithCoupons(phone)
                 .orElseThrow(() -> new CustomerException(NOT_FOUNT));
     }
 
