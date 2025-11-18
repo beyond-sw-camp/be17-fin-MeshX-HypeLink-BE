@@ -7,7 +7,6 @@ import com.example.apidirect.auth.adapter.out.external.dto.PosSyncDto;
 import com.example.apidirect.auth.adapter.out.external.dto.StoreSyncDto;
 import com.example.apidirect.auth.adapter.out.persistence.POSRepository;
 import com.example.apidirect.auth.adapter.out.persistence.StoreRepository;
-import com.example.apidirect.payment.service.CustomerReceiptSyncService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -26,7 +24,6 @@ public class InitialSyncService {
     private final MonolithSyncClient monolithSyncClient;
     private final StoreRepository storeRepository;
     private final POSRepository posRepository;
-    private final CustomerReceiptSyncService customerReceiptSyncService;
     private final SyncStatusService syncStatusService;
 
     // ✅ Self-injection: 프록시를 통해 @Transactional 적용하기 위함
@@ -63,10 +60,6 @@ public class InitialSyncService {
             log.error("[SYNC] Store items synchronization failed", e);
             syncResults.put("storeItems", 0);
         }
-
-        // 영수증 동기화는 비동기로 실행 (즉시 리턴)
-        self.syncReceipts();
-        syncResults.put("receipts", -1); // -1 = 비동기로 실행 중
 
         // ✅ Store와 POS가 성공했으면 동기화 완료로 표시
         if (syncResults.get("stores") > 0 && syncResults.get("pos") > 0) {
@@ -145,18 +138,6 @@ public class InitialSyncService {
 
         log.info("[SYNC] Successfully synced items for {} stores", totalStoresSynced);
         return totalStoresSynced;
-    }
-
-    public void syncReceipts() {
-        log.info("[SYNC] Starting customer receipts sync (async)...");
-        // 비동기로 실행하여 즉시 응답 반환
-        CompletableFuture.runAsync(() -> {
-            try {
-                customerReceiptSyncService.syncAllReceipts();
-            } catch (Exception e) {
-                log.error("[SYNC] Failed to sync customer receipts", e);
-            }
-        });
     }
 
     public boolean isAlreadySynced() {

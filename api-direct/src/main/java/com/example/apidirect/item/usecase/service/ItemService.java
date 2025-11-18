@@ -146,7 +146,6 @@ public class ItemService implements ItemQueryPort, ItemCommandPort {
                     .category(itemReq.getCategory())
                     .build();
 
-
             StoreItem savedItem = itemPersistencePort.save(storeItem);
 
             // 2. StoreItemDetail upsert
