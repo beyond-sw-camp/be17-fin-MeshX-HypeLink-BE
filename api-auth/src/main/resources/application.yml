@@ -1,5 +1,5 @@
-#server:
-#  port: 8888
+server:
+  port: 8888
 
 spring:
   application:
@@ -154,3 +154,9 @@ naver:
 # Monolith 서비스 URL
 monolith:
   url: ${MONOLITH_URL}
+
+springdoc:
+  api-docs:
+    path: /api/v3/api-docs
+  swagger-ui:
+    enabled: false
