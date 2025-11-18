@@ -602,35 +602,53 @@ def generate_purchase_orders():
 
 def generate_shipments():
     sql = "-- ============================================\n"
-    sql += "-- 택배 + 배송 + 택배 아이템\n"
+    sql += "-- 택배 + 배송 + 택배 아이템 (미배정/할당 구분)\n"
     sql += "-- ============================================\n"
 
-    # 택배 80개 (먼저 생성)
+    # 택배 100개 (충분한 데이터)
+    parcel_count = 100
     sql += "INSERT INTO parcel (id, tracking_number, requester_id, supplier_id, created_at, updated_at) VALUES\n"
     parcel_values = []
-    for i in range(1, 81):
+    for i in range(1, parcel_count + 1):
         tracking_number = f"TRK-{random.randint(100000, 999999)}"
         requester_id = random.randint(3, 22)  # 지점장 또는 본사 멤버
         supplier_id = random.choice([1, 2])  # 본사 관리자
         parcel_values.append(f"({i}, '{tracking_number}', {requester_id}, {supplier_id}, NOW(), NOW())")
     sql += ",\n".join(parcel_values) + ";\n\n"
 
-    # 배송 80개 (parcel_id 참조)
+    # 배송 100개 (parcel_id 참조)
+    # 30개는 미배정 (driver_id = NULL, status = PREPARING)
+    # 40개는 할당됨 (status = DRIVER_ASSIGNED or IN_PROGRESS)
+    # 30개는 완료/지연/취소 (나머지 상태)
     sql += "INSERT INTO shipment (id, parcel_id, driver_id, shipment_status, created_at, updated_at) VALUES\n"
     shipment_values = []
-    for i in range(1, 81):
+
+    for i in range(1, parcel_count + 1):
         parcel_id = i  # 1:1 관계
-        driver_id = random.randint(1, 10)
-        shipment_status = random.choice(SHIPMENT_STATUSES)
+
+        if i <= 30:
+            # 첫 30개: 미배정 택배 (driver = NULL, status = PREPARING)
+            driver_id = "NULL"
+            shipment_status = "PREPARING"
+        elif i <= 70:
+            # 다음 40개: 할당된 택배 (status = DRIVER_ASSIGNED or IN_PROGRESS)
+            driver_id = random.randint(1, 10)
+            shipment_status = random.choice(["DRIVER_ASSIGNED", "IN_PROGRESS"])
+        else:
+            # 나머지 30개: 완료/지연/취소 상태
+            driver_id = random.randint(1, 10)
+            shipment_status = random.choice(["COMPLETED", "DELAYED", "CANCELLED"])
+
         shipment_values.append(f"({i}, {parcel_id}, {driver_id}, '{shipment_status}', NOW(), NOW())")
+
     sql += ",\n".join(shipment_values) + ";\n\n"
 
-    # 택배 아이템 80개 (purchase_order_id는 OneToOne 관계이므로 중복 불가)
+    # 택배 아이템 100개 (purchase_order_id는 OneToOne 관계이므로 중복 불가)
     sql += "INSERT INTO parcel_item (id, purchase_order_id, parcel_id, created_at, updated_at) VALUES\n"
     parcel_item_values = []
     used_purchase_orders = set()
-    for i in range(1, 81):
-        parcel_id = random.randint(1, 80)
+    for i in range(1, parcel_count + 1):
+        parcel_id = i
         # 중복되지 않는 purchase_order_id 선택
         purchase_order_id = random.randint(1, 100)
         while purchase_order_id in used_purchase_orders:
@@ -749,13 +767,16 @@ def main():
         print("[11/13] Generating chat messages...")
         f.write(generate_chat_messages())
 
-        print("[12/13] Generating purchase orders...")
+        print("[12/14] Generating purchase orders...")
         f.write(generate_purchase_orders())
 
-        print("[13/13] Generating receipts, payments, order items (~10000)...")
+        print("[13/14] Generating shipments (parcels, deliveries)...")
+        f.write(generate_shipments())
+
+        print("[14/14] Generating receipts, payments, order items (~10000)...")
         f.write(generate_receipts_and_payments())
 
-        print("[14/13] Finalizing...")
+        print("[15/14] Finalizing...")
         f.write(generate_footer())
 
     print("\n=== COMPLETE! ===")
@@ -766,6 +787,7 @@ def main():
     print("   - Items: 50, ItemDetails: 300")
     print("   - StoreItems: 50, StoreItemDetails: 300")
     print("   - Receipts: ~10000 (9800-10200), Payments: ~7000, OrderItems: ~20000")
+    print("   - Shipments: 100 (Unassigned: 30, Assigned: 40, Completed/etc: 30)")
     print("   - Coupons: 20, CustomerCoupons: 200")
     print("   - Notices: 30, Promotions: 20")
     print("   - AS Requests: 50, AS Comments: 100")
