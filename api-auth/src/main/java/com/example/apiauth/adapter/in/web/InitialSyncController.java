@@ -5,6 +5,12 @@ import com.example.apiauth.adapter.in.web.dto.SyncStatusResDto;
 import com.example.apiauth.adapter.out.persistence.SyncStatusRepository;
 import com.example.apiauth.adapter.out.persistence.entity.SyncStatusEntity;
 import com.example.apiauth.usecase.InitialSyncService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Tag(name = "초기 동기화", description = "데이터베이스 간 초기 동기화 관리 API")
 @Slf4j
 @WebAdapter
 @RestController
@@ -27,6 +34,11 @@ public class InitialSyncController {
     /**
      * 동기화 상태 조회
      */
+    @Operation(summary = "동기화 상태 조회", description = "모든 엔티티의 동기화 상태를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
     @GetMapping("/status")
     public ResponseEntity<Map<String, Object>> getSyncStatus() {
         log.info("Getting sync status...");
@@ -66,6 +78,12 @@ public class InitialSyncController {
     /**
      * 전체 엔티티 초기 동기화 트리거
      */
+    @Operation(summary = "전체 동기화 트리거", description = "모든 엔티티의 초기 동기화를 시작합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "동기화 성공", content = @Content),
+            @ApiResponse(responseCode = "400", description = "이미 동기화됨", content = @Content),
+            @ApiResponse(responseCode = "500", description = "동기화 실패", content = @Content)
+    })
     @PostMapping("/trigger-all")
     public ResponseEntity<Map<String, Object>> triggerSyncAll() {
         log.info("Triggering initial sync for all entities...");
@@ -98,6 +116,11 @@ public class InitialSyncController {
     /**
      * 강제 재동기화 (데이터 손실 시)
      */
+    @Operation(summary = "강제 재동기화", description = "모든 엔티티를 강제로 재동기화합니다. (데이터 손실 시 사용)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "동기화 성공", content = @Content),
+            @ApiResponse(responseCode = "500", description = "동기화 실패", content = @Content)
+    })
     @PostMapping("/force-sync-all")
     public ResponseEntity<Map<String, Object>> forceSyncAll() {
         log.warn("Force syncing all entities...");
@@ -125,6 +148,11 @@ public class InitialSyncController {
     /**
      * Member만 동기화
      */
+    @Operation(summary = "회원 동기화", description = "회원 데이터만 동기화합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "동기화 성공", content = @Content),
+            @ApiResponse(responseCode = "500", description = "동기화 실패", content = @Content)
+    })
     @PostMapping("/members")
     public ResponseEntity<Map<String, Object>> syncMembers() {
         log.info("Syncing members only...");
@@ -148,6 +176,11 @@ public class InitialSyncController {
     /**
      * Store만 동기화
      */
+    @Operation(summary = "매장 동기화", description = "매장 데이터만 동기화합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "동기화 성공", content = @Content),
+            @ApiResponse(responseCode = "500", description = "동기화 실패", content = @Content)
+    })
     @PostMapping("/stores")
     public ResponseEntity<Map<String, Object>> syncStores() {
         log.info("Syncing stores only...");
@@ -171,6 +204,11 @@ public class InitialSyncController {
     /**
      * POS만 동기화
      */
+    @Operation(summary = "POS 동기화", description = "POS 데이터만 동기화합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "동기화 성공", content = @Content),
+            @ApiResponse(responseCode = "500", description = "동기화 실패", content = @Content)
+    })
     @PostMapping("/pos")
     public ResponseEntity<Map<String, Object>> syncPos() {
         log.info("Syncing POS only...");
@@ -194,6 +232,11 @@ public class InitialSyncController {
     /**
      * Driver만 동기화
      */
+    @Operation(summary = "드라이버 동기화", description = "드라이버 데이터만 동기화합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "동기화 성공", content = @Content),
+            @ApiResponse(responseCode = "500", description = "동기화 실패", content = @Content)
+    })
     @PostMapping("/drivers")
     public ResponseEntity<Map<String, Object>> syncDrivers() {
         log.info("Syncing drivers only...");
