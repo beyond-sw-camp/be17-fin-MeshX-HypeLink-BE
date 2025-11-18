@@ -177,7 +177,7 @@ public class ItemSyncService {
 
         try {
             webClient.post()
-                    .uri(storeUrl + "/api/store/item/create/all")
+                    .uri(storeUrl + "/api/direct/store/item/create/all")
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(payload)
                     .retrieve()
