@@ -23,31 +23,25 @@ public class CustomerReceiptSyncService {
     private final CustomerReceiptSyncProducer customerReceiptSyncProducer;
 
     /**
-     * 서버 시작 시 전체 영수증 데이터를 Direct로 동기화 (최초 1회)
+     * 전체 영수증 데이터를 Direct로 동기화
      */
-    @EventListener(ApplicationReadyEvent.class)
     @Transactional(readOnly = true)
-    public void syncAllReceiptsOnStartup() {
-        try {
-            log.info("[SYNC] 모놀리스 서버 시작 - 전체 영수증 동기화 시작");
+    public void syncAllReceipts() {
+        log.info("[SYNC] 전체 영수증 조회 시작");
 
-            List<CustomerReceipt> receipts = customerReceiptRepository.findAll();
+        List<CustomerReceipt> receipts = customerReceiptRepository.findAll();
 
-            if (receipts.isEmpty()) {
-                log.info("[SYNC] 동기화할 영수증이 없습니다.");
-                return;
-            }
-
-            List<CustomerReceiptSyncEvent> events = receipts.stream()
-                    .map(CustomerReceiptSyncEvent::from)
-                    .collect(Collectors.toList());
-
-            customerReceiptSyncProducer.sendBulkReceiptSync(events);
-
-            log.info("[SYNC] 전체 영수증 동기화 완료 - count: {}", events.size());
-
-        } catch (Exception e) {
-            log.error("[SYNC] 전체 영수증 동기화 실패 - error: {}", e.getMessage(), e);
+        if (receipts.isEmpty()) {
+            log.info("[SYNC] 동기화할 영수증이 없습니다.");
+            return;
         }
+
+        List<CustomerReceiptSyncEvent> events = receipts.stream()
+                .map(CustomerReceiptSyncEvent::from)
+                .collect(Collectors.toList());
+
+        customerReceiptSyncProducer.sendBulkReceiptSync(events);
+
+        log.info("[SYNC] 전체 영수증 동기화 완료 - count: {}", events.size());
     }
 }

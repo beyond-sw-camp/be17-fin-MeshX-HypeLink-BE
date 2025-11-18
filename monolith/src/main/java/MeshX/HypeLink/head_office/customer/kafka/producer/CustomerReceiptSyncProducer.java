@@ -1,5 +1,6 @@
 package MeshX.HypeLink.head_office.customer.kafka.producer;
 
+import MeshX.HypeLink.head_office.customer.kafka.dto.CustomerReceiptListSyncEvent;
 import MeshX.HypeLink.head_office.customer.kafka.dto.CustomerReceiptSyncEvent;
 import MeshX.HypeLink.head_office.item.service.kafka.KafkaEnvelope;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +9,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Component
@@ -24,11 +24,13 @@ public class CustomerReceiptSyncProducer {
      */
     public void sendBulkReceiptSync(List<CustomerReceiptSyncEvent> receipts) {
         try {
-            Map<String, Object> payload = Map.of("receipts", receipts);
+            CustomerReceiptListSyncEvent listEvent = CustomerReceiptListSyncEvent.builder()
+                    .receipts(receipts)
+                    .build();
 
-            KafkaEnvelope<Map<String, Object>> envelope = KafkaEnvelope.<Map<String, Object>>builder()
+            KafkaEnvelope<CustomerReceiptListSyncEvent> envelope = KafkaEnvelope.<CustomerReceiptListSyncEvent>builder()
                     .type("CUSTOMER_RECEIPT_BULK_SYNC")
-                    .payload(payload)
+                    .payload(listEvent)
                     .build();
 
             kafkaTemplate.send(TOPIC, "bulk-sync", envelope);
