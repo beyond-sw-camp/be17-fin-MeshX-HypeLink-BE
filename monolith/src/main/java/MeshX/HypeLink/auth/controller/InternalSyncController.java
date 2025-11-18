@@ -8,13 +8,9 @@ import MeshX.HypeLink.auth.repository.DriverRepository;
 import MeshX.HypeLink.auth.repository.MemberRepository;
 import MeshX.HypeLink.auth.repository.PosRepository;
 import MeshX.HypeLink.auth.repository.StoreRepository;
-import MeshX.HypeLink.head_office.customer.model.dto.CustomerReceiptSyncDto;
-import MeshX.HypeLink.head_office.customer.repository.CustomerReceiptRepository;
 import MeshX.HypeLink.head_office.item.service.ItemSyncService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,7 +29,6 @@ public class InternalSyncController {
     private final StoreRepository storeRepository;
     private final PosRepository posRepository;
     private final DriverRepository driverRepository;
-    private final CustomerReceiptRepository customerReceiptRepository;
     private final ItemSyncService itemSyncService;
 
     @GetMapping("/members")
@@ -79,17 +74,6 @@ public class InternalSyncController {
                 log.error("Failed to sync items for store ID: {}", storeId, e);
             }
         });
-    }
-
-    @GetMapping("/receipts")
-    public Page<CustomerReceiptSyncDto> getReceiptsPage(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "300") int size) {
-        log.info("Fetching receipts for sync - page: {}, size: {}", page, size);
-        Page<MeshX.HypeLink.head_office.customer.model.entity.CustomerReceipt> receipts =
-                customerReceiptRepository.findAllByPage(PageRequest.of(page, size));
-
-        return receipts.map(CustomerReceiptSyncDto::from);
     }
 
 }
