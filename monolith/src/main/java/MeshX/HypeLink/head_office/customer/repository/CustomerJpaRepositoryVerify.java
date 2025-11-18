@@ -13,7 +13,6 @@ import java.util.Optional;
 
 import static MeshX.HypeLink.head_office.customer.exception.CustomerExceptionType.DUPLICATE_PHONE;
 import static MeshX.HypeLink.head_office.customer.exception.CustomerExceptionType.NOT_FOUNT;
-import static MeshX.HypeLink.head_office.promotion.exception.PromotionExceptionMessage.NOT_FOUND;
 
 
 @Repository
@@ -44,7 +43,7 @@ public class CustomerJpaRepositoryVerify {
 
     public Customer findByPhone(String phone) {
         return repository.findByPhone(phone)
-                .orElseThrow(() -> new CustomerException(NOT_FOUND));
+                .orElseThrow(() -> new CustomerException(NOT_FOUNT));
     }
 
     public Optional<Customer> findByPhoneOptional(String phone) {
@@ -53,12 +52,12 @@ public class CustomerJpaRepositoryVerify {
 
     public Customer findByPhoneWithCoupons(String phone) {
         return repository.findByPhoneWithCoupons(phone)
-                .orElseThrow(() -> new CustomerException(NOT_FOUND));
+                .orElseThrow(() -> new CustomerException(NOT_FOUNT));
     }
 
     public Customer findByPhoneWithAvailableCoupons(String phone) {
         return repository.findByPhoneWithAvailableCoupons(phone)
-                .orElseThrow(() -> new CustomerException(NOT_FOUND));
+                .orElseThrow(() -> new CustomerException(NOT_FOUNT));
     }
 
     public List<Customer> readAll() {

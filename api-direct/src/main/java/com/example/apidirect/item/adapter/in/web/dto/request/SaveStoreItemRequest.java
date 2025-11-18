@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SaveStoreItemRequest {
+    private Integer id; // 모놀리식 store_item.id
     private String category;
     private String itemCode;
     private Integer unitPrice;

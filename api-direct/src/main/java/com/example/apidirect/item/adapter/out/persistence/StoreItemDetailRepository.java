@@ -83,4 +83,39 @@ public interface StoreItemDetailRepository extends JpaRepository<StoreItemDetail
 
     Page<StoreItemDetailEntity> findAll(Pageable pageable);
 
+    @Modifying
+    @Query(value = """
+INSERT INTO store_item_detail (
+  id,
+  item_detail_code,
+  color,
+  color_code,
+  size,
+  stock,
+  item_id,
+  created_at,
+  updated_at
+)
+VALUES (
+  :#{#entity.id},
+  :#{#entity.itemDetailCode},
+  :#{#entity.color},
+  :#{#entity.colorCode},
+  :#{#entity.size},
+  :#{#entity.stock},
+  :#{#entity.item.id},
+  NOW(),
+  NOW()
+)
+ON DUPLICATE KEY UPDATE
+  item_detail_code = VALUES(item_detail_code),
+  color = VALUES(color),
+  color_code = VALUES(color_code),
+  size = VALUES(size),
+  stock = VALUES(stock),
+  item_id = VALUES(item_id),
+  updated_at = NOW()
+""", nativeQuery = true)
+    void upsert(@Param("entity") StoreItemDetailEntity entity);
+
 }

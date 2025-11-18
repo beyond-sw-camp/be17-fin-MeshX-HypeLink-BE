@@ -8,6 +8,7 @@ import java.util.List;
 @Getter
 @Builder
 public class SaveStoreItemReq {
+    private Integer id; // 모놀리식 store_item.id
     private String category;
     private String itemCode; // 아이템 코드
     private Integer unitPrice;       // 단가
