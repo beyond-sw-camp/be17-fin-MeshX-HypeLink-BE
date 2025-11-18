@@ -9,6 +9,11 @@ import MeshX.HypeLink.head_office.as.model.dto.res.AsListPagingRes;
 import MeshX.HypeLink.head_office.as.model.dto.res.AsListRes;
 import MeshX.HypeLink.head_office.as.service.AsService;
 import com.example.apiclients.annotation.GetMemberEmail;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "본사 A/S 관리", description = "본사 A/S 요청 조회, 상태 변경, 댓글 작성 API")
 @RestController
 @RequestMapping("/api/as")
 @RequiredArgsConstructor

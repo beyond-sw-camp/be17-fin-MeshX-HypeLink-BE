@@ -8,11 +8,17 @@ import MeshX.HypeLink.head_office.order.model.dto.request.PurchaseOrderUpdateReq
 import MeshX.HypeLink.head_office.order.model.dto.response.*;
 import MeshX.HypeLink.head_office.order.service.PurchaseOrderService;
 import com.example.apiclients.annotation.GetMemberEmail;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "발주 관리", description = "본사 및 직영점 발주 생성, 조회, 수정 API")
 @RestController
 @RequestMapping("/api/order")
 @RequiredArgsConstructor

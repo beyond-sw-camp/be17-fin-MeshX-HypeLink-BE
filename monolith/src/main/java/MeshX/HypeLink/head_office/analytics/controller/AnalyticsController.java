@@ -3,6 +3,11 @@ package MeshX.HypeLink.head_office.analytics.controller;
 import MeshX.HypeLink.common.BaseResponse;
 import MeshX.HypeLink.head_office.analytics.dto.*;
 import MeshX.HypeLink.head_office.analytics.service.AnalyticsService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "분석 및 통계", description = "매출, 재고, 상품, 고객 분석 등 각종 통계 및 분석 API")
 @RestController
 @RequestMapping("/api/analytics")
 @RequiredArgsConstructor

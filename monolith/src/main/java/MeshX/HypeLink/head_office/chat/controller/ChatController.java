@@ -8,6 +8,11 @@ import MeshX.HypeLink.head_office.chat.model.dto.res.ChatMessageResDto;
 import MeshX.HypeLink.head_office.chat.model.dto.res.MessageUserListResDto;
 import MeshX.HypeLink.head_office.chat.service.ChatService;
 import com.example.apiclients.annotation.GetMemberEmail;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "채팅 관리", description = "실시간 채팅 메시지 송수신 및 채팅 내역 조회 API")
 @Slf4j
 @RestController
 @RequestMapping("/api/chat")

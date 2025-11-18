@@ -8,12 +8,18 @@ import MeshX.HypeLink.head_office.promotion.model.dto.response.PromotionInfoList
 import MeshX.HypeLink.head_office.promotion.model.dto.response.PromotionInfoRes;
 import MeshX.HypeLink.head_office.promotion.model.dto.response.PromotionStatusListRes;
 import MeshX.HypeLink.head_office.promotion.service.PromotionService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "프로모션 관리", description = "프로모션 생성, 수정, 삭제, 조회 및 검색 API")
 @RestController
 @RequestMapping("/api/promotion")
 @RequiredArgsConstructor

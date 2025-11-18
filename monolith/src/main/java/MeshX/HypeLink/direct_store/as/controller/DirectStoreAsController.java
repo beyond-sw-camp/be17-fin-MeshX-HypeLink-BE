@@ -8,12 +8,18 @@ import MeshX.HypeLink.direct_store.as.model.dto.MyAsDetailRes;
 import MeshX.HypeLink.direct_store.as.model.dto.MyAsListRes;
 import MeshX.HypeLink.direct_store.as.service.DirectStoreAsService;
 import com.example.apiclients.annotation.GetMemberEmail;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "직영점 A/S 관리", description = "직영점 A/S 신청, 조회, 수정, 삭제 API")
 @RestController
 @RequestMapping("/api/store/as")
 @RequiredArgsConstructor
