@@ -93,8 +93,13 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 <br/>
 
 ## 🔧 시스템 아키텍처
-- <a href="https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-BE/blob/raccoon/swagger/doc/%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98.png">시스템 아키텍처 문서 보기</a>
-<br/>
+
+### V1. 모놀리식 시스템 아키텍쳐
+<img width="6538" height="3727" alt="모놀리식 시스템 아키텍쳐" src="https://github.com/user-attachments/assets/2ce88899-b695-48e1-8080-a7db56f8b0b2" />
+
+### V2. MSA 시스템 아키텍쳐
+<img width="9492" height="7614" alt="MSA 시스템 아키텍쳐" src="https://github.com/user-attachments/assets/8d8a16b7-c0f4-4b5a-8f79-f5d7d1d87d6f" />
+
 
 ## ⚙️ CI/CD 파이프라인 문서
 - <a href="https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-BE/wiki/HypeLink-CI-CD-%ED%8C%8C%EC%9D%B4%ED%94%84%EB%9D%BC%EC%9D%B8-%EB%AC%B8%EC%84%9C"> CI/CD 파이프라인 문서
