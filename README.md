@@ -253,7 +253,7 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 </details>
 
 
-- [스웨거 UI 접속하기](https://www.meshx.store/api/swagger-ui/index.html)
+- [스웨거 UI 접속하기](https://www.meshx.store/swagger-ui/index.html)
 
 
 ---
