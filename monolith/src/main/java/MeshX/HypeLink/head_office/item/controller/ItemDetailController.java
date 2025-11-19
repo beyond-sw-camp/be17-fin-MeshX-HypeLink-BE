@@ -7,11 +7,17 @@ import MeshX.HypeLink.head_office.item.model.dto.request.SaveItemDetailsReq;
 import MeshX.HypeLink.head_office.item.model.dto.response.ItemDetailsInfoListRes;
 import MeshX.HypeLink.head_office.item.model.dto.response.ItemAndItemDetailInfoRes;
 import MeshX.HypeLink.head_office.item.service.ItemDetailService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "상품 상세 관리", description = "상품 상세 정보(색상, 사이즈 등) 생성, 조회, 수정 API")
 @RestController
 @RequestMapping("/api/item/detail")
 @RequiredArgsConstructor

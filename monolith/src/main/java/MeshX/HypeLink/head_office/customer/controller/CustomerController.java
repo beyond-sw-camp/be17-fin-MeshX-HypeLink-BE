@@ -12,12 +12,18 @@ import MeshX.HypeLink.head_office.customer.model.dto.response.ReceiptListPagingR
 import MeshX.HypeLink.head_office.customer.model.dto.response.ReceiptListRes;
 import MeshX.HypeLink.head_office.customer.service.CustomerService;
 import com.example.apiclients.annotation.GetMemberEmail;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "고객 관리", description = "고객 가입, 조회, 수정, 삭제 및 쿠폰 발급, 영수증 조회 API")
 @RestController
 @RequestMapping("/api/mono/customer")
 @RequiredArgsConstructor

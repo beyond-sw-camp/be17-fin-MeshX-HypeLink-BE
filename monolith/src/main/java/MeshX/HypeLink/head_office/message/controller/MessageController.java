@@ -8,10 +8,16 @@ import MeshX.HypeLink.head_office.message.model.dto.response.MessageInfoListRes;
 import MeshX.HypeLink.head_office.message.model.dto.response.MessageInfoRes;
 import MeshX.HypeLink.head_office.message.model.entity.Message;
 import MeshX.HypeLink.head_office.message.service.MessageService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "메시지 관리", description = "시스템 메시지 생성, 조회, 읽음 처리 및 삭제 API")
 @RestController
 @RequestMapping("/api/message")
 @RequiredArgsConstructor

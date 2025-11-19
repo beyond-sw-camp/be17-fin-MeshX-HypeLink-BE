@@ -3,6 +3,7 @@ package MeshX.HypeLink.head_office.shipment.controller;
 import MeshX.HypeLink.head_office.shipment.model.dto.DriverDeliveryCompleteDto;
 import MeshX.HypeLink.head_office.shipment.model.dto.DriverGpsDto;
 import MeshX.HypeLink.head_office.shipment.model.dto.DriverLocationDto;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+@Tag(name = "배송 GPS 추적", description = "배송 기사 실시간 위치 추적 WebSocket API")
 @Slf4j
 @RestController
 @RequiredArgsConstructor
