@@ -106,46 +106,55 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 - <a href="https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-BE/wiki/HypeLink-CI-CD-%ED%8C%8C%EC%9D%B4%ED%94%84%EB%9D%BC%EC%9D%B8-%EB%AC%B8%EC%84%9C"> CI/CD 파이프라인 문서
 <br/>
 
+## 🖊️ ERD 
+
+<details>
+<summary>ERD 펼치기/접기</summary>
+<div markdown="1">
+
+## 모놀리식 ERD
+<img width="6098" height="6796" alt="hypelinkERD" src="https://github.com/user-attachments/assets/5d69fadd-c449-4fd8-a777-5474397b4937" />
+
+## AUTH ERD
+<img width="2664" height="1490" alt="authERD" src="https://github.com/user-attachments/assets/b1261ca8-2706-40ed-868b-42c8a4723a02" />
+
+## DIRECT ERD
+<img width="3018" height="3112" alt="directERD" src="https://github.com/user-attachments/assets/5759509a-76b8-4e68-9d93-7b0306c95a50" />
+
+## ITEM ERD
+<img width="1958" height="1812" alt="itemERD" src="https://github.com/user-attachments/assets/d6dcd56f-36fb-46bb-a57d-ab3d71c09f15" />
+
+## NOTICE ERD
+<img width="840" height="1100" alt="noticeERD" src="https://github.com/user-attachments/assets/bd19f0e2-4b48-421d-8036-fa9ff830c375" />
+
+
+
+
+</div>
+</details>
+
+<br/>
 
 ## 📝 SWAGGER API
 <details>
-<summary>auth 모듈 API 명세서 보기</summary>
+<summary> 모듈 API 명세서 보기</summary>
 <div markdown="1">
 
 👉 [auth API명세서.pdf 열기](./doc/swagger/auth_swagger.pdf)
 
-</div>
-</details>
-
-<details>
-<summary>direct 모듈 API 명세서 보기</summary>
-<div markdown="1">
-
 👉 [direct API명세서.pdf 열기](./doc/swagger/direct_swagger.pdf)
 
-</div>
-</details>
-
-<details>
-<summary>item 모듈 API 명세서 보기</summary>
-<div markdown="1">
-
 👉 [item API명세서.pdf 열기](./doc/swagger/item_swagger.pdf)
-
-</div>
-</details>
-
-<details>
-<summary>notice 모듈 API 명세서 보기</summary>
-<div markdown="1">
 
 👉 [notice API명세서.pdf 열기](./doc/swagger/notice_swagger.pdf)
 
 </div>
 </details>
 
+
+
 <details>
-<summary> 📝 모놀리식 API 명세서 보기</summary>
+<summary>  모놀리식 API 명세서 보기</summary>
 <div markdown="1">
 
 <details>
