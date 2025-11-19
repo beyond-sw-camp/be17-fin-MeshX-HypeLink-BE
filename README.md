@@ -87,6 +87,7 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 
 ---
 
+
 ## 💚 Front-end
 - <a href="https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-FE">프론트엔드 깃허브 바로가기</a>
 
@@ -107,9 +108,44 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 
 
 ## 📝 SWAGGER API
+<details>
+<summary>auth 모듈 API 명세서 보기</summary>
+<div markdown="1">
+
+👉 [auth API명세서.pdf 열기](./doc/auth_swagger.pdf)
+
+</div>
+</details>
 
 <details>
-<summary> 📝 핵심 API 명세서 보기</summary>
+<summary>direct 모듈 API 명세서 보기</summary>
+<div markdown="1">
+
+👉 [direct API명세서.pdf 열기](./doc/direct_swagger.pdf)
+
+</div>
+</details>
+
+<details>
+<summary>item 모듈 API 명세서 보기</summary>
+<div markdown="1">
+
+👉 [item API명세서.pdf 열기](./doc/item_swagger.pdf)
+
+</div>
+</details>
+
+<details>
+<summary>notice 모듈 API 명세서 보기</summary>
+<div markdown="1">
+
+👉 [notice API명세서.pdf 열기](./doc/notice_swagger.pdf)
+
+</div>
+</details>
+
+<details>
+<summary> 📝 모놀리식 API 명세서 보기</summary>
 <div markdown="1">
 
 <details>
