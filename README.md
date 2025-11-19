@@ -23,7 +23,7 @@
 ---
 
 # 2차 스프린트 설명
-- <a href="https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-BE/wiki/2%EC%B0%A8-%EC%8A%A4%ED%94%84%EB%A6%B0%ED%8A%B8-%EA%B8%B0%ED%9A%8D">2차 스프린트 위키 바로가기</a>
+- <a href="https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-BE/wiki/Sprint-2">2차 스프린트 위키 바로가기</a>
 
 # 🎬 주문·재고 관리 시스템
 
