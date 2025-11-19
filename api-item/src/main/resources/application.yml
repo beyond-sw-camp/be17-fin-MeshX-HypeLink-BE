@@ -83,3 +83,9 @@ management:
       base-path: /api/health    # actuator의 기본 경로를 변경
       exposure:
         include: health,info    # 노출시킬 엔드포인트 지정
+
+springdoc:
+  api-docs:
+    path: /api/v3/api-docs
+  swagger-ui:
+    enabled: false

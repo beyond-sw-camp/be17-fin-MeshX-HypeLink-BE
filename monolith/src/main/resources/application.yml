@@ -103,7 +103,7 @@ springdoc:
     url: /api/v3/api-docs
     # 여러 스펙을 쓰고 싶다면 urls 목록으로도 가능 (선택)
     urls:
-      - name: HypeLink API
+      - name: HypeLink Monolith API
         url: /api/v3/api-docs
     # api-docs path를 바꿨으니 config-url도 맞춰줌 (명시 권장)
     config-url: /api/v3/api-docs/swagger-config

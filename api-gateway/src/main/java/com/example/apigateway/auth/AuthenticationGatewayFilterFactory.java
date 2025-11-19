@@ -147,11 +147,15 @@ public class AuthenticationGatewayFilterFactory extends AbstractGatewayFilterFac
     }
 
     private boolean isPublicPath(String path) {
-        return path.startsWith("/api/auth/login") ||
+        return path.startsWith("/api/swagger/") ||   // Swagger 문서 프록시
+                path.startsWith("/api/swagger-ui") || // Swagger UI
+                path.startsWith("/swagger-ui") ||     // 내부 리소스 접근
+                path.startsWith("/v3/api-docs") ||    // springdoc 내부 호출
+                path.startsWith("/api/v3/api-docs") ||// monolith 등
+                path.startsWith("/api/auth/login") ||
                 path.startsWith("/api/auth/register") ||
-                path.startsWith("/api/health/health") ||
-                path.startsWith("/api/health/info") ||
-                path.startsWith("/api/auth/refresh");
+                path.startsWith("/api/auth/refresh") ||
+                path.startsWith("/api/health");
     }
 
     public static class Config {

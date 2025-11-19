@@ -1,0 +1,340 @@
+pipeline {
+  agent {
+    kubernetes {
+      label "gradle-kaniko-${UUID.randomUUID().toString()}"
+      defaultContainer 'gradle'
+      yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: hypelink
+spec:
+  restartPolicy: Never
+  containers:
+    - name: gradle
+      image: gradle:8.9-jdk17
+      command: ['cat']
+      tty: true
+      volumeMounts:
+        - name: gradle-cache
+          mountPath: /home/gradle/.gradle
+        - name: workspace
+          mountPath: /workspace
+    - name: kaniko
+      image: gcr.io/kaniko-project/executor:debug
+      command: ['/busybox/sh','-c','sleep infinity']
+      tty: true
+      volumeMounts:
+        - name: docker-config
+          mountPath: /kaniko/.docker
+        - name: workspace
+          mountPath: /workspace
+  volumes:
+    - name: gradle-cache
+      emptyDir: {}
+    - name: workspace
+      emptyDir: {}
+    - name: docker-config
+      secret:
+        secretName: dockerhub-cred
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+"""
+    }
+  }
+
+  environment {
+    docker_name = 'raccoon98'
+    GIT_URL = 'https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-BE'
+
+    IMAGE_NAME = "${docker_name}/hypelink-api-monolith"
+    IMAGE_TAG = "${env.BUILD_NUMBER}"
+
+    DISCORD_WEBHOOK_URL = credentials('discord-webhook-back')
+  }
+
+  stages {
+
+    /* -----------------------
+         Checkout
+    ----------------------- */
+    stage('Checkout') {
+      steps {
+        container('gradle') {
+          checkout([$class: 'GitSCM',
+            branches: [[name: '*/main']],
+            userRemoteConfigs: [[url: "${GIT_URL}"]]
+          ])
+        }
+      }
+    }
+
+    /* -----------------------
+         File structure check
+    ----------------------- */
+    stage('Check File Structure') {
+      steps {
+        container('gradle') {
+          sh '''
+            echo "=== WORKSPACE ==="
+            ls -la ${WORKSPACE}
+
+            echo "=== api-monolith ==="
+            ls -la ${WORKSPACE}/api-monolith || true
+            ls -la ${WORKSPACE}/api-monolith/Dockerfile || true
+            ls -la ${WORKSPACE}/api-monolith/build/libs || true
+          '''
+        }
+      }
+    }
+
+    /* -----------------------
+         Gradle Build
+    ----------------------- */
+    stage('Gradle Build (api-monolith)') {
+      steps {
+        container('gradle') {
+          sh '''
+            cd api-monolith
+            chmod +x ./gradlew || true
+            ./gradlew --no-daemon clean bootJar
+            ls -la build/libs
+          '''
+        }
+      }
+    }
+
+    /* -----------------------
+         Kaniko Build
+    ----------------------- */
+    stage('Kaniko Build & Push') {
+      steps {
+        container('kaniko') {
+          catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+            sh """
+              /kaniko/executor \\
+                --context=${WORKSPACE}/api-monolith \\
+                --dockerfile=${WORKSPACE}/api-monolith/Dockerfile \\
+                --destination=${IMAGE_NAME}:${IMAGE_TAG} \\
+                --destination=${IMAGE_NAME}:latest \\
+                --single-snapshot \\
+                --use-new-run \\
+                --cache=true \\
+                --snapshotMode=redo
+            """
+          }
+        }
+      }
+    }
+
+    /* -----------------------
+      Blue/Green Deployment
+    ----------------------- */
+    stage('Deploy to Kubernetes (Blue/Green for api-monolith)') {
+      steps {
+        echo "Deploying api-monolith to Kubernetes (Blue/Green)"
+        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+
+          sshPublisher(
+            continueOnError: false,
+            failOnError: true,
+            publishers: [
+              sshPublisherDesc(
+                configName: 'K8S_MASTER',
+                verbose: true,
+                transfers: [
+                  sshTransfer(
+                    execCommand: """
+                      IMAGE_TAG="${IMAGE_TAG}"
+                      echo "[DEBUG] IMAGE_TAG=\$IMAGE_TAG"
+
+                      # 기존 서비스 버전 확인
+                      if kubectl get service hypelink-monolith-svc -n hypelink >/dev/null 2>&1; then
+                        VER=\$(kubectl get service hypelink-monolith-svc -n hypelink -o jsonpath='{.spec.selector.ver}')
+                        echo "[DEBUG] CURRENT VER=\$VER"
+                      else
+                        VER=""
+                        echo "[DEBUG] no existing service → initial deploy"
+                      fi
+
+                      # 새 버전 결정
+                      if [ -z "\$VER" ]; then
+                        NEW_VER="blue"
+                      elif [ "\$VER" = "blue" ]; then
+                        NEW_VER="green"
+                      else
+                        NEW_VER="blue"
+                      fi
+
+                      echo "현재 버전: \${VER:-없음}"
+                      echo "새 버전: \$NEW_VER"
+
+
+##############################
+# 🚀 api-monolith Deployment
+##############################
+cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-monolith-deployment-\$NEW_VER
+  namespace: hypelink
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      type: monolith
+      ver: \$NEW_VER
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  template:
+    metadata:
+      labels:
+        type: monolith
+        ver: \$NEW_VER
+    spec:
+      containers:
+        - name: container
+          image: ${docker_name}/hypelink-api-monolith:\$IMAGE_TAG
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
+          envFrom:
+            - configMapRef:
+                name: hypelink-monolith-config
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /api/health/health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/health/test
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /api/health/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 24
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+EOF
+
+
+##############################
+# rollout 완료 대기
+##############################
+kubectl rollout status deployment/spring-monolith-deployment-\$NEW_VER -n hypelink --timeout=600s
+
+
+##############################
+# Service Blue/Green 전환
+##############################
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: hypelink-monolith-svc
+  namespace: hypelink
+spec:
+  selector:
+    type: monolith
+    ver: \$NEW_VER
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP
+EOF
+
+echo "[DEBUG] Service updated → ver=\$NEW_VER"
+
+
+##############################
+# 이전 버전 scale down
+##############################
+if [ -n "\$VER" ]; then
+  echo "이전 버전 스케일 다운: spring-monolith-deployment-\$VER"
+  kubectl scale deployment/spring-monolith-deployment-\$VER -n hypelink --replicas=0
+fi
+
+                    """
+                  )
+                ]
+              )
+            ]
+          )
+        }
+      }
+    }
+
+    /* -----------------------
+         Result
+    ----------------------- */
+    stage('Result') {
+      steps {
+        echo "Pushed and Deployed: ${IMAGE_NAME}:${IMAGE_TAG}"
+      }
+    }
+  }
+
+  /* -----------------------
+       Discord Notification
+  ----------------------- */
+  post {
+    success {
+      script {
+        sh """
+          curl -X POST -H 'Content-Type: application/json' \
+            -d '{
+              "embeds": [{
+                "title": "api-monolith 빌드 & 배포 성공",
+                "description": "이미지: ${IMAGE_NAME}:${IMAGE_TAG}\\n빌드 번호: ${env.BUILD_NUMBER}",
+                "color": 65280
+              }]
+            }' \
+            ${DISCORD_WEBHOOK_URL}
+        """
+      }
+    }
+    failure {
+      script {
+        sh """
+          curl -X POST -H 'Content-Type: application/json' \
+            -d '{
+              "embeds": [{
+                "title": "api-monolith 빌드 실패",
+                "description": "빌드 번호: ${env.BUILD_NUMBER}",
+                "color": 16711680
+              }]
+            }' \
+            ${DISCORD_WEBHOOK_URL}
+        """
+      }
+    }
+  }
+}

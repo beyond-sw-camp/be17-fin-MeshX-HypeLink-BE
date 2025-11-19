@@ -37,6 +37,9 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
 
+    //swagger-ui
+    implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.4'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
