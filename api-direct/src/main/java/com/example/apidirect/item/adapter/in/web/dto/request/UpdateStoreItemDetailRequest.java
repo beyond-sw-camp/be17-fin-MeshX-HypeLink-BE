@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateStoreItemDetailRequest {
+    private Integer storeId;
     private String itemCode;
     private String itemDetailCode;
     private Integer updateStock;

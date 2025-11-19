@@ -20,7 +20,7 @@ public class CustomerKafkaConsumer {
 
     @KafkaListener(
             topics = "customer.sync",
-            groupId = "monolith-customer-sync",
+            groupId = "monolith-customer-sync-local",
             containerFactory = "stringKafkaListenerFactory"
     )
     public void consumeCustomerSync(String rawMessage) {
