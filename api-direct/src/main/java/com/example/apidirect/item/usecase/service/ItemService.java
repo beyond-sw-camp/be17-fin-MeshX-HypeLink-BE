@@ -1,37 +1,34 @@
 package com.example.apidirect.item.usecase.service;
 
 import MeshX.common.UseCase;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import com.example.apidirect.auth.domain.POS;
-import com.example.apidirect.auth.domain.Store;
 import com.example.apidirect.auth.usecase.port.in.POSQueryPort;
 import com.example.apidirect.auth.usecase.port.in.StoreQueryPort;
 import com.example.apidirect.common.exception.ItemException;
 import com.example.apidirect.common.exception.ItemExceptionMessage;
-import com.example.apidirect.item.adapter.in.web.dto.request.*;
+import com.example.apidirect.item.adapter.in.web.dto.request.SaveStoreCategoriesRequest;
+import com.example.apidirect.item.adapter.in.web.dto.request.SaveStoreCategoryRequest;
+import com.example.apidirect.item.adapter.in.web.dto.request.SaveStoreItemListRequest;
 import com.example.apidirect.item.adapter.in.web.dto.response.StoreItemDetailResponse;
 import com.example.apidirect.item.adapter.in.web.mapper.StoreItemDetailResponseMapper;
 import com.example.apidirect.item.adapter.out.entity.StoreItemDetailEntity;
 import com.example.apidirect.item.adapter.out.entity.StoreItemEntity;
-import com.example.apidirect.item.adapter.out.mapper.ItemDetailMapper;
 import com.example.apidirect.item.adapter.out.persistence.StoreItemDetailBatchRepository;
 import com.example.apidirect.item.adapter.out.persistence.StoreItemRepository;
-import com.example.apidirect.item.domain.Category;
 import com.example.apidirect.item.domain.StoreItem;
 import com.example.apidirect.item.domain.StoreItemDetail;
-import com.example.apidirect.item.domain.StoreItemImage;
 import com.example.apidirect.item.usecase.port.in.ItemCommandPort;
 import com.example.apidirect.item.usecase.port.in.ItemQueryPort;
 import com.example.apidirect.item.usecase.port.out.CategoryPersistencePort;
 import com.example.apidirect.item.usecase.port.out.ItemDetailPersistencePort;
 import com.example.apidirect.item.usecase.port.out.ItemDetailQueryPort;
 import com.example.apidirect.item.usecase.port.out.ItemPersistencePort;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -44,7 +41,6 @@ public class ItemService implements ItemQueryPort, ItemCommandPort {
     private final ItemDetailPersistencePort itemDetailPersistencePort;
     private final ItemPersistencePort itemPersistencePort;
     private final POSQueryPort posQueryPort;
-    private final StoreQueryPort storeQueryPort;
     private final CategoryPersistencePort categoryPersistencePort;
     private final StoreItemDetailBatchRepository storeItemDetailBatchRepository;
     private final StoreItemRepository itemRepository;
@@ -121,8 +117,8 @@ public class ItemService implements ItemQueryPort, ItemCommandPort {
 
     @Override
     @Transactional
-    public void updateStock(String itemDetailCode, Integer stockChange) {
-        StoreItemDetail detail = itemDetailQueryPort.findByItemDetailCodeWithLock(itemDetailCode)
+    public void updateStock(Integer storeId, String itemDetailCode, Integer stockChange) {
+        StoreItemDetail detail = itemDetailQueryPort.findByItemDetailCodeAndStoreId(itemDetailCode, storeId)
                 .orElseThrow(() -> new ItemException(ItemExceptionMessage.NOT_FOUND));
 
         detail.updateStock(stockChange);
@@ -135,11 +131,10 @@ public class ItemService implements ItemQueryPort, ItemCommandPort {
         Integer storeId = request.getStoreId();
         log.info("=== saveAllItemsFromHeadOffice - storeId: {}, items: {}", storeId, request.getItems().size());
 
-        List<StoreItemDetailEntity> allDetailEntities = new ArrayList<>();
-
         request.getItems().forEach(itemReq -> {
-            // 1. StoreItem 생성 및 저장
+            // 1. StoreItem 생성 및 upsert
             StoreItem storeItem = StoreItem.builder()
+                    .id(itemReq.getId())  // ✅ 모놀리식 id 포함
                     .itemCode(itemReq.getItemCode())
                     .storeId(storeId)
                     .unitPrice(itemReq.getUnitPrice())
@@ -153,36 +148,33 @@ public class ItemService implements ItemQueryPort, ItemCommandPort {
 
             StoreItem savedItem = itemPersistencePort.save(storeItem);
 
-            // 2. StoreItemDetail 엔티티 생성 (배치 저장을 위해 수집)
+            // 2. StoreItemDetail upsert
             if (itemReq.getItemDetails() != null && !itemReq.getItemDetails().isEmpty()) {
                 // ✅ DB에서 실제 영속성 Entity 조회
                 StoreItemEntity itemEntity = itemRepository.findByItemCodeAndStoreId(
                         savedItem.getItemCode(), savedItem.getStoreId())
                         .orElseThrow(() -> new RuntimeException("저장된 Item을 찾을 수 없습니다: " + savedItem.getItemCode()));
 
-                List<StoreItemDetailEntity> detailEntities = itemReq.getItemDetails().stream()
-                        .map(detailReq -> StoreItemDetailEntity.builder()
-                                .itemDetailCode(detailReq.getItemDetailCode())
-                                .color(detailReq.getColor())
-                                .colorCode(detailReq.getColorCode())
-                                .size(detailReq.getSize())
-                                .stock(detailReq.getStock())
-                                .item(itemEntity)  // ← 이제 영속성 Entity!
-                                .build())
-                        .toList();
+                itemReq.getItemDetails().forEach(detailReq -> {
+                    StoreItemDetailEntity detailEntity = StoreItemDetailEntity.builder()
+                            .id(detailReq.getId())  // ✅ 모놀리식 id 포함
+                            .itemDetailCode(detailReq.getItemDetailCode())
+                            .color(detailReq.getColor())
+                            .colorCode(detailReq.getColorCode())
+                            .size(detailReq.getSize())
+                            .stock(detailReq.getStock())  // ✅ 실제 재고
+                            .item(itemEntity)
+                            .build();
 
-                allDetailEntities.addAll(detailEntities);
+                    // ✅ upsert 실행
+                    storeItemDetailBatchRepository.upsert(detailEntity);
+                });
             }
 
             // 3. StoreItemImage 저장 (나중에 필요시 구현)
             // itemReq.getImages()로 저장
         });
 
-        log.info("=== Total details to save: {}", allDetailEntities.size());
-        // 모든 StoreItemDetail을 배치로 저장 (중복 자동 스킵)
-        if (!allDetailEntities.isEmpty()) {
-            storeItemDetailBatchRepository.saveAllSkipDuplicate(allDetailEntities);
-        }
         log.info("=== saveAllItemsFromHeadOffice completed");
     }
 

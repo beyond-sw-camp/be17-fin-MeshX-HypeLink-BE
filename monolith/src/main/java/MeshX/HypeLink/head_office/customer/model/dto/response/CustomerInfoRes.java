@@ -33,6 +33,22 @@ public class CustomerInfoRes {
                 .build();
     }
 
+    public static CustomerInfoRes toDtoWithAvailableCoupons(Customer entity) {
+        return CustomerInfoRes.builder()
+                .customerId(entity.getId())
+                .name(entity.getName())
+                .phone(entity.getPhone())
+                .birthday(entity.getBirthDate())
+                .customerCoupons(entity.getCustomerCoupons().stream()
+                                        .filter(cc -> !cc.getIsUsed() && !cc.getExpirationDate().isBefore(LocalDate.now()))
+                                        .map(CustomerCouponRes::toDto)
+                                        .collect(Collectors.toList()))
+                .customerReceiptList(entity.getCustomerReceipts().stream()
+                                        .map(ReceiptRes::toDto)
+                                        .collect(Collectors.toList()))
+                .build();
+    }
+
     public static List<CustomerInfoRes> toDtoList(List<Customer> entities) {
         return entities.stream()
                 .map(CustomerInfoRes::toDtoSimple)

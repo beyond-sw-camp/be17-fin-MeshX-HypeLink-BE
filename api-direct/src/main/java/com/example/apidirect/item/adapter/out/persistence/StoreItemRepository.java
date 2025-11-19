@@ -37,21 +37,21 @@ INSERT INTO store_item (
   ko_name,
   content,
   company,
-  category,
+  category_id,
   created_at,
   updated_at
 )
 VALUES (
   :#{#entity.id},
   :#{#entity.itemCode},
-  :#{#entity.storeId},
+  :#{#entity.store.id},
   :#{#entity.unitPrice},
   :#{#entity.amount},
   :#{#entity.enName},
   :#{#entity.koName},
   :#{#entity.content},
   :#{#entity.company},
-  :#{#entity.category},
+  :#{#entity.category.id},
   NOW(),
   NOW()
 )
@@ -64,7 +64,7 @@ ON DUPLICATE KEY UPDATE
   ko_name = VALUES(ko_name),
   content = VALUES(content),
   company = VALUES(company),
-  category = VALUES(category),
+  category_id = VALUES(category_id),
   updated_at = NOW()
 """, nativeQuery = true)
     void upsert(@Param("entity") StoreItemEntity entity);

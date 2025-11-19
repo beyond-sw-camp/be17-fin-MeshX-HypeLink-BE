@@ -44,27 +44,15 @@ public class ItemPersistenceAdaptor implements ItemPersistencePort {
 
         StoreItemEntity itemEntity = ItemMapper.toEntity(item, store, category);
 
-        // 기존 아이템 확인
-        Optional<StoreItemEntity> existing = itemRepository.findByItemCodeAndStoreId(
-                itemEntity.getItemCode(), itemEntity.getStore().getId());
+        // ✅ upsert 실행 (모놀리식과 동일한 id 유지)
+        itemRepository.upsert(itemEntity);
 
-        if (existing.isPresent()) {
-            // 기존 아이템 업데이트
-            StoreItemEntity existingEntity = existing.get();
-            existingEntity.updateUnitPrice(itemEntity.getUnitPrice());
-            existingEntity.updateAmount(itemEntity.getAmount());
-            existingEntity.updateEnName(itemEntity.getEnName());
-            existingEntity.updateKoName(itemEntity.getKoName());
-            existingEntity.updateContent(itemEntity.getContent());
-            existingEntity.updateCompany(itemEntity.getCompany());
-            existingEntity.updateCategory(category);
-            StoreItemEntity updated = itemRepository.save(existingEntity);
-            return ItemMapper.toDomain(updated);
-        } else {
-            // 신규 저장
-            StoreItemEntity saved = itemRepository.save(itemEntity);
-            return ItemMapper.toDomain(saved);
-        }
+        // upsert 후 저장된 엔티티 조회
+        StoreItemEntity saved = itemRepository.findByItemCodeAndStoreId(
+                itemEntity.getItemCode(), itemEntity.getStore().getId())
+                .orElseThrow(() -> new RuntimeException("Upsert 후 조회 실패: " + item.getItemCode()));
+
+        return ItemMapper.toDomain(saved);
     }
 
     @Override

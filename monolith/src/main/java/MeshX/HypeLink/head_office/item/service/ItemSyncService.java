@@ -3,6 +3,8 @@ package MeshX.HypeLink.head_office.item.service;
 import MeshX.HypeLink.auth.model.entity.Member;
 import MeshX.HypeLink.auth.model.entity.Store;
 import MeshX.HypeLink.auth.repository.StoreJpaRepositoryVerify;
+import MeshX.HypeLink.direct_store.item.repository.StoreItemDetailJpaRepositoryVerify;
+import MeshX.HypeLink.direct_store.item.repository.StoreItemJpaRepositoryVerify;
 import MeshX.HypeLink.head_office.item.model.entity.Category;
 import MeshX.HypeLink.head_office.item.model.entity.Item;
 import MeshX.HypeLink.head_office.item.repository.*;
@@ -41,6 +43,8 @@ public class ItemSyncService {
     private final ItemImageJpaRepositoryVerify itemImageRepository;
     private final ItemDetailJpaRepositoryVerify itemDetailRepository;
     private final CategoryJpaRepositoryVerify categoryRepository;
+    private final StoreItemJpaRepositoryVerify storeItemRepository;
+    private final StoreItemDetailJpaRepositoryVerify storeItemDetailRepository;
 
     private final RetryTemplate retryTemplate;
     private final Executor storeSyncExecutor;
@@ -146,22 +150,24 @@ public class ItemSyncService {
 
         log.info("[SYNC] 신규 직영점({}) 전체 상품 전송 시작", storeId);
 
-        int page = 0;
-        int size = 100;
-        Page<Item> pageResult;
         sendCategoriesToStore(storeId, storeApiUrl);
 
-        do {
-            pageResult = itemRepository.findItemsWithPaging(PageRequest.of(page, size), "", "all");
-            List<Item> items = pageResult.getContent();
+        // ✅ 페이징으로 처리
+        int page = 0;
+        int size = 1000;
+        org.springframework.data.domain.Page<MeshX.HypeLink.direct_store.item.model.entity.StoreItemDetail> pageResult;
 
-            if (!items.isEmpty()) {
+        do {
+            pageResult = storeItemDetailRepository.findByStoreIdWithPage(storeId, PageRequest.of(page, size));
+            List<MeshX.HypeLink.direct_store.item.model.entity.StoreItemDetail> batch = pageResult.getContent();
+
+            if (!batch.isEmpty()) {
                 retryTemplate.execute(ctx -> {
-                    sendItemsToStore(storeId, storeApiUrl, items);
+                    sendStoreItemsToStore(storeId, storeApiUrl, batch);
                     return null;
                 });
                 log.info("[SYNC] 직영점({}) → page {}/{} 상품 {}개 전송 완료",
-                        storeId, page + 1, pageResult.getTotalPages(), items.size());
+                        storeId, page + 1, pageResult.getTotalPages(), batch.size());
             }
             page++;
         } while (page < pageResult.getTotalPages());
@@ -170,14 +176,39 @@ public class ItemSyncService {
     }
 
     /**
-     * HQ → 직영점 서버로 상품 전송
+     * HQ → 직영점 서버로 상품 전송 (StoreItemDetail 기반)
+     */
+    private void sendStoreItemsToStore(Integer storeId, String storeUrl,
+                                       List<MeshX.HypeLink.direct_store.item.model.entity.StoreItemDetail> storeItemDetails) {
+        SaveStoreItemListReq payload = convertStoreItemsToSyncDto(storeId, storeItemDetails);
+
+        try {
+            webClient.post()
+                    .uri(storeUrl + "/api/direct/store/item/create/all")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(payload)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::isError, res -> res.bodyToMono(String.class)
+                            .map(err -> new RuntimeException("응답 오류: " + err)))
+                    .toBodilessEntity()
+                    .block();
+
+            log.info("직영점({}) [{}] 상품 전송 성공", storeId, storeUrl);
+        } catch (Exception e) {
+            log.error("직영점({}) [{}] 전송 실패: {}", storeId, storeUrl, e.getMessage());
+            throw e;
+        }
+    }
+
+    /**
+     * HQ → 직영점 서버로 상품 전송 (Item 기반 - 배치용)
      */
     private void sendItemsToStore(Integer storeId, String storeUrl, List<Item> items) {
         SaveStoreItemListReq payload = convertToStoreSyncDto(storeId, items);
 
         try {
             webClient.post()
-                    .uri(storeUrl + "/api/store/item/create/all")
+                    .uri(storeUrl + "/api/direct/store/item/create/all")
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(payload)
                     .retrieve()
@@ -191,6 +222,78 @@ public class ItemSyncService {
             log.error("직영점({}) [{}] 전송 실패: {}", storeId, storeUrl, e.getMessage());
             throw e;
         }
+    }
+
+    /**
+     * StoreItemDetail 기반 → 직영점 DTO 변환 (id와 실제 재고 포함)
+     */
+    private SaveStoreItemListReq convertStoreItemsToSyncDto(
+            Integer storeId,
+            List<MeshX.HypeLink.direct_store.item.model.entity.StoreItemDetail> storeItemDetails) {
+
+        // StoreItem별로 그룹핑
+        java.util.Map<MeshX.HypeLink.direct_store.item.model.entity.StoreItem, List<MeshX.HypeLink.direct_store.item.model.entity.StoreItemDetail>> groupedByStoreItem =
+                storeItemDetails.stream()
+                        .collect(java.util.stream.Collectors.groupingBy(
+                                MeshX.HypeLink.direct_store.item.model.entity.StoreItemDetail::getItem));
+
+        List<SaveStoreItemReq> itemReqList = groupedByStoreItem.entrySet().stream()
+                .map(entry -> {
+                    MeshX.HypeLink.direct_store.item.model.entity.StoreItem storeItem = entry.getKey();
+                    List<MeshX.HypeLink.direct_store.item.model.entity.StoreItemDetail> details = entry.getValue();
+
+                    // StoreItemDetail → SaveStoreDetailReq (id와 실제 재고 포함)
+                    List<SaveStoreDetailReq> detailReqList = details.stream()
+                            .map(d -> SaveStoreDetailReq.builder()
+                                    .id(d.getId())  // ✅ id 포함
+                                    .size(d.getSize())
+                                    .color(d.getColor())
+                                    .colorCode(d.getColorCode())
+                                    .stock(d.getStock())  // ✅ 실제 재고
+                                    .itemDetailCode(d.getItemDetailCode())
+                                    .build())
+                            .toList();
+
+                    // 이미지는 본사 Item에서 조회 (itemCode로 찾기)
+                    List<SaveStoreItemImageReq> images = new java.util.ArrayList<>();
+                    try {
+                        Item item = itemRepository.findByItemCode(storeItem.getItemCode());
+                        if (item != null) {
+                            images = itemImageRepository.findByItem(item).stream()
+                                    .map(img -> SaveStoreItemImageReq.builder()
+                                            .originalFilename(img.getImage().getOriginalFilename())
+                                            .savedPath(img.getImage().getSavedPath())
+                                            .contentType(img.getImage().getContentType())
+                                            .fileSize(img.getImage().getFileSize())
+                                            .sortIndex(img.getSortIndex())
+                                            .build())
+                                    .toList();
+                        }
+                    } catch (Exception e) {
+                        log.warn("이미지 조회 실패 - itemCode: {}", storeItem.getItemCode());
+                    }
+
+                    // StoreItem → SaveStoreItemReq (id 포함)
+                    return SaveStoreItemReq.builder()
+                            .id(storeItem.getId())  // ✅ id 포함
+                            .category(storeItem.getCategory().getCategory())
+                            .itemCode(storeItem.getItemCode())
+                            .unitPrice(storeItem.getUnitPrice())
+                            .amount(storeItem.getAmount())
+                            .enName(storeItem.getEnName())
+                            .koName(storeItem.getKoName())
+                            .content(storeItem.getContent())
+                            .company(storeItem.getCompany())
+                            .images(images)
+                            .itemDetails(detailReqList)
+                            .build();
+                })
+                .toList();
+
+        return SaveStoreItemListReq.builder()
+                .storeId(storeId)
+                .items(itemReqList)
+                .build();
     }
 
     /**

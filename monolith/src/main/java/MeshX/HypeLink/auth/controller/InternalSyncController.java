@@ -112,8 +112,14 @@ public class InternalSyncController {
     public void syncAllItemsToStore(
             @Parameter(description = "매장 ID", required = true)
             @PathVariable Integer storeId) {
-        log.info("Syncing all items to store ID: {}", storeId);
-        itemSyncService.syncAllItemsForNewStore(storeId);
+        log.info("Syncing all items to store ID: {} (async)", storeId);
+        // 비동기로 실행하여 즉시 응답 반환
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            try {
+                itemSyncService.syncAllItemsForNewStore(storeId);
+            } catch (Exception e) {
+                log.error("Failed to sync items for store ID: {}", storeId, e);
+            }
+        });
     }
-
 }

@@ -1,0 +1,324 @@
+pipeline {
+  agent {
+    kubernetes {
+      label "gradle-kaniko-${UUID.randomUUID().toString()}"
+      defaultContainer 'gradle'
+      yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: hypelink
+spec:
+  restartPolicy: Never
+  containers:
+    - name: gradle
+      image: gradle:8.9-jdk17
+      command: ['cat']
+      tty: true
+      volumeMounts:
+        - name: gradle-cache
+          mountPath: /home/gradle/.gradle
+        - name: workspace
+          mountPath: /workspace
+    - name: kaniko
+      image: gcr.io/kaniko-project/executor:debug
+      command: ['/busybox/sh','-c','sleep infinity']
+      tty: true
+      volumeMounts:
+        - name: docker-config
+          mountPath: /kaniko/.docker
+        - name: workspace
+          mountPath: /workspace
+  volumes:
+    - name: gradle-cache
+      emptyDir: {}
+    - name: workspace
+      emptyDir: {}
+    - name: docker-config
+      secret:
+        secretName: dockerhub-cred
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+"""
+    }
+  }
+
+  environment {
+    docker_name = 'raccoon98'
+    GIT_URL = 'https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-BE'
+
+    // ⬇️ api-direct 이미지 이름
+    IMAGE_NAME = "${docker_name}/hypelink-api-direct"
+    IMAGE_TAG = "${env.BUILD_NUMBER}"
+
+    DISCORD_WEBHOOK_URL = credentials('discord-webhook-back')
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        container('gradle') {
+          checkout([$class: 'GitSCM',
+            branches: [[name: '*/main']],
+            userRemoteConfigs: [[url: "${GIT_URL}"]]
+          ])
+        }
+      }
+    }
+
+    stage('Check File Structure') {
+      steps {
+        container('gradle') {
+          sh '''
+            echo "=== WORKSPACE 구조 ==="
+            ls -la ${WORKSPACE}
+            echo "=== api-direct 디렉토리 ==="
+            ls -la ${WORKSPACE}/api-direct || true
+            ls -la ${WORKSPACE}/api-direct/build/libs || true
+            ls -la ${WORKSPACE}/api-direct/Dockerfile || true
+          '''
+        }
+      }
+    }
+
+    stage('Gradle Build (api-direct)') {
+      steps {
+        container('gradle') {
+          sh '''
+            cd api-direct
+            chmod +x ./gradlew || true
+            ./gradlew --no-daemon clean bootJar
+            ls -la build/libs
+          '''
+        }
+      }
+    }
+
+    stage('Kaniko Build & Push') {
+      steps {
+        container('kaniko') {
+          catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+            sh """
+              /kaniko/executor \\
+                --context=${WORKSPACE}/api-direct \\
+                --dockerfile=${WORKSPACE}/api-direct/Dockerfile \\
+                --destination=${IMAGE_NAME}:${IMAGE_TAG} \\
+                --destination=${IMAGE_NAME}:latest \\
+                --single-snapshot \\
+                --use-new-run \\
+                --cache=true \\
+                --snapshotMode=redo
+            """
+          }
+        }
+      }
+    }
+
+    stage('Deploy to Kubernetes (Blue/Green for api-direct)') {
+      steps {
+        echo "Deploying api-direct to Kubernetes with Blue-Green strategy"
+        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+          sshPublisher(
+            continueOnError: false,
+            failOnError: true,
+            publishers: [
+              sshPublisherDesc(
+                configName: 'K8S_MASTER',
+                verbose: true,
+                transfers: [
+                  sshTransfer(
+                    execCommand: """
+                      IMAGE_TAG="${IMAGE_TAG}"
+                      echo "DEBUG: IMAGE_TAG is \$IMAGE_TAG"
+
+                      # 현재 서비스가 있으면 selector.ver 읽기
+                      if kubectl get service hypelink-direct-svc -n hypelink >/dev/null 2>&1; then
+                        VER=\$(kubectl get service hypelink-direct-svc -n hypelink -o jsonpath='{.spec.selector.ver}')
+                        echo "DEBUG: Current VER is \$VER"
+                      else
+                        VER=""
+                        echo "DEBUG: No existing service, VER is empty"
+                      fi
+
+                      # 다음 배포 버전 결정
+                      if [ -z "\$VER" ]; then
+                        echo "🔹 서비스가 없으므로 초기 배포를 시작합니다."
+                        NEW_VER="blue"
+                      elif [ "\$VER" = "blue" ]; then
+                        NEW_VER="green"
+                      elif [ "\$VER" = "green" ]; then
+                        NEW_VER="blue"
+                      else
+                        echo "❌ 알 수 없는 버전: \$VER"
+                        exit 1
+                      fi
+
+                      echo "현재 버전: \${VER:-없음}"
+                      echo "새 버전: \$NEW_VER"
+
+                      # ✅ api-direct용 Deployment (네가 준 YAML 기반)
+                      cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-direct-deployment-\$NEW_VER
+  namespace: hypelink
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      type: direct
+      ver: \$NEW_VER
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  template:
+    metadata:
+      labels:
+        type: direct
+        ver: \$NEW_VER
+    spec:
+      containers:
+        - name: container
+          image: ${docker_name}/hypelink-api-direct:\$IMAGE_TAG
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
+          envFrom:
+            - configMapRef:
+                name: hypelink-direct-config
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /api/health/health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/health/health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /api/health/health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 24
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+EOF
+
+                      echo "DEBUG: Applied deployment spring-direct-deployment-\$NEW_VER"
+
+                      # 신규 버전 롤아웃 완료 대기
+                      kubectl rollout status deployment/spring-direct-deployment-\$NEW_VER -n hypelink --timeout=600s
+                      echo "DEBUG: Rollout status completed for spring-direct-deployment-\$NEW_VER"
+
+                      # ✅ api-direct용 Service (Blue/Green 전환)
+                      cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: hypelink-direct-svc
+  namespace: hypelink
+spec:
+  selector:
+    type: direct
+    ver: \$NEW_VER
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP
+EOF
+
+                      echo "DEBUG: Applied service hypelink-direct-svc with ver=\$NEW_VER"
+
+                      # 이전 버전 스케일 다운
+                      if [ -n "\$VER" ]; then
+                        echo "DEBUG: Scaling down previous deployment spring-direct-deployment-\$VER"
+                        kubectl scale deployment/spring-direct-deployment-\$VER -n hypelink --replicas=0
+                        echo "DEBUG: Scaled down spring-direct-deployment-\$VER"
+                      else
+                        echo "DEBUG: No previous version to scale down"
+                      fi
+                    """
+                  )
+                ]
+              )
+            ]
+          )
+        }
+      }
+    }
+
+    stage('Result') {
+      steps {
+        echo "Pushed and Deployed: ${IMAGE_NAME}:${IMAGE_TAG}"
+      }
+    }
+  }
+
+  post {
+    success {
+      script {
+        sh """
+          curl -X POST -H 'Content-Type: application/json' \
+            -d '{
+              "embeds": [{
+                "title": "✅ 빌드 성공: ${env.JOB_NAME}",
+                "description": "이미지: ${IMAGE_NAME}:${IMAGE_TAG}\\n빌드 번호: ${env.BUILD_NUMBER}\\n@@@@@api-direct 배포 성공!!!@@@@",
+                "color": 65280
+              }]
+            }' \
+            ${DISCORD_WEBHOOK_URL}
+        """
+      }
+    }
+    failure {
+      script {
+        sh """
+          curl -X POST -H 'Content-Type: application/json' \
+            -d '{
+              "embeds": [{
+                "title": "❌ 빌드 실패: ${env.JOB_NAME}",
+                "description": "빌드 번호: ${env.BUILD_NUMBER}\\napi-direct 배포 실패 ㅠㅠ",
+                "color": 16711680
+              }]
+            }' \
+            ${DISCORD_WEBHOOK_URL}
+        """
+      }
+    }
+  }
+}
