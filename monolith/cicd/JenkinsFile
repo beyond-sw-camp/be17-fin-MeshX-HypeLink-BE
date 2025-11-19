@@ -56,28 +56,61 @@ spec:
 
   stages {
 
-    /* -----------------------
-         Checkout
-    ----------------------- */
-    stage('Checkout') {
+    /* -------------------------------------------------------
+       1) Jenkins Git Plugin 기반 Webhook/Manual 브랜치 필터
+    ------------------------------------------------------- */
+    stage('Check Branch') {
       steps {
-        container('gradle') {
-          checkout([$class: 'GitSCM',
-            branches: [[name: '*/main']],
-            userRemoteConfigs: [[url: "${GIT_URL}"]]
-          ])
+        script {
+          def branch = env.GIT_BRANCH ?: env.BRANCH_NAME ?: ""
+
+          echo "Detected Jenkins Branch = '${branch}'"
+
+          // 🟡 수동 빌드 → env.GIT_BRANCH 없음 → 무조건 통과
+          if (!branch?.trim()) {
+            echo "⚠️ Manual build detected → Skip branch filter"
+            return
+          }
+
+          // 🟢 Webhook 빌드의 경우 Swagger/MSA만 허용
+          def allow1 = "origin/Swagger/MSA"
+          def allow2 = "Swagger/MSA"
+
+          if (branch != allow1 && branch != allow2) {
+            echo "⛔ Webhook blocked → Not Swagger/MSA"
+            currentBuild.result = "SUCCESS"
+            error("STOP")
+          }
+
+          echo "✅ Webhook from allowed branch: ${branch}"
         }
       }
     }
 
-    /* -----------------------
-         File structure check
-    ----------------------- */
+    /* -------------------------------------------------------
+       2) Checkout
+    ------------------------------------------------------- */
+    stage('Checkout') {
+      steps {
+        container('gradle') {
+          script {
+            checkout([$class: 'GitSCM',
+              branches: [[name: "*/Swagger/MSA"]],
+              userRemoteConfigs: [[url: "${GIT_URL}"]]
+            ])
+          }
+        }
+      }
+    }
+
+    /* -------------------------------------------------------
+       3) File Structure Check
+    ------------------------------------------------------- */
     stage('Check File Structure') {
       steps {
         container('gradle') {
           sh '''
-            echo "=== WORKSPACE ==="
+            echo "=== WORKSPACE ROOT ==="
             ls -la ${WORKSPACE}
 
             echo "=== api-monolith ==="
@@ -89,33 +122,33 @@ spec:
       }
     }
 
-    /* -----------------------
-         Gradle Build
-    ----------------------- */
+    /* -------------------------------------------------------
+       4) Gradle Build
+    ------------------------------------------------------- */
     stage('Gradle Build (api-monolith)') {
       steps {
         container('gradle') {
           sh '''
-            cd api-monolith
-            chmod +x ./gradlew || true
-            ./gradlew --no-daemon clean bootJar
+            cd monolith
+            chmod +x ../gradlew || true
+            ../gradlew --no-daemon clean bootJar -x test
             ls -la build/libs
           '''
         }
       }
     }
 
-    /* -----------------------
-         Kaniko Build
-    ----------------------- */
+    /* -------------------------------------------------------
+       5) Kaniko Build & Push
+    ------------------------------------------------------- */
     stage('Kaniko Build & Push') {
       steps {
         container('kaniko') {
           catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
             sh """
               /kaniko/executor \\
-                --context=${WORKSPACE}/api-monolith \\
-                --dockerfile=${WORKSPACE}/api-monolith/Dockerfile \\
+                --context=${WORKSPACE}/monolith \\
+                --dockerfile=${WORKSPACE}/monolith/Dockerfile \\
                 --destination=${IMAGE_NAME}:${IMAGE_TAG} \\
                 --destination=${IMAGE_NAME}:latest \\
                 --single-snapshot \\
@@ -128,12 +161,12 @@ spec:
       }
     }
 
-    /* -----------------------
-      Blue/Green Deployment
-    ----------------------- */
+    /* -------------------------------------------------------
+       6) Kubernetes Blue/Green 배포
+    ------------------------------------------------------- */
     stage('Deploy to Kubernetes (Blue/Green for api-monolith)') {
       steps {
-        echo "Deploying api-monolith to Kubernetes (Blue/Green)"
+        echo "🚀 Deploying api-monolith to Kubernetes (Blue/Green)"
         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
 
           sshPublisher(
@@ -147,32 +180,31 @@ spec:
                   sshTransfer(
                     execCommand: """
                       IMAGE_TAG="${IMAGE_TAG}"
-                      echo "[DEBUG] IMAGE_TAG=\$IMAGE_TAG"
-
-                      # 기존 서비스 버전 확인
-                      if kubectl get service hypelink-monolith-svc -n hypelink >/dev/null 2>&1; then
-                        VER=\$(kubectl get service hypelink-monolith-svc -n hypelink -o jsonpath='{.spec.selector.ver}')
-                        echo "[DEBUG] CURRENT VER=\$VER"
-                      else
-                        VER=""
-                        echo "[DEBUG] no existing service → initial deploy"
-                      fi
-
-                      # 새 버전 결정
-                      if [ -z "\$VER" ]; then
-                        NEW_VER="blue"
-                      elif [ "\$VER" = "blue" ]; then
-                        NEW_VER="green"
-                      else
-                        NEW_VER="blue"
-                      fi
-
-                      echo "현재 버전: \${VER:-없음}"
-                      echo "새 버전: \$NEW_VER"
-
 
 ##############################
-# 🚀 api-monolith Deployment
+# 현재 버전 확인
+##############################
+if kubectl get service hypelink-monolith-svc -n hypelink >/dev/null 2>&1; then
+  VER=\$(kubectl get service hypelink-monolith-svc -n hypelink -o jsonpath='{.spec.selector.ver}')
+else
+  VER=""
+fi
+echo "[DEBUG] Active Version = \${VER:-none}"
+
+##############################
+# 새 버전 결정
+##############################
+if [ -z "\$VER" ]; then
+  NEW_VER="blue"
+elif [ "\$VER" = "blue" ]; then
+  NEW_VER="green"
+else
+  NEW_VER="blue"
+fi
+echo "[DEBUG] New Version = \$NEW_VER"
+
+##############################
+# 새로운 Deployment 적용
 ##############################
 cat <<EOF | kubectl apply -f -
 apiVersion: apps/v1
@@ -186,11 +218,6 @@ spec:
     matchLabels:
       type: monolith
       ver: \$NEW_VER
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 25%
-      maxSurge: 25%
   template:
     metadata:
       labels:
@@ -200,7 +227,6 @@ spec:
       containers:
         - name: container
           image: ${docker_name}/hypelink-api-monolith:\$IMAGE_TAG
-          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           env:
@@ -212,48 +238,24 @@ spec:
           envFrom:
             - configMapRef:
                 name: hypelink-monolith-config
-          resources:
-            limits:
-              cpu: "500m"
-              memory: "1Gi"
-            requests:
-              cpu: "250m"
-              memory: "512Mi"
           livenessProbe:
             httpGet:
               path: /api/health/health
               port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            failureThreshold: 3
           readinessProbe:
             httpGet:
               path: /api/health/test
               port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            failureThreshold: 3
           startupProbe:
             httpGet:
               path: /api/health/health
               port: 8080
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            failureThreshold: 24
-      restartPolicy: Always
-      terminationGracePeriodSeconds: 30
-      dnsPolicy: ClusterFirst
 EOF
 
-
-##############################
-# rollout 완료 대기
-##############################
 kubectl rollout status deployment/spring-monolith-deployment-\$NEW_VER -n hypelink --timeout=600s
 
-
 ##############################
-# Service Blue/Green 전환
+# 서비스 Blue/Green 전환
 ##############################
 cat <<EOF | kubectl apply -f -
 apiVersion: v1
@@ -266,19 +268,14 @@ spec:
     type: monolith
     ver: \$NEW_VER
   ports:
-  - port: 8080
-    targetPort: 8080
-  type: ClusterIP
+    - port: 8080
+      targetPort: 8080
 EOF
 
-echo "[DEBUG] Service updated → ver=\$NEW_VER"
-
-
 ##############################
-# 이전 버전 scale down
+# 이전 버전 Scale Down
 ##############################
 if [ -n "\$VER" ]; then
-  echo "이전 버전 스케일 다운: spring-monolith-deployment-\$VER"
   kubectl scale deployment/spring-monolith-deployment-\$VER -n hypelink --replicas=0
 fi
 
@@ -292,31 +289,22 @@ fi
       }
     }
 
-    /* -----------------------
-         Result
-    ----------------------- */
     stage('Result') {
       steps {
-        echo "Pushed and Deployed: ${IMAGE_NAME}:${IMAGE_TAG}"
+        echo "✔ api-monolith 배포 완료: ${IMAGE_NAME}:${IMAGE_TAG}"
       }
     }
   }
 
-  /* -----------------------
+  /* -------------------------------------------------------
        Discord Notification
-  ----------------------- */
+  ------------------------------------------------------- */
   post {
     success {
       script {
         sh """
           curl -X POST -H 'Content-Type: application/json' \
-            -d '{
-              "embeds": [{
-                "title": "api-monolith 빌드 & 배포 성공",
-                "description": "이미지: ${IMAGE_NAME}:${IMAGE_TAG}\\n빌드 번호: ${env.BUILD_NUMBER}",
-                "color": 65280
-              }]
-            }' \
+            -d '{"embeds":[{"title":"api-monolith 배포 성공","description":"${IMAGE_NAME}:${IMAGE_TAG}","color":65280}]}' \
             ${DISCORD_WEBHOOK_URL}
         """
       }
@@ -325,13 +313,7 @@ fi
       script {
         sh """
           curl -X POST -H 'Content-Type: application/json' \
-            -d '{
-              "embeds": [{
-                "title": "api-monolith 빌드 실패",
-                "description": "빌드 번호: ${env.BUILD_NUMBER}",
-                "color": 16711680
-              }]
-            }' \
+            -d '{"embeds":[{"title":"api-monolith 배포 실패","description":"빌드 번호: ${env.BUILD_NUMBER}","color":16711680}]}' \
             ${DISCORD_WEBHOOK_URL}
         """
       }

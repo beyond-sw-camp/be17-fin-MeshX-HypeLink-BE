@@ -56,28 +56,63 @@ spec:
 
   stages {
 
-    /* -------------------
-       Checkout
-    ------------------- */
-    stage('Checkout') {
+    /* -------------------------------------------------------
+         1) Git Plugin 기반 Webhook/Manual Branch Filter
+       ------------------------------------------------------- */
+    stage('Check Branch') {
       steps {
-        container('gradle') {
-          checkout([$class: 'GitSCM',
-            branches: [[name: '*/main']],
-            userRemoteConfigs: [[url: "${GIT_URL}"]]
-          ])
+        script {
+          def branch = env.GIT_BRANCH ?: env.BRANCH_NAME ?: ""
+
+          echo "Detected Jenkins Branch = '${branch}'"
+
+          // 수동 빌드 → env.GIT_BRANCH 없음 → 무조건 허용
+          if (!branch?.trim()) {
+            echo "⚠️ Manual build detected → Skip branch filter"
+            return
+          }
+
+          // Webhook case
+          def allow1 = "origin/Swagger/MSA"
+          def allow2 = "Swagger/MSA"
+
+          if (branch != allow1 && branch != allow2) {
+            echo "⛔ Webhook from disallowed branch → stop"
+            currentBuild.result = "SUCCESS"
+            error("STOP")
+          }
+
+          echo "✅ Webhook from allowed branch (${branch}) → continue"
         }
       }
     }
 
-    /* -------------------
-       File Structure Check
-    ------------------- */
+    /* -------------------------------------------------------
+         2) Checkout
+       ------------------------------------------------------- */
+    stage('Checkout') {
+      steps {
+        container('gradle') {
+          script {
+            echo "📥 Checking out branch: Swagger/MSA"
+
+            checkout([$class: 'GitSCM',
+              branches: [[name: "*/Swagger/MSA"]],
+              userRemoteConfigs: [[url: "${GIT_URL}"]]
+            ])
+          }
+        }
+      }
+    }
+
+    /* -------------------------------------------------------
+         3) File Structure Check
+       ------------------------------------------------------- */
     stage('Check File Structure') {
       steps {
         container('gradle') {
           sh '''
-            echo "=== PROJECT ROOT ==="
+            echo "=== WORKSPACE ROOT ==="
             ls -la ${WORKSPACE}
 
             echo "=== api-item ==="
@@ -89,25 +124,25 @@ spec:
       }
     }
 
-    /* -------------------
-       Gradle Build
-    ------------------- */
+    /* -------------------------------------------------------
+         4) Gradle Build
+       ------------------------------------------------------- */
     stage('Gradle Build (api-item)') {
       steps {
         container('gradle') {
           sh '''
             cd api-item
-            chmod +x ./gradlew || true
-            ./gradlew --no-daemon clean bootJar
+            chmod +x ../gradlew || true
+            ../gradlew --no-daemon clean bootJar -x test
             ls -la build/libs
           '''
         }
       }
     }
 
-    /* -------------------
-       Kaniko Build
-    ------------------- */
+    /* -------------------------------------------------------
+         5) Kaniko Build
+       ------------------------------------------------------- */
     stage('Kaniko Build & Push') {
       steps {
         container('kaniko') {
@@ -128,13 +163,14 @@ spec:
       }
     }
 
-    /* -------------------
-       Blue/Green Deployment
-    ------------------- */
+    /* -------------------------------------------------------
+         6) Deploy to Kubernetes (Blue/Green)
+       ------------------------------------------------------- */
     stage('Deploy to Kubernetes (Blue/Green for api-item)') {
       steps {
-        echo "Deploying api-item to Kubernetes (Blue/Green)"
+        echo "🚀 Deploying api-item to Kubernetes (Blue/Green)"
         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+
           sshPublisher(
             continueOnError: false,
             failOnError: true,
@@ -146,34 +182,25 @@ spec:
                   sshTransfer(
                     execCommand: """
                       IMAGE_TAG="${IMAGE_TAG}"
-                      echo "[DEBUG] IMAGE_TAG=\$IMAGE_TAG"
 
-                      # 현재 service selector.ver 읽기
+                      # 현재 활성 버전 확인
                       if kubectl get service hypelink-item-svc -n hypelink >/dev/null 2>&1; then
                         VER=\$(kubectl get service hypelink-item-svc -n hypelink -o jsonpath='{.spec.selector.ver}')
-                        echo "[DEBUG] CURRENT VER=\$VER"
                       else
                         VER=""
-                        echo "[DEBUG] SERVICE DOES NOT EXIST (initial deploy)"
                       fi
 
-                      # 다음 배포 color 결정
-                      if [ -z "\$VER" ]; then
-                        NEW_VER="blue"
-                      elif [ "\$VER" = "blue" ]; then
-                        NEW_VER="green"
-                      else
-                        NEW_VER="blue"
-                      fi
+                      # 다음 버전 선택
+                      if [ -z "\$VER" ]; then NEW_VER="blue";
+                      elif [ "\$VER" = "blue" ]; then NEW_VER="green";
+                      else NEW_VER="blue"; fi
 
                       echo "현재 버전: \${VER:-없음}"
                       echo "새 버전: \$NEW_VER"
 
-
 ##############################
-# 🚀 api-item Deployment 적용
+# 🚀 api-item Deployment 생성
 ##############################
-
 cat <<EOF | kubectl apply -f -
 apiVersion: apps/v1
 kind: Deployment
@@ -186,11 +213,6 @@ spec:
     matchLabels:
       type: item
       ver: \$NEW_VER
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 25%
-      maxSurge: 25%
   template:
     metadata:
       labels:
@@ -203,62 +225,29 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
-              protocol: TCP
-          env:
-            - name: POD_IP
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: status.podIP
           envFrom:
             - configMapRef:
                 name: hypelink-item-config
-          resources:
-            limits:
-              cpu: "500m"
-              memory: "1Gi"
-            requests:
-              cpu: "250m"
-              memory: "512Mi"
           livenessProbe:
             httpGet:
               path: /api/health/health
               port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            timeoutSeconds: 1
-            failureThreshold: 3
           readinessProbe:
             httpGet:
               path: /api/health/info
               port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            timeoutSeconds: 1
-            failureThreshold: 3
           startupProbe:
             httpGet:
               path: /api/health/health
               port: 8080
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            timeoutSeconds: 1
-            failureThreshold: 24
-      restartPolicy: Always
-      terminationGracePeriodSeconds: 30
-      dnsPolicy: ClusterFirst
 EOF
 
-                      echo "[DEBUG] deployment(spring-item-deployment-\$NEW_VER) 적용됨"
-
-                      # rollout 완료 대기
                       kubectl rollout status deployment/spring-item-deployment-\$NEW_VER -n hypelink --timeout=600s
 
 
 ##############################
-# 🚀 Service Blue/Green 전환
+# Service Blue/Green 전환
 ##############################
-
 cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: Service
@@ -270,23 +259,16 @@ spec:
     type: item
     ver: \$NEW_VER
   ports:
-  - port: 8080
-    targetPort: 8080
-  type: ClusterIP
+    - port: 8080
+      targetPort: 8080
 EOF
 
-                      echo "[DEBUG] Service(hypelink-item-svc) ver=\$NEW_VER 적용 완료"
-
-
 ##############################
-# 🚀 이전 버전 Scale Down
+# 이전 버전 Scale Down
 ##############################
-
                       if [ -n "\$VER" ]; then
-                        echo "이전 버전 스케일 다운: spring-item-deployment-\$VER"
                         kubectl scale deployment/spring-item-deployment-\$VER -n hypelink --replicas=0
                       fi
-
                     """
                   )
                 ]
@@ -297,31 +279,25 @@ EOF
       }
     }
 
-    /* -------------------
-       Build Result
-    ------------------- */
+    /* -------------------------------------------------------
+         7) Result
+       ------------------------------------------------------- */
     stage('Result') {
       steps {
-        echo "Pushed and Deployed: ${IMAGE_NAME}:${IMAGE_TAG}"
+        echo "✔ api-item 배포 완료: ${IMAGE_NAME}:${IMAGE_TAG}"
       }
     }
   }
 
-  /* -------------------
-     Discord Notification
-  ------------------- */
+  /* -------------------------------------------------------
+       Discord Notification
+     ------------------------------------------------------- */
   post {
     success {
       script {
         sh """
           curl -X POST -H 'Content-Type: application/json' \
-            -d '{
-              "embeds": [{
-                "title": "api-item 빌드 & 배포 성공",
-                "description": "이미지: ${IMAGE_NAME}:${IMAGE_TAG}\\n빌드 번호: ${env.BUILD_NUMBER}",
-                "color": 65280
-              }]
-            }' \
+            -d '{"embeds":[{"title":"api-item 배포 성공","description":"${IMAGE_NAME}:${IMAGE_TAG}","color":65280}]}' \
             ${DISCORD_WEBHOOK_URL}
         """
       }
@@ -329,14 +305,8 @@ EOF
     failure {
       script {
         sh """
-          curl -X POST -VISIBLE 'Content-Type: application/json' \
-            -d '{
-              "embeds": [{
-                "title": "api-item 빌드 실패",
-                "description": "빌드 번호: ${env.BUILD_NUMBER}",
-                "color": 16711680
-              }]
-            }' \
+          curl -X POST -H 'Content-Type: application/json' \
+            -d '{"embeds":[{"title":"api-item 배포 실패","description":"빌드 번호: ${env.BUILD_NUMBER}","color":16711680}]}' \
             ${DISCORD_WEBHOOK_URL}
         """
       }

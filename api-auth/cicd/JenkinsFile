@@ -1,0 +1,290 @@
+pipeline {
+  agent {
+    kubernetes {
+      label "gradle-kaniko-${UUID.randomUUID().toString()}"
+      defaultContainer 'gradle'
+      yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: hypelink
+spec:
+  restartPolicy: Never
+  containers:
+    - name: gradle
+      image: gradle:8.9-jdk17
+      command: ['cat']
+      tty: true
+      volumeMounts:
+        - name: gradle-cache
+          mountPath: /home/gradle/.gradle
+        - name: workspace
+          mountPath: /workspace
+    - name: kaniko
+      image: gcr.io/kaniko-project/executor:debug
+      command: ['/busybox/sh','-c','sleep infinity']
+      tty: true
+      volumeMounts:
+        - name: docker-config
+          mountPath: /kaniko/.docker
+        - name: workspace
+          mountPath: /workspace
+  volumes:
+    - name: gradle-cache
+      emptyDir: {}
+    - name: workspace
+      emptyDir: {}
+    - name: docker-config
+      secret:
+        secretName: dockerhub-cred
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+"""
+    }
+  }
+
+  environment {
+    docker_name = 'raccoon98'
+    GIT_URL = 'https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-BE'
+
+    IMAGE_NAME = "${docker_name}/hypelink-api-auth"
+    IMAGE_TAG = "${env.BUILD_NUMBER}"
+
+    DISCORD_WEBHOOK_URL = credentials('discord-webhook-back')
+  }
+
+  stages {
+
+    /* --------------------------------------------------
+       🔥 Webhook 브랜치 필터 (Generic Webhook 없이!)
+       Manual Build → GIT_BRANCH 없음 → Skip
+       Webhook Build → GIT_BRANCH 존재 → 필터 적용
+    -------------------------------------------------- */
+    stage('Check Branch') {
+      steps {
+        script {
+          def branch = env.GIT_BRANCH ?: env.BRANCH_NAME ?: ""
+
+          echo "Detected Jenkins Branch = '${branch}'"
+
+          // Manual build → env.GIT_BRANCH 없음 → always pass
+          if (!branch?.trim()) {
+            echo "⚠️ Manual Build detected → Skipping branch filter"
+            return
+          }
+
+          // Allow only Swagger/MSA
+          def allow1 = "origin/Swagger/MSA"
+          def allow2 = "Swagger/MSA"
+
+          if (branch != allow1 && branch != allow2) {
+            echo "⛔ Webhook from disallowed branch → Stop"
+            currentBuild.result = "SUCCESS"
+            error("STOP")
+          }
+
+          echo "✅ Webhook from allowed branch (${branch}) → Continue"
+        }
+      }
+    }
+
+    /* --------------------------------------------------
+       Checkout
+    -------------------------------------------------- */
+    stage('Checkout') {
+      steps {
+        container('gradle') {
+          script {
+            checkout([$class: 'GitSCM',
+              branches: [[name: "*/Swagger/MSA"]],   // always checkout this branch
+              userRemoteConfigs: [[url: "${GIT_URL}"]]
+            ])
+          }
+        }
+      }
+    }
+
+    /* --------------------------------------------------
+       Check File Structure
+    -------------------------------------------------- */
+    stage('Check File Structure') {
+      steps {
+        container('gradle') {
+          sh '''
+            echo "=== PROJECT ROOT ==="
+            ls -la ${WORKSPACE}
+
+            echo "=== api-auth ==="
+            ls -la ${WORKSPACE}/api-auth || true
+            ls -la ${WORKSPACE}/api-auth/Dockerfile || true
+            ls -la ${WORKSPACE}/api-auth/build/libs || true
+          '''
+        }
+      }
+    }
+
+    /* --------------------------------------------------
+       Gradle Build
+    -------------------------------------------------- */
+    stage('Gradle Build (api-auth)') {
+      steps {
+        container('gradle') {
+          sh '''
+            cd api-auth
+            chmod +x ../gradlew || true
+            ../gradlew --no-daemon clean bootJar -x test
+            ls -la build/libs
+          '''
+        }
+      }
+    }
+
+    /* --------------------------------------------------
+       Kaniko Build & Push
+    -------------------------------------------------- */
+    stage('Kaniko Build & Push') {
+      steps {
+        container('kaniko') {
+          catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+            sh """
+              /kaniko/executor \\
+                --context=${WORKSPACE}/api-auth \\
+                --dockerfile=${WORKSPACE}/api-auth/Dockerfile \\
+                --destination=${IMAGE_NAME}:${IMAGE_TAG} \\
+                --destination=${IMAGE_NAME}:latest \\
+                --single-snapshot \\
+                --use-new-run \\
+                --cache=true \\
+                --snapshotMode=redo
+            """
+          }
+        }
+      }
+    }
+
+    /* --------------------------------------------------
+       K8s Blue/Green Deploy
+    -------------------------------------------------- */
+    stage('Deploy to Kubernetes (api-auth)') {
+      steps {
+        echo "Deploying api-auth…"
+        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+
+          sshPublisher(
+            continueOnError: false,
+            failOnError: true,
+            publishers: [
+              sshPublisherDesc(
+                configName: 'K8S_MASTER',
+                verbose: true,
+                transfers: [
+                  sshTransfer(
+                    execCommand: """
+                      IMAGE_TAG="${IMAGE_TAG}"
+
+                      if kubectl get service hypelink-auth-svc -n hypelink >/dev/null 2>&1; then
+                        VER=\$(kubectl get service hypelink-auth-svc -n hypelink -o jsonpath='{.spec.selector.ver}')
+                      else
+                        VER=""
+                      fi
+
+                      if [ -z "\$VER" ]; then NEW_VER="blue";
+                      elif [ "\$VER" = "blue" ]; then NEW_VER="green";
+                      else NEW_VER="blue"; fi
+
+                      echo "Current Version → \$VER"
+                      echo "New Version → \$NEW_VER"
+
+cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-auth-deployment-\$NEW_VER
+  namespace: hypelink
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      type: auth
+      ver: \$NEW_VER
+  template:
+    metadata:
+      labels:
+        type: auth
+        ver: \$NEW_VER
+    spec:
+      containers:
+        - name: container
+          image: ${docker_name}/hypelink-api-auth:\$IMAGE_TAG
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: hypelink-auth-config
+EOF
+
+                      kubectl rollout status deployment/spring-auth-deployment-\$NEW_VER -n hypelink --timeout=600s
+
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: hypelink-auth-svc
+  namespace: hypelink
+spec:
+  selector:
+    type: auth
+    ver: \$NEW_VER
+  ports:
+    - port: 8080
+      targetPort: 8080
+EOF
+
+                      if [ -n "\$VER" ]; then
+                        kubectl scale deployment/spring-auth-deployment-\$VER -n hypelink --replicas=0
+                      fi
+                    """
+                  )
+                ]
+              )
+            ]
+          )
+        }
+      }
+    }
+
+    /* --------------------------------------------------
+       Result Stage
+    -------------------------------------------------- */
+    stage('Result') {
+      steps {
+        echo "✔ Pushed and Deployed: ${IMAGE_NAME}:${IMAGE_TAG}"
+      }
+    }
+  }
+
+  /* --------------------------------------------------
+     Discord Noti
+  -------------------------------------------------- */
+  post {
+    success {
+      script {
+        sh """
+          curl -X POST -H 'Content-Type: application/json' \
+            -d '{"embeds":[{"title":"api-auth 배포 성공","description":"${IMAGE_NAME}:${IMAGE_TAG}","color":65280}]}' \
+            ${DISCORD_WEBHOOK_URL}
+        """
+      }
+    }
+    failure {
+      script {
+        sh """
+          curl -X POST -H 'Content-Type: application/json' \
+            -d '{"embeds":[{"title":"api-auth 배포 실패","description":"빌드 번호: ${env.BUILD_NUMBER}","color":16711680}]}' \
+            ${DISCORD_WEBHOOK_URL}
+        """
+      }
+    }
+  }
+}

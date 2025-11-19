@@ -48,7 +48,6 @@ spec:
     docker_name = 'raccoon98'
     GIT_URL = 'https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-BE'
 
-    // ⬇️ api-direct 이미지 이름
     IMAGE_NAME = "${docker_name}/hypelink-api-direct"
     IMAGE_TAG = "${env.BUILD_NUMBER}"
 
@@ -56,24 +55,67 @@ spec:
   }
 
   stages {
-    stage('Checkout') {
+
+    /* -------------------------------------------------------
+       1) Branch Filter (Git Plugin 기반)
+       Manual Build → always pass
+       Webhook Build → Swagger/MSA만 허용
+    ------------------------------------------------------- */
+    stage('Check Branch') {
       steps {
-        container('gradle') {
-          checkout([$class: 'GitSCM',
-            branches: [[name: '*/main']],
-            userRemoteConfigs: [[url: "${GIT_URL}"]]
-          ])
+        script {
+          def branch = env.GIT_BRANCH ?: env.BRANCH_NAME ?: ""
+
+          echo "Detected Jenkins Branch = '${branch}'"
+
+          // Manual build → env.GIT_BRANCH 없음
+          if (!branch?.trim()) {
+            echo "⚠️ Manual Build detected → Skip branch filter"
+            return
+          }
+
+          // Webhook builds only:
+          def allow1 = "origin/Swagger/MSA"
+          def allow2 = "Swagger/MSA"
+
+          if (branch != allow1 && branch != allow2) {
+            echo "⛔ Webhook blocked → Not Swagger/MSA"
+            currentBuild.result = "SUCCESS"
+            error("STOP")
+          }
+
+          echo "✅ Webhook allowed branch: ${branch}"
         }
       }
     }
 
+    /* -------------------------------------------------------
+       2) Checkout
+    ------------------------------------------------------- */
+    stage('Checkout') {
+      steps {
+        container('gradle') {
+          script {
+            checkout([$class: 'GitSCM',
+              branches: [[name: "*/Swagger/MSA"]],
+              userRemoteConfigs: [[url: "${GIT_URL}"]]
+            ])
+          }
+        }
+      }
+    }
+
+    /* -------------------------------------------------------
+       3) File Structure
+    ------------------------------------------------------- */
     stage('Check File Structure') {
       steps {
         container('gradle') {
           sh '''
-            echo "=== WORKSPACE 구조 ==="
+            echo "=== WORKSPACE ==="
             ls -la ${WORKSPACE}
-            echo "=== api-direct 디렉토리 ==="
+
+            echo "=== api-direct ==="
             ls -la ${WORKSPACE}/api-direct || true
             ls -la ${WORKSPACE}/api-direct/build/libs || true
             ls -la ${WORKSPACE}/api-direct/Dockerfile || true
@@ -82,19 +124,25 @@ spec:
       }
     }
 
+    /* -------------------------------------------------------
+       4) Gradle Build
+    ------------------------------------------------------- */
     stage('Gradle Build (api-direct)') {
       steps {
         container('gradle') {
           sh '''
             cd api-direct
-            chmod +x ./gradlew || true
-            ./gradlew --no-daemon clean bootJar
+            chmod +x ../gradlew || true
+            ../gradlew --no-daemon clean bootJar -x test
             ls -la build/libs
           '''
         }
       }
     }
 
+    /* -------------------------------------------------------
+       5) Kaniko Build
+    ------------------------------------------------------- */
     stage('Kaniko Build & Push') {
       steps {
         container('kaniko') {
@@ -115,10 +163,14 @@ spec:
       }
     }
 
+    /* -------------------------------------------------------
+       6) Deploy to K8s (Blue/Green)
+    ------------------------------------------------------- */
     stage('Deploy to Kubernetes (Blue/Green for api-direct)') {
       steps {
-        echo "Deploying api-direct to Kubernetes with Blue-Green strategy"
+        echo "🚀 Deploying api-direct…"
         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+
           sshPublisher(
             continueOnError: false,
             failOnError: true,
@@ -130,35 +182,23 @@ spec:
                   sshTransfer(
                     execCommand: """
                       IMAGE_TAG="${IMAGE_TAG}"
-                      echo "DEBUG: IMAGE_TAG is \$IMAGE_TAG"
 
-                      # 현재 서비스가 있으면 selector.ver 읽기
+                      # 현재 버전 체크
                       if kubectl get service hypelink-direct-svc -n hypelink >/dev/null 2>&1; then
                         VER=\$(kubectl get service hypelink-direct-svc -n hypelink -o jsonpath='{.spec.selector.ver}')
-                        echo "DEBUG: Current VER is \$VER"
                       else
                         VER=""
-                        echo "DEBUG: No existing service, VER is empty"
                       fi
 
-                      # 다음 배포 버전 결정
-                      if [ -z "\$VER" ]; then
-                        echo "🔹 서비스가 없으므로 초기 배포를 시작합니다."
-                        NEW_VER="blue"
-                      elif [ "\$VER" = "blue" ]; then
-                        NEW_VER="green"
-                      elif [ "\$VER" = "green" ]; then
-                        NEW_VER="blue"
-                      else
-                        echo "❌ 알 수 없는 버전: \$VER"
-                        exit 1
-                      fi
+                      # 새 버전 선택
+                      if [ -z "\$VER" ]; then NEW_VER="blue";
+                      elif [ "\$VER" = "blue" ]; then NEW_VER="green";
+                      else NEW_VER="blue"; fi
 
-                      echo "현재 버전: \${VER:-없음}"
-                      echo "새 버전: \$NEW_VER"
+                      echo "현재 버전 = \$VER"
+                      echo "새 버전 = \$NEW_VER"
 
-                      # ✅ api-direct용 Deployment (네가 준 YAML 기반)
-                      cat <<EOF | kubectl apply -f -
+cat <<EOF | kubectl apply -f -
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -170,11 +210,6 @@ spec:
     matchLabels:
       type: direct
       ver: \$NEW_VER
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 25%
-      maxSurge: 25%
   template:
     metadata:
       labels:
@@ -184,10 +219,8 @@ spec:
       containers:
         - name: container
           image: ${docker_name}/hypelink-api-direct:\$IMAGE_TAG
-          imagePullPolicy: Always
           ports:
             - containerPort: 8080
-              protocol: TCP
           env:
             - name: POD_IP
               valueFrom:
@@ -197,56 +230,23 @@ spec:
           envFrom:
             - configMapRef:
                 name: hypelink-direct-config
-          resources:
-            limits:
-              cpu: "500m"
-              memory: "1Gi"
-            requests:
-              cpu: "250m"
-              memory: "512Mi"
           livenessProbe:
             httpGet:
               path: /api/health/health
               port: 8080
-              scheme: HTTP
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            timeoutSeconds: 1
-            successThreshold: 1
-            failureThreshold: 3
           readinessProbe:
             httpGet:
               path: /api/health/health
               port: 8080
-              scheme: HTTP
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            timeoutSeconds: 1
-            successThreshold: 1
-            failureThreshold: 3
           startupProbe:
             httpGet:
               path: /api/health/health
               port: 8080
-              scheme: HTTP
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            timeoutSeconds: 1
-            successThreshold: 1
-            failureThreshold: 24
-      restartPolicy: Always
-      terminationGracePeriodSeconds: 30
-      dnsPolicy: ClusterFirst
 EOF
 
-                      echo "DEBUG: Applied deployment spring-direct-deployment-\$NEW_VER"
-
-                      # 신규 버전 롤아웃 완료 대기
                       kubectl rollout status deployment/spring-direct-deployment-\$NEW_VER -n hypelink --timeout=600s
-                      echo "DEBUG: Rollout status completed for spring-direct-deployment-\$NEW_VER"
 
-                      # ✅ api-direct용 Service (Blue/Green 전환)
-                      cat <<EOF | kubectl apply -f -
+cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: Service
 metadata:
@@ -257,20 +257,12 @@ spec:
     type: direct
     ver: \$NEW_VER
   ports:
-  - port: 8080
-    targetPort: 8080
-  type: ClusterIP
+    - port: 8080
+      targetPort: 8080
 EOF
 
-                      echo "DEBUG: Applied service hypelink-direct-svc with ver=\$NEW_VER"
-
-                      # 이전 버전 스케일 다운
                       if [ -n "\$VER" ]; then
-                        echo "DEBUG: Scaling down previous deployment spring-direct-deployment-\$VER"
                         kubectl scale deployment/spring-direct-deployment-\$VER -n hypelink --replicas=0
-                        echo "DEBUG: Scaled down spring-direct-deployment-\$VER"
-                      else
-                        echo "DEBUG: No previous version to scale down"
                       fi
                     """
                   )
@@ -282,25 +274,23 @@ EOF
       }
     }
 
+    /* 결과 출력 */
     stage('Result') {
       steps {
-        echo "Pushed and Deployed: ${IMAGE_NAME}:${IMAGE_TAG}"
+        echo "✔ Pushed and Deployed: ${IMAGE_NAME}:${IMAGE_TAG}"
       }
     }
   }
 
+  /* -------------------------------------------------------
+       Discord Notification
+  ------------------------------------------------------- */
   post {
     success {
       script {
         sh """
           curl -X POST -H 'Content-Type: application/json' \
-            -d '{
-              "embeds": [{
-                "title": "✅ 빌드 성공: ${env.JOB_NAME}",
-                "description": "이미지: ${IMAGE_NAME}:${IMAGE_TAG}\\n빌드 번호: ${env.BUILD_NUMBER}\\n@@@@@api-direct 배포 성공!!!@@@@",
-                "color": 65280
-              }]
-            }' \
+            -d '{"embeds":[{"title":"api-direct 배포 성공","description":"${IMAGE_NAME}:${IMAGE_TAG}","color":65280}]}' \
             ${DISCORD_WEBHOOK_URL}
         """
       }
@@ -309,13 +299,7 @@ EOF
       script {
         sh """
           curl -X POST -H 'Content-Type: application/json' \
-            -d '{
-              "embeds": [{
-                "title": "❌ 빌드 실패: ${env.JOB_NAME}",
-                "description": "빌드 번호: ${env.BUILD_NUMBER}\\napi-direct 배포 실패 ㅠㅠ",
-                "color": 16711680
-              }]
-            }' \
+            -d '{"embeds":[{"title":"api-direct 배포 실패","description":"${IMAGE_NAME}:${IMAGE_TAG}","color":16711680}]}' \
             ${DISCORD_WEBHOOK_URL}
         """
       }
