@@ -84,9 +84,9 @@ pipeline {
         }
 
         /* --------------------------------------------------
-         🔥 4. Build Services (Max 2 parallel)
+         🔥 4. Build Services (Max 1 parallel)
         -------------------------------------------------- */
-        stage('Build Services (Concurrent 2)') {
+        stage('Build Services (Concurrent 1)') {
             steps {
                 script {
                     def targetServices = isManual ?
@@ -96,7 +96,7 @@ pipeline {
                     echo "🚀 Build target services: ${targetServices}"
 
                     // 동시 작업 제한
-                    final int MAX_PARALLEL = 2
+                    final int MAX_PARALLEL = 1
                     int index = 0
 
                     while (index < targetServices.size()) {
