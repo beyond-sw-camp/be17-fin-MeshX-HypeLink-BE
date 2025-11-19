@@ -95,10 +95,6 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 
 ## 🔧 시스템 아키텍처
 
-### V1. 모놀리식 시스템 아키텍쳐
-<img width="6538" height="3727" alt="모놀리식 시스템 아키텍쳐" src="https://github.com/user-attachments/assets/2ce88899-b695-48e1-8080-a7db56f8b0b2" />
-
-### V2. MSA 시스템 아키텍쳐
 <img width="9492" height="7614" alt="MSA 시스템 아키텍쳐" src="https://github.com/user-attachments/assets/8d8a16b7-c0f4-4b5a-8f79-f5d7d1d87d6f" />
 
 
@@ -109,11 +105,18 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 ## 🖊️ ERD 
 
 <details>
-<summary>ERD 펼치기/접기</summary>
+<summary>본사 ERD 펼치기/접기</summary>
 <div markdown="1">
 
-## 모놀리식 ERD
+## 본사 ERD
 <img width="6098" height="6796" alt="hypelinkERD" src="https://github.com/user-attachments/assets/5d69fadd-c449-4fd8-a777-5474397b4937" />
+
+</div>
+</details>
+
+<details>
+<summary> MSA 모듈 ERD 접기/펼치기</summary>
+<div markdown="1">
 
 ## AUTH ERD
 <img width="2664" height="1490" alt="authERD" src="https://github.com/user-attachments/assets/b1261ca8-2706-40ed-868b-42c8a4723a02" />
@@ -126,9 +129,6 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 
 ## NOTICE ERD
 <img width="840" height="1100" alt="noticeERD" src="https://github.com/user-attachments/assets/bd19f0e2-4b48-421d-8036-fa9ff830c375" />
-
-
-
 
 </div>
 </details>
