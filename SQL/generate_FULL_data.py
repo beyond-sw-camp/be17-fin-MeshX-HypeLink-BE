@@ -223,10 +223,12 @@ def generate_header():
 -- 날짜 범위: 2024-01-01 ~ 2025-11-30
 -- AS, Message, Coupon, Notice, Promotion 등 모든 엔티티 포함
 -- ============================================
+-- ⚠️ Member, Store, POS, Driver는 BaseMember.java가 관리하므로 TRUNCATE 하지 않음!
+-- ============================================
 
 SET FOREIGN_KEY_CHECKS = 0;
 
--- 기존 데이터 삭제
+-- 기존 데이터 삭제 (Member, Store, POS, Driver 제외)
 TRUNCATE TABLE as_comment;
 TRUNCATE TABLE `as`;
 TRUNCATE TABLE chat_message;
@@ -248,10 +250,6 @@ TRUNCATE TABLE store_category;
 TRUNCATE TABLE item_detail;
 TRUNCATE TABLE item;
 TRUNCATE TABLE customer;
-TRUNCATE TABLE pos;
-TRUNCATE TABLE driver;
-TRUNCATE TABLE store;
-TRUNCATE TABLE member;
 TRUNCATE TABLE category;
 TRUNCATE TABLE size;
 TRUNCATE TABLE color;
@@ -346,8 +344,12 @@ def generate_items_and_details():
     sql += "-- 본사 상품 + 상품 상세\n"
     sql += "-- ============================================\n"
 
-    item_count = 50
+    item_count = random.randint(200, 500)
     detail_id = 1
+
+    # 본사 상품의 item_detail 정보를 저장 (나중에 매장에서 사용)
+    global HQ_ITEM_DETAILS
+    HQ_ITEM_DETAILS = {}
 
     # 본사 상품
     item_values = []
@@ -367,6 +369,13 @@ def generate_items_and_details():
         amount = int(unit_price * random.uniform(1.5, 2.5))
         item_values.append(f"({i}, {category_id}, '{item_code}', {unit_price}, {amount}, '{en_name}', '{ko_name}', '{content}', '{brand}', NOW(), NOW())")
 
+        # 이 상품의 색상/사이즈 조합 저장
+        HQ_ITEM_DETAILS[item_code] = {
+            'colors': random.sample(COLORS, 2),
+            'sizes': random.sample(SIZES, 3),
+            'category_id': category_id
+        }
+
     sql += "INSERT INTO item (id, category_id, item_code, unit_price, amount, en_name, ko_name, content, company, created_at, updated_at) VALUES\n"
     sql += ",\n".join(item_values) + ";\n\n"
 
@@ -375,10 +384,13 @@ def generate_items_and_details():
     detail_values = []
     for item_id in range(1, item_count + 1):
         item_code = f"ITEM-{item_id:03d}"
-        for color in random.sample(COLORS, 2):
-            for size_idx in random.sample(range(1, len(SIZES) + 1), 3):
-                stock = random.randint(10, 100)
-                detail_code = f"{item_code}-{color['name'][:3].upper()}-{SIZES[size_idx-1]}"
+        item_info = HQ_ITEM_DETAILS[item_code]
+
+        for color in item_info['colors']:
+            for size in item_info['sizes']:
+                size_idx = SIZES.index(size) + 1
+                stock = random.randint(200, 500)
+                detail_code = f"{item_code}-{color['name'][:3].upper()}-{size}"
                 detail_values.append(f"({detail_id}, {color['id']}, {size_idx}, {stock}, '{detail_code}', {item_id}, NOW(), NOW())")
                 detail_id += 1
     sql += ",\n".join(detail_values) + ";\n\n"
@@ -387,27 +399,41 @@ def generate_items_and_details():
 
 def generate_store_items():
     sql = "-- ============================================\n"
-    sql += "-- 매장별 상품 + 상품 상세 (매장당 5개)\n"
+    sql += "-- 매장별 상품 + 상품 상세 (본사 모든 상품, 매장당 재고 10~20개씩)\n"
     sql += "-- ============================================\n"
 
-    item_id = 1
-    detail_id = 1
-    category_id = 1
+    store_item_id = 1
+    store_item_detail_id = 1
+    store_category_id = 1
+
+    # 본사의 모든 상품을 HQ_ITEM_DETAILS에서 가져오기
+    headquarter_items = []
+    for item_code, item_info in HQ_ITEM_DETAILS.items():
+        item_id = int(item_code.split('-')[1])
+        headquarter_items.append({
+            'item_id': item_id,
+            'item_code': item_code,
+            'category_id': item_info['category_id']
+        })
 
     for store in STORES:
-        # 매장 카테고리
+        # 매장 카테고리 (본사 Category와 동일한 이름 사용)
         sql += f"\n-- {store['name']} 카테고리\n"
         sql += "INSERT INTO store_category (id, store_id, category, created_at, updated_at) VALUES\n"
         cat_values = []
-        for i, cat in enumerate(CATEGORIES[:3], category_id):
+        for i, cat in enumerate(CATEGORIES, store_category_id):
             cat_values.append(f"({i}, {store['id']}, '{cat}', NOW(), NOW())")
         sql += ",\n".join(cat_values) + ";\n\n"
 
-        # 매장 상품 5개
-        for _ in range(5):
-            item_code = f"ITEM-{random.randint(1, 50):03d}"
-            cat_id = category_id + random.randint(0, 2)
-            category_name = CATEGORIES[(cat_id - 1) % len(CATEGORIES)]
+        # 모든 본사 상품을 이 매장에 배치 (각 상품마다 재고 10~20개)
+        # 매장 상품 생성 (본사 상품과 itemCode 일치)
+        for hq_item in headquarter_items:
+            item_code = hq_item['item_code']
+            # 카테고리 ID는 store_category_id 기준으로 매핑
+            category_idx = (hq_item['category_id'] - 1) % len(CATEGORIES)
+            cat_id = store_category_id + category_idx
+            category_name = CATEGORIES[category_idx]
+
             unit_price = random.randint(50, 500) * 1000
             amount = int(unit_price * random.uniform(1.5, 2.5))
             brand = random.choice(BRANDS)
@@ -419,21 +445,25 @@ def generate_store_items():
             content = f"{brand}의 {product_name}. 고품질 소재와 세련된 디자인."
 
             sql += f"INSERT INTO store_item (id, category_id, store_id, item_code, unit_price, amount, en_name, ko_name, content, company, created_at, updated_at) VALUES\n"
-            sql += f"({item_id}, {cat_id}, {store['id']}, '{item_code}', {unit_price}, {amount}, '{en_name}', '{ko_name}', '{content}', '{brand}', NOW(), NOW());\n\n"
+            sql += f"({store_item_id}, {cat_id}, {store['id']}, '{item_code}', {unit_price}, {amount}, '{en_name}', '{ko_name}', '{content}', '{brand}', NOW(), NOW());\n\n"
 
-            # 상품 상세
+            # 상품 상세 (본사 Color/Size와 일치하는 값 사용)
             sql += "INSERT INTO store_item_detail (id, color, color_code, size, stock, item_detail_code, item_id, created_at, updated_at) VALUES\n"
             detail_values = []
-            for color in random.sample(COLORS, 2):
-                for size in random.sample(SIZES, 3):
-                    stock = random.randint(5, 30)
+            # 본사 ItemDetail과 완전히 동일한 색상/사이즈 조합 사용
+            hq_info = HQ_ITEM_DETAILS[item_code]
+            selected_colors = hq_info['colors']
+            selected_sizes = hq_info['sizes']
+            for color in selected_colors:
+                for size in selected_sizes:
+                    stock = random.randint(10, 20)
                     detail_code = f"{item_code}-{color['name'][:3].upper()}-{size}"
-                    detail_values.append(f"({detail_id}, '{color['name']}', '{color['code']}', '{size}', {stock}, '{detail_code}', {item_id}, NOW(), NOW())")
-                    detail_id += 1
+                    detail_values.append(f"({store_item_detail_id}, '{color['name']}', '{color['code']}', '{size}', {stock}, '{detail_code}', {store_item_id}, NOW(), NOW())")
+                    store_item_detail_id += 1
             sql += ",\n".join(detail_values) + ";\n\n"
-            item_id += 1
+            store_item_id += 1
 
-        category_id += 3
+        store_category_id += len(CATEGORIES)
 
     return sql
 
@@ -784,16 +814,21 @@ def main():
     print("\nAll Entities Included:")
     print("   - Members, Stores, POS, Drivers: Managed by BaseMember.java (auto-generated on server start)")
     print("   - Customers: 1000")
-    print("   - Items: 50, ItemDetails: 300")
-    print("   - StoreItems: 50, StoreItemDetails: 300")
+    print("   - HQ Items: 50, HQ ItemDetails: 300 (본사 상품)")
+    print("   - StoreItems: 100 (10 stores × 10 items, itemCode 본사와 일치)")
+    print("   - StoreItemDetails: 600 (각 매장 상품당 6개 상세)")
     print("   - Receipts: ~10000 (9800-10200), Payments: ~7000, OrderItems: ~20000")
     print("   - Shipments: 100 (Unassigned: 30, Assigned: 40, Completed/etc: 30)")
     print("   - Coupons: 20, CustomerCoupons: 200")
     print("   - Notices: 30, Promotions: 20")
     print("   - AS Requests: 50, AS Comments: 100")
     print("   - Messages: 100, ChatMessages: 200")
-    print("   - PurchaseOrders: 100")
+    print("   - PurchaseOrders: 100 (본사 ItemDetail 참조)")
     print("   - Date Range: 2024-01-01 ~ 2025-11-30")
+    print("\nImportant:")
+    print("   - Store itemCode matches HQ itemCode → Purchase orders work!")
+    print("   - StoreCategory matches HQ Category names")
+    print("   - StoreItemDetail color/size matches HQ Color/Size values")
     print("\nHow to use:")
     print("   1. Start the Spring Boot server first (BaseMember.java will create Member/Store/POS/Driver)")
     print("   2. Then run: mariadb -u root -p hypelink < complete_init_data_FULL.sql")
