@@ -5,7 +5,9 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "monolith", url = "http://localhost:8079", path = "/api/shipment")
+
+
+@FeignClient(name = "monolith", url = "${MONOLITH_URL}", path = "/api/shipment")
 public interface ShipmentClient {
 
     @GetMapping("/driver/{driverId}/has-active")
