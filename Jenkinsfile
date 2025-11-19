@@ -7,7 +7,7 @@ pipeline {
 
     environment {
         GIT_URL = "https://github.com/beyond-sw-camp/be17-fin-MeshX-HypeLink-BE"
-        SERVICES = "api-auth api-item api-direct api-notice api-monolith"
+        SERVICES = "api-auth api-item api-direct api-notice monolith"
     }
 
     stages {
