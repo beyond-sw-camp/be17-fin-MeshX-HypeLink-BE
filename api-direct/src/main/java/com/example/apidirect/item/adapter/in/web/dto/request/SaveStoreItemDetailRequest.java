@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SaveStoreItemDetailRequest {
+    private Integer id; // 모놀리식 store_item_detail.id
     private String size;
     private String color;
     private String colorCode;

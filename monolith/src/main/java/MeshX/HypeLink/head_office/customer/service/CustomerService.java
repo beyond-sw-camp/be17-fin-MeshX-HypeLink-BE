@@ -98,7 +98,7 @@ public class CustomerService {
 
     public CustomerInfoRes findByPhoneWithAvailableCoupons(String phone) {
         Customer customer = customerRepository.findByPhoneWithAvailableCoupons(phone);
-        return CustomerInfoRes.toDto(customer);
+        return CustomerInfoRes.toDtoWithAvailableCoupons(customer);
     }
 
     // 매장별 주문 내역 조회

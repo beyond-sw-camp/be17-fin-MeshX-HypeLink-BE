@@ -27,8 +27,9 @@ public class StoreItemDetailEntity extends BaseEntity {
     private StoreItemEntity item;
 
     @Builder
-    private StoreItemDetailEntity(String color, String colorCode, String size,
+    private StoreItemDetailEntity(Integer id, String color, String colorCode, String size,
                                  Integer stock, String itemDetailCode, StoreItemEntity item) {
+        this.id = id;
         this.color = color;
         this.colorCode = colorCode;
         this.size = size;

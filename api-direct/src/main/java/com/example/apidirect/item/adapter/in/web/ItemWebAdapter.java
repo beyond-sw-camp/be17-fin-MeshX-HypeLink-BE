@@ -85,7 +85,7 @@ public class ItemWebAdapter {
 
     @PatchMapping("/detail/update")
     public ResponseEntity<BaseResponse<String>> updateItemStock(@RequestBody UpdateStoreItemDetailRequest request) {
-        itemCommandPort.updateStock(request.getItemDetailCode(), request.getUpdateStock());
+        itemCommandPort.updateStock(request.getStoreId(), request.getItemDetailCode(), request.getUpdateStock());
         return ResponseEntity.ok(BaseResponse.of("성공"));
     }
 }

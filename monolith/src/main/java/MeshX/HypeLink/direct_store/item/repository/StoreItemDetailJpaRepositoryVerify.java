@@ -81,6 +81,10 @@ public class StoreItemDetailJpaRepositoryVerify extends AbstractBatchSaveReposit
         return repository.findByStoreId(storeId, pageable);
     }
 
+    public List<StoreItemDetail> findAllByStoreId(Integer storeId) {
+        return repository.findAllByStoreId(storeId);
+    }
+
     public StoreItemDetail findByItemDetailCode(String itemDetailCode) {
         Optional<StoreItemDetail> optional = repository.findByItemDetailCode(itemDetailCode);
         if(optional.isPresent()) {
