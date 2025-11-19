@@ -11,6 +11,7 @@ import MeshX.HypeLink.head_office.item.repository.*;
 import MeshX.HypeLink.head_office.item.service.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatusCode;
@@ -38,6 +39,9 @@ import java.util.concurrent.Executor;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ItemSyncService {
+    @Value("${store.direct.uri}")
+    private String storeDirectURI;
+
     private final StoreJpaRepositoryVerify storeJpaRepository;
     private final ItemJpaRepositoryVerify itemRepository;
     private final ItemImageJpaRepositoryVerify itemImageRepository;
@@ -89,7 +93,7 @@ public class ItemSyncService {
                         .map(store -> CompletableFuture.runAsync(() ->
                                 retryTemplate.execute(ctx -> {
                                     String storeApiUrl = resolveStoreApiUrl(store);
-//                                    syncAllItemsForNewStore(store.getId()); // 실제 스토어들에게 동기화 되는지 확인용 메서드
+                                    syncAllItemsForNewStore(store.getId()); // 실제 스토어들에게 동기화 되는지 확인용 메서드
                                     sendCategoriesToStore(store.getId(), storeApiUrl);
                                     sendItemsToStore(store.getId(), storeApiUrl, modifiedItems);
                                     return null;
@@ -348,6 +352,6 @@ public class ItemSyncService {
     private String resolveStoreApiUrl(Store store) {
         Member member = store.getMember();
 
-        return "http://localhost:8081";
+        return storeDirectURI;
     }
 }
