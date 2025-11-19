@@ -112,7 +112,7 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 <summary>auth 모듈 API 명세서 보기</summary>
 <div markdown="1">
 
-👉 [auth API명세서.pdf 열기](./doc/auth_swagger.pdf)
+👉 [auth API명세서.pdf 열기](./doc/swagger/auth_swagger.pdf)
 
 </div>
 </details>
@@ -121,7 +121,7 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 <summary>direct 모듈 API 명세서 보기</summary>
 <div markdown="1">
 
-👉 [direct API명세서.pdf 열기](./doc/direct_swagger.pdf)
+👉 [direct API명세서.pdf 열기](./doc/swagger/direct_swagger.pdf)
 
 </div>
 </details>
@@ -130,7 +130,7 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 <summary>item 모듈 API 명세서 보기</summary>
 <div markdown="1">
 
-👉 [item API명세서.pdf 열기](./doc/item_swagger.pdf)
+👉 [item API명세서.pdf 열기](./doc/swagger/item_swagger.pdf)
 
 </div>
 </details>
@@ -139,7 +139,7 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 <summary>notice 모듈 API 명세서 보기</summary>
 <div markdown="1">
 
-👉 [notice API명세서.pdf 열기](./doc/notice_swagger.pdf)
+👉 [notice API명세서.pdf 열기](./doc/swagger/notice_swagger.pdf)
 
 </div>
 </details>
