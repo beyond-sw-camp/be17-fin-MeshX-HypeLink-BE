@@ -96,7 +96,7 @@ public class PaymentSyncService {
     // Store 재고 차감
     private void decreaseStoreItem(CustomerReceipt receipt) {
         receipt.getOrderItems().forEach(one -> {
-            StoreItemDetail storeItemDetail = one.getStoreItemDetail();
+            StoreItemDetail storeItemDetail = storeItemDetailRepositoryVerify.findById(one.getStoreItemDetail().getId());
 
             storeItemDetail.updateStock(-1 * one.getQuantity());
 
