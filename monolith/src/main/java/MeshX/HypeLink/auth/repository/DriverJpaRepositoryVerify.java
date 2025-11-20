@@ -37,7 +37,7 @@ public class DriverJpaRepositoryVerify {
 
 
     public List<Driver> findAll() {
-        return repository.findAll();
+        return repository.findAllWithMember();
     }
 
     public void deleteById(Integer id) {

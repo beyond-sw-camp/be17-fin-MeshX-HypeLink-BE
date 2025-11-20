@@ -33,6 +33,10 @@ public class ShipmentJpaRepositoryVerify {
         return repository.findByDriverIsNull();
     }
 
+    public List<Shipment> findByDriverAndShipmentStatus(Driver driver, ShipmentStatus shipmentStatus) {
+        return repository.findByDriverAndShipmentStatus(driver, shipmentStatus);
+    }
+
     public List<Shipment> findByShipmentStatusIn(List<ShipmentStatus> shipmentStatuses) {
         return repository.findByShipmentStatusIn(shipmentStatuses);
     }

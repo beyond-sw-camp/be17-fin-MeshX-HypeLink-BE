@@ -51,6 +51,8 @@ class GetItemListInDirectStore(HttpUser):
 
         res = self.client.get("/api/store/item/list", headers=headers, params=params)
 
+        if res.status_code == 200:
+            print(f"요청 성공: {res.json()}")
         # 인증 만료 시 자동 재로그인
         if res.status_code == 401:
             print(f"토큰 만료로 재로그인: {self.email}")
