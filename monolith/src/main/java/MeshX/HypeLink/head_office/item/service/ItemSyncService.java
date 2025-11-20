@@ -158,7 +158,7 @@ public class ItemSyncService {
 
         // ✅ 페이징으로 처리
         int page = 0;
-        int size = 1000;
+        int size = 100;
         org.springframework.data.domain.Page<MeshX.HypeLink.direct_store.item.model.entity.StoreItemDetail> pageResult;
 
         do {
