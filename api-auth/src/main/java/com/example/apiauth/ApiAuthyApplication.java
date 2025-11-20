@@ -14,4 +14,5 @@ public class ApiAuthyApplication {
         SpringApplication.run(ApiAuthyApplication.class, args);
     }
 
+
 }
