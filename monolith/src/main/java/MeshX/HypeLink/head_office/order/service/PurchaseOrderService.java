@@ -9,6 +9,10 @@ import MeshX.HypeLink.common.BaseResponse;
 import MeshX.HypeLink.common.Page.PageRes;
 import MeshX.HypeLink.common.TryCatchTemplate;
 import MeshX.HypeLink.common.exception.BaseException;
+import MeshX.HypeLink.direct_store.item.model.entity.StoreItem;
+import MeshX.HypeLink.direct_store.item.model.entity.StoreItemDetail;
+import MeshX.HypeLink.direct_store.item.repository.StoreItemDetailJpaRepositoryVerify;
+import MeshX.HypeLink.direct_store.item.repository.StoreItemJpaRepositoryVerify;
 import MeshX.HypeLink.head_office.item.model.entity.ItemDetail;
 import MeshX.HypeLink.head_office.item.repository.ItemDetailJpaRepositoryVerify;
 import MeshX.HypeLink.head_office.order.exception.PurchaseOrderException;
@@ -60,6 +64,8 @@ public class PurchaseOrderService {
 
     private final PurchaseOrderJpaRepositoryVerify orderRepository;
     private final ItemDetailJpaRepositoryVerify itemDetailRepository;
+    private final StoreItemJpaRepositoryVerify storeItemRepository;
+    private final StoreItemDetailJpaRepositoryVerify storeItemDetailRepository;
     private final MemberJpaRepositoryVerify memberRepository;
     private final StoreJpaRepositoryVerify storeRepository;
     private final JwtUtils jwtUtils;
@@ -248,6 +254,8 @@ public class PurchaseOrderService {
                 String itemDetailCode = purchaseOrder.getItemDetail().getItemDetailCode();
                 Integer quantity = purchaseOrder.getQuantity();
 
+                updateStock(store, itemCode, itemDetailCode, quantity);
+
                 updateStoreItemStock(store, itemCode, itemDetailCode, quantity);
                 kafkaPurchaseService.syncDirectItemDetailStock(store, itemDetailId, quantity);
             }
@@ -262,6 +270,15 @@ public class PurchaseOrderService {
 
         PurchaseOrder update = orderRepository.update(purchaseOrder);
         return PurchaseOrderInfoDetailRes.toDto(update);
+    }
+
+    private void updateStock(Store store, String itemCode, String itemDetailCode, Integer quantity) {
+        StoreItem storeItem = storeItemRepository.findByStoreAndItemCode(store, itemCode);
+        StoreItemDetail storeItemDetail = storeItemDetailRepository.findByStoreItemAndItemDetailCode(storeItem, itemDetailCode);
+
+        storeItemDetail.updateStock(quantity);
+
+        storeItemDetailRepository.mergeItemDetail(storeItemDetail);
     }
 
     private void updateStoreItemStock(Store store, String itemCode, String itemDetailCode, Integer quantity) {
