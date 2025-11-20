@@ -26,8 +26,8 @@ public class ItemDetailPersistenceAdaptor implements ItemDetailPersistencePort {
             throw new RuntimeException("재고 업데이트는 기존 ItemDetail ID가 필요합니다");
         }
 
-        // 기존 엔티티 조회
-        StoreItemDetailEntity existingEntity = itemDetailRepository.findById(detail.getId())
+
+        StoreItemDetailEntity existingEntity = itemDetailRepository.findByIdWithLock(detail.getId())
                 .orElseThrow(() -> new RuntimeException("ItemDetail not found - id: " + detail.getId()));
 
         // 재고 차이 계산 및 업데이트
