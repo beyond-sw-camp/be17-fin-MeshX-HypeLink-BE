@@ -95,7 +95,8 @@ MeshX 팀은 이러한 문제를 해결하기 위해
 
 ## 🔧 시스템 아키텍처
 
-<img width="9492" height="7614" alt="MSA 시스템 아키텍쳐" src="https://github.com/user-attachments/assets/8d8a16b7-c0f4-4b5a-8f79-f5d7d1d87d6f" />
+<img width="9311" height="7528" alt="MSA_" src="https://github.com/user-attachments/assets/3b30052e-3295-451b-85ab-cdb70c8d27d1" />
+
 
 
 ## ⚙️ CI/CD 파이프라인 문서
