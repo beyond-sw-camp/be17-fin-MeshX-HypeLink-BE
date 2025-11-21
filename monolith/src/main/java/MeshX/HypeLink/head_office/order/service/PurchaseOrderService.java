@@ -257,7 +257,7 @@ public class PurchaseOrderService {
                 updateStock(store, itemCode, itemDetailCode, quantity);
 
                 updateStoreItemStock(store, itemCode, itemDetailCode, quantity);
-                kafkaPurchaseService.syncDirectItemDetailStock(store, itemDetailId, quantity);
+//                kafkaPurchaseService.syncDirectItemDetailStock(store, itemDetailId, quantity);
             }
         } else {
             if(purchaseOrder.getPurchaseOrderState().equals(PurchaseOrderState.COMPLETED)) {
